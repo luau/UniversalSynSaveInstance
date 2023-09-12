@@ -41,10 +41,8 @@ if not globalcontainer.getspecialinfo then
 end
 
 local ldeccache = {}
-if not syn then
-	getgenv().syn = {}
-end
-syn.saveinstance = function(...)
+
+local saveinstance = function(...)
 	local buffersize
 	local placename
 	local savebuffer
@@ -735,3 +733,5 @@ syn.saveinstance = function(...)
 		return stlgui:Destroy()
 	end
 end
+
+return saveinstance
