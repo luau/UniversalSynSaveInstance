@@ -14,3 +14,4 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - [x] NilInstances
   - [x] ExtraInstances
   * Change mode to invalid mode like "custom" if you only want to save ExtraInstances
+- [ ] Support for as many Executors as possible (🤢🤮)
