@@ -1,3 +1,11 @@
+# Loadstring
+```lua
+local Params = {
+	RepoURL = "https://raw.githubusercontent.com/luau/SomeHub/main/",
+	SSI = "SynSaveInstance",
+}
+local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
+```
 # Syn Save Instance
 Or shortly SSI, a project aimed at resurrecting saveinstance function from [2019 Synapse X leaked source code](https://github.com/Acrillis/SynapseX).<br />
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances
