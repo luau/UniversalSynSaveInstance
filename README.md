@@ -15,4 +15,5 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - [x] ExtraInstances
   * Change mode to invalid mode like "custom" if you only want to save ExtraInstances
 - [ ] Support for as many Executors as possible (🤢🤮)
-- [ ] Add Documentation similar to KRNL or Synapse X
+- [ ] Add Documentation similar to [KRNL](https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D) or [Synapse X](https://docs.synapse.to/reference/misc.html?highlight=saveins#save-instance)
+/[Synapse X Old](https://synapsexdocs.github.io/custom-lua-functions/misc-functions/#save-instance)
