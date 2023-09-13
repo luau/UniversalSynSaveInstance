@@ -18,3 +18,4 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Add Documentation similar to [KRNL](https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D) or [Synapse X](https://docs.synapse.to/reference/misc.html?highlight=saveins#save-instance)
 /[Synapse X Old](https://synapsexdocs.github.io/custom-lua-functions/misc-functions/#save-instance)
 - [ ] Add more Fixes for Errors that ***can*** pop up during opening process
+- [ ] Add getproperties as fallback for specialinfo
