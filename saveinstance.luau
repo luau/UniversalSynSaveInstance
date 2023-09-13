@@ -3,10 +3,11 @@ local finder, globalcontainer = loadstring(
 	"UniversalMethodFinder"
 )()
 
-local b64encode = loadstring(
-	game:HttpGet("https://raw.githubusercontent.com/zzerexx/scripts/main/Libraries/Hash.lua"),
-	"HashLib"
-)().base64_encode
+local b64encode = syn and syn.crypt and syn.crypt.base64 and syn.crypt.base64.encode
+	or loadstring(
+		game:HttpGet("https://raw.githubusercontent.com/zzerexx/scripts/main/Libraries/Hash.lua", true),
+		"HashLib"
+	)().base64_encode
 
 finder({
 	appendfile = '(...):find("file",nil,true) and (...):find("append",nil,true)',
@@ -41,8 +42,10 @@ if not globalcontainer.getspecialinfo then
 end
 
 local ldeccache = {}
-
-local saveinstance = function(...)
+if not syn then
+	getgenv().syn = {}
+end
+syn.saveinstance = function(...)
 	local buffersize
 	local placename
 	local savebuffer
@@ -206,8 +209,8 @@ local saveinstance = function(...)
 		["'"] = "&apos;",
 	}
 	local FetchAPI = function()
-		local API_Dump_Version = game:HttpGet("http://setup.roblox.com/versionQTStudio", true)
-		local API_Dump_Url = "http://setup.roblox.com/" .. API_Dump_Version .. "-API-Dump.json"
+		local API_Dump_Version = game:HttpGet("https://setup.rbxcdn.com/versionQTStudio", true)
+		local API_Dump_Url = "https://setup.rbxcdn.com/" .. API_Dump_Version .. "-API-Dump.json"
 		local API_Dump = game:HttpGet(API_Dump_Url, true)
 		local API_Classes = game:GetService("HttpService"):JSONDecode(API_Dump).Classes
 
@@ -733,5 +736,3 @@ local saveinstance = function(...)
 		return stlgui:Destroy()
 	end
 end
-
-return saveinstance
