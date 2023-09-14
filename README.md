@@ -40,3 +40,4 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - [ ] Inherit them properly and do the clean-up
   - [x] Tell whether ValueType is string or BinaryString
 - [x] Add --!native tag just in case
+- [ ] Auto-Detect DataTypes/ValueType Categories of Properties (CFrame, UDim2 so on)
