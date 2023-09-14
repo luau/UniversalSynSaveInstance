@@ -1,45 +1,158 @@
-local finder, globalcontainer = loadstring(
-	game:HttpGet("https://raw.githubusercontent.com/luau/SomeHub/main/UniversalMethodFinder.luau", true),
-	"UniversalMethodFinder"
-)()
-
-local b64encode = syn and syn.crypt and syn.crypt.base64 and syn.crypt.base64.encode
-	or loadstring(
-		game:HttpGet("https://raw.githubusercontent.com/zzerexx/scripts/main/Libraries/Hash.lua", true),
-		"HashLib"
-	)().base64_encode
+--!native
+local Params = {
+	RepoURL = "https://raw.githubusercontent.com/luau/SomeHub/main/",
+	UMF = "UniversalMethodFinder",
+	ROM = "RequireOnlineModule",
+}
+local finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params.UMF .. ".luau", true), Params.UMF)()
 
 finder({
 	appendfile = '(...):find("file",nil,true) and (...):find("append",nil,true)',
 	decompile = '(...):find("decomp",nil,true) or (...):find("assembl",nil,true)',
-	getnilinstances = '(...):find("nil")',
+	base64_encode = '(...):find("encode",nil,true)', -- ! Could match some unwanted stuff
+	gethiddenproperty = '(...):find("get",nil,true) and (...):find("h",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) ~= "s"',
+	readbinarystring = '(...):find("bin",nil,true)', -- ! Could match some unwanted stuff
+	getnilinstances = '(...):find("nil",nil,true)', -- ! Could match some unwanted stuff
+	getproperties = '(...):find("get",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) == "s"',
 	getspecialinfo = '(...):find("get",nil,true) and (...):find("spec",nil,true)',
 	writefile = '(...):find("file",nil,true) and (...):find("write",nil,true)',
 }, true)
 
-if not globalcontainer.getspecialinfo then
-	globalcontainer.getspecialinfo = function(instance)
-		local props = {
-			["MeshPart"] = {
-				"PhysicsData",
-				"InitialSize",
-			},
-			["UnionOperation"] = {
-				"AssetId",
-				"ChildData",
-				"FormFactor",
-				"InitialSize",
-				"MeshData",
-				"PhysicsData",
-			},
-			["Terrain"] = {
-				"SmoothGrid",
-				"MaterialColors",
-			},
-		}
-		return props[instance.ClassName] or {}
+local decompile = globalcontainer.decompile
+local gethiddenproperty = globalcontainer.gethiddenproperty
+local getproperties = globalcontainer.getproperties
+local appendfile = globalcontainer.appendfile
+
+-- local function Find(String, Pattern)
+-- 	return String:find(Pattern, nil, true)
+-- end
+local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
+local service = setmetatable({}, {
+	__index = function(Self, Name)
+		local Service = game:GetService(Name) or GlobalSettings:GetService(Name) or GlobalBasicSettings:GetService(Name)
+		Self[Name] = Service
+		return Service
+	end,
+})
+
+local SpecialProperties = {
+	UnionOperation = {
+		AssetId = "Content",
+		ChildData = "BinaryString",
+		FormFactor = "Token",
+		InitialSize = "Vector3",
+		MeshData = "BinaryString",
+		PhysicsData = "BinaryString",
+	},
+	MeshPart = {
+		InitialSize = "Vector3",
+		PhysicsData = "BinaryString",
+	},
+	Terrain = {
+		MaterialColors = "BinaryString",
+		PhysicsGrid = "BinaryString",
+		SmoothGrid = "BinaryString",
+	},
+	Instance = {
+		Tags = "BinaryString",
+		AttributesReplicate = "BinaryString",
+		AttributesSerialize = "BinaryString",
+		Attributes = "BinaryString",
+	},
+	BinaryStringValue = {
+		Value = "BinaryString",
+	},
+	StyleRule = {
+		PropertiesSerialize = "BinaryString",
+	},
+	Part = {
+		CollisionGroupReplicate = "BinaryString",
+	},
+	RotationCurve = {
+		ValuesAndTimes = "BinaryString",
+	},
+	MarkerCurve = {
+		ValuesAndTimes = "BinaryString",
+	},
+	FloatCurve = {
+		ValuesAndTimes = "BinaryString",
+	},
+	LocalizationTable = {
+		Contents = "BinaryString",
+	},
+	KeyframeSequence = {
+		GuidBinaryString = "BinaryString",
+	},
+	AnimationRigData = {
+		preTransform = "BinaryString",
+		postTransform = "BinaryString",
+		transform = "BinaryString",
+		label = "BinaryString",
+		name = "BinaryString",
+		weight = "BinaryString",
+		parent = "BinaryString",
+	},
+	CurveAnimation = {
+		GuidBinaryString = "BinaryString",
+	},
+}
+
+local function ReturnSpecialValues(instance)
+	local ObtainedValues = {}
+
+	local specialpropslist = SpecialProperties[instance.ClassName]
+
+	if specialpropslist then
+		local gotproperties
+
+		for Property in specialpropslist do
+			local Value
+			if gethiddenproperty then
+				Value = gethiddenproperty(instance, Property)
+			end
+			if
+				Value == nil --[[or Value == ""]]
+				and getproperties
+			then
+				if not gotproperties then
+					gotproperties = getproperties(instance)
+				end
+				Value = gotproperties[Property]
+			end
+
+			ObtainedValues[Property] = Value
+		end
 	end
+
+	return ObtainedValues -- Just in case
 end
+
+if globalcontainer.getspecialinfo then
+	local getreal = globalcontainer.getspecialinfo
+
+	globalcontainer.getspecialinfo = function(instance)
+		local specialinfo = getreal(instance)
+
+		for Property, Value in ReturnSpecialValues(instance) do
+			if specialinfo[Property] == nil then
+				specialinfo[Property] = Value
+			end
+		end
+
+		return specialinfo
+	end
+else
+	globalcontainer.getspecialinfo = ReturnSpecialValues
+end
+
+local getspecialinfo = globalcontainer.getspecialinfo
+
+local b64encode = globalcontainer.base64_encode
+	or loadstring(game:HttpGet(Params.RepoURL .. Params.ROM .. ".luau", true), Params.ROM)()(4544052033).base64_encode
+	or loadstring(
+		game:HttpGet("https://raw.githubusercontent.com/zzerexx/scripts/main/Libraries/Hash.lua", true),
+		"HashLib"
+	)().base64_encode
 
 local ldeccache = {}
 
@@ -56,8 +169,8 @@ synsaveinstance = function(...)
 		timeout = 30,
 		--* New:
 		NilInstances = true,
-		IsolateStarterPlayer = nil,
-		ExtraInstances = nil,
+		IsolateStarterPlayer = false,
+		ExtraInstances = false,
 	}
 	do
 		local Input = ...
@@ -72,30 +185,11 @@ synsaveinstance = function(...)
 
 	local rwait
 	do
-		local rswait = game:GetService("RunService").RenderStepped
+		local rswait = service.RunService.RenderStepped
 		rwait = function()
 			return rswait:Wait()
 		end
 	end
-
-	local SpecialProperties = {
-		UnionOperation = {
-			AssetId = "Content",
-			ChildData = "BinaryString",
-			FormFactor = "Token",
-			InitialSize = "Vector3",
-			MeshData = "BinaryString",
-			PhysicsData = "BinaryString",
-		},
-		MeshPart = {
-			InitialSize = "Vector3",
-			PhysicsData = "BinaryString",
-		},
-		Terrain = {
-			SmoothGrid = "BinaryString",
-			MaterialColors = "BinaryString",
-		},
-	}
 
 	local ldecompile
 	do
@@ -116,7 +210,7 @@ synsaveinstance = function(...)
 						rwait()
 					end
 				end
-				local ok, result = pcall(globalcontainer.decompile, Script, OPTIONS.timeout, OPTIONS.timeout)
+				local ok, result = pcall(decompile, Script, OPTIONS.timeout, OPTIONS.timeout)
 				ldeccache[Script] = result
 				return ok and result or "--[[\n" .. result .. "\n--]]"
 			end
@@ -124,7 +218,7 @@ synsaveinstance = function(...)
 	end
 	local ToSaveList
 	do
-		local mode = tostring(OPTIONS.mode):lower()
+		local mode = string.lower(OPTIONS.mode)
 		local tmp = OPTIONS.ExtraInstances or {}
 
 		if mode == "full" then
@@ -150,20 +244,21 @@ synsaveinstance = function(...)
 			}
 			for _index_0 = 1, #_list_0 do
 				local x = _list_0[_index_0]
-				table.insert(tmp, game:GetService(x))
+				table.insert(tmp, service[x])
 			end
 		elseif mode == "scripts" then
 			local hierarchy = game:GetDescendants()
 
 			for _index_0 = 1, #hierarchy do
-				local s = hierarchy[_index_0]
-				if s.ClassName == "LocalScript" or s.ClassName == "ModuleScript" then
-					local top = s
-					while top.Parent and top.Parent ~= game do
-						top = top.Parent
+				local instance = hierarchy[_index_0]
+				local ClassName = instance.ClassName
+				if ClassName == "LocalScript" or ClassName == "ModuleScript" then
+					local Parent = instance.Parent
+					while Parent and Parent ~= game do
+						instance = Parent
 					end
-					if top.Parent then
-						table.insert(tmp, top)
+					if Parent then
+						table.insert(tmp, instance)
 					end
 				end
 			end
@@ -198,38 +293,111 @@ synsaveinstance = function(...)
 		end,
 	}
 
-	local pattern = "[\"&<>']"
-	local escapes = {
+	local EscapesPattern = "[\"&<>']"
+	local Escapes = {
 		['"'] = "&quot;",
 		["&"] = "&amp;",
 		["<"] = "&lt;",
 		[">"] = "&gt;",
 		["'"] = "&apos;",
 	}
+	local RemoveEscapes = function(String)
+		return String:gsub(EscapesPattern, Escapes)
+	end
+	--local PropertyQueue = {} --TODO: Hidden Properties
 	local FetchAPI = function()
 		local API_Dump_Version = game:HttpGet("https://setup.rbxcdn.com/versionQTStudio", true)
-		local API_Dump_Url = "https://setup.rbxcdn.com/" .. API_Dump_Version .. "-API-Dump.json"
+		local API_Dump_Url = string.format("https://setup.rbxcdn.com/%s-API-Dump.json", API_Dump_Version)
 		local API_Dump = game:HttpGet(API_Dump_Url, true)
-		local API_Classes = game:GetService("HttpService"):JSONDecode(API_Dump).Classes
+		local API_Classes = service.HttpService:JSONDecode(API_Dump).Classes
 
 		local ClassList = {}
 
 		for _index_0 = 1, #API_Classes do
 			local Class = API_Classes[_index_0]
 			local ClassMembers = Class.Members
+
 			local ClassInfo = {}
 
 			local ClassName = Class.Name
 
+			local ClassTags = Class.Tags
 			ClassInfo.Name = ClassName
-			ClassInfo.Tags = Class.Tags
+			ClassInfo.Tags = ClassTags
 			ClassInfo.Superclass = Class.Superclass
-			ClassInfo.Properties = {}
+
+			local ClassProperties = {}
+			local AssumedSpecialProperties = SpecialProperties[ClassName]
+
+			--[[ --TODO: Hidden Properties
+			local Unfiltered_ClassProperties = {}
+			local Creatable = not (ClassTags and table.find(ClassTags, "NotCreatable"))
+			local AssumedSpecialProperties --, IsService 
+
+			if
+				Creatable or IsService
+			then
+				local ok, ClassReplica
+				
+					if IsService then
+					ok, ClassReplica = pcall(function()
+						return service[ClassName]
+					end)
+				elseif ClassName == "Terrain" then
+					ok, ClassReplica = true, workspace.Terrain
+				elseif ClassName == "GlobalSettings" then
+					ClassReplica = GlobalSettings
+				elseif ClassName == "UserSettings" then
+					ClassReplica = GlobalBasicSettings
+				else
+				ok, ClassReplica = pcall(Instance.new, ClassName)
+
+				--end
+				if
+					ok and ClassReplica
+				then
+					if getproperties then
+						AssumedSpecialProperties = table.clone(getproperties(ClassReplica))
+					end
+
+					if getspecialinfo then
+						local specialinfo = getspecialinfo(ClassReplica)
+						if specialinfo then
+							if AssumedSpecialProperties then
+								for Property, Value in specialinfo do
+									local Existing = AssumedSpecialProperties[Property]
+									if Existing ~= nil and Existing ~= Value then
+										print(
+											"Differs",
+											Existing,
+											Value,
+											type(Existing),
+											type(Value),
+											typeof(Existing),
+											typeof(Value)
+										)
+									end
+									AssumedSpecialProperties[Property] = Value
+								end
+							else
+								AssumedSpecialProperties = table.clone(specialinfo) -- Just incase its shallow
+							end
+						end
+					end
+				end
+			end]]
 
 			for _index_1 = 1, #ClassMembers do
 				local Member = ClassMembers[_index_1]
 				if Member.MemberType == "Property" then
+					local PropertyName = Member.Name
+					---TODO: Hidden Properties
+					if AssumedSpecialProperties then
+						AssumedSpecialProperties[PropertyName] = nil
+					end
+
 					local Serialization = Member.Serialization
+
 					if Serialization.CanLoad then
 						local Allowed = true
 
@@ -238,33 +406,55 @@ synsaveinstance = function(...)
 						if MemberTags then
 							for _index_2 = 1, #MemberTags do
 								local Tag = MemberTags[_index_2]
-								if Tag == "Deprecated" or Tag == "NotScriptable" then
+
+								local NotScriptable = Tag == "NotScriptable"
+
+								if NotScriptable or Tag == "Deprecated" then
+									if NotScriptable then
+										local ValueType = Member.ValueType.Name
+
+										local SpecialClass = SpecialProperties[ClassName]
+										if SpecialClass then
+											SpecialClass[PropertyName] = ValueType
+										else
+											SpecialProperties[ClassName] = { [PropertyName] = ValueType }
+										end
+
+										ClassProperties[PropertyName] = { ValueType = ValueType, Special = true }
+									end
+
 									Allowed = false
 								end
 							end
 						end
 						if Allowed then
-							table.insert(ClassInfo.Properties, {
-								Name = Member.Name,
-								ValueType = Member.ValueType.Name,
-
-								Special = false,
-							})
+							local PropertyInfo = { ValueType = Member.ValueType.Name }
+							ClassProperties[PropertyName] = PropertyInfo
 						end
 					end
+
+					--Unfiltered_ClassProperties[MemberName] = PropertyInfo --TODO: Hidden Properties
 				end
 			end
+			--[[ --TODO: Hidden Properties
+			if AssumedSpecialProperties then
+				table.insert(PropertyQueue, {
+					AssumedSpecialProperties = AssumedSpecialProperties,
+					ClassName = ClassName,
+					ClassProperties = ClassProperties,
+				})
+			end]]
 
+			ClassInfo.Properties = ClassProperties
+			--ClassInfo.UnfilteredProperties = Unfiltered_ClassProperties --TODO: Hidden Properties
 			ClassList[ClassName] = ClassInfo
 		end
 		for ClassName, propertyList in SpecialProperties do
 			local Properties = ClassList[ClassName].Properties
 			for Property, ValueType in propertyList do
-				table.insert(Properties, {
-					Name = Property,
-					ValueType = ValueType,
-					Special = true,
-				})
+				-- if not Properties[Property] then
+				Properties[Property] = { ValueType = ValueType, Special = true }
+				-- end
 			end
 		end
 		return ClassList
@@ -279,55 +469,140 @@ synsaveinstance = function(...)
 			return
 		end
 	end
-	local properties = setmetatable({}, {
-		__index = function(self, name)
-			local proplist = {}
-			local layer = ClassList[name]
-			while layer do
-				local _list_0 = layer.Properties
-				for _index_0 = 1, #_list_0 do
-					local p = _list_0[_index_0]
-					table.insert(proplist, p)
-				end
-				layer = ClassList[layer.Superclass]
+	local function Inheritor(
+		Self,
+		ClassName --[[, unfiltered]] --TODO: Hidden Properties
+	)
+		local proplist = {}
+		local layer = ClassList[ClassName]
+		while layer do
+			local _list_0 = --[[unfiltered and layer.UnfilteredProperties or]] --TODO: Hidden Properties
+				layer.Properties
+			for _index_0, p in _list_0 do
+				proplist[_index_0] = p
 			end
-			table.sort(proplist, function(a, b)
-				return a.Name < b.Name
-			end)
-			self[name] = proplist
-			return proplist
-		end,
+			layer = ClassList[layer.Superclass]
+		end
+		-- if Self then  --TODO: Hidden Properties
+		Self[ClassName] = proplist
+		-- end
+		return proplist
+	end
+
+	local properties = setmetatable({}, {
+		__index = Inheritor,
 	})
 	local identifiers = setmetatable({
 		count = 0,
 	}, {
-		__index = function(self, obj)
-			self.count += 1
-			local rbxi = "RBX" .. self.count
-			self[obj] = rbxi
+		__index = function(Self, obj)
+			Self.count += 1
+			local rbxi = "RBX" .. Self.count
+			Self[obj] = rbxi
 			return rbxi
 		end,
 	})
+
+	--[[ --TODO: Hidden Properties
+	-- * Hardcoded properties/valuetypes
+		for classname, propertyList in SpecialProperties do 
+		local Unfiltered_Properties = ClassList[classname].UnfilteredProperties
+		local Properties = ClassList[classname].Properties
+		-- print(ClassName)
+		for Property, ValueType in propertyList do
+			if Properties[Property] then -- Not special
+				continue
+			end
+			Properties[Property] = { ValueType = ValueType, Special = true }
+			Unfiltered_Properties[Property] = { ValueType = ValueType, Special = true }
+			-- print(Property, ValueType)
+		end
+	end
+	
+	-- * Automatically scanned properties/valuetypes
+	for _, Info in queue do
+	local ClassName = Info.ClassName
+	local ClassProperties = Info.ClassProperties
+	local WholePropertyTree = Inheritor(nil, ClassName, true)
+	local AssumedSpecialProperties = Info.AssumedSpecialProperties
+	-- AssumedSpecialProperties.MaterialColors = "BinaryString"
+	for Property, Value in AssumedSpecialProperties do
+		-- print("II", Property, typeof(Value))
+
+		if WholePropertyTree[Property] or ClassProperties[Property] then
+			-- if Property == "DataCost" then
+			-- 	-- for i, v in WholePropertyTree do
+			-- 	-- 	print(i, v)
+			-- 	-- end
+			-- 	-- print(ClassName, WholePropertyTree[Property])
+			-- end
+			continue
+		end
+		-- if Property == "AttributesReplicate" then
+		-- 	for i, v in WholePropertyTree do
+		-- 		print(i, v)
+		-- 	end
+		-- 	print(ClassProperties[Property], WholePropertyTree[Property])
+		-- end
+		local TypeOf = typeof(Value)
+		if TypeOf == "string" and Find(Property, "BinaryString") then -- Auto-fix BinaryString properties that could've been mixed up with "string"
+			TypeOf = "BinaryString"
+		end
+
+		ClassProperties[Property] = { ValueType = TypeOf, Special = true }
+	end
+end
+
+-- *  Tell whether ValueType is string or BinaryString (prototype)
+for Class, ClassInfo in ClassList do
+	local Replica, Props
+	for Property, PropertyInfo in ClassInfo.Properties do
+		if PropertyInfo.Special and PropertyInfo.ValueType == "string" then
+			if not Replica then
+				Replica = Replicas[Class]
+				Props = getproperties(Replica)
+			end
+			local value = Props[Property]
+			local empty = value == ""
+			total ..= "Property: " .. tostring(Property) .. " Value: " .. tostring(value) .. " Empty: " .. tostring(
+				empty
+			)
+			local bin
+			if not empty then
+				bin = b64encode(value)
+			end
+			total ..= "\nBinary: " .. tostring(bin and true or false) .. " BinaryString: " .. (bin or "")
+			total ..= "\n"
+			-- print(Replica)
+		end
+	end
+	if Props then
+		total ..= "Class: " .. Class .. "\n\n"
+	end
+end
+
+	]]
+
 	local typesizeround = function(s)
 		return math.floor(buffersize / (0x400 ^ s) * 10) / 10
 	end
 	local getsizeformat = function()
-		local res
+		local size
 		for i, v in
 			{
-				"b",
-				"kb",
-				"mb",
-				"gb",
-				"tb",
+				"B",
+				"KB",
+				"MB",
+				"GB",
+				"TB",
 			}
 		do
 			if buffersize < 0x400 ^ i then
-				res = typesizeround(i - 1) .. v
+				size = typesizeround(i - 1) .. " " .. v
 				break
 			end
 		end
-		return res
+		return size
 	end
 	local getsafeproperty = function(i, name)
 		return i[name]
@@ -342,16 +617,16 @@ synsaveinstance = function(...)
 	end
 	local savecache = function()
 		local savestr = table.concat(savebuffer)
-		globalcontainer.appendfile(placename, savestr)
+		appendfile(placename, savestr)
 		buffersize += #savestr
-		stlgui.Text = string.format("Saving (%s)", getsizeformat())
+		stlgui.Text = "Saving " .. getsizeformat()
 		savebuffer = {}
 		return rwait()
 	end
 	local savehierarchy
 	savehierarchy = function(h)
 		local savepr = #savebuffer
-		if savepr > 0x1600 then
+		if 0x1600 < savepr then
 			savecache()
 		end
 		for _index_0 = 1, #h do
@@ -371,37 +646,36 @@ synsaveinstance = function(...)
 					.. '" referent="'
 					.. identifiers[instance]
 					.. '"><Properties>'
-				for _index_1 = 1, #Properties do
+				for PropertyName, Property in Properties do
 					local _continue_1 = false
 					repeat
-						local Property = Properties[_index_1]
 						local value
 						local tag
 						local raw
 						if Property.Special then
 							if not specialProperties then
-								specialProperties = globalcontainer.getspecialinfo(instance)
+								specialProperties = getspecialinfo(instance)
 							end
-							raw = specialProperties[Property.Name]
+
+							raw = specialProperties[PropertyName]
 							if raw == nil then
 								_continue_1 = true
 								break
 							end
 						else
-							local isok = Property.Ok
-							local _exp_0 = isok
-							if nil == _exp_0 then
-								local ok, result = pcall(getsafeproperty, instance, Property.Name)
-								Property.Ok = ok
+							local SafeToRead = Property.SafeToRead
+							if nil == SafeToRead then
+								local ok, result = pcall(getsafeproperty, instance, PropertyName)
+								Property.SafeToRead = ok
 								if ok then
 									raw = result
 								else
 									_continue_1 = true
 									break
 								end
-							elseif true == _exp_0 then
-								raw = instance[Property.Name]
-							elseif false == _exp_0 then
+							elseif true == SafeToRead then
+								raw = instance[PropertyName]
+							elseif false == SafeToRead then
 								_continue_1 = true
 								break
 							end
@@ -432,10 +706,10 @@ synsaveinstance = function(...)
 							value = table.concat(ConvertedArray, " ")
 						elseif "Content" == ValueType then
 							tag = "Content"
-							value = "<url>" .. raw:gsub(pattern, escapes) .. "</url>"
+							value = "<url>" .. RemoveEscapes(raw) .. "</url>"
 						elseif "BinaryString" == ValueType then
 							tag = "BinaryString"
-							if Property.Name == "SmoothGrid" or Property.Name == "MaterialColors" then
+							if PropertyName == "SmoothGrid" or PropertyName == "MaterialColors" then
 								value = "<![CDATA[" .. b64encode(raw) .. "]]>"
 							else
 								value = b64encode(raw)
@@ -445,38 +719,27 @@ synsaveinstance = function(...)
 							tag = "CoordinateFrame"
 							value = "<X>"
 								.. X
-								.. "</X>"
-								.. "<Y>"
+								.. "</X><Y>"
 								.. Y
-								.. "</Y>"
-								.. "<Z>"
+								.. "</Y><Z>"
 								.. Z
-								.. "</Z>"
-								.. "<R00>"
+								.. "</Z><R00>"
 								.. R00
-								.. "</R00>"
-								.. "<R01>"
+								.. "</R00><R01>"
 								.. R01
-								.. "</R01>"
-								.. "<R02>"
+								.. "</R01><R02>"
 								.. R02
-								.. "</R02>"
-								.. "<R10>"
+								.. "</R02><R10>"
 								.. R10
-								.. "</R10>"
-								.. "<R11>"
+								.. "</R10><R11>"
 								.. R11
-								.. "</R11>"
-								.. "<R12>"
+								.. "</R11><R12>"
 								.. R12
-								.. "</R12>"
-								.. "<R20>"
+								.. "</R12><R20>"
 								.. R20
-								.. "</R20>"
-								.. "<R21>"
+								.. "</R20><R21>"
 								.. R21
-								.. "</R21>"
-								.. "<R22>"
+								.. "</R21><R22>"
 								.. R22
 								.. "</R22>"
 						elseif "NumberRange" == ValueType then
@@ -515,8 +778,8 @@ synsaveinstance = function(...)
 							end
 						elseif "ProtectedString" == ValueType then
 							tag = "ProtectedString"
-							if Property.Name == "Source" then
-								if instance.ClassName == "Script" then
+							if PropertyName == "Source" then
+								if ClassName == "Script" then
 									value = "-- Server scripts can NOT be decompiled\n"
 								else
 									value = ldecompile(instance)
@@ -524,7 +787,7 @@ synsaveinstance = function(...)
 							else
 								value = raw
 							end
-							value = value:gsub(pattern, escapes)
+							value = RemoveEscapes(value)
 						elseif "Rect2D" == ValueType then
 							tag = "Rect2D"
 
@@ -583,7 +846,7 @@ synsaveinstance = function(...)
 							value = raw
 						elseif "string" == ValueType then
 							tag = "string"
-							value = raw:gsub(pattern, escapes)
+							value = string.gsub(raw, EscapesPattern, Escapes)
 						else
 							if Property.ValueType:sub(1, 6) == "Class:" then
 								tag = "Ref"
@@ -601,7 +864,7 @@ synsaveinstance = function(...)
 							savebuffer[#savebuffer + 1] = "<"
 								.. tag
 								.. ' name="'
-								.. Property.Name
+								.. PropertyName
 								.. '">'
 								.. value
 								.. "</"
@@ -642,7 +905,7 @@ synsaveinstance = function(...)
 	end
 
 	local savegame = function()
-		local Players = game:GetService("Players")
+		local Players = service.Players
 		local LocalPlayer = Players.LocalPlayer
 		local LocalPlayer_Children = LocalPlayer:GetChildren()
 		local nilinstances
@@ -659,7 +922,7 @@ synsaveinstance = function(...)
 					local Fix = NilInstancesBlacklist[ClassName]
 					if Fix then -- *
 						nilinstances[index] = Fix(instance)
-						continue
+						-- continue
 					end
 
 					local Tags = ClassList[ClassName].Tags
@@ -667,7 +930,7 @@ synsaveinstance = function(...)
 					if Tags and table.find(Tags, "Service") then
 						instance.Parent = game
 						table.remove(nilinstances, index)
-						continue
+						-- continue
 					end
 				end
 			end
@@ -697,11 +960,11 @@ synsaveinstance = function(...)
 		stlgui.TextStrokeTransparency = 0.7
 		stlgui.TextXAlignment = Enum.TextXAlignment.Right
 		stlgui.TextYAlignment = Enum.TextYAlignment.Top
-		stlgui.Parent = game:GetService("CoreGui"):FindFirstChild("RobloxGui")
-		game:GetService("Debris"):AddItem(stlgui, 30)
+		stlgui.Parent = service.CoreGui:FindFirstChild("RobloxGui")
+		service.Debris:AddItem(stlgui, 30)
 	end
 	do
-		local Players = game:GetService("Players")
+		local Players = service.Players
 		local LocalPlayer = Players.LocalPlayer
 		local PlayerList = Players:GetPlayers()
 		for _index_0 = 1, #PlayerList do
@@ -722,7 +985,7 @@ synsaveinstance = function(...)
 		local Log10 = math.log10(elapse_t)
 
 		if ok then
-			stlgui.Text = string.format("Saved! Time %d seconds; Size %s", elapse_t, getsizeformat())
+			stlgui.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
 			task.wait(Log10 * 2)
 		else
 			stlgui.Text = "Failed! Check F9 console for more info."
