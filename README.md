@@ -39,3 +39,4 @@ Reason: Many Executors fail miserably at providing good user experience when it 
     * This will help with getting many ValueTypes accurately, especially BinaryStrings vs strings
   - [ ] Inherit them properly and do the clean-up
   - [x] Tell whether ValueType is string or BinaryString
+- [ ] Add --!native tag just in case
