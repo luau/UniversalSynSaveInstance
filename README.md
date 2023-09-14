@@ -33,3 +33,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Use getspecialinfo fallback function carefully as it's hardcoded
 - [ ] Bypass NotCreatable by hardcoding links/references/indexes to said Classes
 * Example: Terrain class can be indexed by doing workspace.Terrain but is NotCreatable
+- [ ] Hidden properties
+  - [x] Scan for them
+  - [ ] Inherit them properly and do the clean-up
+  - [x] Tell whether ValueType is string or BinaryString
