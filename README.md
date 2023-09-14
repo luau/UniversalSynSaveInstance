@@ -35,5 +35,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 * Example: Terrain class can be indexed by doing workspace.Terrain but is NotCreatable
 - [ ] Hidden properties
   - [x] Scan for them
+  - [ ] Scan game and map instances in format {ClassName = {Instance1, Instance2} }, if none found then attempt to create proper Replica for them
+    * This will help with getting many ValueTypes accurately, especially BinaryStrings vs strings
   - [ ] Inherit them properly and do the clean-up
   - [x] Tell whether ValueType is string or BinaryString
