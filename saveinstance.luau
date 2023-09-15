@@ -26,6 +26,7 @@ local appendfile = globalcontainer.appendfile
 -- local function Find(String, Pattern)
 -- 	return String:find(Pattern, nil, true)
 -- end
+
 local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
 local service = setmetatable({}, {
 	__index = function(Self, Name)
@@ -39,7 +40,7 @@ local SpecialProperties = {
 	UnionOperation = {
 		AssetId = "Content",
 		ChildData = "BinaryString",
-		FormFactor = "Token",
+		FormFactor = { Category = "Enum" }, -- No need to specify Name as Enums's ValueType Names are identical to the name of the Property/Enum
 		InitialSize = "Vector3",
 		MeshData = "BinaryString",
 		PhysicsData = "BinaryString",
@@ -90,12 +91,216 @@ local SpecialProperties = {
 		label = "BinaryString",
 		name = "BinaryString",
 		weight = "BinaryString",
-		parent = "BinaryString",
+		parent = "BinaryString", -- Could be an instance..
 	},
 	CurveAnimation = {
 		GuidBinaryString = "BinaryString",
 	},
 }
+
+local EscapesPattern = "[\"&<>']"
+local Escapes = {
+	['"'] = "&quot;",
+	["&"] = "&amp;",
+	["<"] = "&lt;",
+	[">"] = "&gt;",
+	["'"] = "&apos;",
+}
+
+local Descriptors
+Descriptors = {
+	__ENUM = function(raw)
+		return raw.Value, "token"
+	end,
+	__BIT = function(...)
+		local Value = 0
+
+		for Index, Bit in { ... } do
+			if Bit then
+				Value += 2 ^ (Index - 1)
+			end
+		end
+
+		return Value
+	end,
+	Axes = function(raw)
+		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>", "Axes"
+	end,
+	-- BinaryString = function(raw)
+
+	-- end
+	-- BrickColor = function(raw) -- ! This might hurt Color3 / Color3uint8 properties
+	-- 	return raw.Number,"int"
+	-- end,
+	CFrame = function(raw)
+		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
+		return "<X>"
+			.. X
+			.. "</X><Y>"
+			.. Y
+			.. "</Y><Z>"
+			.. Z
+			.. "</Z><R00>"
+			.. R00
+			.. "</R00><R01>"
+			.. R01
+			.. "</R01><R02>"
+			.. R02
+			.. "</R02><R10>"
+			.. R10
+			.. "</R10><R11>"
+			.. R11
+			.. "</R11><R12>"
+			.. R12
+			.. "</R12><R20>"
+			.. R20
+			.. "</R20><R21>"
+			.. R21
+			.. "</R21><R22>"
+			.. R22
+			.. "</R22>",
+			"CoordinateFrame"
+	end,
+	Color3 = function(raw)
+		return "Color3", "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
+	end,
+	ColorSequence = function(raw)
+		local ConvertedArray = {}
+		local Keypoints = raw.Keypoints
+		for _index_2 = 1, #Keypoints do
+			local v = Keypoints[_index_2]
+			local Value = v.Value
+			ConvertedArray[#ConvertedArray + 1] = v.Time .. " " .. Value.R .. " " .. Value.G .. " " .. Value.B .. " 0"
+		end
+
+		return table.concat(ConvertedArray, " "), "ColorSequence"
+	end,
+	Content = function(raw)
+		return raw and "<url>" .. Descriptors.string(raw) .. "</url>" or "<null></null>", "Content"
+	end,
+	Faces = function(raw)
+		return "<faces>"
+			.. Descriptors.__BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front)
+			.. "</faces>",
+			"Faces"
+	end,
+	Font = function(raw)
+		return "<Family>"
+			.. Descriptors.Content(raw.Family)
+			.. "</Family><Weight>"
+			.. Descriptors.__ENUM(raw.Weight)
+			.. "</Weight><Style>"
+			.. raw.Style.Name -- Weird but this field accepts .Name of enum instead..
+			.. "</Style>", --TODO: Figure out how to determine this.. (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+			"Font"
+	end,
+	NumberRange = function(raw)
+		return raw.Min .. " " .. raw.Max, --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually
+			"NumberRange"
+	end,
+	NumberSequence = function(raw)
+		local ob = {}
+		local Keypoints = raw.Keypoints
+		for _index_2 = 1, #Keypoints do
+			local v = Keypoints[_index_2]
+			ob[#ob + 1] = v.Time .. " " .. v.Value .. " " .. v.Envelope
+		end
+
+		return table.concat(ob, " "), "NumberSequence"
+	end,
+	PhysicalProperties = function(raw)
+		return raw
+				and "<CustomPhysics>true</CustomPhysics><Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
+			or "<CustomPhysics>false</CustomPhysics>",
+			"PhysicalProperties"
+	end,
+	-- ProtectedString = function(raw)
+	-- 	return tostring(raw), "ProtectedString"
+	-- end,
+	Ray = function(raw)
+		local Origin, Direction = raw.Origin, raw.Direction
+
+		return "<origin><X>"
+			.. Origin.X
+			.. "</X><Y>"
+			.. Origin.Y
+			.. "</Y><Z>"
+			.. Origin.Z
+			.. "</Z></origin><direction><X>"
+			.. Direction.X
+			.. "</X><Y>"
+			.. Direction.Y
+			.. "</Y><Z>"
+			.. Direction.Z
+			.. "</Z></direction>",
+			"Ray"
+	end,
+	Rect = function(raw)
+		local Min, Max = raw.Min, raw.Max
+
+		return "<min><X>"
+			.. Min.X
+			.. "</X><Y>"
+			.. Min.Y
+			.. "</Y></min><max><X>"
+			.. Max.X
+			.. "</X><Y>"
+			.. Max.Y
+			.. "</Y></max>",
+			"Rect2D"
+	end,
+	UDim = function(raw)
+		return "<S>" .. raw.Scale .. "</S><O>" .. raw.Offset .. "</O>", "UDim"
+	end,
+	UDim2 = function(raw)
+		local X, Y = raw.X, raw.Y
+
+		return "<XS>"
+			.. X.Scale
+			.. "</XS><XO>"
+			.. X.Offset
+			.. "</XO><YS>"
+			.. Y.Scale
+			.. "</YS><YO>"
+			.. Y.Offset
+			.. "</YO>",
+			"UDim2"
+	end,
+	Vector2 = function(raw)
+		return "<X>" .. raw.X .. "</X><Y>" .. raw.Y .. "</Y>", "Vector2"
+	end,
+	Vector3 = function(raw)
+		return "<X>" .. raw.X .. "</X><Y>" .. raw.Y .. "</Y><Z>" .. raw.Z .. "</Z>", "Vector3"
+	end,
+	bool = function(raw)
+		return tostring(raw), "bool"
+	end,
+	-- double = function(raw)
+	-- 	return "double", raw -- ? wouldn't float be better as an optimization
+	-- Todo A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
+	-- end,
+	-- float = function(raw)
+	-- 	return "float", raw
+	-- Todo A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
+	-- end,
+	string = function(raw)
+		return raw:gsub(EscapesPattern, Escapes), "string"
+	end,
+}
+
+for StaysRaw in
+	{
+		"double", -- ? wouldn't float tag be better as an optimization (assuming it rounds)
+		--TODO A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
+		"float", -- TODO A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
+		"int",
+		"int64",
+	}
+do
+	Descriptors[StaysRaw] = function(raw)
+		return raw, StaysRaw
+	end
+end
 
 local function ReturnSpecialValues(instance)
 	local ObtainedValues = {}
@@ -156,7 +361,7 @@ local b64encode = globalcontainer.base64_encode
 
 local ldeccache = {}
 
-synsaveinstance = function(...)
+local synsaveinstance = function(...)
 	local buffersize
 	local placename
 	local savebuffer
@@ -166,11 +371,13 @@ synsaveinstance = function(...)
 		mode = "optimized", -- Change this to invalid mode like "custom" if you only want extrainstances
 		noscripts = false,
 		scriptcache = true,
+		-- decomptype = "new", -- * Deprecated
 		timeout = 30,
 		--* New:
-		NilInstances = true,
-		IsolateStarterPlayer = false,
 		ExtraInstances = false,
+		IsolateStarterPlayer = false,
+		NilInstances = true,
+		ShowStatus = true,
 	}
 	do
 		local Input = ...
@@ -187,7 +394,7 @@ synsaveinstance = function(...)
 	do
 		local rswait = service.RunService.RenderStepped
 		rwait = function()
-			return rswait:Wait()
+			rswait:Wait()
 		end
 	end
 
@@ -293,17 +500,6 @@ synsaveinstance = function(...)
 		end,
 	}
 
-	local EscapesPattern = "[\"&<>']"
-	local Escapes = {
-		['"'] = "&quot;",
-		["&"] = "&amp;",
-		["<"] = "&lt;",
-		[">"] = "&gt;",
-		["'"] = "&apos;",
-	}
-	local RemoveEscapes = function(String)
-		return String:gsub(EscapesPattern, Escapes)
-	end
 	--local PropertyQueue = {} --TODO: Hidden Properties
 	local FetchAPI = function()
 		local API_Dump_Version = game:HttpGet("https://setup.rbxcdn.com/versionQTStudio", true)
@@ -411,16 +607,20 @@ synsaveinstance = function(...)
 
 								if NotScriptable or Tag == "Deprecated" then
 									if NotScriptable then
-										local ValueType = Member.ValueType.Name
+										local ValueInfo = Member.ValueType
+										local ValueType = ValueInfo.Name
+
+										local Value = { ValueType = ValueType, Category = ValueInfo.Category }
 
 										local SpecialClass = SpecialProperties[ClassName]
 										if SpecialClass then
-											SpecialClass[PropertyName] = ValueType
+											SpecialClass[PropertyName] = Value
 										else
-											SpecialProperties[ClassName] = { [PropertyName] = ValueType }
+											SpecialProperties[ClassName] = { [PropertyName] = Value }
 										end
-
-										ClassProperties[PropertyName] = { ValueType = ValueType, Special = true }
+										local Clone = table.clone(Value)
+										Clone.Special = true
+										ClassProperties[PropertyName] = Clone
 									end
 
 									Allowed = false
@@ -428,7 +628,8 @@ synsaveinstance = function(...)
 							end
 						end
 						if Allowed then
-							local PropertyInfo = { ValueType = Member.ValueType.Name }
+							local ValueInfo = Member.ValueType
+							local PropertyInfo = { ValueType = ValueInfo.Name, Category = ValueInfo.Category }
 							ClassProperties[PropertyName] = PropertyInfo
 						end
 					end
@@ -452,9 +653,17 @@ synsaveinstance = function(...)
 		for ClassName, propertyList in SpecialProperties do
 			local Properties = ClassList[ClassName].Properties
 			for Property, ValueType in propertyList do
-				-- if not Properties[Property] then
-				Properties[Property] = { ValueType = ValueType, Special = true }
-				-- end
+				if not Properties[Property] then
+					local Value
+					if type(ValueType) == "table" then
+						Value = table.clone(ValueType)
+						Value.Special = true
+					else
+						Value = { ValueType = ValueType, Special = true }
+					end
+
+					Properties[Property] = Value
+				end
 			end
 		end
 		return ClassList
@@ -478,11 +687,18 @@ synsaveinstance = function(...)
 		while layer do
 			local _list_0 = --[[unfiltered and layer.UnfilteredProperties or]] --TODO: Hidden Properties
 				layer.Properties
-			for _index_0, p in _list_0 do
-				proplist[_index_0] = p
+			for _index_0 = 1, #_list_0 do
+				local p = _list_0[_index_0]
+				table.insert(proplist, p)
 			end
 			layer = ClassList[layer.Superclass]
 		end
+		table.sort(
+			proplist,
+			function(a, b) -- ? We do this as properties are always alphabetically sorted normally so Roblox might be able to detect us opening saveinstanced file if we don't do this
+				return a.Name < b.Name
+			end
+		)
 		-- if Self then  --TODO: Hidden Properties
 		Self[ClassName] = proplist
 		-- end
@@ -496,8 +712,9 @@ synsaveinstance = function(...)
 		count = 0,
 	}, {
 		__index = function(Self, obj)
-			Self.count += 1
-			local rbxi = "RBX" .. Self.count
+			local Count = Self.count
+			Self.count = Count + 1
+			local rbxi = "RBX" .. Count -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase. We probably need to do that too for sake of safety
 			Self[obj] = rbxi
 			return rbxi
 		end,
@@ -621,8 +838,9 @@ end
 		buffersize += #savestr
 		stlgui.Text = "Saving " .. getsizeformat()
 		savebuffer = {}
-		return rwait()
+		rwait()
 	end
+
 	local savehierarchy
 	savehierarchy = function(h)
 		local savepr = #savebuffer
@@ -680,186 +898,48 @@ end
 								break
 							end
 						end
+
 						local ValueType = Property.ValueType
-						if "BrickColor" == ValueType then
-							tag = "int"
-							value = raw.Number
-						elseif "Color3" == ValueType then
-							tag = "Color3"
-							value = "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>"
-						elseif "ColorSequence" == ValueType then
-							tag = "ColorSequence"
-							local ConvertedArray = {}
-							local Keypoints = raw.Keypoints
-							for _index_2 = 1, #Keypoints do
-								local v = Keypoints[_index_2]
-								local Value = v.Value
-								ConvertedArray[#ConvertedArray + 1] = v.Time
-									.. " "
-									.. Value.R
-									.. " "
-									.. Value.G
-									.. " "
-									.. Value.B
-									.. " 0"
-							end
-							value = table.concat(ConvertedArray, " ")
-						elseif "Content" == ValueType then
-							tag = "Content"
-							value = "<url>" .. RemoveEscapes(raw) .. "</url>"
-						elseif "BinaryString" == ValueType then
-							tag = "BinaryString"
-							if PropertyName == "SmoothGrid" or PropertyName == "MaterialColors" then
-								value = "<![CDATA[" .. b64encode(raw) .. "]]>"
-							else
-								value = b64encode(raw)
-							end
-						elseif "CoordinateFrame" == ValueType then
-							local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
-							tag = "CoordinateFrame"
-							value = "<X>"
-								.. X
-								.. "</X><Y>"
-								.. Y
-								.. "</Y><Z>"
-								.. Z
-								.. "</Z><R00>"
-								.. R00
-								.. "</R00><R01>"
-								.. R01
-								.. "</R01><R02>"
-								.. R02
-								.. "</R02><R10>"
-								.. R10
-								.. "</R10><R11>"
-								.. R11
-								.. "</R11><R12>"
-								.. R12
-								.. "</R12><R20>"
-								.. R20
-								.. "</R20><R21>"
-								.. R21
-								.. "</R21><R22>"
-								.. R22
-								.. "</R22>"
-						elseif "NumberRange" == ValueType then
-							tag = "NumberRange"
-							value = raw.Min .. " " .. raw.Max
-						elseif "NumberSequence" == ValueType then
-							tag = "NumberSequence"
-							local ob = {}
-							local Keypoints = raw.Keypoints
-							for _index_2 = 1, #Keypoints do
-								local v = Keypoints[_index_2]
-								ob[#ob + 1] = v.Time .. " " .. v.Value .. " " .. v.Envelope
-							end
-							value = table.concat(ob, " ")
-						elseif "PhysicalProperties" == ValueType then
-							tag = "PhysicalProperties"
+
+						local Descriptor = Descriptors[ValueType]
+
+						if Descriptor then
+							value, tag = Descriptor(raw)
+						elseif Property.Category == "Class" then
+							tag = "Ref"
 							if raw then
-								value = "<CustomPhysics>true</CustomPhysics>"
-									.. "<Density>"
-									.. raw.Density
-									.. "</Density>"
-									.. "<Friction>"
-									.. raw.Friction
-									.. "</Friction>"
-									.. "<Elasticity>"
-									.. raw.Elasticity
-									.. "</Elasticity>"
-									.. "<FrictionWeight>"
-									.. raw.FrictionWeight
-									.. "</FrictionWeight>"
-									.. "<ElasticityWeight>"
-									.. raw.ElasticityWeight
-									.. "</ElasticityWeight>"
+								value = identifiers[raw]
 							else
-								value = "<CustomPhysics>false</CustomPhysics>"
+								value = "null"
 							end
-						elseif "ProtectedString" == ValueType then
-							tag = "ProtectedString"
-							if PropertyName == "Source" then
-								if ClassName == "Script" then
-									value = "-- Server scripts can NOT be decompiled\n"
+						elseif Property.Category == "Enum" then
+							value, tag = Descriptors.__ENUM(raw)
+						else -- TODO: Do something about these below bruh
+							if "BinaryString" == ValueType then
+								tag = "BinaryString"
+								if PropertyName == "SmoothGrid" or PropertyName == "MaterialColors" then
+									value = "<![CDATA[" .. b64encode(raw) .. "]]>"
 								else
-									value = ldecompile(instance)
+									value = b64encode(raw)
 								end
-							else
-								value = raw
-							end
-							value = RemoveEscapes(value)
-						elseif "Rect2D" == ValueType then
-							tag = "Rect2D"
-
-							local Min, Max = raw.Min, raw.Max
-
-							value = "<min>"
-								.. "<X>"
-								.. Min.X
-								.. "</X>"
-								.. "<Y>"
-								.. Min.Y
-								.. "</Y>"
-								.. "</min>"
-								.. "<max>"
-								.. "<X>"
-								.. Max.X
-								.. "</X>"
-								.. "<Y>"
-								.. Max.Y
-								.. "</Y>"
-								.. "</max>"
-						elseif "UDim2" == ValueType then
-							tag = "UDim2"
-
-							local X, Y = raw.X, raw.Y
-
-							value = "<XS>"
-								.. X.Scale
-								.. "</XS>"
-								.. "<XO>"
-								.. X.Offset
-								.. "</XO>"
-								.. "<YS>"
-								.. Y.Scale
-								.. "</YS>"
-								.. "<YO>"
-								.. Y.Offset
-								.. "</YO>"
-						elseif "Vector2" == ValueType then
-							tag = "Vector2"
-							value = "<X>" .. raw.X .. "</X>" .. "<Y>" .. raw.Y .. "</Y>"
-						elseif "Vector3" == ValueType then
-							tag = "Vector3"
-							value = "<X>" .. raw.X .. "</X>" .. "<Y>" .. raw.Y .. "</Y>" .. "<Z>" .. raw.z .. "</Z>"
-						elseif "bool" == ValueType then
-							tag = "bool"
-							value = tostring(raw)
-						elseif "double" == ValueType then
-							tag = "float"
-							value = raw
-						elseif "float" == ValueType then
-							tag = "float"
-							value = raw
-						elseif "int" == ValueType then
-							tag = "int"
-							value = raw
-						elseif "string" == ValueType then
-							tag = "string"
-							value = string.gsub(raw, EscapesPattern, Escapes)
-						else
-							if Property.ValueType:sub(1, 6) == "Class:" then
-								tag = "Ref"
-								if raw then
-									value = identifiers[raw]
+							elseif "ProtectedString" == ValueType then
+								tag = "ProtectedString"
+								if PropertyName == "Source" then
+									if ClassName == "Script" then
+										value = "-- Server scripts can NOT be decompiled\n"
+									else
+										value = ldecompile(instance)
+									end
 								else
-									value = "null"
+									value = raw
 								end
-							elseif typeof(raw) == "EnumItem" then
-								tag = "token"
-								value = raw.Value
+								value = Descriptors.string(value)
+
+								-- else
+								-- ELSE WHAT BRO?
 							end
 						end
+
 						if tag then
 							savebuffer[#savebuffer + 1] = "<"
 								.. tag
@@ -901,7 +981,7 @@ end
 				.. "</string></Properties>"
 		)
 		savehierarchy(h)
-		return table.insert(savebuffer, "</Item>")
+		table.insert(savebuffer, "</Item>")
 	end
 
 	local savegame = function()
@@ -937,31 +1017,43 @@ end
 		end
 		globalcontainer.writefile(
 			placename,
-			'<roblox xmlns:xmime="https://www.w3.org/2005/05/xmlmime" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://www.roblox.com/roblox.xsd" version="4"><Meta name="ExplicitAutoJoints">true</Meta><External>null</External><External>nil</External>'
-		)
+			'<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">'
+		) --[[ -- Todo <Meta name="ExplicitAutoJoints">true</Meta> is to be added if https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md#meta Model was made in a workspace with Explicit AutoJointsMode. (only to be present in rbxmx files)
+		Also http can be converted to https but not sure if Roblox would decide to detect that
+		-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
+		]]
+
 		savehierarchy(ToSaveList)
 		savefolder("LocalPlayer", LocalPlayer_Children)
 		if nilinstances then
 			savefolder("Nil Instances", nilinstances)
 		end
 		table.insert(savebuffer, "</roblox>")
-		return savecache()
+		savecache()
 	end
 	do
+		local Name = "TextLabeI"
 		stlgui = Instance.new("TextLabel")
 		stlgui.BackgroundTransparency = 1
 		stlgui.Font = Enum.Font.Code
-		stlgui.Name = "TextLabel"
-		stlgui.Position = UDim2.new(0.7, 0, 0, -20)
-		stlgui.Size = UDim2.new(0.3, 0, 0, 20)
+		stlgui.Name = Name
+		stlgui.Position = UDim2.fromScale(1)
+		stlgui.AnchorPoint = Vector2.new(1)
+		stlgui.Size = UDim2.new(0.3, 0, 0.05)
 		stlgui.Text = "Starting..."
 		stlgui.TextColor3 = Color3.new(1, 1, 1)
 		stlgui.TextScaled = true
 		stlgui.TextStrokeTransparency = 0.7
 		stlgui.TextXAlignment = Enum.TextXAlignment.Right
 		stlgui.TextYAlignment = Enum.TextYAlignment.Top
-		stlgui.Parent = service.CoreGui:FindFirstChild("RobloxGui")
-		service.Debris:AddItem(stlgui, 30)
+
+		local RobloxGui = service.CoreGui:FindFirstChild("RobloxGui")
+
+		local Exists = RobloxGui:FindFirstChild(Name)
+		if Exists then
+			Exists:Destroy()
+		end
+		stlgui.Parent = RobloxGui
 	end
 	do
 		local Players = service.Players
@@ -985,16 +1077,16 @@ end
 		local Log10 = math.log10(elapse_t)
 
 		if ok then
-			stlgui.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
-			task.wait(Log10 * 2)
+			stlgui.Text = string.format("Saved!\nTime %.2f seconds\nSize %s", elapse_t, getsizeformat())
+			task.wait(Log10 * 2 + 3)
 		else
-			stlgui.Text = "Failed! Check F9 console for more info."
+			stlgui.Text = "Failed!\nCheck F9 console for more info"
 			warn("Error encountered while saving")
 			warn("Information about error:")
 			warn(err)
 			task.wait(Log10 + 3)
 		end
-		return stlgui:Destroy()
+		stlgui:Destroy()
 	end
 end
 
