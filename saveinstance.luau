@@ -1037,9 +1037,9 @@ end
 		stlgui.BackgroundTransparency = 1
 		stlgui.Font = Enum.Font.Code
 		stlgui.Name = Name
-		stlgui.Position = UDim2.fromScale(1)
-		stlgui.AnchorPoint = Vector2.new(1)
-		stlgui.Size = UDim2.new(0.3, 0, 0.05)
+		-- stlgui.AnchorPoint = Vector2.new(1)
+		stlgui.Position = UDim2.new(0.7, 0, 0, -20)
+		stlgui.Size = UDim2.new(0.3, 0, 0, 20)
 		stlgui.Text = "Starting..."
 		stlgui.TextColor3 = Color3.new(1, 1, 1)
 		stlgui.TextScaled = true
@@ -1077,7 +1077,7 @@ end
 		local Log10 = math.log10(elapse_t)
 
 		if ok then
-			stlgui.Text = string.format("Saved!\nTime %.2f seconds\nSize %s", elapse_t, getsizeformat())
+			stlgui.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
 			task.wait(Log10 * 2 + 3)
 		else
 			stlgui.Text = "Failed!\nCheck F9 console for more info"
