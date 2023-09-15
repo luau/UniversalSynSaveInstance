@@ -40,3 +40,8 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - [ ] Inherit them properly and do the clean-up
   - [x] Tell whether ValueType is string or BinaryString
 - [x] Add --!native tag just in case
+- [ ] Auto-Detect DataTypes/ValueType Categories of Properties (CFrame, UDim2 so on)
+- [ ] Bring said DataType serializer into an outside function
+- [ ] Add table.clone instead {} in some cases if possible
+- [ ] Store all functions outside that are used during saveinstancing for sake of performance
+- [ ] Check if table.concat is actually the fastest way as compared to other alternatives
