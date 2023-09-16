@@ -109,9 +109,6 @@ local Escapes = {
 
 local Descriptors
 Descriptors = {
-	__ENUM = function(raw)
-		return raw.Value, "token"
-	end,
 	__BIT = function(...) -- * Credits to Friend (you know yourself)
 		local Value = 0
 
@@ -123,6 +120,19 @@ Descriptors = {
 
 		return Value
 	end,
+	__ENUM = function(raw)
+		return raw.Value, "token"
+	end,
+	__VECTOR = function(X, Y, Z)
+		local Value = "<X>" .. X .. "</X><Y>" .. Y .. "</Y>" -- There is no Vector without at least two Coordinates.. (Vector1, at least on Roblox)
+
+		if Z then
+			Value ..= "<Z>" .. Z .. "</Z>"
+		end
+
+		return Value
+	end,
+
 	Axes = function(raw)
 		--The text of this element is formatted as an integer between 0 and 7
 		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>", "Axes"
@@ -134,14 +144,9 @@ Descriptors = {
 	-- 	return raw.Number,"BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead.
 	-- end,
 	CFrame = function(raw)
-		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents() -- * Technically XYZ are Vector3 format too but since they're provided with this function we don't really have a choice (not using vector3 descriptor)
-		return "<X>"
-			.. X
-			.. "</X><Y>"
-			.. Y
-			.. "</Y><Z>"
-			.. Z
-			.. "</Z><R00>"
+		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
+		return Descriptors.__VECTOR(X, Y, Z)
+			.. "<R00>"
 			.. R00
 			.. "</R00><R01>"
 			.. R01
@@ -271,7 +276,7 @@ Descriptors = {
     X: Represents the X component. Interpreted as a <float>.
     Y: Represents the Y component. Interpreted as a <float>.
 	]]
-		return "<X>" .. raw.X .. "</X><Y>" .. raw.Y .. "</Y>", "Vector2"
+		return Descriptors.__VECTOR(raw.X, raw.Y), "Vector2"
 	end,
 	Vector3 = function(raw)
 		--[[
@@ -279,7 +284,7 @@ Descriptors = {
     Y: Represents the Y component. Interpreted as a <float>.
     Z: Represents the Z component. Interpreted as a <float>.
 	]]
-		return "<X>" .. raw.X .. "</X><Y>" .. raw.Y .. "</Y><Z>" .. raw.Z .. "</Z>", "Vector3"
+		return Descriptors.__VECTOR(raw.X, raw.Y, raw.Z), "Vector3"
 	end,
 	bool = function(raw)
 		return tostring(raw), "bool"
