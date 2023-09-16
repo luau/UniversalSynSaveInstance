@@ -45,3 +45,4 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Add table.clone instead {} in some cases if possible
 - [ ] Store all functions outside that are used during saveinstancing for sake of performance
 - [ ] Check if table.concat is actually the fastest way as compared to other alternatives
+- [ ] Replace all operators with compound operators if possible, make sure to add other LuaU syntax too (matters for performance!)
