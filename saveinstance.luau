@@ -112,7 +112,7 @@ Descriptors = {
 	__ENUM = function(raw)
 		return raw.Value, "token"
 	end,
-	__BIT = function(...)
+	__BIT = function(...) -- * Credits to Friend (you know yourself)
 		local Value = 0
 
 		for Index, Bit in { ... } do
@@ -130,7 +130,7 @@ Descriptors = {
 
 	-- end
 	-- BrickColor = function(raw) -- ! This might hurt Color3 / Color3uint8 properties
-	-- 	return raw.Number,"int"
+	-- 	return raw.Number,"BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead.
 	-- end,
 	CFrame = function(raw)
 		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
@@ -165,15 +165,15 @@ Descriptors = {
 		return "Color3", "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
 	ColorSequence = function(raw)
-		local ConvertedArray = {}
+		local Converted = ""
 		local Keypoints = raw.Keypoints
 		for _index_2 = 1, #Keypoints do
 			local v = Keypoints[_index_2]
 			local Value = v.Value
-			ConvertedArray[#ConvertedArray + 1] = v.Time .. " " .. Value.R .. " " .. Value.G .. " " .. Value.B .. " 0"
+			Converted ..= v.Time .. " " .. Value.R .. " " .. Value.G .. " " .. Value.B .. " 0 " -- * " 0" is Envelope: Has the range 0 - 1. Currently unused by Roblox.
 		end
 
-		return table.concat(ConvertedArray, " "), "ColorSequence"
+		return Converted, "ColorSequence"
 	end,
 	Content = function(raw)
 		return raw and "<url>" .. Descriptors.string(raw) .. "</url>" or "<null></null>", "Content"
@@ -199,14 +199,14 @@ Descriptors = {
 			"NumberRange"
 	end,
 	NumberSequence = function(raw)
-		local ob = {}
+		local Converted = ""
 		local Keypoints = raw.Keypoints
 		for _index_2 = 1, #Keypoints do
 			local v = Keypoints[_index_2]
-			ob[#ob + 1] = v.Time .. " " .. v.Value .. " " .. v.Envelope
+			Converted ..= v.Time .. " " .. v.Value .. " " .. v.Envelope .. " "
 		end
 
-		return table.concat(ob, " "), "NumberSequence"
+		return Converted, "NumberSequence"
 	end,
 	PhysicalProperties = function(raw)
 		return raw
@@ -687,8 +687,9 @@ local synsaveinstance = function(...)
 		while layer do
 			local _list_0 = --[[unfiltered and layer.UnfilteredProperties or]] --TODO: Hidden Properties
 				layer.Properties
-			for _index_0 = 1, #_list_0 do
-				local p = _list_0[_index_0]
+
+			for PropertyName, p in _list_0 do
+				p.Name = PropertyName
 				table.insert(proplist, p)
 			end
 			layer = ClassList[layer.Superclass]
@@ -864,7 +865,10 @@ end
 					.. '" referent="'
 					.. identifiers[instance]
 					.. '"><Properties>'
-				for PropertyName, Property in Properties do
+
+				for _index_1 = 1, #Properties do
+					local Property = Properties[_index_1]
+					local PropertyName = Property.Name
 					local _continue_1 = false
 					repeat
 						local value
