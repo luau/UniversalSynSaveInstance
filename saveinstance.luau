@@ -56,9 +56,9 @@ local SpecialProperties = {
 	},
 	Instance = {
 		Tags = "BinaryString",
-		AttributesReplicate = "BinaryString",
-		AttributesSerialize = "BinaryString",
-		Attributes = "BinaryString",
+		-- AttributesReplicate = "BinaryString",
+		AttributesSerialize = "BinaryString", -- This property is mainly responsible for Attributes (no idea what others do)
+		-- Attributes = "BinaryString",
 	},
 	BinaryStringValue = {
 		Value = "BinaryString",
@@ -124,6 +124,7 @@ Descriptors = {
 		return Value
 	end,
 	Axes = function(raw)
+		--The text of this element is formatted as an integer between 0 and 7
 		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>", "Axes"
 	end,
 	-- BinaryString = function(raw)
@@ -133,7 +134,7 @@ Descriptors = {
 	-- 	return raw.Number,"BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead.
 	-- end,
 	CFrame = function(raw)
-		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
+		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents() -- * Technically XYZ are Vector3 format too but since they're provided with this function we don't really have a choice (not using vector3 descriptor)
 		return "<X>"
 			.. X
 			.. "</X><Y>"
@@ -165,6 +166,8 @@ Descriptors = {
 		return "Color3", "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
 	ColorSequence = function(raw)
+		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
+
 		local Converted = ""
 		local Keypoints = raw.Keypoints
 		for _index_2 = 1, #Keypoints do
@@ -179,6 +182,7 @@ Descriptors = {
 		return raw and "<url>" .. Descriptors.string(raw) .. "</url>" or "<null></null>", "Content"
 	end,
 	Faces = function(raw)
+		-- The text of this element is formatted as an integer between 0 and 63
 		return "<faces>"
 			.. Descriptors.__BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front)
 			.. "</faces>",
@@ -195,10 +199,12 @@ Descriptors = {
 			"Font"
 	end,
 	NumberRange = function(raw)
+		--The value is the text content, formatted as a space-separated list of floating point numbers.
 		return raw.Min .. " " .. raw.Max, --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually
 			"NumberRange"
 	end,
 	NumberSequence = function(raw)
+		--The value is the text content, formatted as a space-separated list of floating point numbers.
 		local Converted = ""
 		local Keypoints = raw.Keypoints
 		for _index_2 = 1, #Keypoints do
@@ -218,41 +224,35 @@ Descriptors = {
 	-- 	return tostring(raw), "ProtectedString"
 	-- end,
 	Ray = function(raw)
+		local vector3 = Descriptors.Vector3
+
 		local Origin, Direction = raw.Origin, raw.Direction
 
-		return "<origin><X>"
-			.. Origin.X
-			.. "</X><Y>"
-			.. Origin.Y
-			.. "</Y><Z>"
-			.. Origin.Z
-			.. "</Z></origin><direction><X>"
-			.. Direction.X
-			.. "</X><Y>"
-			.. Direction.Y
-			.. "</Y><Z>"
-			.. Direction.Z
-			.. "</Z></direction>",
-			"Ray"
+		return "<origin>" .. vector3(Origin) .. "</origin><direction>" .. vector3(Direction) .. "</direction>", "Ray"
 	end,
 	Rect = function(raw)
+		local vector2 = Descriptors.Vector2
+
 		local Min, Max = raw.Min, raw.Max
 
-		return "<min><X>"
-			.. Min.X
-			.. "</X><Y>"
-			.. Min.Y
-			.. "</Y></min><max><X>"
-			.. Max.X
-			.. "</X><Y>"
-			.. Max.Y
-			.. "</Y></max>",
-			"Rect2D"
+		return "<min>" .. vector2(Min) .. "</min><max>" .. vector2(Max) .. "</max>", "Rect2D"
 	end,
 	UDim = function(raw)
+		--[[
+    S: Represents the Scale component. Interpreted as a <float>.
+    O: Represents the Offset component. Interpreted as an <int>.
+	]]
+
 		return "<S>" .. raw.Scale .. "</S><O>" .. raw.Offset .. "</O>", "UDim"
 	end,
 	UDim2 = function(raw)
+		--[[
+    XS: Represents the X.Scale component. Interpreted as a <float>.
+    XO: Represents the X.Offset component. Interpreted as an <int>.
+    YS: Represents the Y.Scale component. Interpreted as a <float>.
+    YO: Represents the Y.Offset component. Interpreted as an <int>.
+	]]
+
 		local X, Y = raw.X, raw.Y
 
 		return "<XS>"
@@ -267,9 +267,18 @@ Descriptors = {
 			"UDim2"
 	end,
 	Vector2 = function(raw)
+		--[[
+    X: Represents the X component. Interpreted as a <float>.
+    Y: Represents the Y component. Interpreted as a <float>.
+	]]
 		return "<X>" .. raw.X .. "</X><Y>" .. raw.Y .. "</Y>", "Vector2"
 	end,
 	Vector3 = function(raw)
+		--[[
+    X: Represents the X component. Interpreted as a <float>.
+    Y: Represents the Y component. Interpreted as a <float>.
+    Z: Represents the Z component. Interpreted as a <float>.
+	]]
 		return "<X>" .. raw.X .. "</X><Y>" .. raw.Y .. "</Y><Z>" .. raw.Z .. "</Z>", "Vector3"
 	end,
 	bool = function(raw)
@@ -903,23 +912,24 @@ end
 							end
 						end
 
-						local ValueType = Property.ValueType
+						local Category = Property.Category
 
-						local Descriptor = Descriptors[ValueType]
-
-						if Descriptor then
-							value, tag = Descriptor(raw)
-						elseif Property.Category == "Class" then
+						if Category == "Class" then
 							tag = "Ref"
 							if raw then
 								value = identifiers[raw]
 							else
 								value = "null"
 							end
-						elseif Property.Category == "Enum" then
+						elseif Category == "Enum" then -- ! We do this order (Enums before Descriptors) specifically because Font Enum might get a Font Descriptor despite having Enum Category, unlike Font DataType which that Descriptor is meant for
 							value, tag = Descriptors.__ENUM(raw)
-						else -- TODO: Do something about these below bruh
-							if "BinaryString" == ValueType then
+						else
+							local ValueType = Property.ValueType
+							local Descriptor = Descriptors[ValueType]
+
+							if Descriptor then
+								value, tag = Descriptor(raw)
+							elseif "BinaryString" == ValueType then -- TODO: Do something about these few bruh
 								tag = "BinaryString"
 								if PropertyName == "SmoothGrid" or PropertyName == "MaterialColors" then
 									value = "<![CDATA[" .. b64encode(raw) .. "]]>"
