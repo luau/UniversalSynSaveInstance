@@ -11,18 +11,19 @@ Or shortly SSI, a project aimed at resurrecting saveinstance function from [2019
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances
 # TO-DOs:
 - [ ] Look into adding support for Binary Format Output (rbxl/rbxm instead of rbxlx/rbxmx) 
-*  RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
+	*  RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
 - [ ] Support for rbxm/rbxmx
 - [x] ~~Remove Useless tables & functions of specialinfo~~ Repurposed, Delayed
 - [ ] Speed things up as much as possible
-* Requires benchmarks
-* Requires looking at other scripts of ours that are aimed at speed & performance
+	* Requires benchmarks
+	* Requires looking at other scripts of ours that are aimed at speed & performance
 - [x] Support for NotScriptable Properties
-* Requires gethiddenproperty support
+	* Requires gethiddenproperty support
 - [ ] Support for as many [KRNL-like saveinstance options](https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D)
+	* Change mode to invalid mode like "custom" if you only want to save ExtraInstances
   - [x] NilInstances
   - [x] ExtraInstances
-  * Change mode to invalid mode like "custom" if you only want to save ExtraInstances
+
 - [ ] Support for as many Executors as possible (🤢🤮)
 - [ ] Add Documentation similar to [KRNL](https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D) or [Synapse X](https://docs.synapse.to/reference/misc.html?highlight=saveins#save-instance)
 / [Synapse X Old](https://synapsexdocs.github.io/custom-lua-functions/misc-functions/#save-instance)
@@ -32,11 +33,11 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Fix indexes being mixed up after table.remove shifting
 - [x] Use getspecialinfo fallback function carefully as it's hardcoded
 - [ ] Bypass NotCreatable by hardcoding links/references/indexes to said Classes
-* Example: Terrain class can be indexed by doing workspace.Terrain but is NotCreatable
+	* Example: Terrain class can be indexed by doing workspace.Terrain but is NotCreatable
 - [ ] ~~Hidden properties~~ Delayed until further notice, people wishing to read these should just use one of these methods (gethiddenproperty, getproperties, getspecialinfo) instead of trying to save whole game full of these as it increases File Size a lot
   - [x] Scan for them
   - [ ] Scan game and map instances in format {ClassName = {Instance1, Instance2} }, if none found then attempt to create proper Replica for them
-    * This will help with getting many ValueTypes accurately, especially BinaryStrings vs strings
+	* This will help with getting many ValueTypes accurately, especially BinaryStrings vs strings
   - [ ] Inherit them properly and do the clean-up
   - [x] Tell whether ValueType is string or BinaryString
 - [x] Add --!native tag just in case
@@ -48,5 +49,6 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Replace all operators with compound operators if possible, make sure to add other LuaU syntax too (matters for performance!)
 - [ ] Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)
 - [ ] Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches](https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72), otherwise they will fallback to default when file is opened
+	* Not all though, test each and see if it carries over or not..
 - [ ] Possibly convert to non-Name tables and use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}
-  * This will allow for more flexibility of saveinstancing
+	* This will allow for more flexibility of saveinstancing
