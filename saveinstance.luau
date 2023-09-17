@@ -23,9 +23,9 @@ local gethiddenproperty = globalcontainer.gethiddenproperty
 local getproperties = globalcontainer.getproperties
 local appendfile = globalcontainer.appendfile
 
--- local function Find(String, Pattern)
--- 	return String:find(Pattern, nil, true)
--- end
+local function Find(String, Pattern)
+	return String:find(Pattern, nil, true)
+end
 
 local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
 local service = setmetatable({}, {
@@ -168,7 +168,7 @@ Descriptors = {
 			"CoordinateFrame"
 	end,
 	Color3 = function(raw)
-		return "Color3", "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
+		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>", "Color3" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
 	ColorSequence = function(raw)
 		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
@@ -220,6 +220,15 @@ Descriptors = {
 		return Converted, "NumberSequence"
 	end,
 	PhysicalProperties = function(raw)
+		--[[Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
+
+    Density
+    Friction
+    Elasticity
+    FrictionWeight
+    ElasticityWeight
+
+The value of each component is represented by the text content formatted as a 32-bit floating point number (see float).]]
 		return raw
 				and "<CustomPhysics>true</CustomPhysics><Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
 			or "<CustomPhysics>false</CustomPhysics>",
@@ -388,10 +397,26 @@ local synsaveinstance = function(...)
 		-- decomptype = "new", -- * Deprecated
 		timeout = 30,
 		--* New:
-		ExtraInstances = false,
-		IsolateStarterPlayer = false,
+
+		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
+			"Chat",
+			"CoreGui",
+			"CorePackages",
+		},
+		InstancesBlacklist = {},
+
+		ExtraInstances = {},
 		NilInstances = true,
 		ShowStatus = true,
+		-- Binary = false, -- true in new versions
+		-- Decompile = not OPTIONS.noscripts,
+		-- DecompileTimeout = OPTIONS.timeout,
+		-- IgnoreDefaultProps = true,
+		-- IsolateStarterPlayer = true,
+		IsolateLocalPlayer = true,
+		-- MaxThreads = 3
+		-- RemovePlayerCharacters = true,
+		SavePlayers = false,
 	}
 	do
 		local Input = ...
@@ -415,8 +440,8 @@ local synsaveinstance = function(...)
 	local ldecompile
 	do
 		if OPTIONS.noscripts then
-			ldecompile = function(Script)
-				return "-- " .. Script:GetFullName() .. " not decompiled because the option is off"
+			ldecompile = function()
+				return "-- Decompiling is disabled"
 			end
 		else
 			ldecompile = function(Script)
@@ -431,16 +456,16 @@ local synsaveinstance = function(...)
 						rwait()
 					end
 				end
-				local ok, result = pcall(decompile, Script, OPTIONS.timeout, OPTIONS.timeout)
+				local ok, result = pcall(decompile, Script, OPTIONS.timeout, OPTIONS.timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
 				ldeccache[Script] = result
-				return ok and result or "--[[\n" .. result .. "\n--]]"
+				return ok and result or "--[[\n" .. result .. "\n]]"
 			end
 		end
 	end
 	local ToSaveList
 	do
 		local mode = string.lower(OPTIONS.mode)
-		local tmp = OPTIONS.ExtraInstances or {}
+		local tmp = OPTIONS.ExtraInstances
 
 		if mode == "full" then
 			local _list_0 = game:GetChildren()
@@ -463,6 +488,9 @@ local synsaveinstance = function(...)
 				"Teams",
 				"Workspace",
 			}
+			if OPTIONS.SavePlayers then
+				table.insert(_list_0, "Players")
+			end
 			for _index_0 = 1, #_list_0 do
 				local x = _list_0[_index_0]
 				table.insert(tmp, service[x])
@@ -486,23 +514,20 @@ local synsaveinstance = function(...)
 		end
 		ToSaveList = tmp
 	end
-	local InstancesBlacklist
+
+	local DecompileIgnore, InstancesBlacklist
 	do
 		local tmp = {}
-		for _, v in
-			{
-				"BubbleChat",
-				"Camera",
-				"CameraScript",
-				"ChatScript",
-				"ControlScript",
-				"ClientChatModules",
-				"ChatServiceRunner",
-				"ChatModules",
-			}
-		do
+		for _, v in OPTIONS.DecompileIgnore do
 			tmp[v] = true
 		end
+		DecompileIgnore = tmp
+
+		tmp = {}
+		for _, v in OPTIONS.InstancesBlacklist do
+			tmp[v] = true
+		end
+
 		InstancesBlacklist = tmp
 	end
 	local NilInstancesBlacklist = {
@@ -601,54 +626,58 @@ local synsaveinstance = function(...)
 				local Member = ClassMembers[_index_1]
 				if Member.MemberType == "Property" then
 					local PropertyName = Member.Name
-					---TODO: Hidden Properties
-					if AssumedSpecialProperties then
-						AssumedSpecialProperties[PropertyName] = nil
-					end
 
-					local Serialization = Member.Serialization
+					-- ? We avoid this as some Instances like services may have this property locked and thus make file unable to open and it's not even used by Roblox anyways as Parent-Child relationship is done by embedding/nesting
+					if not (PropertyName == "Parent" and ClassName == "Instance") then
+						--TODO: Hidden Properties
+						if AssumedSpecialProperties then
+							AssumedSpecialProperties[PropertyName] = nil
+						end
 
-					if Serialization.CanLoad then
-						local Allowed = true
+						local Serialization = Member.Serialization
 
-						local MemberTags = Member.Tags
+						if Serialization.CanLoad then
+							local Allowed = true
 
-						if MemberTags then
-							for _index_2 = 1, #MemberTags do
-								local Tag = MemberTags[_index_2]
+							local MemberTags = Member.Tags
 
-								local NotScriptable = Tag == "NotScriptable"
+							if MemberTags then
+								for _index_2 = 1, #MemberTags do
+									local Tag = MemberTags[_index_2]
 
-								if NotScriptable or Tag == "Deprecated" then
-									if NotScriptable then
-										local ValueInfo = Member.ValueType
-										local ValueType = ValueInfo.Name
+									local NotScriptable = Tag == "NotScriptable"
 
-										local Value = { ValueType = ValueType, Category = ValueInfo.Category }
+									if NotScriptable or Tag == "Deprecated" then
+										if NotScriptable then
+											local ValueInfo = Member.ValueType
+											local ValueType = ValueInfo.Name
 
-										local SpecialClass = SpecialProperties[ClassName]
-										if SpecialClass then
-											SpecialClass[PropertyName] = Value
-										else
-											SpecialProperties[ClassName] = { [PropertyName] = Value }
+											local Value = { ValueType = ValueType, Category = ValueInfo.Category }
+
+											local SpecialClass = SpecialProperties[ClassName]
+											if SpecialClass then
+												SpecialClass[PropertyName] = Value
+											else
+												SpecialProperties[ClassName] = { [PropertyName] = Value }
+											end
+											local Clone = table.clone(Value)
+											Clone.Special = true
+											ClassProperties[PropertyName] = Clone
 										end
-										local Clone = table.clone(Value)
-										Clone.Special = true
-										ClassProperties[PropertyName] = Clone
-									end
 
-									Allowed = false
+										Allowed = false
+									end
 								end
 							end
+							if Allowed then
+								local ValueInfo = Member.ValueType
+								local PropertyInfo = { ValueType = ValueInfo.Name, Category = ValueInfo.Category }
+								ClassProperties[PropertyName] = PropertyInfo
+							end
 						end
-						if Allowed then
-							local ValueInfo = Member.ValueType
-							local PropertyInfo = { ValueType = ValueInfo.Name, Category = ValueInfo.Category }
-							ClassProperties[PropertyName] = PropertyInfo
-						end
-					end
 
-					--Unfiltered_ClassProperties[MemberName] = PropertyInfo --TODO: Hidden Properties
+						--Unfiltered_ClassProperties[MemberName] = PropertyInfo --TODO: Hidden Properties
+					end
 				end
 			end
 			--[[ --TODO: Hidden Properties
@@ -680,6 +709,9 @@ local synsaveinstance = function(...)
 				end
 			end
 		end
+
+		-- ClassList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering throguh properties to remove this
+
 		return ClassList
 	end
 	local ClassList
@@ -855,7 +887,7 @@ end
 		savebuffer = {}
 		rwait()
 	end
-
+	local DecompileIgnoring
 	local savehierarchy
 	savehierarchy = function(h)
 		local savepr = #savebuffer
@@ -868,11 +900,17 @@ end
 				local instance = h[_index_0]
 				local specialProperties
 				local ClassName = instance.ClassName
+				local InstanceName = instance.Name
 
-				if instance.RobloxLocked or InstancesBlacklist[instance.Name] or not ClassList[ClassName] then
+				if instance.RobloxLocked or InstancesBlacklist[InstanceName] or not ClassList[ClassName] then
 					_continue_0 = true
 					break
 				end
+
+				if not DecompileIgnoring then
+					DecompileIgnoring = DecompileIgnore[InstanceName] and instance
+				end
+
 				local Properties = properties[ClassName]
 				savebuffer[#savebuffer + 1] = '<Item class="'
 					.. ClassName
@@ -945,9 +983,10 @@ end
 								tag = "ProtectedString"
 								if PropertyName == "Source" then
 									if ClassName == "Script" then
-										value = "-- Server scripts can NOT be decompiled\n"
+										value = "-- Server scripts CANT be decompiled"
 									else
-										value = ldecompile(instance)
+										value = DecompileIgnoring and "-- Script failed to decompile or ignored"
+											or ldecompile(instance)
 									end
 								else
 									value = raw
@@ -981,6 +1020,11 @@ end
 				if #chl ~= 0 then
 					savehierarchy(chl)
 				end
+
+				if DecompileIgnoring == instance then
+					DecompileIgnoring = nil
+				end
+
 				savebuffer[#savebuffer + 1] = "</Item>"
 				_continue_0 = true
 			until true
@@ -1004,11 +1048,8 @@ end
 	end
 
 	local savegame = function()
-		local Players = service.Players
-		local LocalPlayer = Players.LocalPlayer
-		local LocalPlayer_Children = LocalPlayer:GetChildren()
 		local nilinstances
-		if OPTIONS.NilInstances then
+		if OPTIONS.NilInstances and globalcontainer.getnilinstances then
 			local NilInstances = globalcontainer.getnilinstances()
 			nilinstances = table.clone(NilInstances) -- Precaution in case this table gets updated live and is shared (table ref)
 			for index, instance in NilInstances do
@@ -1043,10 +1084,18 @@ end
 		]]
 
 		savehierarchy(ToSaveList)
-		savefolder("LocalPlayer", LocalPlayer_Children)
+
+		if OPTIONS.IsolateLocalPlayer then
+			local Players = service.Players
+			local LocalPlayer = Players.LocalPlayer
+			local LocalPlayer_Children = LocalPlayer:GetChildren()
+			savefolder("LocalPlayer", LocalPlayer_Children)
+		end
+
 		if nilinstances then
 			savefolder("Nil Instances", nilinstances)
 		end
+
 		table.insert(savebuffer, "</roblox>")
 		savecache()
 	end
@@ -1074,7 +1123,10 @@ end
 		end
 		stlgui.Parent = RobloxGui
 	end
-	do
+	if not OPTIONS.SavePlayers then
+		InstancesBlacklist.Players = true
+	end
+	if OPTIONS.IsolateLocalPlayer then
 		local Players = service.Players
 		local LocalPlayer = Players.LocalPlayer
 		local PlayerList = Players:GetPlayers()
