@@ -47,6 +47,6 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Check if table.concat is actually the fastest way as compared to other alternatives
 - [ ] Replace all operators with compound operators if possible, make sure to add other LuaU syntax too (matters for performance!)
 - [ ] Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)
-- [ ] Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches](https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72)
+- [ ] Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches](https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72), otherwise they will fallback to default when file is opened
 - [ ] Possibly convert to non-Name tables and use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}
   * This will allow for more flexibility of saveinstancing
