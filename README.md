@@ -46,5 +46,6 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Store all functions outside that are used during saveinstancing for sake of performance
 - [ ] Check if table.concat is actually the fastest way as compared to other alternatives
 - [ ] Replace all operators with compound operators if possible, make sure to add other LuaU syntax too (matters for performance!)
+- [ ] Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)
 - [ ] Possibly convert to non-Name tables and use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}
   * This will allow for more flexibility of saveinstancing
