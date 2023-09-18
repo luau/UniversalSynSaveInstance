@@ -53,9 +53,8 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Possibly convert to non-Name tables and use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}
 	* This will allow for more flexibility of saveinstancing
 # Acknowledgments
-This document is based largely on the efforts of @Anaminus & @Dekkonot, authors of the [Rbxlx Format Specifications](https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md). Additional
+This document is based largely on the efforts of [@Anaminus](https://github.com/Anaminus) & [@Dekkonot](https://github.com/Dekkonot), authors of the [Rbxlx Format Specifications](https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md). Additional
 resources include:
-
-- [Syngp Synapse X 2019 Source code](https://github.com/Acrillis/SynapseX) for base saveinstance code (extended by @mblouka and @Acrillis)
+- [Syngp Synapse X 2019 Source code](https://github.com/Acrillis/SynapseX) for base saveinstance code (extended by [@mblouka](https://github.com/mblouka) and [@Acrillis](https://github.com/Acrillis))
 - [Roblox File Format](https://github.com/MaximumADHD/Roblox-File-Format) for a list of redirects of old/deprecated xml properties that still use the old tag values
 - [Roblox Client Tracker](https://github.com/MaximumADHD/Roblox-Client-Tracker) for an extended & close to full JSON Api Dump (with hidden properties & default values)
