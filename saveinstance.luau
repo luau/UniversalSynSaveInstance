@@ -11,7 +11,7 @@ finder({
 	decompile = '(...):find("decomp",nil,true) or (...):find("assembl",nil,true)',
 	base64_encode = '(...):find("encode",nil,true)', -- ! Could match some unwanted stuff
 	gethiddenproperty = '(...):find("get",nil,true) and (...):find("h",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) ~= "s"',
-	readbinarystring = '(...):find("bin",nil,true)', -- ! Could match some unwanted stuff
+	-- readbinarystring = '(...):find("bin",nil,true)', -- ! Could match some unwanted stuff
 	getnilinstances = '(...):find("nil",nil,true)', -- ! Could match some unwanted stuff
 	getproperties = '(...):find("get",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) == "s"',
 	getspecialinfo = '(...):find("get",nil,true) and (...):find("spec",nil,true)',
@@ -36,68 +36,6 @@ local service = setmetatable({}, {
 	end,
 })
 
-local SpecialProperties = {
-	UnionOperation = {
-		AssetId = "Content",
-		ChildData = "BinaryString",
-		FormFactor = { Category = "Enum" }, -- No need to specify Name as Enums's ValueType Names are identical to the name of the Property/Enum
-		InitialSize = "Vector3",
-		MeshData = "BinaryString",
-		PhysicsData = "BinaryString",
-	},
-	MeshPart = {
-		InitialSize = "Vector3",
-		PhysicsData = "BinaryString",
-	},
-	Terrain = {
-		MaterialColors = "BinaryString",
-		PhysicsGrid = "BinaryString",
-		SmoothGrid = "BinaryString",
-	},
-	Instance = {
-		Tags = "BinaryString",
-		-- AttributesReplicate = "BinaryString",
-		AttributesSerialize = "BinaryString", -- This property is mainly responsible for Attributes (no idea what others do)
-		-- Attributes = "BinaryString",
-	},
-	BinaryStringValue = {
-		Value = "BinaryString",
-	},
-	StyleRule = {
-		PropertiesSerialize = "BinaryString",
-	},
-	Part = {
-		CollisionGroupReplicate = "BinaryString",
-	},
-	RotationCurve = {
-		ValuesAndTimes = "BinaryString",
-	},
-	MarkerCurve = {
-		ValuesAndTimes = "BinaryString",
-	},
-	FloatCurve = {
-		ValuesAndTimes = "BinaryString",
-	},
-	LocalizationTable = {
-		Contents = "BinaryString",
-	},
-	KeyframeSequence = {
-		GuidBinaryString = "BinaryString",
-	},
-	AnimationRigData = {
-		preTransform = "BinaryString",
-		postTransform = "BinaryString",
-		transform = "BinaryString",
-		label = "BinaryString",
-		name = "BinaryString",
-		weight = "BinaryString",
-		parent = "BinaryString", -- Could be an instance..
-	},
-	CurveAnimation = {
-		GuidBinaryString = "BinaryString",
-	},
-}
-
 local EscapesPattern = "[\"&<>']"
 local Escapes = {
 	['"'] = "&quot;",
@@ -120,6 +58,9 @@ Descriptors = {
 
 		return Value
 	end,
+	__CDATA = function(raw)
+		return "<![CDATA[" .. raw .. "]]>"
+	end,
 	__ENUM = function(raw)
 		return raw.Value, "token"
 	end,
@@ -140,9 +81,9 @@ Descriptors = {
 	-- BinaryString = function(raw)
 
 	-- end
-	-- BrickColor = function(raw) -- ! This might hurt Color3 / Color3uint8 properties
-	-- 	return raw.Number,"BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead.
-	-- end,
+	BrickColor = function(raw) -- ! Oh well This might hurt Color3 / Color3uint8 properties
+		return raw.Number, "BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead.
+	end,
 	CFrame = function(raw)
 		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
 		return Descriptors.__VECTOR(X, Y, Z)
@@ -184,7 +125,8 @@ Descriptors = {
 		return Converted, "ColorSequence"
 	end,
 	Content = function(raw)
-		return raw and "<url>" .. Descriptors.string(raw) .. "</url>" or "<null></null>", "Content"
+		return (raw == nil or raw == "") and "<null></null>" or "<url>" .. Descriptors.string(raw) .. "</url>",
+			"Content"
 	end,
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
@@ -307,11 +249,11 @@ The value of each component is represented by the text content formatted as a 32
 	-- Todo A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
 	-- end,
 	string = function(raw)
-		return raw:gsub(EscapesPattern, Escapes), "string"
+		return raw == "" and raw or raw:gsub(EscapesPattern, Escapes), "string"
 	end,
 }
 
-for StaysRaw in
+for _, StaysRaw in
 	{
 		"double", -- ? wouldn't float tag be better as an optimization (assuming it rounds)
 		--TODO A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
@@ -325,55 +267,93 @@ do
 	end
 end
 
-local function ReturnSpecialValues(instance)
-	local ObtainedValues = {}
+if getproperties then
+	if globalcontainer.getspecialinfo then
+		local getreal = globalcontainer.getspecialinfo
 
-	local specialpropslist = SpecialProperties[instance.ClassName]
+		globalcontainer.getspecialinfo = function(instance)
+			local specialinfo = getproperties(instance)
 
-	if specialpropslist then
-		local gotproperties
-
-		for Property in specialpropslist do
-			local Value
-			if gethiddenproperty then
-				Value = gethiddenproperty(instance, Property)
-			end
-			if
-				Value == nil --[[or Value == ""]]
-				and getproperties
-			then
-				if not gotproperties then
-					gotproperties = getproperties(instance)
-				end
-				Value = gotproperties[Property]
-			end
-
-			ObtainedValues[Property] = Value
-		end
-	end
-
-	return ObtainedValues -- Just in case
-end
-
-if globalcontainer.getspecialinfo then
-	local getreal = globalcontainer.getspecialinfo
-
-	globalcontainer.getspecialinfo = function(instance)
-		local specialinfo = getreal(instance)
-
-		for Property, Value in ReturnSpecialValues(instance) do
-			if specialinfo[Property] == nil then
+			for Property, Value in getreal(instance) do
 				specialinfo[Property] = Value
 			end
-		end
 
-		return specialinfo
+			return specialinfo
+		end
+	else
+		globalcontainer.getspecialinfo = getproperties
 	end
-else
-	globalcontainer.getspecialinfo = ReturnSpecialValues
 end
 
 local getspecialinfo = globalcontainer.getspecialinfo
+
+local getsafeproperty = function(instance, name)
+	return instance[name]
+end
+
+local function ReadProperty(Property, instance, PropertyName, specialProperties)
+	local raw
+	if Property.Special then
+		if specialProperties == nil and getspecialinfo then
+			specialProperties = getspecialinfo(instance)
+			raw = specialProperties[PropertyName]
+		end
+
+		if raw == nil then
+			local ok, result = pcall(gethiddenproperty, instance, PropertyName)
+
+			if ok then
+				raw = result
+			end
+		end
+
+		if raw == nil then
+			-- * Skip next time we encounter this too perhaps
+			-- Property.Special = false
+			-- Property.CanRead = false
+
+			return "__BREAK", specialProperties
+		end
+	else
+		local CanRead = Property.CanRead
+		if nil == CanRead then
+			local ok, result = pcall(getsafeproperty, instance, PropertyName)
+
+			if ok then
+				raw = result
+			else
+				if specialProperties == nil and getspecialinfo then
+					specialProperties = getspecialinfo(instance)
+					raw = specialProperties[PropertyName]
+				end
+
+				if raw == nil then
+					ok, result = pcall(gethiddenproperty, instance, PropertyName)
+
+					if ok then
+						raw = result
+
+						Property.Special = true
+					end
+				else
+					ok = true
+
+					Property.Special = true
+				end
+			end
+
+			Property.CanRead = ok
+			if not ok then
+				return "__BREAK", specialProperties
+			end
+		elseif true == CanRead then
+			raw = instance[PropertyName]
+		elseif false == CanRead then
+			return "__BREAK", specialProperties
+		end
+	end
+	return raw, specialProperties
+end
 
 local b64encode = globalcontainer.base64_encode
 	or loadstring(game:HttpGet(Params.RepoURL .. Params.ROM .. ".luau", true), Params.ROM)()(4544052033).base64_encode
@@ -383,6 +363,16 @@ local b64encode = globalcontainer.base64_encode
 	)().base64_encode
 
 local ldeccache = {}
+
+local function ArrayToDictionary(Table)
+	local tmp = table.create(#Table)
+
+	for _, Key in Table do
+		tmp[Key] = true
+	end
+
+	return tmp
+end
 
 local synsaveinstance = function(...)
 	local buffersize
@@ -397,7 +387,7 @@ local synsaveinstance = function(...)
 		-- decomptype = "new", -- * Deprecated
 		timeout = 30,
 		--* New:
-
+		__DEBUG_MODE = false,
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			"Chat",
 			"CoreGui",
@@ -411,9 +401,9 @@ local synsaveinstance = function(...)
 		-- Binary = false, -- true in new versions
 		-- Decompile = not OPTIONS.noscripts,
 		-- DecompileTimeout = OPTIONS.timeout,
-		-- IgnoreDefaultProps = true,
+		IgnoreDefaultProps = true,
 		-- IsolateStarterPlayer = true,
-		IsolateLocalPlayer = true,
+		IsolateLocalPlayer = true, -- Saves Children of LocalPlayer as separate folder and prevents any instance with .Name identical to LocalPlayer.Name from saving
 		-- MaxThreads = 3
 		-- RemovePlayerCharacters = true,
 		SavePlayers = false,
@@ -443,7 +433,7 @@ local synsaveinstance = function(...)
 			ldecompile = function()
 				return "-- Decompiling is disabled"
 			end
-		else
+		elseif decompile then
 			ldecompile = function(Script)
 				-- local name = scr.ClassName .. scr.Name
 				do
@@ -460,8 +450,13 @@ local synsaveinstance = function(...)
 				ldeccache[Script] = result
 				return ok and result or "--[[\n" .. result .. "\n]]"
 			end
+		else
+			ldecompile = function()
+				return "-- Decompiling is NOT supported on your executor"
+			end
 		end
 	end
+
 	local ToSaveList
 	do
 		local mode = string.lower(OPTIONS.mode)
@@ -515,22 +510,10 @@ local synsaveinstance = function(...)
 		ToSaveList = tmp
 	end
 
-	local DecompileIgnore, InstancesBlacklist
-	do
-		local tmp = {}
-		for _, v in OPTIONS.DecompileIgnore do
-			tmp[v] = true
-		end
-		DecompileIgnore = tmp
+	local DecompileIgnore, InstancesBlacklist =
+		ArrayToDictionary(OPTIONS.DecompileIgnore), ArrayToDictionary(OPTIONS.InstancesBlacklist)
 
-		tmp = {}
-		for _, v in OPTIONS.InstancesBlacklist do
-			tmp[v] = true
-		end
-
-		InstancesBlacklist = tmp
-	end
-	local NilInstancesBlacklist = {
+	local NilInstancesFixes = {
 		Animator = function(instance)
 			local AnimationController = Instance.new("AnimationController")
 			AnimationController.Name = "Animator has to be placed under Humanoid or AnimationController"
@@ -539,10 +522,9 @@ local synsaveinstance = function(...)
 		end,
 	}
 
-	--local PropertyQueue = {} --TODO: Hidden Properties
 	local FetchAPI = function()
-		local API_Dump_Version = game:HttpGet("https://setup.rbxcdn.com/versionQTStudio", true)
-		local API_Dump_Url = string.format("https://setup.rbxcdn.com/%s-API-Dump.json", API_Dump_Version)
+		local API_Dump_Url =
+			"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
 		local API_Dump = game:HttpGet(API_Dump_Url, true)
 		local API_Classes = service.HttpService:JSONDecode(API_Dump).Classes
 
@@ -557,70 +539,16 @@ local synsaveinstance = function(...)
 			local ClassName = Class.Name
 
 			local ClassTags = Class.Tags
+
+			if ClassTags then
+				ClassTags = ArrayToDictionary(ClassTags)
+			end
+
 			ClassInfo.Name = ClassName
-			ClassInfo.Tags = ClassTags
+			ClassInfo.Tags = ClassTags -- or {}
 			ClassInfo.Superclass = Class.Superclass
 
 			local ClassProperties = {}
-			local AssumedSpecialProperties = SpecialProperties[ClassName]
-
-			--[[ --TODO: Hidden Properties
-			local Unfiltered_ClassProperties = {}
-			local Creatable = not (ClassTags and table.find(ClassTags, "NotCreatable"))
-			local AssumedSpecialProperties --, IsService 
-
-			if
-				Creatable or IsService
-			then
-				local ok, ClassReplica
-				
-					if IsService then
-					ok, ClassReplica = pcall(function()
-						return service[ClassName]
-					end)
-				elseif ClassName == "Terrain" then
-					ok, ClassReplica = true, workspace.Terrain
-				elseif ClassName == "GlobalSettings" then
-					ClassReplica = GlobalSettings
-				elseif ClassName == "UserSettings" then
-					ClassReplica = GlobalBasicSettings
-				else
-				ok, ClassReplica = pcall(Instance.new, ClassName)
-
-				--end
-				if
-					ok and ClassReplica
-				then
-					if getproperties then
-						AssumedSpecialProperties = table.clone(getproperties(ClassReplica))
-					end
-
-					if getspecialinfo then
-						local specialinfo = getspecialinfo(ClassReplica)
-						if specialinfo then
-							if AssumedSpecialProperties then
-								for Property, Value in specialinfo do
-									local Existing = AssumedSpecialProperties[Property]
-									if Existing ~= nil and Existing ~= Value then
-										print(
-											"Differs",
-											Existing,
-											Value,
-											type(Existing),
-											type(Value),
-											typeof(Existing),
-											typeof(Value)
-										)
-									end
-									AssumedSpecialProperties[Property] = Value
-								end
-							else
-								AssumedSpecialProperties = table.clone(specialinfo) -- Just incase its shallow
-							end
-						end
-					end
-				end
-			end]]
 
 			for _index_1 = 1, #ClassMembers do
 				local Member = ClassMembers[_index_1]
@@ -629,11 +557,6 @@ local synsaveinstance = function(...)
 
 					-- ? We avoid this as some Instances like services may have this property locked and thus make file unable to open and it's not even used by Roblox anyways as Parent-Child relationship is done by embedding/nesting
 					if not (PropertyName == "Parent" and ClassName == "Instance") then
-						--TODO: Hidden Properties
-						if AssumedSpecialProperties then
-							AssumedSpecialProperties[PropertyName] = nil
-						end
-
 						local Serialization = Member.Serialization
 
 						if Serialization.CanLoad then
@@ -641,73 +564,40 @@ local synsaveinstance = function(...)
 
 							local MemberTags = Member.Tags
 
+							local Special
+
 							if MemberTags then
-								for _index_2 = 1, #MemberTags do
-									local Tag = MemberTags[_index_2]
+								MemberTags = ArrayToDictionary(MemberTags)
 
-									local NotScriptable = Tag == "NotScriptable"
+								Special = MemberTags.NotScriptable
 
-									if NotScriptable or Tag == "Deprecated" then
-										if NotScriptable then
-											local ValueInfo = Member.ValueType
-											local ValueType = ValueInfo.Name
-
-											local Value = { ValueType = ValueType, Category = ValueInfo.Category }
-
-											local SpecialClass = SpecialProperties[ClassName]
-											if SpecialClass then
-												SpecialClass[PropertyName] = Value
-											else
-												SpecialProperties[ClassName] = { [PropertyName] = Value }
-											end
-											local Clone = table.clone(Value)
-											Clone.Special = true
-											ClassProperties[PropertyName] = Clone
-										end
-
-										Allowed = false
-									end
+								if MemberTags.Deprecated then
+									Allowed = false
 								end
 							end
 							if Allowed then
 								local ValueInfo = Member.ValueType
-								local PropertyInfo = { ValueType = ValueInfo.Name, Category = ValueInfo.Category }
+
+								local PropertyInfo = {
+									Category = ValueInfo.Category,
+									Default = Member.Default,
+									ValueType = ValueInfo.Name,
+								}
+
+								if Special then
+									PropertyInfo.Special = true
+								end
+
 								ClassProperties[PropertyName] = PropertyInfo
 							end
 						end
-
-						--Unfiltered_ClassProperties[MemberName] = PropertyInfo --TODO: Hidden Properties
 					end
 				end
 			end
-			--[[ --TODO: Hidden Properties
-			if AssumedSpecialProperties then
-				table.insert(PropertyQueue, {
-					AssumedSpecialProperties = AssumedSpecialProperties,
-					ClassName = ClassName,
-					ClassProperties = ClassProperties,
-				})
-			end]]
 
 			ClassInfo.Properties = ClassProperties
-			--ClassInfo.UnfilteredProperties = Unfiltered_ClassProperties --TODO: Hidden Properties
-			ClassList[ClassName] = ClassInfo
-		end
-		for ClassName, propertyList in SpecialProperties do
-			local Properties = ClassList[ClassName].Properties
-			for Property, ValueType in propertyList do
-				if not Properties[Property] then
-					local Value
-					if type(ValueType) == "table" then
-						Value = table.clone(ValueType)
-						Value.Special = true
-					else
-						Value = { ValueType = ValueType, Special = true }
-					end
 
-					Properties[Property] = Value
-				end
-			end
+			ClassList[ClassName] = ClassInfo
 		end
 
 		-- ClassList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering throguh properties to remove this
@@ -724,128 +614,52 @@ local synsaveinstance = function(...)
 			return
 		end
 	end
-	local function Inheritor(
-		Self,
-		ClassName --[[, unfiltered]] --TODO: Hidden Properties
-	)
-		local proplist = {}
-		local layer = ClassList[ClassName]
-		while layer do
-			local _list_0 = --[[unfiltered and layer.UnfilteredProperties or]] --TODO: Hidden Properties
-				layer.Properties
 
-			for PropertyName, p in _list_0 do
-				p.Name = PropertyName
-				table.insert(proplist, p)
-			end
-			layer = ClassList[layer.Superclass]
-		end
-		table.sort(
-			proplist,
-			function(a, b) -- ? We do this as properties are always alphabetically sorted normally so Roblox might be able to detect us opening saveinstanced file if we don't do this
-				return a.Name < b.Name
-			end
-		)
-		-- if Self then  --TODO: Hidden Properties
-		Self[ClassName] = proplist
-		-- end
-		return proplist
-	end
+	local inheritedproperties = setmetatable({}, {
+		__index = function(self, ClassName)
+			local proplist = {}
+			local layer = ClassList[ClassName]
+			while layer do
+				local _list_0 = layer.Properties
 
-	local properties = setmetatable({}, {
-		__index = Inheritor,
+				for PropertyName, p in _list_0 do
+					p = table.clone(p)
+					p.Name = PropertyName
+					table.insert(proplist, p)
+				end
+				layer = ClassList[layer.Superclass]
+			end
+			table.sort(
+				proplist,
+				function(a, b) -- ? We do this as properties are always alphabetically sorted normally so Roblox might be able to detect us opening saveinstanced file if we don't do this
+					return a.Name < b.Name
+				end
+			)
+
+			self[ClassName] = proplist
+
+			return proplist
+		end,
 	})
-	local identifiers = setmetatable({
+	local referents = setmetatable({
 		count = 0,
 	}, {
-		__index = function(Self, obj)
-			local Count = Self.count
-			Self.count = Count + 1
-			local rbxi = "RBX" .. Count -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase. We probably need to do that too for sake of safety
-			Self[obj] = rbxi
-			return rbxi
+		__index = function(self, instance)
+			local Count = self.count
+			self.count = Count + 1
+			local referent = "RBX" .. Count -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase. We probably need to do that too for sake of safety
+			self[instance] = referent
+			return referent
 		end,
 	})
 
-	--[[ --TODO: Hidden Properties
-	-- * Hardcoded properties/valuetypes
-		for classname, propertyList in SpecialProperties do 
-		local Unfiltered_Properties = ClassList[classname].UnfilteredProperties
-		local Properties = ClassList[classname].Properties
-		-- print(ClassName)
-		for Property, ValueType in propertyList do
-			if Properties[Property] then -- Not special
-				continue
-			end
-			Properties[Property] = { ValueType = ValueType, Special = true }
-			Unfiltered_Properties[Property] = { ValueType = ValueType, Special = true }
-			-- print(Property, ValueType)
-		end
-	end
-	
-	-- * Automatically scanned properties/valuetypes
-	for _, Info in queue do
-	local ClassName = Info.ClassName
-	local ClassProperties = Info.ClassProperties
-	local WholePropertyTree = Inheritor(nil, ClassName, true)
-	local AssumedSpecialProperties = Info.AssumedSpecialProperties
-	-- AssumedSpecialProperties.MaterialColors = "BinaryString"
-	for Property, Value in AssumedSpecialProperties do
-		-- print("II", Property, typeof(Value))
-
-		if WholePropertyTree[Property] or ClassProperties[Property] then
-			-- if Property == "DataCost" then
-			-- 	-- for i, v in WholePropertyTree do
-			-- 	-- 	print(i, v)
-			-- 	-- end
-			-- 	-- print(ClassName, WholePropertyTree[Property])
-			-- end
-			continue
-		end
-		-- if Property == "AttributesReplicate" then
-		-- 	for i, v in WholePropertyTree do
-		-- 		print(i, v)
-		-- 	end
-		-- 	print(ClassProperties[Property], WholePropertyTree[Property])
-		-- end
-		local TypeOf = typeof(Value)
-		if TypeOf == "string" and Find(Property, "BinaryString") then -- Auto-fix BinaryString properties that could've been mixed up with "string"
-			TypeOf = "BinaryString"
-		end
-
-		ClassProperties[Property] = { ValueType = TypeOf, Special = true }
-	end
-end
-
--- *  Tell whether ValueType is string or BinaryString (prototype)
-for Class, ClassInfo in ClassList do
-	local Replica, Props
-	for Property, PropertyInfo in ClassInfo.Properties do
-		if PropertyInfo.Special and PropertyInfo.ValueType == "string" then
-			if not Replica then
-				Replica = Replicas[Class]
-				Props = getproperties(Replica)
-			end
-			local value = Props[Property]
-			local empty = value == ""
-			total ..= "Property: " .. tostring(Property) .. " Value: " .. tostring(value) .. " Empty: " .. tostring(
-				empty
-			)
-			local bin
-			if not empty then
-				bin = b64encode(value)
-			end
-			total ..= "\nBinary: " .. tostring(bin and true or false) .. " BinaryString: " .. (bin or "")
-			total ..= "\n"
-			-- print(Replica)
-		end
-	end
-	if Props then
-		total ..= "Class: " .. Class .. "\n\n"
-	end
-end
-
-	]]
+	local classreplicas = setmetatable({}, {
+		__index = function(self, ClassName)
+			local Replica = Instance.new(ClassName) -- ! Might need to pcall this
+			self[ClassName] = Replica
+			return Replica
+		end,
+	})
 
 	local typesizeround = function(s)
 		return math.floor(buffersize / (0x400 ^ s) * 10) / 10
@@ -868,9 +682,7 @@ end
 		end
 		return size
 	end
-	local getsafeproperty = function(i, name)
-		return i[name]
-	end
+
 	local getplacename = function()
 		local name = "place" .. game.PlaceId
 		-- pcall(function()
@@ -889,6 +701,10 @@ end
 	end
 	local DecompileIgnoring
 	local savehierarchy
+
+	local IgnoreDefaultProps = OPTIONS.IgnoreDefaultProps
+	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
+
 	savehierarchy = function(h)
 		local savepr = #savebuffer
 		if 0x1600 < savepr then
@@ -898,7 +714,7 @@ end
 			local _continue_0 = false
 			repeat
 				local instance = h[_index_0]
-				local specialProperties
+
 				local ClassName = instance.ClassName
 				local InstanceName = instance.Name
 
@@ -911,56 +727,54 @@ end
 					DecompileIgnoring = DecompileIgnore[InstanceName] and instance
 				end
 
-				local Properties = properties[ClassName]
+				local Properties = inheritedproperties[ClassName]
 				savebuffer[#savebuffer + 1] = '<Item class="'
 					.. ClassName
 					.. '" referent="'
-					.. identifiers[instance]
+					.. referents[instance]
 					.. '"><Properties>'
-
+				local specialProperties, Replica
 				for _index_1 = 1, #Properties do
 					local Property = Properties[_index_1]
 					local PropertyName = Property.Name
-					local _continue_1 = false
-					repeat
-						local value
-						local tag
-						local raw
-						if Property.Special then
-							if not specialProperties then
-								specialProperties = getspecialinfo(instance)
-							end
 
-							raw = specialProperties[PropertyName]
-							if raw == nil then
-								_continue_1 = true
-								break
-							end
-						else
-							local SafeToRead = Property.SafeToRead
-							if nil == SafeToRead then
-								local ok, result = pcall(getsafeproperty, instance, PropertyName)
-								Property.SafeToRead = ok
-								if ok then
-									raw = result
-								else
-									_continue_1 = true
-									break
+					repeat
+						local raw
+						raw, specialProperties = ReadProperty(Property, instance, PropertyName, specialProperties)
+						if raw == "__BREAK" then
+							break
+						end
+
+						if IgnoreDefaultProps then
+							local Default = Property.Default
+
+							if Default == "__api_dump_class_not_creatable__" then
+								local ClassTags = ClassList[ClassName].Tags
+								if not (ClassTags and ClassTags.NotCreatable) then
+									Replica = classreplicas[ClassName]
+
+									Default = tostring(ReadProperty(Property, Replica, PropertyName, specialProperties))
+									-- * Improve this along with specialProperties (merge or maybe store the method to Property.Special), get this property at any cost
+
+									Property.Default = Default
+									-- if Property.Special then
+									-- end
 								end
-							elseif true == SafeToRead then
-								raw = instance[PropertyName]
-							elseif false == SafeToRead then
-								_continue_1 = true
+							end
+							if tostring(raw) == Default then -- ! PhysicalProperties, Font, CFrame (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
+								print("Default not serializing", PropertyName)
+
 								break
 							end
 						end
 
 						local Category = Property.Category
 
+						local tag, value
 						if Category == "Class" then
 							tag = "Ref"
 							if raw then
-								value = identifiers[raw]
+								value = referents[raw]
 							else
 								value = "null"
 							end
@@ -974,26 +788,33 @@ end
 								value, tag = Descriptor(raw)
 							elseif "BinaryString" == ValueType then -- TODO: Do something about these few bruh
 								tag = "BinaryString"
-								if PropertyName == "SmoothGrid" or PropertyName == "MaterialColors" then
-									value = "<![CDATA[" .. b64encode(raw) .. "]]>"
-								else
-									value = b64encode(raw)
+								value = b64encode(raw)
+
+								if
+									PropertyName == "SmoothGrid"
+									or PropertyName == "MaterialColors"
+									or PropertyName == "PhysicsGrid"
+								then
+									value = Descriptors.__CDATA(value)
 								end
 							elseif "ProtectedString" == ValueType then
 								tag = "ProtectedString"
+
 								if PropertyName == "Source" then
 									if ClassName == "Script" then
-										value = "-- Server scripts CANT be decompiled"
+										value = "-- Server scripts can NOT be decompiled"
 									else
-										value = DecompileIgnoring and "-- Script failed to decompile or ignored"
-											or ldecompile(instance)
+										if DecompileIgnoring then
+											value = "-- Ignored"
+										else
+											value = ldecompile(instance)
+										end
 									end
-								else
-									value = raw
 								end
-								value = Descriptors.string(value)
 
-								-- else
+								value = Find(value, "]]>") and Descriptors.string(value) or Descriptors.__CDATA(value) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing
+							elseif __DEBUG_MODE then
+								warn("UNSUPPORTED TYPE", ValueType)
 								-- ELSE WHAT BRO?
 							end
 						end
@@ -1009,11 +830,8 @@ end
 								.. tag
 								.. ">"
 						end
-						_continue_1 = true
+
 					until true
-					if not _continue_1 then
-						break
-					end
 				end
 				savebuffer[#savebuffer + 1] = "</Properties>"
 				local chl = instance:GetChildren()
@@ -1034,7 +852,7 @@ end
 		end
 	end
 	local savefolder = function(n, h)
-		local Ref = identifiers[Instance.new("Folder")]
+		local Ref = referents[Instance.new("Folder")]
 		table.insert(
 			savebuffer,
 			'<Item class="Folder" referent="'
@@ -1059,15 +877,15 @@ end
 				else
 					local ClassName = instance.ClassName
 
-					local Fix = NilInstancesBlacklist[ClassName]
+					local Fix = NilInstancesFixes[ClassName]
 					if Fix then -- *
 						nilinstances[index] = Fix(instance)
 						-- continue
 					end
 
-					local Tags = ClassList[ClassName].Tags
+					local ClassTags = ClassList[ClassName].Tags
 
-					if Tags and table.find(Tags, "Service") then
+					if ClassTags and ClassTags.Service then
 						instance.Parent = game
 						table.remove(nilinstances, index)
 						-- continue
@@ -1129,13 +947,8 @@ end
 	if OPTIONS.IsolateLocalPlayer then
 		local Players = service.Players
 		local LocalPlayer = Players.LocalPlayer
-		local PlayerList = Players:GetPlayers()
-		for _index_0 = 1, #PlayerList do
-			local Player = PlayerList[_index_0]
-			if Player ~= LocalPlayer then
-				InstancesBlacklist[Player.Name] = true
-			end
-		end
+
+		InstancesBlacklist[LocalPlayer.Name] = true
 	end
 	do
 		placename = getplacename()
