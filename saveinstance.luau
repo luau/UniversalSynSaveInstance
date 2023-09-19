@@ -868,18 +868,17 @@ local synsaveinstance = function(...)
 	local savegame = function()
 		local nilinstances
 		if OPTIONS.NilInstances and globalcontainer.getnilinstances then
-			local NilInstances = globalcontainer.getnilinstances()
-			nilinstances = table.clone(NilInstances) -- Precaution in case this table gets updated live and is shared (table ref)
-			for index, instance in NilInstances do
+			local tmp = {}
+			for _, instance in globalcontainer.getnilinstances() do
 				if instance == game then
-					table.remove(nilinstances, index)
+					instance = nil
 					-- break
 				else
 					local ClassName = instance.ClassName
 
 					local Fix = NilInstancesFixes[ClassName]
 					if Fix then -- *
-						nilinstances[index] = Fix(instance)
+						instance = Fix(instance)
 						-- continue
 					end
 
@@ -887,11 +886,15 @@ local synsaveinstance = function(...)
 
 					if ClassTags and ClassTags.Service then
 						instance.Parent = game
-						table.remove(nilinstances, index)
+						instance = nil
 						-- continue
 					end
 				end
+				if instance then
+					table.insert(tmp, instance)
+				end
 			end
+			nilinstances = tmp
 		end
 		globalcontainer.writefile(
 			placename,
