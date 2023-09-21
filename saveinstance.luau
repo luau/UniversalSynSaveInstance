@@ -740,7 +740,9 @@ local function synsaveinstance(...)
 		local savestr = table.concat(savebuffer)
 		appendfile(placename, savestr)
 		buffersize += #savestr
-		stlgui.Text = "Saving " .. getsizeformat()
+		if stlgui then
+			stlgui.Text = "Saving " .. getsizeformat()
+		end
 		savebuffer = {}
 		rwait()
 	end
@@ -960,7 +962,7 @@ local function synsaveinstance(...)
 		table.insert(savebuffer, "</roblox>")
 		savecache()
 	end
-	do
+	if OPTIONS.ShowStatus then
 		local Name = "TextLabeI"
 		stlgui = Instance.new("TextLabel")
 		stlgui.BackgroundTransparency = 1
@@ -1002,17 +1004,19 @@ local function synsaveinstance(...)
 
 		local Log10 = math.log10(elapse_t)
 
-		if ok then
-			stlgui.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
-			task.wait(Log10 * 2 + 3)
-		else
-			stlgui.Text = "Failed!\nCheck F9 console for more info"
-			warn("Error encountered while saving")
-			warn("Information about error:")
-			warn(err)
-			task.wait(Log10 + 3)
+		if stlgui then
+			if ok then
+				stlgui.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
+				task.wait(Log10 * 2 + 3)
+			else
+				stlgui.Text = "Failed!\nCheck F9 console for more info"
+				warn("Error encountered while saving")
+				warn("Information about error:")
+				warn(err)
+				task.wait(Log10 + 3)
+			end
+			stlgui:Destroy()
 		end
-		stlgui:Destroy()
 	end
 end
 

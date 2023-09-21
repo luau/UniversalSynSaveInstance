@@ -43,7 +43,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - [x] ~~Tell whether ValueType is string or BinaryString~~ Full API Dump Solves this
 - [ ] Look into adding support for Binary Format Output (rbxl/rbxm instead of rbxlx/rbxmx)
   - RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
-- [ ] Support for rbxm/rbxmx
+- [ ] Support for rbxm/rbxmx (Model files)
 - [ ] ~~Possibly convert to non-Name tables and use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}~~ Add too much complexity for now
   - This will allow for more flexibility of saveinstancing
 - [x] ~~Remove Useless tables & functions of specialinfo~~ Repurposed
@@ -55,12 +55,17 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - Requires gethiddenproperty support
 - [ ] Support for as many [KRNL-like saveinstance options](https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D)
   - Change mode to invalid mode like "custom" if you only want to save ExtraInstances
-  * [x] NilInstances
+  * [x] DecompileIgnore
   * [x] ExtraInstances
+  * [x] IgnoreDefaultProps
+  * [x] NilInstances
+  * [x] SavePlayers
+  * [x] ShowStatus
 - [ ] Support for as many Executors as possible (🤢🤮)
 - [x] ~~Use getspecialinfo fallback function carefully as it's hardcoded~~ Useless because there's no way to tell if the Property Values of those instances are default or not
 - [ ] Isolators must clear
-- [ ] Store all functions outside that are used during saveinstancing for sake of performance
+- [x] Store all functions outside that are used during saveinstancing for sake of performance
+- [ ] Remove buffersize, savebuffer and so on for sake of performance by concatenating <Item> strings to total string then writing it to file (no extra steps like table.concat)
 
 # Acknowledgments
 
