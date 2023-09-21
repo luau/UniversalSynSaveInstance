@@ -22,14 +22,18 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches](https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72), otherwise they will fallback to default when file is opened
   - Not all though, test each and see if it carries over or not (when file is opened)..
 - [ ] Add more Fixes for Errors that **_can_** pop up during opening process
+- [ ] Add Optional tags support
+- [ ] Add readbinarystring or readbinarystringpropertyvalue/readbspval (elysian) as fallback for gethiddenproperty
 - [ ] Add table.clone instead {} in some cases if possible
+- [ ] Avoid scanning for default values of properties if those properties won't get serialized anyway (e.g. don't have a Descriptor)
 - [x] Add --!native tag just in case
+- [ ] Find default values of binarystring properties (MaximumADHD might have a clue)
 - [ ] ~~Auto-Detect DataTypes/ValueType Categories of Properties (CFrame, UDim2 so on)~~ Full API Dump Solves this ?
 - [x] Bring said DataType serializer into an outside function
 - [ ] ~~Bypass NotCreatable by hardcoding links/references/indexes to said Classes
   - Example: Terrain class can be indexed by doing workspace.Terrain but is NotCreatable
 - [x] Check if table.concat is actually the fastest way as compared to other alternatives (IT'S NOT)
-- [ ] Do clean-up in inheritor and automatically assume the top-most class that owns the property, while also cleaning up said property from classes that inherit from it
+- [ ] Do ~~clean-up in inheritor and~~ (API Dumps solve this, illogical) automatically assume the top-most class that owns the property, while also cleaning up said property from classes that inherit from it
 - [x] Fix indexes being mixed up after table.remove shifting
 - [x] Hidden properties
   - [x] ~~Scan for them~~ Full API Dump Solves this
@@ -55,6 +59,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   * [x] ExtraInstances
 - [ ] Support for as many Executors as possible (🤢🤮)
 - [x] ~~Use getspecialinfo fallback function carefully as it's hardcoded~~ Useless because there's no way to tell if the Property Values of those instances are default or not
+- [ ] Isolators must clear
 - [ ] Store all functions outside that are used during saveinstancing for sake of performance
 
 # Acknowledgments

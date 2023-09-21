@@ -64,6 +64,47 @@ Descriptors = {
 	__ENUM = function(raw)
 		return raw.Value, "token"
 	end,
+	__ENUMNAME = function(raw)
+		return raw.Name
+	end,
+	__EXTREMIFY = function(raw)
+		local Extreme
+		if raw ~= raw then
+			Extreme = "NAN"
+		elseif raw == math.huge then
+			Extreme = "INF"
+		elseif raw == -math.huge then
+			Extreme = "-INF"
+		end
+
+		return Extreme
+	end,
+	__APIPRECISION = function(raw, default)
+		if raw == 0 then
+			return raw
+		end
+
+		local Extreme = Descriptors.__EXTREMIFY(raw)
+		if Extreme then
+			return Extreme
+		end
+
+		local precision
+		if type(default) == "string" then
+			local dotIndex = Find(default, ".")
+
+			if dotIndex then
+				precision = #default - dotIndex
+			end
+		else
+			precision = default
+		end
+		if precision then
+			return ("%." .. precision .. "f"):format(raw)
+		end
+
+		return raw
+	end,
 	__VECTOR = function(X, Y, Z)
 		local Value = "<X>" .. X .. "</X><Y>" .. Y .. "</Y>" -- There is no Vector without at least two Coordinates.. (Vector1, at least on Roblox)
 
@@ -141,7 +182,7 @@ Descriptors = {
 			.. "</Family><Weight>"
 			.. Descriptors.__ENUM(raw.Weight)
 			.. "</Weight><Style>"
-			.. raw.Style.Name -- Weird but this field accepts .Name of enum instead..
+			.. Descriptors.__ENUMNAME(raw.Style) -- Weird but this field accepts .Name of enum instead..
 			.. "</Style>", --TODO: Figure out how to determine this.. (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 			"Font"
 	end,
@@ -171,9 +212,17 @@ Descriptors = {
     ElasticityWeight
 
 The value of each component is represented by the text content formatted as a 32-bit floating point number (see float).]]
+		local CustomPhysics
+		if raw then
+			CustomPhysics = true
+		else
+			CustomPhysics = false
+		end
+		CustomPhysics = "<CustomPhysics>" .. Descriptors.bool(CustomPhysics) .. "</CustomPhysics>"
+
 		return raw
-				and "<CustomPhysics>true</CustomPhysics><Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
-			or "<CustomPhysics>false</CustomPhysics>",
+				and CustomPhysics .. "<Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
+			or CustomPhysics,
 			"PhysicalProperties"
 	end,
 	-- ProtectedString = function(raw)
@@ -182,16 +231,13 @@ The value of each component is represented by the text content formatted as a 32
 	Ray = function(raw)
 		local vector3 = Descriptors.Vector3
 
-		local Origin, Direction = raw.Origin, raw.Direction
-
-		return "<origin>" .. vector3(Origin) .. "</origin><direction>" .. vector3(Direction) .. "</direction>", "Ray"
+		return "<origin>" .. vector3(raw.Origin) .. "</origin><direction>" .. vector3(raw.Direction) .. "</direction>",
+			"Ray"
 	end,
 	Rect = function(raw)
 		local vector2 = Descriptors.Vector2
 
-		local Min, Max = raw.Min, raw.Max
-
-		return "<min>" .. vector2(Min) .. "</min><max>" .. vector2(Max) .. "</max>", "Rect2D"
+		return "<min>" .. vector2(raw.Min) .. "</min><max>" .. vector2(raw.Max) .. "</max>", "Rect2D"
 	end,
 	UDim = function(raw)
 		--[[
@@ -240,14 +286,13 @@ The value of each component is represented by the text content formatted as a 32
 	bool = function(raw)
 		return tostring(raw), "bool"
 	end,
-	-- double = function(raw)
-	-- 	return "double", raw -- ? wouldn't float be better as an optimization
-	-- Todo A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
-	-- end,
-	-- float = function(raw)
-	-- 	return "float", raw
-	-- Todo A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
-	-- end,
+
+	double = function(raw, default)
+		return Descriptors.__APIPRECISION(raw, default or 17), "double" --TODO A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
+	end, -- ? wouldn't float be better as an optimization
+	float = function(raw, default)
+		return Descriptors.__APIPRECISION(raw, default or 9), "float" -- TODO A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
+	end,
 	string = function(raw)
 		return raw == "" and raw or raw:gsub(EscapesPattern, Escapes), "string"
 	end,
@@ -255,15 +300,12 @@ The value of each component is represented by the text content formatted as a 32
 
 for _, StaysRaw in
 	{
-		"double", -- ? wouldn't float tag be better as an optimization (assuming it rounds)
-		--TODO A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
-		"float", -- TODO A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
 		"int",
 		"int64",
 	}
 do
 	Descriptors[StaysRaw] = function(raw)
-		return raw, StaysRaw
+		return Descriptors.__EXTREMIFY(raw) or raw, StaysRaw
 	end
 end
 
@@ -287,7 +329,7 @@ end
 
 local getspecialinfo = globalcontainer.getspecialinfo
 
-local getsafeproperty = function(instance, name)
+local function getsafeproperty(instance, name)
 	return instance[name]
 end
 
@@ -374,9 +416,183 @@ local function ArrayToDictionary(Table)
 	return tmp
 end
 
-local synsaveinstance = function(...)
+local function FetchAPI()
+	local API_Dump_Url = "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
+	local API_Dump = game:HttpGet(API_Dump_Url, true)
+	local API_Classes = service.HttpService:JSONDecode(API_Dump).Classes
+
+	local ClassList = {}
+
+	for _index_0 = 1, #API_Classes do
+		local Class = API_Classes[_index_0]
+		local ClassMembers = Class.Members
+
+		local ClassInfo = {}
+
+		local ClassName = Class.Name
+
+		local ClassTags = Class.Tags
+
+		if ClassTags then
+			ClassTags = ArrayToDictionary(ClassTags)
+		end
+
+		-- ClassInfo.Name = ClassName
+		ClassInfo.Tags = ClassTags -- or {}
+		ClassInfo.Superclass = Class.Superclass
+
+		local ClassProperties = {}
+
+		for _index_1 = 1, #ClassMembers do
+			local Member = ClassMembers[_index_1]
+			if Member.MemberType == "Property" then
+				local PropertyName = Member.Name
+
+				-- ? We avoid this as some Instances like services may have this property locked and thus make file unable to open and it's not even used by Roblox anyways as Parent-Child relationship is done by embedding/nesting
+				if not (PropertyName == "Parent" and ClassName == "Instance") then
+					local Serialization = Member.Serialization
+
+					if Serialization.CanLoad then
+						local Allowed = true
+
+						local MemberTags = Member.Tags
+
+						local Special
+
+						if MemberTags then
+							MemberTags = ArrayToDictionary(MemberTags)
+
+							Special = MemberTags.NotScriptable
+
+							if MemberTags.Deprecated then
+								Allowed = false
+							end
+						end
+						if Allowed then
+							local ValueInfo = Member.ValueType
+
+							local PropertyInfo = {
+								Name = PropertyName,
+								Category = ValueInfo.Category,
+								Default = Member.Default,
+								ValueType = ValueInfo.Name,
+							}
+
+							if Special then
+								PropertyInfo.Special = true
+							end
+
+							ClassProperties[PropertyName] = PropertyInfo
+						end
+					end
+				end
+			end
+		end
+
+		ClassInfo.Properties = ClassProperties
+
+		ClassList[ClassName] = ClassInfo
+	end
+
+	-- ClassList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering throguh properties to remove this
+
+	return ClassList
+end
+local ClassList
+do
+	local ok, result = pcall(FetchAPI)
+	if ok then
+		ClassList = result
+	else
+		warn(result)
+		return
+	end
+end
+local placename = "place" .. game.PlaceId .. ".rbxlx"
+
+local rswait = service.RunService.RenderStepped
+local function rwait()
+	rswait:Wait()
+end
+
+local NilInstancesFixes = {
+	Animator = function(instance)
+		local AnimationController = Instance.new("AnimationController")
+		AnimationController.Name = "Animator has to be placed under Humanoid or AnimationController"
+		instance.Parent = AnimationController
+		return AnimationController
+	end,
+}
+
+local inheritedproperties = setmetatable({}, {
+	__index = function(self, ClassName)
+		local proplist = {}
+		local layer = ClassList[ClassName]
+		while layer do
+			local _list_0 = layer.Properties
+
+			-- proplist = table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
+			for _, p in _list_0 do
+				p = table.clone(p)
+				-- p.Name = PropertyName
+				table.insert(proplist, p)
+			end
+
+			layer = ClassList[layer.Superclass]
+		end
+		table.sort(
+			proplist,
+			function(a, b) -- ? We do this as properties are always alphabetically sorted normally so Roblox might be able to detect us opening saveinstanced file if we don't do this
+				return a.Name < b.Name
+			end
+		)
+
+		self[ClassName] = proplist
+
+		return proplist
+	end,
+})
+
+local classreplicas = setmetatable({}, {
+	__index = function(self, ClassName)
+		local Replica = Instance.new(ClassName) -- ! Might need to pcall this
+		self[ClassName] = Replica
+		return Replica
+	end,
+})
+
+local referents = setmetatable({
+	count = 0,
+}, {
+	__index = function(self, instance)
+		local Count = self.count
+		self.count = Count + 1
+		local referent = "RBX" .. Count -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase. We probably need to do that too for sake of safety
+		self[instance] = referent
+		return referent
+	end,
+})
+
+local function ReturnItem(ClassName, instance)
+	return '<Item class="' .. ClassName .. '" referent="' .. referents[instance] .. '"><Properties>'
+end
+
+local function ApiFormatify(Value, Category, ValueType, Default)
+	if Category == "Enum" then
+		Value = Descriptors.__ENUMNAME(Value)
+	elseif Category == "Primitive" then
+		Value = Descriptors[ValueType](Value, Default)
+	end
+	return tostring(Value)
+end
+
+local OverwriteDefaults =
+	{ __api_dump_class_not_creatable__ = true, __api_dump_no_string_value__ = true, __api_dump_skipped_class__ = true }
+
+local function synsaveinstance(...)
+	referents.count = 0
+
 	local buffersize
-	local placename
 	local savebuffer
 	local stlgui
 
@@ -419,14 +635,6 @@ local synsaveinstance = function(...)
 		end
 	end
 
-	local rwait
-	do
-		local rswait = service.RunService.RenderStepped
-		rwait = function()
-			rswait:Wait()
-		end
-	end
-
 	local ldecompile
 	do
 		if OPTIONS.noscripts then
@@ -463,11 +671,7 @@ local synsaveinstance = function(...)
 		local tmp = OPTIONS.ExtraInstances
 
 		if mode == "full" then
-			local _list_0 = game:GetChildren()
-			for _index_0 = 1, #_list_0 do
-				local x = _list_0[_index_0]
-				table.insert(tmp, x)
-			end
+			tmp = game:GetChildren()
 		elseif mode == "optimized" then
 			local _list_0 = {
 				"Chat",
@@ -513,160 +717,9 @@ local synsaveinstance = function(...)
 	local DecompileIgnore, InstancesBlacklist =
 		ArrayToDictionary(OPTIONS.DecompileIgnore), ArrayToDictionary(OPTIONS.InstancesBlacklist)
 
-	local NilInstancesFixes = {
-		Animator = function(instance)
-			local AnimationController = Instance.new("AnimationController")
-			AnimationController.Name = "Animator has to be placed under Humanoid or AnimationController"
-			instance.Parent = AnimationController
-			return AnimationController
-		end,
-	}
-
-	local FetchAPI = function()
-		local API_Dump_Url =
-			"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
-		local API_Dump = game:HttpGet(API_Dump_Url, true)
-		local API_Classes = service.HttpService:JSONDecode(API_Dump).Classes
-
-		local ClassList = {}
-
-		for _index_0 = 1, #API_Classes do
-			local Class = API_Classes[_index_0]
-			local ClassMembers = Class.Members
-
-			local ClassInfo = {}
-
-			local ClassName = Class.Name
-
-			local ClassTags = Class.Tags
-
-			if ClassTags then
-				ClassTags = ArrayToDictionary(ClassTags)
-			end
-
-			ClassInfo.Name = ClassName
-			ClassInfo.Tags = ClassTags -- or {}
-			ClassInfo.Superclass = Class.Superclass
-
-			local ClassProperties = {}
-
-			for _index_1 = 1, #ClassMembers do
-				local Member = ClassMembers[_index_1]
-				if Member.MemberType == "Property" then
-					local PropertyName = Member.Name
-
-					-- ? We avoid this as some Instances like services may have this property locked and thus make file unable to open and it's not even used by Roblox anyways as Parent-Child relationship is done by embedding/nesting
-					if not (PropertyName == "Parent" and ClassName == "Instance") then
-						local Serialization = Member.Serialization
-
-						if Serialization.CanLoad then
-							local Allowed = true
-
-							local MemberTags = Member.Tags
-
-							local Special
-
-							if MemberTags then
-								MemberTags = ArrayToDictionary(MemberTags)
-
-								Special = MemberTags.NotScriptable
-
-								if MemberTags.Deprecated then
-									Allowed = false
-								end
-							end
-							if Allowed then
-								local ValueInfo = Member.ValueType
-
-								local PropertyInfo = {
-									Category = ValueInfo.Category,
-									Default = Member.Default,
-									ValueType = ValueInfo.Name,
-								}
-
-								if Special then
-									PropertyInfo.Special = true
-								end
-
-								ClassProperties[PropertyName] = PropertyInfo
-							end
-						end
-					end
-				end
-			end
-
-			ClassInfo.Properties = ClassProperties
-
-			ClassList[ClassName] = ClassInfo
-		end
-
-		-- ClassList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering throguh properties to remove this
-
-		return ClassList
-	end
-	local ClassList
-	do
-		local ok, result = pcall(FetchAPI)
-		if ok then
-			ClassList = result
-		else
-			warn(result)
-			return
-		end
-	end
-
-	local inheritedproperties = setmetatable({}, {
-		__index = function(self, ClassName)
-			local proplist = {}
-			local layer = ClassList[ClassName]
-			while layer do
-				local _list_0 = layer.Properties
-
-				for PropertyName, p in _list_0 do
-					p = table.clone(p)
-					p.Name = PropertyName
-					table.insert(proplist, p)
-				end
-				layer = ClassList[layer.Superclass]
-			end
-			table.sort(
-				proplist,
-				function(a, b) -- ? We do this as properties are always alphabetically sorted normally so Roblox might be able to detect us opening saveinstanced file if we don't do this
-					return a.Name < b.Name
-				end
-			)
-
-			self[ClassName] = proplist
-
-			return proplist
-		end,
-	})
-	local referents = setmetatable({
-		count = 0,
-	}, {
-		__index = function(self, instance)
-			local Count = self.count
-			self.count = Count + 1
-			local referent = "RBX" .. Count -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase. We probably need to do that too for sake of safety
-			self[instance] = referent
-			return referent
-		end,
-	})
-
-	local classreplicas = setmetatable({}, {
-		__index = function(self, ClassName)
-			local Replica = Instance.new(ClassName) -- ! Might need to pcall this
-			self[ClassName] = Replica
-			return Replica
-		end,
-	})
-
-	local typesizeround = function(s)
-		return math.floor(buffersize / (0x400 ^ s) * 10) / 10
-	end
-	local getsizeformat = function()
+	local function getsizeformat()
 		local size
-		for i, v in
+		for i, BinaryPrefix in
 			{
 				"B",
 				"KB",
@@ -676,22 +729,14 @@ local synsaveinstance = function(...)
 			}
 		do
 			if buffersize < 0x400 ^ i then
-				size = typesizeround(i - 1) .. " " .. v
+				size = math.floor(buffersize / (0x400 ^ (i - 1)) * 10) / 10 .. " " .. BinaryPrefix
 				break
 			end
 		end
 		return size
 	end
 
-	local getplacename = function()
-		local name = "place" .. game.PlaceId
-		-- pcall(function()
-		-- 	name = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name or name
-		-- end)
-		-- return name:gsub("[^%w%s_]", "_") .. ".rbxlx"
-		return name .. ".rbxlx"
-	end
-	local savecache = function()
+	local function savecache()
 		local savestr = table.concat(savebuffer)
 		appendfile(placename, savestr)
 		buffersize += #savestr
@@ -705,21 +750,19 @@ local synsaveinstance = function(...)
 	local IgnoreDefaultProps = OPTIONS.IgnoreDefaultProps
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
-	savehierarchy = function(h)
+	savehierarchy = function(Hierarchy)
 		local savepr = #savebuffer
 		if 0x1600 < savepr then
 			savecache()
 		end
-		for _index_0 = 1, #h do
-			local _continue_0 = false
+		for _index_0 = 1, #Hierarchy do
 			repeat
-				local instance = h[_index_0]
+				local instance = Hierarchy[_index_0]
 
 				local ClassName = instance.ClassName
 				local InstanceName = instance.Name
 
 				if instance.RobloxLocked or InstancesBlacklist[InstanceName] or not ClassList[ClassName] then
-					_continue_0 = true
 					break
 				end
 
@@ -728,11 +771,7 @@ local synsaveinstance = function(...)
 				end
 
 				local Properties = inheritedproperties[ClassName]
-				savebuffer[#savebuffer + 1] = '<Item class="'
-					.. ClassName
-					.. '" referent="'
-					.. referents[instance]
-					.. '"><Properties>'
+				savebuffer[#savebuffer + 1] = ReturnItem(ClassName, instance)
 				local specialProperties, Replica
 				for _index_1 = 1, #Properties do
 					local Property = Properties[_index_1]
@@ -745,30 +784,36 @@ local synsaveinstance = function(...)
 							break
 						end
 
+						local Category = Property.Category
+
 						if IgnoreDefaultProps then
 							local Default = Property.Default
+							local ValueType = Property.ValueType
 
-							if Default == "__api_dump_class_not_creatable__" then
+							if OverwriteDefaults[Default] then
 								local ClassTags = ClassList[ClassName].Tags
 								if not (ClassTags and ClassTags.NotCreatable) then
 									Replica = classreplicas[ClassName]
 
-									Default = tostring(ReadProperty(Property, Replica, PropertyName, specialProperties))
+									Default = ReadProperty(Property, Replica, PropertyName, specialProperties)
 									-- * Improve this along with specialProperties (merge or maybe store the method to Property.Special), get this property at any cost
 
+									Default = ApiFormatify(Default, Category, ValueType)
 									Property.Default = Default
 									-- if Property.Special then
 									-- end
 								end
+							elseif Default == "default" and ValueType == "PhysicalProperties" then
+								Default = "nil"
+								Property.Default = Default
 							end
-							if tostring(raw) == Default then -- ! PhysicalProperties, Font, CFrame (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
-								print("Default not serializing", PropertyName)
+
+							if ApiFormatify(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
+								-- print("Default not serializing", PropertyName)
 
 								break
 							end
 						end
-
-						local Category = Property.Category
 
 						local tag, value
 						if Category == "Class" then
@@ -834,9 +879,9 @@ local synsaveinstance = function(...)
 					until true
 				end
 				savebuffer[#savebuffer + 1] = "</Properties>"
-				local chl = instance:GetChildren()
-				if #chl ~= 0 then
-					savehierarchy(chl)
+				local Children = instance:GetChildren()
+				if #Children ~= 0 then
+					savehierarchy(Children)
 				end
 
 				if DecompileIgnoring == instance then
@@ -844,28 +889,23 @@ local synsaveinstance = function(...)
 				end
 
 				savebuffer[#savebuffer + 1] = "</Item>"
-				_continue_0 = true
+
 			until true
-			if not _continue_0 then
-				break
-			end
 		end
 	end
-	local savefolder = function(n, h)
-		local Ref = referents[Instance.new("Folder")]
+	local function savefolder(Name, Hierarchy)
+		local Ref = Instance.new("Folder")
 		table.insert(
 			savebuffer,
-			'<Item class="Folder" referent="'
-				.. Ref
-				.. '"><Properties><string name="Name">'
-				.. n
-				.. "</string></Properties>"
+			ReturnItem(Ref.ClassName, Ref)
+				.. Descriptors[ClassList.Instance.Properties.Name.ValueType](Name)
+				.. "</Properties>"
 		)
-		savehierarchy(h)
+		savehierarchy(Hierarchy)
 		table.insert(savebuffer, "</Item>")
 	end
 
-	local savegame = function()
+	local function savegame()
 		local nilinstances
 		if OPTIONS.NilInstances and globalcontainer.getnilinstances then
 			local tmp = {}
@@ -954,7 +994,6 @@ local synsaveinstance = function(...)
 		InstancesBlacklist[LocalPlayer.Name] = true
 	end
 	do
-		placename = getplacename()
 		buffersize = 0
 		savebuffer = {}
 		local elapse_t = os.clock()
