@@ -19,10 +19,11 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Add Documentation similar to [KRNL](https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D) or [Synapse X](https://docs.synapse.to/reference/misc.html?highlight=saveins#save-instance) / [Synapse X Old](https://synapsexdocs.github.io/custom-lua-functions/misc-functions/#save-instance)
 - [ ] Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)
 - [x] Add getproperties as fallback for specialinfo
-- [ ] Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches](https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72), otherwise they will fallback to default when file is opened
+- [ ] Add Redirects to some special (in a bad way 😡) values, more info @ ~~[PropertyPatches](https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72)~~, otherwise they will fallback to default when file is opened
   - Not all though, test each and see if it carries over or not (when file is opened)..
+  - All current redirects: [Here](https://github.com/luau/SynSaveInstance/blob/main/TODO/PropertyPatches)
 - [ ] Add more Fixes for Errors that **_can_** pop up during opening process
-- [ ] Add Optional tags support
+- [x] Add Optional tags support
 - [ ] Add readbinarystring or readbinarystringpropertyvalue/readbspval (elysian) as fallback for gethiddenproperty
 - [ ] Add table.clone instead {} in some cases if possible
 - [ ] Avoid scanning for default values of properties if those properties won't get serialized anyway (e.g. don't have a Descriptor)
@@ -55,7 +56,9 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - Requires gethiddenproperty support
 - [ ] Support for as many [KRNL-like saveinstance options](https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D)
   - Change mode to invalid mode like "custom" if you only want to save ExtraInstances
+  * [x] Decompile (! This takes priority over OPTIONS.noscripts if set !)
   * [x] DecompileIgnore
+  * [x] DecompileTimeout (! This takes priority over OPTIONS.timeout if set !)
   * [x] ExtraInstances
   * [x] IgnoreDefaultProps
   * [x] NilInstances
@@ -66,6 +69,9 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Isolators must clear
 - [x] Store all functions outside that are used during saveinstancing for sake of performance
 - [ ] Remove buffersize, savebuffer and so on for sake of performance by concatenating <Item> strings to total string then writing it to file (no extra steps like table.concat)
+- [ ] Make sure BinaryStrings are compared to Defaults properly (aka in same format) 
+- [ ] Add Option to restart saveinstance from the point that it crashed on
+- [ ] Check out DataType exceptions [Here](https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_reflector/src/cli/generate.rs#L260)
 
 # Acknowledgments
 

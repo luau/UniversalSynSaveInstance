@@ -36,7 +36,8 @@ local service = setmetatable({}, {
 	end,
 })
 
-local EscapesPattern = "[\"&<>']"
+local EscapesPattern = "[%z\1-\8\11-\12\14-\31\127-\191\194-\244\"&<>']"
+
 local Escapes = {
 	['"'] = "&quot;",
 	["&"] = "&amp;",
@@ -44,6 +45,12 @@ local Escapes = {
 	[">"] = "&gt;",
 	["'"] = "&apos;",
 }
+
+for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
+	for charCode = string.byte(rangeStart), string.byte(rangeEnd) do
+		Escapes[string.char(charCode)] = "&#" .. charCode .. ";"
+	end
+end
 
 local Descriptors
 Descriptors = {
@@ -117,7 +124,7 @@ Descriptors = {
 
 	Axes = function(raw)
 		--The text of this element is formatted as an integer between 0 and 7
-		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>", "Axes"
+		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
 	-- BinaryString = function(raw)
 
@@ -150,7 +157,7 @@ Descriptors = {
 			"CoordinateFrame"
 	end,
 	Color3 = function(raw)
-		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>", "Color3" -- ? It is recommended that Color3 is encoded with elements instead of text.
+		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
 	ColorSequence = function(raw)
 		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
@@ -163,18 +170,19 @@ Descriptors = {
 			Converted ..= v.Time .. " " .. Value.R .. " " .. Value.G .. " " .. Value.B .. " 0 " -- * " 0" is Envelope: Has the range 0 - 1. Currently unused by Roblox.
 		end
 
-		return Converted, "ColorSequence"
+		return Converted
 	end,
 	Content = function(raw)
-		return (raw == nil or raw == "") and "<null></null>" or "<url>" .. Descriptors.string(raw) .. "</url>",
-			"Content"
+		return (raw == nil or raw == "") and "<null></null>" or "<url>" .. Descriptors.string(raw) .. "</url>"
+	end,
+	CoordinateFrame = function(raw)
+		return "<CFrame>" .. Descriptors.CFrame(raw) .. "</CFrame>"
 	end,
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
 		return "<faces>"
 			.. Descriptors.__BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front)
-			.. "</faces>",
-			"Faces"
+			.. "</faces>"
 	end,
 	Font = function(raw)
 		return "<Family>"
@@ -183,13 +191,11 @@ Descriptors = {
 			.. Descriptors.__ENUM(raw.Weight)
 			.. "</Weight><Style>"
 			.. Descriptors.__ENUMNAME(raw.Style) -- Weird but this field accepts .Name of enum instead..
-			.. "</Style>", --TODO: Figure out how to determine this.. (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
-			"Font"
+			.. "</Style>" --TODO: Figure out how to determine this.. (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
 	NumberRange = function(raw)
 		--The value is the text content, formatted as a space-separated list of floating point numbers.
-		return raw.Min .. " " .. raw.Max, --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually
-			"NumberRange"
+		return raw.Min .. " " .. raw.Max --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually
 	end,
 	NumberSequence = function(raw)
 		--The value is the text content, formatted as a space-separated list of floating point numbers.
@@ -200,7 +206,7 @@ Descriptors = {
 			Converted ..= v.Time .. " " .. v.Value .. " " .. v.Envelope .. " "
 		end
 
-		return Converted, "NumberSequence"
+		return Converted
 	end,
 	PhysicalProperties = function(raw)
 		--[[Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
@@ -222,8 +228,7 @@ The value of each component is represented by the text content formatted as a 32
 
 		return raw
 				and CustomPhysics .. "<Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
-			or CustomPhysics,
-			"PhysicalProperties"
+			or CustomPhysics
 	end,
 	-- ProtectedString = function(raw)
 	-- 	return tostring(raw), "ProtectedString"
@@ -231,8 +236,7 @@ The value of each component is represented by the text content formatted as a 32
 	Ray = function(raw)
 		local vector3 = Descriptors.Vector3
 
-		return "<origin>" .. vector3(raw.Origin) .. "</origin><direction>" .. vector3(raw.Direction) .. "</direction>",
-			"Ray"
+		return "<origin>" .. vector3(raw.Origin) .. "</origin><direction>" .. vector3(raw.Direction) .. "</direction>"
 	end,
 	Rect = function(raw)
 		local vector2 = Descriptors.Vector2
@@ -245,7 +249,7 @@ The value of each component is represented by the text content formatted as a 32
     O: Represents the Offset component. Interpreted as an <int>.
 	]]
 
-		return "<S>" .. raw.Scale .. "</S><O>" .. raw.Offset .. "</O>", "UDim"
+		return "<S>" .. raw.Scale .. "</S><O>" .. raw.Offset .. "</O>"
 	end,
 	UDim2 = function(raw)
 		--[[
@@ -265,15 +269,14 @@ The value of each component is represented by the text content formatted as a 32
 			.. Y.Scale
 			.. "</YS><YO>"
 			.. Y.Offset
-			.. "</YO>",
-			"UDim2"
+			.. "</YO>"
 	end,
 	Vector2 = function(raw)
 		--[[
     X: Represents the X component. Interpreted as a <float>.
     Y: Represents the Y component. Interpreted as a <float>.
 	]]
-		return Descriptors.__VECTOR(raw.X, raw.Y), "Vector2"
+		return Descriptors.__VECTOR(raw.X, raw.Y)
 	end,
 	Vector3 = function(raw)
 		--[[
@@ -281,20 +284,23 @@ The value of each component is represented by the text content formatted as a 32
     Y: Represents the Y component. Interpreted as a <float>.
     Z: Represents the Z component. Interpreted as a <float>.
 	]]
-		return Descriptors.__VECTOR(raw.X, raw.Y, raw.Z), "Vector3"
+		return Descriptors.__VECTOR(raw.X, raw.Y, raw.Z)
 	end,
+	-- UniqueId = function(raw)
+	-- 	return tostring(raw)
+	-- end,
 	bool = function(raw)
-		return tostring(raw), "bool"
+		return tostring(raw)
 	end,
 
 	double = function(raw, default)
-		return Descriptors.__APIPRECISION(raw, default or 17), "double" --TODO A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
+		return Descriptors.__APIPRECISION(raw, default or 17) --TODO A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
 	end, -- ? wouldn't float be better as an optimization
 	float = function(raw, default)
-		return Descriptors.__APIPRECISION(raw, default or 9), "float" -- TODO A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
+		return Descriptors.__APIPRECISION(raw, default or 9) -- TODO A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
 	end,
 	string = function(raw)
-		return raw == "" and raw or raw:gsub(EscapesPattern, Escapes), "string"
+		return raw == "" and raw or raw:gsub(EscapesPattern, Escapes)
 	end,
 }
 
@@ -305,7 +311,7 @@ for _, StaysRaw in
 	}
 do
 	Descriptors[StaysRaw] = function(raw)
-		return Descriptors.__EXTREMIFY(raw) or raw, StaysRaw
+		return Descriptors.__EXTREMIFY(raw) or raw
 	end
 end
 
@@ -333,9 +339,9 @@ local function getsafeproperty(instance, name)
 	return instance[name]
 end
 
-local function ReadProperty(Property, instance, PropertyName, specialProperties)
+local function ReadProperty(Property, instance, PropertyName, specialProperties, Special)
 	local raw
-	if Property.Special then
+	if Special then
 		if specialProperties == nil and getspecialinfo then
 			specialProperties = getspecialinfo(instance)
 			raw = specialProperties[PropertyName]
@@ -475,6 +481,7 @@ local function FetchAPI()
 								Name = PropertyName,
 								Category = ValueInfo.Category,
 								Default = Member.Default,
+								-- Tags = MemberTags,
 								ValueType = ValueInfo.Name,
 							}
 
@@ -589,7 +596,7 @@ end
 local OverwriteDefaults =
 	{ __api_dump_class_not_creatable__ = true, __api_dump_no_string_value__ = true, __api_dump_skipped_class__ = true }
 
-local function synsaveinstance(...)
+local function synsaveinstance(CustomOptions)
 	referents.count = 0
 
 	local buffersize
@@ -615,53 +622,60 @@ local function synsaveinstance(...)
 		NilInstances = true,
 		ShowStatus = true,
 		-- Binary = false, -- true in new versions
-		-- Decompile = not OPTIONS.noscripts,
-		-- DecompileTimeout = OPTIONS.timeout,
+		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set
+		-- DecompileTimeout = OPTIONS.timeout, -- ! This takes priority over OPTIONS.timeout if set
 		IgnoreDefaultProps = true,
+		IgnoreNotArchivable = true,
 		-- IsolateStarterPlayer = true,
 		IsolateLocalPlayer = true, -- Saves Children of LocalPlayer as separate folder and prevents any instance with .Name identical to LocalPlayer.Name from saving
 		-- MaxThreads = 3
 		-- RemovePlayerCharacters = true,
 		SavePlayers = false,
+		IgnoreSpecialProperties = false,
 	}
-	do
-		local Input = ...
-		if type(Input) == "table" then
-			for key, value in Input do
-				if OPTIONS[key] ~= nil then
-					OPTIONS[key] = value
-				end
+
+	if type(CustomOptions) == "table" then
+		for key, value in CustomOptions do
+			if OPTIONS[key] ~= nil then
+				OPTIONS[key] = value
 			end
 		end
+		local Decompile = CustomOptions.Decompile
+		if Decompile ~= nil then
+			OPTIONS.noscripts = not Decompile
+		end
+		local DecompileTimeout = CustomOptions.DecompileTimeout
+		if DecompileTimeout ~= nil then
+			OPTIONS.timeout = DecompileTimeout
+		end
 	end
-
+	local Timeout = OPTIONS.timeout
 	local ldecompile
-	do
-		if OPTIONS.noscripts then
-			ldecompile = function()
-				return "-- Decompiling is disabled"
-			end
-		elseif decompile then
-			ldecompile = function(Script)
-				-- local name = scr.ClassName .. scr.Name
-				do
-					if OPTIONS.scriptcache then
-						local Cached = ldeccache[Script]
-						if Cached then
-							return Cached
-						end
-					else
-						rwait()
+
+	if OPTIONS.noscripts then
+		ldecompile = function()
+			return "-- Decompiling is disabled"
+		end
+	elseif decompile then
+		ldecompile = function(Script)
+			-- local name = scr.ClassName .. scr.Name
+			do
+				if OPTIONS.scriptcache then
+					local Cached = ldeccache[Script]
+					if Cached then
+						return Cached
 					end
+				else
+					rwait()
 				end
-				local ok, result = pcall(decompile, Script, OPTIONS.timeout, OPTIONS.timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
-				ldeccache[Script] = result
-				return ok and result or "--[[\n" .. result .. "\n]]"
 			end
-		else
-			ldecompile = function()
-				return "-- Decompiling is NOT supported on your executor"
-			end
+			local ok, result = pcall(decompile, Script, Timeout, Timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
+			ldeccache[Script] = result
+			return ok and result or "--[[\n" .. result .. "\n]]"
+		end
+	else
+		ldecompile = function()
+			return "-- Decompiling is NOT supported on your executor"
 		end
 	end
 
@@ -717,6 +731,11 @@ local function synsaveinstance(...)
 	local DecompileIgnore, InstancesBlacklist =
 		ArrayToDictionary(OPTIONS.DecompileIgnore), ArrayToDictionary(OPTIONS.InstancesBlacklist)
 
+	local IgnoreSpecialProperties = OPTIONS.IgnoreSpecialProperties
+	local IgnoreNotArchivable = OPTIONS.IgnoreNotArchivable
+	local IgnoreDefaultProps = OPTIONS.IgnoreDefaultProps
+	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
+
 	local function getsizeformat()
 		local size
 		for i, BinaryPrefix in
@@ -749,9 +768,6 @@ local function synsaveinstance(...)
 	local DecompileIgnoring
 	local savehierarchy
 
-	local IgnoreDefaultProps = OPTIONS.IgnoreDefaultProps
-	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
-
 	savehierarchy = function(Hierarchy)
 		local savepr = #savebuffer
 		if 0x1600 < savepr then
@@ -764,7 +780,12 @@ local function synsaveinstance(...)
 				local ClassName = instance.ClassName
 				local InstanceName = instance.Name
 
-				if instance.RobloxLocked or InstancesBlacklist[InstanceName] or not ClassList[ClassName] then
+				if
+					instance.RobloxLocked
+					or InstancesBlacklist[InstanceName]
+					or not ClassList[ClassName]
+					or IgnoreNotArchivable and not instance.Archivable
+				then
 					break
 				end
 
@@ -780,8 +801,13 @@ local function synsaveinstance(...)
 					local PropertyName = Property.Name
 
 					repeat
+						local Special = Property.Special
+						if IgnoreSpecialProperties and Special then
+							break
+						end
 						local raw
-						raw, specialProperties = ReadProperty(Property, instance, PropertyName, specialProperties)
+						raw, specialProperties =
+							ReadProperty(Property, instance, PropertyName, specialProperties, Special)
 						if raw == "__BREAK" then
 							break
 						end
@@ -797,7 +823,7 @@ local function synsaveinstance(...)
 								if not (ClassTags and ClassTags.NotCreatable) then
 									Replica = classreplicas[ClassName]
 
-									Default = ReadProperty(Property, Replica, PropertyName, specialProperties)
+									Default = ReadProperty(Property, Replica, PropertyName, specialProperties, Special)
 									-- * Improve this along with specialProperties (merge or maybe store the method to Property.Special), get this property at any cost
 
 									Default = ApiFormatify(Default, Category, ValueType)
@@ -833,6 +859,10 @@ local function synsaveinstance(...)
 
 							if Descriptor then
 								value, tag = Descriptor(raw)
+
+								if not tag then
+									tag = ValueType
+								end
 							elseif "BinaryString" == ValueType then -- TODO: Do something about these few bruh
 								tag = "BinaryString"
 								value = b64encode(raw)
@@ -860,9 +890,22 @@ local function synsaveinstance(...)
 								end
 
 								value = Find(value, "]]>") and Descriptors.string(value) or Descriptors.__CDATA(value) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing
-							elseif __DEBUG_MODE then
-								warn("UNSUPPORTED TYPE", ValueType)
-								-- ELSE WHAT BRO?
+							else
+								--OptionalCoordinateFrame and so on, we make it dynamic
+								local startIDX, endIDX = Find(ValueType, "Optional")
+								if startIDX == 1 then
+									-- Extract the string after "Optional"
+
+									Descriptor = Descriptors[ValueType:sub(endIDX + 1)]
+
+									if Descriptor then
+										value, tag = Descriptor(raw)
+
+										if not tag then
+											tag = ValueType
+										end
+									end
+								end
 							end
 						end
 
@@ -876,6 +919,8 @@ local function synsaveinstance(...)
 								.. "</"
 								.. tag
 								.. ">"
+						elseif __DEBUG_MODE then
+							warn("UNSUPPORTED TYPE (OPEN A GITHUB ISSUE): ", Property.ValueType)
 						end
 
 					until true
@@ -938,10 +983,9 @@ local function synsaveinstance(...)
 			end
 			nilinstances = tmp
 		end
-		globalcontainer.writefile(
-			placename,
-			'<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">'
-		) --[[ -- Todo <Meta name="ExplicitAutoJoints">true</Meta> is to be added if https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md#meta Model was made in a workspace with Explicit AutoJointsMode. (only to be present in rbxmx files)
+		globalcontainer.writefile(placename, '<roblox version="4">') --[[
+			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
+			 -- Todo <Meta name="ExplicitAutoJoints">true</Meta> is to be added if https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md#meta Model was made in a workspace with Explicit AutoJointsMode. (only to be present in rbxmx files)
 		Also http can be converted to https but not sure if Roblox would decide to detect that
 		-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
 		]]
