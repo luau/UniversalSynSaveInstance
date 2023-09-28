@@ -1,5 +1,7 @@
 --!strict
 
+-- ! Check out https://github.com/rojo-rbx/rbx-dom/tree/master/patches for more
+
 export type GetSet = string | {
 	Get: string,
 	Set: string,
