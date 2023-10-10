@@ -145,7 +145,7 @@ Descriptors = {
 		local Value = "<X>" .. X .. "</X><Y>" .. Y .. "</Y>" -- There is no Vector without at least two Coordinates.. (Vector1, at least on Roblox)
 
 		if Z then
-			Value ..= "<Z>" .. Z .. "</Z>"
+			Value = Value .. "<Z>" .. Z .. "</Z>"
 		end
 
 		return Value
@@ -202,7 +202,7 @@ Descriptors = {
 		for Index = 1, #Keypoints do
 			local v = Keypoints[Index]
 			local Value = v.Value
-			Converted ..= v.Time .. " " .. Value.R .. " " .. Value.G .. " " .. Value.B .. " 0 " -- * " 0" is Envelope: Has the range 0 - 1. Currently unused by Roblox.
+			Converted = Converted .. v.Time .. " " .. Value.R .. " " .. Value.G .. " " .. Value.B .. " 0 " -- * " 0" is Envelope: Has the range 0 - 1. Currently unused by Roblox.
 		end
 
 		return Converted
@@ -238,7 +238,7 @@ Descriptors = {
 		local Keypoints = raw.Keypoints
 		for Index = 1, #Keypoints do
 			local v = Keypoints[Index]
-			Converted ..= v.Time .. " " .. v.Value .. " " .. v.Envelope .. " "
+			Converted = Converted .. v.Time .. " " .. v.Value .. " " .. v.Envelope .. " "
 		end
 
 		return Converted
@@ -380,12 +380,10 @@ The value of each component is represented by the text content formatted as a 32
 	end,
 }
 
-for _, StaysRaw in
-	{
-		"int",
-		"int64",
-	}
-do
+for _, StaysRaw in ipairs({
+	"int",
+	"int64",
+}) do
 	Descriptors[StaysRaw] = function(raw)
 		return Descriptors.__EXTREMIFY(raw) or raw
 	end
@@ -400,7 +398,7 @@ if getproperties then
 
 			local ok, result = pcall(getreal, instance) -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron
 			if ok then
-				for Property, Value in result do
+				for Property, Value in next, result do
 					specialinfo[Property] = Value
 				end
 			end
@@ -506,7 +504,7 @@ local function ArrayToDictionary(Table, HybridMode)
 	local tmp = table.create(#Table)
 
 	if HybridMode == "table" then
-		for Some1, Some2 in Table do
+		for Some1, Some2 in next, Table do
 			if type(Some1) == "number" then
 				tmp[Some2] = true
 			else
@@ -514,7 +512,7 @@ local function ArrayToDictionary(Table, HybridMode)
 			end
 		end
 	elseif HybridMode == "bool" then
-		for Some1, Some2 in Table do
+		for Some1, Some2 in next, Table do
 			if type(Some1) == "number" then
 				tmp[Some2] = true
 			else
@@ -522,7 +520,7 @@ local function ArrayToDictionary(Table, HybridMode)
 			end
 		end
 	else
-		for _, Key in Table do
+		for _, Key in ipairs(Table) do
 			tmp[Key] = true
 		end
 	end
@@ -531,7 +529,7 @@ local function ArrayToDictionary(Table, HybridMode)
 end
 local ClassPropertiesBlacklist =
 	{ GuiObject = { "Transparency" }, Instance = { "Parent" }, BasePart = { "BrickColor" } } -- GuiObject.Transparency is almost always 1 meaning everything will be transparent, Instance.Parent is useless in xml (no idea about binary), BasePart.BrickColor hurts other Color3 properties
-for Class, Properties in ClassPropertiesBlacklist do
+for Class, Properties in next, ClassPropertiesBlacklist do
 	ClassPropertiesBlacklist[Class] = ArrayToDictionary(Properties)
 end
 local function FetchAPI()
@@ -652,7 +650,7 @@ local inheritedproperties = setmetatable({}, {
 			local _list_0 = layer.Properties
 
 			-- proplist = table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
-			for _, p in _list_0 do
+			for _, p in ipairs(_list_0) do
 				p = table.clone(p)
 				-- p.Name = PropertyName
 				table.insert(proplist, p)
@@ -819,7 +817,7 @@ local function synsaveinstance(CustomOptions)
 	}
 
 	if type(CustomOptions) == "table" then
-		for key, value in CustomOptions do
+		for key, value in next, CustomOptions do
 			if OPTIONS[key] ~= nil then
 				OPTIONS[key] = value
 			end
@@ -956,7 +954,7 @@ local function synsaveinstance(CustomOptions)
 					end
 				end
 			end
-			for instance in cach do
+			for instance in next, cach do
 				table.insert(tmp, instance)
 			end
 		end
@@ -999,7 +997,7 @@ local function synsaveinstance(CustomOptions)
 
 	local function savecache()
 		local savestr = table.concat(savebuffer)
-		total ..= savestr
+		total = total .. savestr
 		writefile(placename, total)
 		if StatusTextClone then
 			StatusTextClone.Text = "Saving " .. getsizeformat()
@@ -1015,190 +1013,198 @@ local function synsaveinstance(CustomOptions)
 			savecache()
 		end
 		for _index_0 = 1, #Hierarchy do
-			local instance = Hierarchy[_index_0]
+			repeat
+				local instance = Hierarchy[_index_0]
 
-			local ClassName = instance.ClassName
-			local InstanceName = instance.Name
-			local Blacklisted = InstancesBlacklist[ClassName]
-			if
-				instance.RobloxLocked
-				or not ClassList[ClassName]
-				or IgnoreNotArchivable and not instance.Archivable
-				or Blacklisted and (Blacklisted == true or Blacklisted[InstanceName])
-			then
-				continue
-			end
+				local ClassName = instance.ClassName
+				local InstanceName = instance.Name
+				local Blacklisted = InstancesBlacklist[ClassName]
+				if
+					instance.RobloxLocked
+					or not ClassList[ClassName]
+					or IgnoreNotArchivable and not instance.Archivable
+					or Blacklisted and (Blacklisted == true or Blacklisted[InstanceName])
+				then
+					break
+				end
 
-			if not DecompileIgnoring then
-				local DecompileIgnored = DecompileIgnore[ClassName]
-				DecompileIgnoring = DecompileIgnored
-					and (DecompileIgnored == true or DecompileIgnored[InstanceName])
-					and instance
-			end
+				if not DecompileIgnoring then
+					local DecompileIgnored = DecompileIgnore[ClassName]
+					DecompileIgnoring = DecompileIgnored
+						and (DecompileIgnored == true or DecompileIgnored[InstanceName])
+						and instance
+				end
 
-			local Properties = inheritedproperties[ClassName]
-			savebuffer[#savebuffer + 1] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
-			local Ignored
-			if IgnorePropertiesOfNotScriptsOnScriptsMode and ScriptsClasses[ClassName] == nil then
-				Ignored = true
-			end
-			if not Ignored then
-				local specialProperties, Replica
-				for _index_1 = 1, #Properties do
-					local Property = Properties[_index_1]
-					local PropertyName = Property.Name
+				local Properties = inheritedproperties[ClassName]
+				savebuffer[#savebuffer + 1] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
+				local Ignored
+				if IgnorePropertiesOfNotScriptsOnScriptsMode and ScriptsClasses[ClassName] == nil then
+					Ignored = true
+				end
+				if not Ignored then
+					local specialProperties, Replica
+					for _index_1 = 1, #Properties do
+						local Property = Properties[_index_1]
+						local PropertyName = Property.Name
 
-					local Special = Property.Special
-					if IgnoreSpecialProperties and Special then
-						continue
-					end
-					local raw
-					raw, specialProperties = ReadProperty(Property, instance, PropertyName, specialProperties, Special)
-					if raw == "__BREAK" then
-						continue
-					end
-					local ValueType = Property.ValueType
-					if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to  table if more types are added
-						ValueType = "SharedString"
-					end
+						repeat
+							local Special = Property.Special
+							if IgnoreSpecialProperties and Special then
+								break
+							end
+							local raw
+							raw, specialProperties =
+								ReadProperty(Property, instance, PropertyName, specialProperties, Special)
+							if raw == "__BREAK" then
+								break
+							end
+							local ValueType = Property.ValueType
+							if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to  table if more types are added
+								ValueType = "SharedString"
+							end
 
-					local Category = Property.Category
+							local Category = Property.Category
 
-					if IgnoreDefaultProperties and PropertyName ~= "Source" then -- ? Source is special, might need to be changed to check for LuaSourceContainer IsA instead
-						local ok, IsModified = pcall(IsPropertyModified, instance, PropertyName) -- ? Not yet enabled lol (580)
-						if ok and not IsModified then
-							continue
-						end
+							if IgnoreDefaultProperties and PropertyName ~= "Source" then -- ? Source is special, might need to be changed to check for LuaSourceContainer IsA instead
+								local ok, IsModified = pcall(IsPropertyModified, instance, PropertyName) -- ? Not yet enabled lol (580)
+								if ok and not IsModified then
+									break
+								end
 
-						local Default = Property.Default
+								local Default = Property.Default
 
-						if OverwriteDefaults[Default] then
-							local ClassTags = ClassList[ClassName].Tags
+								if OverwriteDefaults[Default] then
+									local ClassTags = ClassList[ClassName].Tags
 
-							local NotCreatable = ClassTags and ClassTags.NotCreatable
+									local NotCreatable = ClassTags and ClassTags.NotCreatable
 
-							local Reset
+									local Reset
 
-							if NotCreatable then -- TODO: This whole block should only run if Replica doesn't exist yet, except ResetPropertyToDefault because it's needed for just about every property of NotCreatable objects (in order to check default if undefined in API Dump)
-								if AllowResettingProperties then
-									Reset = pcall(ResetPropertyToDefault, instance, PropertyName)
-									if Reset and not Replica then
-										Replica = instance
+									if NotCreatable then -- TODO: This whole block should only run if Replica doesn't exist yet, except ResetPropertyToDefault because it's needed for just about every property of NotCreatable objects (in order to check default if undefined in API Dump)
+										if AllowResettingProperties then
+											Reset = pcall(ResetPropertyToDefault, instance, PropertyName)
+											if Reset and not Replica then
+												Replica = instance
+											end
+										end
+									elseif not Replica then
+										Replica = classreplicas[ClassName]
 									end
+
+									if Replica and not (NotCreatable and not Reset) then
+										Default =
+											ReadProperty(Property, Replica, PropertyName, specialProperties, Special)
+										-- * Improve this along with specialProperties (merge or maybe store the method to Property.Special), get this property at any cost
+
+										if Reset and not SetProperty(Replica, PropertyName, raw) and __DEBUG_MODE then -- It has been reset
+											warn(
+												"FAILED TO SET BACK TO ORIGINAL VALUE (OPEN A GITHUB ISSUE): ",
+												ValueType,
+												ClassName,
+												PropertyName
+											)
+										end
+
+										Default = ApiFormatify(Default, Category, ValueType)
+										Property.Default = Default
+										-- if Property.Special then
+										-- end
+									end
+								elseif Default == "default" and ValueType == "PhysicalProperties" then
+									Default = "nil"
+									Property.Default = Default
 								end
-							elseif not Replica then
-								Replica = classreplicas[ClassName]
-							end
 
-							if Replica and not (NotCreatable and not Reset) then
-								Default = ReadProperty(Property, Replica, PropertyName, specialProperties, Special)
-								-- * Improve this along with specialProperties (merge or maybe store the method to Property.Special), get this property at any cost
+								if ApiFormatify(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
+									-- print("Default not serializing", PropertyName)
 
-								if Reset and not SetProperty(Replica, PropertyName, raw) and __DEBUG_MODE then -- It has been reset
-									warn(
-										"FAILED TO SET BACK TO ORIGINAL VALUE (OPEN A GITHUB ISSUE): ",
-										ValueType,
-										ClassName,
-										PropertyName
-									)
+									break
 								end
-
-								Default = ApiFormatify(Default, Category, ValueType)
-								Property.Default = Default
-								-- if Property.Special then
-								-- end
 							end
-						elseif Default == "default" and ValueType == "PhysicalProperties" then
-							Default = "nil"
-							Property.Default = Default
-						end
 
-						if ApiFormatify(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
-							-- print("Default not serializing", PropertyName)
-
-							continue
-						end
-					end
-
-					local tag, value
-					if Category == "Class" then
-						tag = "Ref"
-						if raw then
-							value = referents[raw]
-						else
-							value = "null"
-						end
-					elseif Category == "Enum" then -- ! We do this order (Enums before Descriptors) specifically because Font Enum might get a Font Descriptor despite having Enum Category, unlike Font DataType which that Descriptor is meant for
-						value, tag = Descriptors.__ENUM(raw)
-					else
-						local Descriptor = Descriptors[ValueType]
-
-						if Descriptor then
-							value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
-						elseif "BinaryString" == ValueType then -- TODO: Try fitting this inside Descriptors
-							tag = ValueType
-							value = Descriptors.__BINARYSTRING(raw)
-
-							if
-								PropertyName == "SmoothGrid"
-								or PropertyName == "MaterialColors"
-								or PropertyName == "PhysicsGrid"
-							then
-								value = Descriptors.__CDATA(value)
-							end
-						elseif "ProtectedString" == ValueType then -- TODO: Try fitting this inside Descriptors
-							tag = ValueType
-
-							if PropertyName == "Source" then
-								if ScriptsClasses[ClassName] == false then
-									value = "-- Server scripts can NOT be decompiled" --TODO: Could be not just server scrippts in the future
+							local tag, value
+							if Category == "Class" then
+								tag = "Ref"
+								if raw then
+									value = referents[raw]
 								else
-									if DecompileIgnoring then
-										value = "-- Ignored"
-									else
-										value = ldecompile(instance)
-									end
+									value = "null"
 								end
-							end
-
-							value = Descriptors.__PROTECTEDSTRING(value)
-						else
-							--OptionalCoordinateFrame and so on, we make it dynamic
-							local startIDX, endIDX = Find(ValueType, "Optional")
-							if startIDX == 1 then
-								-- Extract the string after "Optional"
-
-								Descriptor = Descriptors[ValueType:sub(endIDX + 1)]
+							elseif Category == "Enum" then -- ! We do this order (Enums before Descriptors) specifically because Font Enum might get a Font Descriptor despite having Enum Category, unlike Font DataType which that Descriptor is meant for
+								value, tag = Descriptors.__ENUM(raw)
+							else
+								local Descriptor = Descriptors[ValueType]
 
 								if Descriptor then
-									if raw ~= nil then
-										value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
-									else
-										value, tag = "", ValueType
+									value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
+								elseif "BinaryString" == ValueType then -- TODO: Try fitting this inside Descriptors
+									tag = ValueType
+									value = Descriptors.__BINARYSTRING(raw)
+
+									if
+										PropertyName == "SmoothGrid"
+										or PropertyName == "MaterialColors"
+										or PropertyName == "PhysicsGrid"
+									then
+										value = Descriptors.__CDATA(value)
+									end
+								elseif "ProtectedString" == ValueType then -- TODO: Try fitting this inside Descriptors
+									tag = ValueType
+
+									if PropertyName == "Source" then
+										if ScriptsClasses[ClassName] == false then
+											value = "-- Server scripts can NOT be decompiled" --TODO: Could be not just server scrippts in the future
+										else
+											if DecompileIgnoring then
+												value = "-- Ignored"
+											else
+												value = ldecompile(instance)
+											end
+										end
+									end
+
+									value = Descriptors.__PROTECTEDSTRING(value)
+								else
+									--OptionalCoordinateFrame and so on, we make it dynamic
+									local startIDX, endIDX = Find(ValueType, "Optional")
+									if startIDX == 1 then
+										-- Extract the string after "Optional"
+
+										Descriptor = Descriptors[ValueType:sub(endIDX + 1)]
+
+										if Descriptor then
+											if raw ~= nil then
+												value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
+											else
+												value, tag = "", ValueType
+											end
+										end
 									end
 								end
 							end
-						end
-					end
 
-					if tag then
-						savebuffer[#savebuffer + 1] = ReturnProperty(tag, PropertyName, value)
-					elseif __DEBUG_MODE then
-						warn("UNSUPPORTED TYPE (OPEN A GITHUB ISSUE): ", ValueType, ClassName, PropertyName)
+							if tag then
+								savebuffer[#savebuffer + 1] = ReturnProperty(tag, PropertyName, value)
+							elseif __DEBUG_MODE then
+								warn("UNSUPPORTED TYPE (OPEN A GITHUB ISSUE): ", ValueType, ClassName, PropertyName)
+							end
+
+						until true
 					end
 				end
-			end
-			savebuffer[#savebuffer + 1] = "</Properties>"
-			local Children = Afterwards or instance:GetChildren()
-			if #Children ~= 0 then
-				savehierarchy(Children)
-			end
+				savebuffer[#savebuffer + 1] = "</Properties>"
+				local Children = Afterwards or instance:GetChildren()
+				if #Children ~= 0 then
+					savehierarchy(Children)
+				end
 
-			if DecompileIgnoring and DecompileIgnoring == instance then
-				DecompileIgnoring = nil
-			end
+				if DecompileIgnoring and DecompileIgnoring == instance then
+					DecompileIgnoring = nil
+				end
 
-			savebuffer[#savebuffer + 1] = "</Item>"
+				savebuffer[#savebuffer + 1] = "</Item>"
+
+			until true
 		end
 	end
 	local function saveextra(Name, Hierarchy, CustomClassName, Source)
@@ -1211,10 +1217,10 @@ local function synsaveinstance(CustomOptions)
 		local Buffer = ReturnItem(Ref.ClassName, Ref) .. ReturnProperty(tag, PropertyName, value)
 
 		if Source then
-			Buffer ..= ReturnProperty("ProtectedString", "Source", Descriptors.__PROTECTEDSTRING(Source))
+			Buffer = Buffer .. ReturnProperty("ProtectedString", "Source", Descriptors.__PROTECTEDSTRING(Source))
 		end
 
-		Buffer ..= "</Properties>"
+		Buffer = Buffer .. "</Properties>"
 
 		table.insert(savebuffer, Buffer)
 		if Hierarchy then
@@ -1227,7 +1233,7 @@ local function synsaveinstance(CustomOptions)
 		local nilinstances
 		if OPTIONS.NilInstances and globalcontainer.getnilinstances then
 			local tmp = {}
-			for _, instance in globalcontainer.getnilinstances() do
+			for _, instance in ipairs(globalcontainer.getnilinstances()) do
 				if instance == game then
 					instance = nil
 					-- break
@@ -1258,7 +1264,7 @@ local function synsaveinstance(CustomOptions)
 		end
 		local Starter = '<roblox version="4">'
 		if ToSaveInstance then
-			Starter ..= '<Meta name="ExplicitAutoJoints">true</Meta>'
+			Starter = Starter .. '<Meta name="ExplicitAutoJoints">true</Meta>'
 		end
 		table.insert(savebuffer, Starter) --[[
 			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
@@ -1318,7 +1324,7 @@ local function synsaveinstance(CustomOptions)
 	]] .. service.HttpService:JSONEncode(OPTIONS) .. "\n]]")
 		end
 		local tmp = { "<SharedStrings>" }
-		for Identifier, Value in SharedStrings do
+		for Identifier, Value in next, SharedStrings do
 			tmp[#tmp + 1] = '<SharedString md5="' .. Identifier .. '">' .. Value .. "</SharedString>"
 		end
 
@@ -1350,7 +1356,7 @@ local function synsaveinstance(CustomOptions)
 			if not T then
 				T = {}
 			end
-			for _, Player in Players:GetPlayers() do
+			for _, Player in ipairs(Players:GetPlayers()) do
 				T[Player.Name] = true
 			end
 			InstancesBlacklist.Model = T
