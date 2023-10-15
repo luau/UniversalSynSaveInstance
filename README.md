@@ -109,6 +109,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - Example: You wish to blacklist your player's name from appearing in any property value
   - Default options like IsolateSomething might also use / influence this
 - [ ] Force disable ParticleEmitters in case something like IgnorePropertiesOfNotScriptsOnScriptsMode is enabled (they stack in one place and create huge lag)
+- [ ] Be able to specify which special properties you want saved (to avoid saving all)
 
 # Acknowledgments
 
