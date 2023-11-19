@@ -15,6 +15,8 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 
 # TO-DOs:
 
+- [ ] !!! Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][Debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
+- [ ] Check out varios Leaked Executors (Especially their Init / Lua scripts) to expand knowledge on the whole subject of saveinstance
 - [x] Add `continue` where needed
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
@@ -133,7 +135,8 @@ resources include:
 [Roblox Format Specifications]: https://github.com/RobloxAPI/spec/
 [SharedStrings]: https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md#sharedstring
 [Synapse X Docs Old]: https://synapsexdocs.github.io/custom-lua-functions/misc-functions/#save-instance
-[Synapse X Docs]: https://docs.synapse.to/reference/misc.html?highlight=saveins#save-instance
+[Debug]: https://web.archive.org/web/20221021015553/https://docs.synapse.to/reference/debug_lib.html
+[Synapse X Docs]: https://web.archive.org/web/20230318113846/https://docs.synapse.to/reference/misc.html
 [Synapse X Source 2019]: https://github.com/Acrillis/SynapseX
 [PropertyPatches v1]: https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72
 [PropertyPatches v2]: https://github.com/rojo-rbx/rbx-dom/tree/master/patches
