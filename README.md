@@ -15,11 +15,12 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 
 # TO-DOs:
 
-- [ ] !!! Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][Debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
+- [ ] !!! Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
 - [ ] Check out varios Leaked Executors (Especially their Init / Lua scripts) to expand knowledge on the whole subject of saveinstance
 - [ ] Look into adding support for Binary Format Output (rbxl/rbxm)
   - .RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
-  - ! Check out [buffer], [bit32] libarires as well as [pack]/[unpack] from the [string] library for more information !
+  - ! Check out [Rojo Rbx Dom Binary] & [Roblox Format Specifications Binary] for more documentation about the Binary File Format!
+  - ! Also see [buffer], [bit32] libraries as well as [pack]/[unpack] from the [string] library for more information on how you can implement something like this!
 - [x] Add `continue` where needed
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
@@ -119,6 +120,7 @@ This document is based largely on the efforts of [@Anaminus] & [@Dekkonot], auth
 resources include:
 
 - [Syngp Synapse X Source code 2019][Synapse X Source 2019] for base saveinstance code (extended by [@mblouka] & [@Acrillis])
+- [Rojo Rbx Dom Xml] for being a fallback documentation in case something wasn't clear in the [Roblox Format Specifications]
 - [Roblox File Format] for a list of redirects of old/deprecated xml properties that still use the old tag values
 - [Roblox Client Tracker] for an extended & close to full JSON Api Dump (with hidden properties & default values)
 
@@ -134,13 +136,16 @@ resources include:
 [DataType Exceptions]: https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_reflector/src/cli/generate.rs#L260
 [KRNL Docs]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
 [KRNL-like saveinstance Options]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
+[Rojo Rbx Dom Xml]: https://github.com/rojo-rbx/rbx-dom/blob/e9732e427b8f0903b6ec9f5d02aa3f1f9e884e94/docs/xml.md
+[Rojo Rbx Dom Binary]: https://github.com/rojo-rbx/rbx-dom/blob/e9732e427b8f0903b6ec9f5d02aa3f1f9e884e94/docs/binary.md
 [Luau Syntax]: https://luau-lang.org/syntax
 [Roblox Client Tracker]: https://github.com/MaximumADHD/Roblox-Client-Tracker
 [Roblox File Format]: https://github.com/MaximumADHD/Roblox-File-Format
 [Roblox Format Specifications]: https://github.com/RobloxAPI/spec/
+[Roblox Format Specifications Binary]: https://github.com/RobloxAPI/spec/blob/master/formats/rbxl.md
 [SharedStrings]: https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md#sharedstring
 [Synapse X Docs Old]: https://synapsexdocs.github.io/custom-lua-functions/misc-functions/#save-instance
-[Debug]: https://web.archive.org/web/20221021015553/https://docs.synapse.to/reference/debug_lib.html
+[debug]: https://web.archive.org/web/20221021015553/https://docs.synapse.to/reference/debug_lib.html
 [Synapse X Docs]: https://web.archive.org/web/20230318113846/https://docs.synapse.to/reference/misc.html
 [Synapse X Source 2019]: https://github.com/Acrillis/SynapseX
 [PropertyPatches v1]: https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72
