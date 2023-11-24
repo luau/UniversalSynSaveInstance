@@ -17,6 +17,9 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 
 - [ ] !!! Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][Debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
 - [ ] Check out varios Leaked Executors (Especially their Init / Lua scripts) to expand knowledge on the whole subject of saveinstance
+- [ ] Look into adding support for Binary Format Output (rbxl/rbxm)
+  - .RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
+  - ! Check out [buffer], [bit32] libarires as well as [pack]/[unpack] from the [string] library for more information !
 - [x] Add `continue` where needed
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
@@ -46,9 +49,6 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   * This will help with getting many ValueTypes accurately, especially BinaryStrings vs strings
   - [x] ~~Inherit them properly & do the clean-up~~ Full API Dump Solves this
   - [x] ~~Tell whether ValueType is string or BinaryString~~ Full API Dump Solves this
-- [ ] Look into adding support for Binary Format Output (rbxl/rbxm)
-  - .RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
-  - ! Check out string.pack/.unpack & bit32 library for more information !
 - [ ] Support for Model files:
   - [x] rbxmx (xml)
   - [ ] rbxm (binary)
@@ -126,6 +126,11 @@ resources include:
 [@Anaminus]: https://github.com/Anaminus
 [@Dekkonot]: https://github.com/Dekkonot
 [@mblouka]: https://github.com/mblouka
+[bit32]: https://create.roblox.com/docs/reference/engine/libraries/bit32
+[buffer]: https://create.roblox.com/docs/reference/engine/libraries/buffer
+[pack]: https://create.roblox.com/docs/reference/engine/libraries/string#pack
+[unpack]: https://create.roblox.com/docs/reference/engine/libraries/string#unpack
+[string]: https://create.roblox.com/docs/reference/engine/libraries/string
 [DataType Exceptions]: https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_reflector/src/cli/generate.rs#L260
 [KRNL Docs]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
 [KRNL-like saveinstance Options]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
