@@ -63,7 +63,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - [ ] Type-checking (😩🙀)
   - [ ] `local maxValue = if a > b then a else b` expressions
   - [ ] print(`Bob has {count} apple(s)!`) expressions
-  - [] Floor division
+  - [ ] Floor division
 
 - [ ] Speed things up as much as possible
   - Requires benchmarks
@@ -123,6 +123,8 @@ resources include:
 - [Rojo Rbx Dom Xml] for being a fallback documentation in case something wasn't clear in the [Roblox Format Specifications]
 - [Roblox File Format] for a list of redirects of old/deprecated xml properties that still use the old tag values
 - [Roblox Client Tracker] for an extended & close to full JSON Api Dump (with hidden properties & default values)
+
+*** View source code of this file for more credits
 
 [@Acrillis]: https://github.com/Acrillis
 [@Anaminus]: https://github.com/Anaminus
