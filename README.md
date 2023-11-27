@@ -22,6 +22,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - ! Check out [Rojo Rbx Dom Binary] & [Roblox Format Specifications Binary] for more documentation about the Binary File Format!
   - ! Also see [buffer], [bit32] libraries as well as [pack]/[unpack] from the [string] library for more information on how you can implement something like this!
 - [x] Add `continue` where needed
+- [ ] Benchmark `next, ` and numerical loops on both lua & luau then decide which and where to use
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
 - [x] Add getproperties as fallback for specialinfo
