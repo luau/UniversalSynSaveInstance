@@ -21,6 +21,8 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - .RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
   - ! Check out [Rojo Rbx Dom Binary] & [Roblox Format Specifications Binary] for more documentation about the Binary File Format!
   - ! Also see [buffer], [bit32] libraries as well as [pack]/[unpack] from the [string] library for more information on how you can implement something like this!
+- [ ] Add custom decompiler in case executor doesn't have one but has getscriptbytecode (UMF)
+  - https://github.com/TheSeaweedMonster/Lua-Scripts/blob/main/decompile.lua
 - [x] Add `continue` where needed
 - [ ] Benchmark `next, ` and numerical loops on both lua & luau then decide which and where to use
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
