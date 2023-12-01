@@ -13,6 +13,11 @@ local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. 
 Or shortly SSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019].<br />
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances
 
+# Notes
+* Credits are appreciated 💝
+* Do NOT claim you wrote this
+* Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) 😁
+
 # TO-DOs:
 
 - [ ] !!! Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
