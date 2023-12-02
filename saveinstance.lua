@@ -38,14 +38,14 @@ local service = setmetatable({}, {
 	end,
 })
 
-local EscapesPattern = "[%z\1-\8\11-\12\14-\31\127-\191\194-\244\"&<>']"
-
+local EscapesPattern = "[%z\1-\8\11-\12\14-\31\127-\191\194-\244<>\"'&]"
+-- Order from: https://create.roblox.com/docs/en-us/ui/rich-text#escape-forms
 local Escapes = {
-	['"'] = "&quot;",
-	["&"] = "&amp;",
 	["<"] = "&lt;",
 	[">"] = "&gt;",
+	['"'] = "&quot;",
 	["'"] = "&apos;",
+	["&"] = "&amp;",
 }
 
 for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
