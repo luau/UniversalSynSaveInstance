@@ -8,9 +8,9 @@ local Params = {
 local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
 ```
 
-# Syn Save Instance
+# Universal Syn Save Instance
 
-Or shortly SSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019].<br />
+Or shortly USSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019].<br />
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances
 
 # Notes
