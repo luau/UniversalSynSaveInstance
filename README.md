@@ -14,9 +14,9 @@ Or shortly USSI, a project aimed at resurrecting saveinstance function from [Syn
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
 # Notes
-* Credits are appreciated 💝
-* Do NOT claim you wrote this
-* Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) 😁
+* Credits are appreciated :shipit:
+* Do NOT claim you wrote this :accessibility:
+* Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) :finnadie:
 
 # TO-DOs:
 
