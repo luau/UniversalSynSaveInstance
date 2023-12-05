@@ -10,8 +10,8 @@ local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. 
 
 # Universal Syn Save Instance
 
-Or shortly USSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019].<br />
-Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances
+Or shortly USSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019] & Other Executor Source leaks :trollface:.<br />
+Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
 # Notes
 * Credits are appreciated 💝
