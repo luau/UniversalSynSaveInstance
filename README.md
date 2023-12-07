@@ -8,15 +8,15 @@ local Params = {
 local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
 ```
 
-# Syn Save Instance
+# Universal Syn Save Instance
 
-Or shortly SSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019].<br />
-Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances
+Or shortly USSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019] & Other Executor Source leaks :trollface:.<br />
+Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
 # Notes
-* Credits are appreciated 💝
-* Do NOT claim you wrote this
-* Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) 😁
+* Credits are appreciated 💖
+* Do NOT claim you wrote this :accessibility:
+* Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) :finnadie:
 
 # TO-DOs:
 
