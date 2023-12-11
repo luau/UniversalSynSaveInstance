@@ -14,9 +14,10 @@ Or shortly USSI, a project aimed at resurrecting saveinstance function from [Syn
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
 # Notes
-* Credits are appreciated 💖
-* Do NOT claim you wrote this :accessibility:
-* Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) :finnadie:
+
+- Credits are appreciated 💖
+- Do NOT claim you wrote this :accessibility:
+- Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) :finnadie:
 
 # TO-DOs:
 
@@ -31,7 +32,6 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Add custom timeout logic for decompiler instead of relying on executor to have one
   - Using threads & coroutines.
 - [x] Add `continue` where needed
-- [ ] Benchmark `next, ` and numerical loops on both lua & luau then decide which and where to use
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
 - [x] Add getproperties as fallback for specialinfo
@@ -66,10 +66,12 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] ~~Possibly convert to non-Name tables & use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}~~ Add too much complexity for now
   - This will allow for more flexibility of saveinstancing
 - [x] ~~Remove Useless tables & functions of specialinfo~~ Repurposed
-- [x] Implement [Luau Syntax] (matters for performance!):
+- [x] Implement [Luau Syntax] (important for performance!):
 
   - [x] Compound Operators
   - [x] Avoid using `next`, `ipairs` & `pairs`
+  - [ ] [BENCHMARK] Interpolated strings instead of concat
+  - [ ] [BENCHMARK] `next, ` and numerical loops on both lua & luau to decide which and where to use
   - [ ] Type-checking (😩🙀)
   - [ ] `local maxValue = if a > b then a else b` expressions
   - [ ] print(`Bob has {count} apple(s)!`) expressions
@@ -134,7 +136,7 @@ resources include:
 - [Roblox File Format] for a list of redirects of old/deprecated xml properties that still use the old tag values
 - [Roblox Client Tracker] for an extended & close to full JSON Api Dump (with hidden properties & default values)
 
-*** View source code of this file for more credits
+\*\*\* View source code of this file for more credits
 
 [@Acrillis]: https://github.com/Acrillis
 [@Anaminus]: https://github.com/Anaminus
