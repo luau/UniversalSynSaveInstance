@@ -715,8 +715,12 @@ local function ReturnValueAndTag(raw, ValueType, Descriptor)
 	return value, tag == nil and ValueType or tag
 end
 
-local OverwriteDefaults =
-	{ __api_dump_class_not_creatable__ = true, __api_dump_no_string_value__ = true, __api_dump_skipped_class__ = true }
+local BlacklistedDefaults = {
+	__api_dump_class_not_creatable__ = true,
+	__api_dump_no_string_value__ = true,
+	__api_dump_skipped_class__ = true,
+	-- __api_dump_write_only_property__ = true, -- ? Is this needed
+}
 
 local StatusGui = Instance.new("ScreenGui")
 StatusGui.DisplayOrder = math.huge
@@ -1072,7 +1076,7 @@ local function synsaveinstance(CustomOptions)
 
 						local Default = Property.Default
 
-						if OverwriteDefaults[Default] then
+						if BlacklistedDefaults[Default] then
 							local ClassTags = ClassList[ClassName].Tags
 
 							local NotCreatable = ClassTags and ClassTags.NotCreatable
