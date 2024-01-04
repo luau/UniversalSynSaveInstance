@@ -33,6 +33,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - Using threads & coroutines.
 - [x] Add `continue` where needed
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
+- [ ] Merge SharedStrings and sharedstrings tables
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
 - [x] Add getproperties as fallback for specialinfo
 - [ ] Add Redirects to some special (in a bad way 😡) values, more info @ ~~[PropertyPatches v1]~~ [PropertyPatches v2]+[PropertyPatches v3], otherwise they will fallback to default when file is opened
