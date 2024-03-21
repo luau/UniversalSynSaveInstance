@@ -389,18 +389,24 @@ for _, StaysRaw in ipairs({
 	end
 end
 
+if globalcontainer.getspecialinfo then
+	local old_getspecialinfo = globalcontainer.getspecialinfo
+
+	globalcontainer.getspecialinfo = function(instance)
+		local ok, result = pcall(old_getspecialinfo, instance) -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron, Codex
+		return ok and result or {}
+	end
+end
+
 if getproperties then
 	if globalcontainer.getspecialinfo then
-		local getreal = globalcontainer.getspecialinfo
+		local old_getspecialinfo = globalcontainer.getspecialinfo
 
 		globalcontainer.getspecialinfo = function(instance)
 			local specialinfo = getproperties(instance)
 
-			local ok, result = pcall(getreal, instance) -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron
-			if ok then
-				for Property, Value in next, result do
-					specialinfo[Property] = Value
-				end
+			for Property, Value in next, old_getspecialinfo(instance) do
+				specialinfo[Property] = Value
 			end
 
 			return specialinfo
@@ -1004,7 +1010,7 @@ local function synsaveinstance(CustomOptions)
 		total = total .. savestr
 		writefile(placename, total)
 		if StatusTextClone then
-			StatusTextClone.Text = "Saving " .. getsizeformat()
+			StatusTextClone.Text = "Saving.. Size: " .. getsizeformat()
 		end
 		savebuffer = {}
 		rwait()
@@ -1402,7 +1408,7 @@ local function synsaveinstance(CustomOptions)
 				task.wait(Log10 * 2 + 3)
 			else
 				StatusTextClone.Text = "Failed! Check F9 console for more info"
-				warn("Error encountered while saving")
+				warn("Error found while saving")
 				warn("Information about error:")
 				warn(err)
 				task.wait(Log10 + 3)
