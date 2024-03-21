@@ -1149,7 +1149,7 @@ local function synsaveinstance(CustomOptions)
 							tag = ValueType
 							value = Descriptors.__BINARYSTRING(raw)
 
-							if
+							if -- ? Roblox doesn't CDATA anything else other than these as far as we know (feel free to prove us wrong)
 								PropertyName == "SmoothGrid"
 								or PropertyName == "MaterialColors"
 								or PropertyName == "PhysicsGrid"
@@ -1161,7 +1161,7 @@ local function synsaveinstance(CustomOptions)
 
 							if PropertyName == "Source" then
 								if ScriptsClasses[ClassName] == false then
-									value = "-- Server scripts can NOT be decompiled" --TODO: Could be not just server scrippts in the future
+									value = "-- Server scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
 								else
 									if DecompileIgnoring then
 										value = "-- Ignored"
