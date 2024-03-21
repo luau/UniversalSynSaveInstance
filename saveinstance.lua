@@ -380,10 +380,13 @@ The value of each component is represented by the text content formatted as a 32
 	end,
 }
 
-for _, StaysRaw in ipairs({
-	"int",
-	"int64",
-}) do
+for _, StaysRaw in
+	next,
+	{
+		"int",
+		"int64",
+	}
+do
 	Descriptors[StaysRaw] = function(raw)
 		return Descriptors.__EXTREMIFY(raw) or raw
 	end
@@ -526,7 +529,7 @@ local function ArrayToDictionary(Table, HybridMode)
 			end
 		end
 	else
-		for _, Key in ipairs(Table) do
+		for _, Key in next, Table do
 			tmp[Key] = true
 		end
 	end
@@ -656,7 +659,7 @@ local inheritedproperties = setmetatable({}, {
 			local _list_0 = layer.Properties
 
 			-- proplist = table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
-			for _, p in ipairs(_list_0) do
+			for _, p in next, _list_0 do
 				p = table.clone(p)
 				-- p.Name = PropertyName
 				table.insert(proplist, p)
@@ -1243,7 +1246,7 @@ local function synsaveinstance(CustomOptions)
 		local nilinstances
 		if OPTIONS.NilInstances and globalcontainer.getnilinstances then
 			local tmp = {}
-			for _, instance in ipairs(globalcontainer.getnilinstances()) do
+			for _, instance in next, globalcontainer.getnilinstances() do
 				if instance == game then
 					instance = nil
 					-- break
@@ -1366,7 +1369,7 @@ local function synsaveinstance(CustomOptions)
 			if not T then
 				T = {}
 			end
-			for _, Player in ipairs(Players:GetPlayers()) do
+			for _, Player in next, Players:GetPlayers() do
 				T[Player.Name] = true
 			end
 			InstancesBlacklist.Model = T
