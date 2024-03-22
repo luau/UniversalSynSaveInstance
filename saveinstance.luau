@@ -64,8 +64,8 @@ do
 		game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
 		"Base64"
 	)().encode
-	Base64_Encode = function(str) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
-		return buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(str)))
+	Base64_Encode = function(raw) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
+		return raw == "" and raw or buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(raw)))
 	end
 end
 
@@ -476,7 +476,7 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			-- Property.Special = false
 			-- Property.CanRead = false
 
-			return "__BREAK", specialProperties
+			return "__BREAK", specialProperties -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
 		end
 	else
 		local CanRead = Property.CanRead
@@ -507,12 +507,12 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			end
 
 			Property.CanRead = ok
-			if not ok then
+			if not ok or raw == nil then -- ? raw == nil thanks to SerializedDefaultAttributes
 				return "__BREAK", specialProperties
 			end
 		elseif true == CanRead then
 			raw = instance[PropertyName]
-		elseif false == CanRead then
+		elseif false == CanRead then -- * Skips because we've checked this property before
 			return "__BREAK", specialProperties
 		end
 	end
