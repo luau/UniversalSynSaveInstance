@@ -55,7 +55,7 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
   - All current redirects: [Here](https://github.com/luau/SynSaveInstance/blob/main/TODO/PropertyPatches)
 - [ ] Add more Fixes for Errors that **_can_** pop up during opening process
 - [x] Add Optional tags support
-- [ ] Add readbinarystring or readbinarystringpropertyvalue/readbspval (elysian) as fallback for gethiddenproperty
+- [ ] Add readbinarystring or readbinarystringpropertyvalue/readbspval/getbspval (elysian) as fallback for gethiddenproperty
 - [ ] Add table.clone instead {} in some cases if possible
 - [ ] Avoid scanning for default values of properties if those properties won't get serialized anyway (e.g. don't have a Descriptor)
 - [x] Add --!native tag just in case

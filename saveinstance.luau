@@ -7,26 +7,30 @@ local Params = {
 local finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params.UMF .. ".luau", true), Params.UMF)()
 
 finder({
-	-- readbinarystring = '(...):find("bin",nil,true)', -- ! Could match some unwanted stuff
-	decompile = '((...):find("decomp",nil,true) and (...):sub(#...) ~= "s") or (...):find("assembl",nil,true)',
-	gethiddenproperty = '(...):find("get",nil,true) and (...):find("h",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) ~= "s"',
-	sethiddenproperty = '(...):find("set",nil,true) and (...):find("h",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) ~= "s"',
-	gethui = '(...):find("get",nil,true) and (...):find("h",nil,true) and (...):find("ui",nil,true)',
-	getnilinstances = '(...):find("nil",nil,true)', -- ! Could match some unwanted stuff
-	getproperties = '(...):find("get",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) == "s"',
-	getspecialinfo = '(...):find("get",nil,true) and (...):find("spec",nil,true)',
-	protectgui = '(...):find("protect",nil,true) and (...):find("ui",nil,true) and not (...):find("un",nil,true)',
-	writefile = '(...):find("file",nil,true) and (...):find("write",nil,true)',
+	-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
+	decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
+	gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
+	gethiddenproperties = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
+	sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
+	gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
+	getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
+	getproperties = 'string.find(...,"get",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
+	getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
+	protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
+	writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 }, true)
 
 local decompile = globalcontainer.decompile
 local gethiddenproperty = globalcontainer.gethiddenproperty
 local sethiddenproperty = globalcontainer.sethiddenproperty
-local getproperties = globalcontainer.getproperties
 local writefile = globalcontainer.writefile
 
+if not globalcontainer.getspecialinfo then
+	globalcontainer.getspecialinfo = globalcontainer.gethiddenproperties
+end
+
 local function Find(String, Pattern)
-	return String:find(Pattern, nil, true)
+	return string.find(String, Pattern, nil, true)
 end
 
 local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
@@ -54,10 +58,16 @@ for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
 	end
 end
 
-local Base64_Encode = loadstring(
-	game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
-	"Base64"
-)().encode
+local Base64_Encode
+do
+	local Base64_Encode_Buffer = loadstring(
+		game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
+		"Base64"
+	)().encode
+	Base64_Encode = function(str) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
+		return buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(str)))
+	end
+end
 
 local SharedStrings = {}
 local sharedstrings = setmetatable({
@@ -99,7 +109,7 @@ Descriptors = {
 			-- TODO: scientific notation formatting also takes place if value is a decimal (only counts if it starts with 0.) then values like 0.00008 will be formatted as 8.0000000000000006544e-05 ("%.19e"), it must have 5 or more consecutive (?) zeros for this, on other hand, if it doesn't start with 0. then e20+ format is applied in case it has 20 or more consecutive (?) zeros so 1e20 will be formatted as 1e+20 and upwards (1e+19 is not allowed, same as 1e-04 for decimals)
 			-- ? The good part is compression of value so less file size BUT at the potential cost of precision loss
 
-			return ("%." .. precision .. "f"):format(raw)
+			return string.format("%." .. precision .. "f", raw)
 		end
 
 		return raw
@@ -376,7 +386,7 @@ The value of each component is represented by the text content formatted as a 32
 		return Descriptors.__APIPRECISION(raw, default or 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
 	end,
 	string = function(raw, skipcheck)
-		return not skipcheck and raw == "" and raw or raw:gsub(EscapesPattern, Escapes)
+		return not skipcheck and raw == "" and raw or string.gsub(raw, EscapesPattern, Escapes)
 	end,
 }
 
@@ -391,14 +401,17 @@ do
 	end
 end
 
-if globalcontainer.getspecialinfo then
-	local old_getspecialinfo = globalcontainer.getspecialinfo
-
-	globalcontainer.getspecialinfo = function(instance)
-		local ok, result = pcall(old_getspecialinfo, instance) -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron, Codex
-		return ok and result or {}
+for _, originalfuncname in { "getproperties", "getspecialinfo" } do -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron, Codex
+	local originalfunc = globalcontainer[originalfuncname]
+	if originalfunc then
+		globalcontainer[originalfuncname] = function(instance)
+			local ok, result = pcall(originalfunc, instance)
+			return ok and result or {}
+		end
 	end
 end
+
+local getproperties = globalcontainer.getproperties
 
 if getproperties then
 	if globalcontainer.getspecialinfo then
@@ -820,7 +833,7 @@ local function synsaveinstance(CustomOptions)
 		IsolateLocalPlayerCharacter = false, -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
 		-- MaxThreads = 3
 		RemovePlayerCharacters = true, -- If enabled, player characters will not be saved.
-		SavePlayers = false,
+		SavePlayers = false, -- This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2
 		SaveCacheInterval = 0x1600, -- The less the more often it saves, but that would mean less performance due to constantly saving
 		ReadMe = true,
 		-- ! Risky
@@ -1178,7 +1191,7 @@ local function synsaveinstance(CustomOptions)
 							if startIDX == 1 then
 								-- Extract the string after "Optional"
 
-								Descriptor = Descriptors[ValueType:sub(endIDX + 1)]
+								Descriptor = Descriptors[string.sub(ValueType, endIDX + 1)]
 
 								if Descriptor then
 									if raw ~= nil then
@@ -1391,7 +1404,9 @@ local function synsaveinstance(CustomOptions)
 
 	do
 		local elapse_t = os.clock()
-		local ok, err = pcall(savegame)
+		local ok, err = xpcall(savegame, function(err)
+			return debug.traceback(err)
+		end)
 		elapse_t = os.clock() - elapse_t
 
 		local Log10 = math.log10(elapse_t)
