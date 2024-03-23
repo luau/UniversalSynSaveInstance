@@ -474,8 +474,12 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 		if
 			raw == nil
 			or raw == "can't get value"
-			or type(raw) == "string" and Find(raw, "Unable to get property " .. PropertyName)
-		then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - Roexec
+			or type(raw) == "string"
+				and (Find(raw, "Unable to get property " .. PropertyName) or Property.Category == "Enum" and Find(
+					raw,
+					"Invalid value for enum "
+				))
+		then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
 			-- * Skip next time we encounter this too perhaps
 			-- Property.Special = false
 			-- Property.CanRead = false
@@ -515,8 +519,12 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 				not ok
 				or raw == nil
 				or raw == "can't get value"
-				or type(raw) == "string" and Find(raw, "Unable to get property " .. PropertyName)
-			then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - Roexec
+				or type(raw) == "string"
+					and (Find(raw, "Unable to get property " .. PropertyName) or Property.Category == "Enum" and Find(
+						raw,
+						"Invalid value for enum "
+					))
+			then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
 				return "__BREAK", specialProperties
 			end
 		elseif true == CanRead then
