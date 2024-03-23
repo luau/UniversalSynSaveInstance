@@ -471,7 +471,11 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			end
 		end
 
-		if raw == nil then
+		if
+			raw == nil
+			or raw == "can't get value"
+			or type(raw) == "string" and Find(raw, "Unable to get property " .. PropertyName)
+		then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - Roexec
 			-- * Skip next time we encounter this too perhaps
 			-- Property.Special = false
 			-- Property.CanRead = false
@@ -507,7 +511,12 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			end
 
 			Property.CanRead = ok
-			if not ok or raw == nil then -- ? raw == nil thanks to SerializedDefaultAttributes
+			if
+				not ok
+				or raw == nil
+				or raw == "can't get value"
+				or type(raw) == "string" and Find(raw, "Unable to get property " .. PropertyName)
+			then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - Roexec
 				return "__BREAK", specialProperties
 			end
 		elseif true == CanRead then
@@ -654,15 +663,6 @@ local function rwait()
 	rswait:Wait()
 end
 
-local NilInstancesFixes = {
-	Animator = function(instance)
-		local AnimationController = Instance.new("AnimationController")
-		AnimationController.Name = "Animator has to be placed under Humanoid or AnimationController"
-		instance:Clone().Parent = AnimationController
-		return AnimationController
-	end,
-}
-
 local inheritedproperties = setmetatable({}, {
 	__index = function(self, ClassName)
 		local proplist = {}
@@ -742,7 +742,7 @@ local BlacklistedDefaults = {
 }
 
 local StatusGui = Instance.new("ScreenGui")
-StatusGui.DisplayOrder = math.huge
+StatusGui.DisplayOrder = 2_000_000_000
 StatusGui.OnTopOfCoreBlur = true
 
 local function randomString()
@@ -808,6 +808,7 @@ local function synsaveinstance(CustomOptions)
 			Players = {"MyPlayerName"} - - This affects any descendants of instance with "Players" .Class AND "MyPlayerName" .Name ONLY
 		}
 		]]
+		PropertiesBlacklist = {},
 		InstancesBlacklist = { "CoreGui", "CorePackages" },
 		--[[ Explanation of structure for InstancesBlacklist
 			{
@@ -817,6 +818,14 @@ local function synsaveinstance(CustomOptions)
 		]]
 		ExtraInstances = {},
 		NilInstances = false,
+		NilInstancesFixes = {
+			Animator = function(instance)
+				local AnimationController = Instance.new("AnimationController")
+				AnimationController.Name = "Animator has to be placed under Humanoid or AnimationController"
+				instance:Clone().Parent = AnimationController
+				return AnimationController
+			end,
+		},
 		ShowStatus = true,
 		FilePath = false, --  does not need to contain a file extension, only the name of the file.
 		Object = false, -- If provided, saves as .rbxmx (Model file) instead; If Object is game, it will be saved as a .RBXL file -- ! MUST BE AN INSTANCE REFERENCE like game.Workspace for example; "optimized" mode is NOT supported with this option
@@ -826,7 +835,7 @@ local function synsaveinstance(CustomOptions)
 		IgnoreDefaultProperties = true,
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false, -- Ignores property of every instance that is not a script in "scripts" mode
-		IgnoreSpecialProperties = false, -- true will disable Terrain & some other things
+		IgnoreSpecialProperties = false, -- true will disable Terrain & Break MeshPart Sizes (very likely)
 		-- IsolatePlayerGui = false,
 		IsolateStarterPlayer = false, --If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders.
 		IsolateLocalPlayer = false, -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
@@ -838,6 +847,7 @@ local function synsaveinstance(CustomOptions)
 		ReadMe = true,
 		-- ! Risky
 		AllowResettingProperties = false, -- Enables Resetting of properties for sake of checking their default value (Useful for cases when Instance is NotCreatable like services yet we need to get the default value ) then sets the property back to the original value, which might get detected by some games --! WARNING: Sometimes Properties might not be able to be set to the original value due to circumstances
+		IgnoreSharedStrings = true, -- ! FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY); FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU
 		SharedStringOverwrite = false, -- !  if the process is not finished aka crashed then none of the affected values will be available; SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far); Reason: Allows for potential smaller file size (can also be bigger in some cases)
 	}
 
@@ -986,8 +996,10 @@ local function synsaveinstance(CustomOptions)
 		ToSaveList = tmp
 	end
 
-	local DecompileIgnore, InstancesBlacklist =
-		ArrayToDictionary(OPTIONS.DecompileIgnore, "table"), ArrayToDictionary(OPTIONS.InstancesBlacklist, "table")
+	local DecompileIgnore, InstancesBlacklist, PropertiesBlacklist =
+		ArrayToDictionary(OPTIONS.DecompileIgnore, "table"),
+		ArrayToDictionary(OPTIONS.InstancesBlacklist, "table"),
+		ArrayToDictionary(OPTIONS.PropertiesBlacklist, "table")
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 	local AllowResettingProperties = OPTIONS.AllowResettingProperties
@@ -999,7 +1011,9 @@ local function synsaveinstance(CustomOptions)
 	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
 	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
 	local SaveCacheInterval = OPTIONS.SaveCacheInterval
+
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
+	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 
 	local function getsizeformat()
 		local Size
@@ -1031,9 +1045,7 @@ local function synsaveinstance(CustomOptions)
 		rwait()
 	end
 	local DecompileIgnoring
-	local savehierarchy
-
-	savehierarchy = function(Hierarchy, Afterwards)
+	local function savehierarchy(Hierarchy, Afterwards)
 		if SaveCacheInterval < #savebuffer then
 			savecache()
 		end
@@ -1071,16 +1083,27 @@ local function synsaveinstance(CustomOptions)
 					local Property = Properties[_index_1]
 					local PropertyName = Property.Name
 
+					if PropertiesBlacklist[PropertyName] then
+						continue
+					end
+
 					local Special = Property.Special
 					if IgnoreSpecialProperties and Special then
 						continue
 					end
+
+					local ValueType = Property.ValueType
+
+					if IgnoreSharedStrings and ValueType == "SharedString" then -- ? More info in Options
+						continue
+					end
+
 					local raw
 					raw, specialProperties = ReadProperty(Property, instance, PropertyName, specialProperties, Special)
 					if raw == "__BREAK" then
 						continue
 					end
-					local ValueType = Property.ValueType
+
 					if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to  table if more types are added
 						ValueType = "SharedString"
 					end
@@ -1250,6 +1273,9 @@ local function synsaveinstance(CustomOptions)
 		local nilinstances
 		if OPTIONS.NilInstances and globalcontainer.getnilinstances then
 			local tmp = {}
+
+			local NilInstancesFixes = OPTIONS.NilInstancesFixes
+
 			for _, instance in globalcontainer.getnilinstances() do
 				if instance == game then
 					instance = nil
@@ -1412,15 +1438,16 @@ local function synsaveinstance(CustomOptions)
 		local Log10 = math.log10(elapse_t)
 
 		if StatusTextClone then
+			local ExtraTime = 10
 			if ok then
 				StatusTextClone.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
-				task.wait(Log10 * 2 + 3)
+				task.wait(Log10 * 2 + ExtraTime)
 			else
 				StatusTextClone.Text = "Failed! Check F9 console for more info"
 				warn("Error found while saving")
 				warn("Information about error:")
 				warn(err)
-				task.wait(Log10 + 3)
+				task.wait(Log10 + ExtraTime)
 			end
 			StatusTextClone:Destroy()
 		end
