@@ -60,6 +60,39 @@ end
 
 local Base64_Encode
 do
+	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
+	bit32 = table.clone(bit32)
+
+	local function tobit(num)
+		num = num % (bit32.bxor(num, 32))
+		if num > 0x80000000 then
+			num = num - bit32.bxor(num, 32)
+		end
+		return num
+	end
+
+	bit32.byteswap = function(num)
+		local BYTE_SIZE = 8
+		local MAX_BYTE_VALUE = 255
+
+		num = num % bit32.bxor(2, 32)
+
+		local a = bit32.band(num, MAX_BYTE_VALUE)
+		num = bit32.rshift(num, BYTE_SIZE)
+
+		local b = bit32.band(num, MAX_BYTE_VALUE)
+		num = bit32.rshift(num, BYTE_SIZE)
+
+		local c = bit32.band(num, MAX_BYTE_VALUE)
+		num = bit32.rshift(num, BYTE_SIZE)
+
+		local d = bit32.band(num, MAX_BYTE_VALUE)
+		num = tobit(bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d)
+		return num
+	end
+
+	table.freeze(bit32)
+end
 	local Base64_Encode_Buffer = loadstring(
 		game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
 		"Base64"
