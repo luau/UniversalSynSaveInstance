@@ -1,6 +1,7 @@
 --!strict
 
--- ! Check out https://github.com/rojo-rbx/rbx-dom/tree/master/patches for more
+-- ! Source: https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua
+-- ! Extras: https://github.com/rojo-rbx/rbx-dom/tree/master/patches
 
 export type GetSet = string | {
 	Get: string,
