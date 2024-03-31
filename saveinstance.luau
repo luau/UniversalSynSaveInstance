@@ -490,6 +490,17 @@ end
 
 local function ReadProperty(Property, instance, PropertyName, specialProperties, Special)
 	local raw
+
+	local function FilterResult(Result) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+		return Result == nil
+			or Result == "can't get value"
+			or type(Result) == "string"
+				and (Find(Result, "Unable to get property " .. PropertyName) or Property.Category == "Enum" and Find(
+					Result,
+					"Invalid value for enum "
+				))
+	end
+
 	if Special then
 		if specialProperties == nil and getspecialinfo then
 			specialProperties = getspecialinfo(instance)
@@ -504,15 +515,7 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			end
 		end
 
-		if
-			raw == nil
-			or raw == "can't get value"
-			or type(raw) == "string"
-				and (Find(raw, "Unable to get property " .. PropertyName) or Property.Category == "Enum" and Find(
-					raw,
-					"Invalid value for enum "
-				))
-		then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+		if FilterResult(raw) then
 			-- * Skip next time we encounter this too perhaps
 			-- Property.Special = false
 			-- Property.CanRead = false
@@ -548,16 +551,7 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			end
 
 			Property.CanRead = ok
-			if
-				not ok
-				or raw == nil
-				or raw == "can't get value"
-				or type(raw) == "string"
-					and (Find(raw, "Unable to get property " .. PropertyName) or Property.Category == "Enum" and Find(
-						raw,
-						"Invalid value for enum "
-					))
-			then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+			if not ok or FilterResult(raw) then
 				return "__BREAK", specialProperties
 			end
 		elseif true == CanRead then
