@@ -832,7 +832,7 @@ local function synsaveinstance(CustomOptions)
 	local StatusTextClone
 
 	local OPTIONS = {
-		mode = "optimized", -- Change this to invalid mode like "custom" if you only want extrainstances; -- ! "optimized" mode is NOT supported with OPTIONS.Instance option
+		mode = "optimized", -- Change this to invalid mode like "custom" if you only want extrainstances; -- ! "optimized" mode is NOT supported with OPTIONS.Object option
 		noscripts = false,
 		scriptcache = true,
 		-- decomptype = "new", -- * Deprecated

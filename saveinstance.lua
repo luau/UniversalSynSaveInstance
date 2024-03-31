@@ -7,26 +7,30 @@ local Params = {
 local finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params.UMF .. ".luau", true), Params.UMF)()
 
 finder({
-	-- readbinarystring = '(...):find("bin",nil,true)', -- ! Could match some unwanted stuff
-	decompile = '((...):find("decomp",nil,true) and (...):sub(#...) ~= "s") or (...):find("assembl",nil,true)',
-	gethiddenproperty = '(...):find("get",nil,true) and (...):find("h",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) ~= "s"',
-	sethiddenproperty = '(...):find("set",nil,true) and (...):find("h",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) ~= "s"',
-	gethui = '(...):find("get",nil,true) and (...):find("h",nil,true) and (...):find("ui",nil,true)',
-	getnilinstances = '(...):find("nil",nil,true)', -- ! Could match some unwanted stuff
-	getproperties = '(...):find("get",nil,true) and (...):find("prop",nil,true) and (...):sub(#...) == "s"',
-	getspecialinfo = '(...):find("get",nil,true) and (...):find("spec",nil,true)',
-	protectgui = '(...):find("protect",nil,true) and (...):find("ui",nil,true) and not (...):find("un",nil,true)',
-	writefile = '(...):find("file",nil,true) and (...):find("write",nil,true)',
+	-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
+	decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
+	gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
+	gethiddenproperties = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
+	sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
+	gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
+	getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
+	getproperties = 'string.find(...,"get",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
+	getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
+	protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
+	writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 }, true)
 
 local decompile = globalcontainer.decompile
 local gethiddenproperty = globalcontainer.gethiddenproperty
 local sethiddenproperty = globalcontainer.sethiddenproperty
-local getproperties = globalcontainer.getproperties
 local writefile = globalcontainer.writefile
 
+if not globalcontainer.getspecialinfo then
+	globalcontainer.getspecialinfo = globalcontainer.gethiddenproperties
+end
+
 local function Find(String, Pattern)
-	return String:find(Pattern, nil, true)
+	return string.find(String, Pattern, nil, true)
 end
 
 local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
@@ -54,10 +58,49 @@ for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
 	end
 end
 
-local Base64_Encode = loadstring(
+local Base64_Encode
+do
+	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
+		bit32 = table.clone(bit32)
+
+		local function tobit(num)
+			num = num % (bit32.bxor(num, 32))
+			if num > 0x80000000 then
+				num = num - bit32.bxor(num, 32)
+			end
+			return num
+		end
+
+		bit32.byteswap = function(num)
+			local BYTE_SIZE = 8
+			local MAX_BYTE_VALUE = 255
+
+			num = num % bit32.bxor(2, 32)
+
+			local a = bit32.band(num, MAX_BYTE_VALUE)
+			num = bit32.rshift(num, BYTE_SIZE)
+
+			local b = bit32.band(num, MAX_BYTE_VALUE)
+			num = bit32.rshift(num, BYTE_SIZE)
+
+			local c = bit32.band(num, MAX_BYTE_VALUE)
+			num = bit32.rshift(num, BYTE_SIZE)
+
+			local d = bit32.band(num, MAX_BYTE_VALUE)
+			num = tobit(bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d)
+			return num
+		end
+
+		table.freeze(bit32)
+	end
+	local Base64_Encode_Buffer = loadstring(
 	game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
 	"Base64"
 )().encode
+Base64_Encode = function(raw) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
+		return raw == "" and raw or buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(raw)))
+	end
+end
 
 local SharedStrings = {}
 local sharedstrings = setmetatable({
@@ -99,7 +142,7 @@ Descriptors = {
 			-- TODO: scientific notation formatting also takes place if value is a decimal (only counts if it starts with 0.) then values like 0.00008 will be formatted as 8.0000000000000006544e-05 ("%.19e"), it must have 5 or more consecutive (?) zeros for this, on other hand, if it doesn't start with 0. then e20+ format is applied in case it has 20 or more consecutive (?) zeros so 1e20 will be formatted as 1e+20 and upwards (1e+19 is not allowed, same as 1e-04 for decimals)
 			-- ? The good part is compression of value so less file size BUT at the potential cost of precision loss
 
-			return ("%." .. precision .. "f"):format(raw)
+			return string.format("%." .. precision .. "f", raw)
 		end
 
 		return raw
@@ -392,14 +435,17 @@ do
 	end
 end
 
-if globalcontainer.getspecialinfo then
-	local old_getspecialinfo = globalcontainer.getspecialinfo
-
-	globalcontainer.getspecialinfo = function(instance)
-		local ok, result = pcall(old_getspecialinfo, instance) -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron, Codex
+for _, originalfuncname in next, { "getproperties", "getspecialinfo" } do -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron, Codex
+local originalfunc = globalcontainer[originalfuncname]
+	if originalfunc then
+		globalcontainer[originalfuncname] = function(instance)
+			local ok, result = pcall(originalfunc, instance)
 		return ok and result or {}
+end
 	end
 end
+
+local getproperties = globalcontainer.getproperties
 
 if getproperties then
 	if globalcontainer.getspecialinfo then
@@ -459,12 +505,20 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			end
 		end
 
-		if raw == nil then
+		if
+			raw == nil
+			or raw == "can't get value"
+			or type(raw) == "string"
+				and (Find(raw, "Unable to get property " .. PropertyName) or Property.Category == "Enum" and Find(
+					raw,
+					"Invalid value for enum "
+				))
+		then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
 			-- * Skip next time we encounter this too perhaps
 			-- Property.Special = false
 			-- Property.CanRead = false
 
-			return "__BREAK", specialProperties
+			return "__BREAK", specialProperties -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
 		end
 	else
 		local CanRead = Property.CanRead
@@ -495,12 +549,21 @@ local function ReadProperty(Property, instance, PropertyName, specialProperties,
 			end
 
 			Property.CanRead = ok
-			if not ok then
+			if
+				not ok
+				or raw == nil
+				or raw == "can't get value"
+				or type(raw) == "string"
+					and (Find(raw, "Unable to get property " .. PropertyName) or Property.Category == "Enum" and Find(
+						raw,
+						"Invalid value for enum "
+					))
+			then -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
 				return "__BREAK", specialProperties
 			end
 		elseif true == CanRead then
 			raw = instance[PropertyName]
-		elseif false == CanRead then
+		elseif false == CanRead then -- * Skips because we've checked this property before
 			return "__BREAK", specialProperties
 		end
 	end
@@ -642,15 +705,6 @@ local function rwait()
 	rswait:Wait()
 end
 
-local NilInstancesFixes = {
-	Animator = function(instance)
-		local AnimationController = Instance.new("AnimationController")
-		AnimationController.Name = "Animator has to be placed under Humanoid or AnimationController"
-		instance:Clone().Parent = AnimationController
-		return AnimationController
-	end,
-}
-
 local inheritedproperties = setmetatable({}, {
 	__index = function(self, ClassName)
 		local proplist = {}
@@ -730,7 +784,7 @@ local BlacklistedDefaults = {
 }
 
 local StatusGui = Instance.new("ScreenGui")
-StatusGui.DisplayOrder = math.huge
+StatusGui.DisplayOrder = 2_000_000_000
 StatusGui.OnTopOfCoreBlur = true
 
 local function randomString()
@@ -783,19 +837,22 @@ local function synsaveinstance(CustomOptions)
 		noscripts = false,
 		scriptcache = true,
 		-- decomptype = "new", -- * Deprecated
-		timeout = 30,
+		timeout = 30, -- Description: If the decompilation run time exceeds this value it gets cancelled.
 		--* New:
 		__DEBUG_MODE = false, -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it!
+--Callback = nil, -- Description: If set, the serialized data will be sent to the callback instead of to file.
+		--Clipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			"Chat",
 			"TextChatService",
-		}, -- Descendants of ClassNames specified here will be saved but not decompiled
+		}, -- Scripts inside of these ClassNames will be saved but not decompiled
 		--[[ Explanation of structure for DecompileIgnore
 			{
 			"Chat", - This affects any descendants of instance with "Chat" ClassName 
 			Players = {"MyPlayerName"} - - This affects any descendants of instance with "Players" .Class AND "MyPlayerName" .Name ONLY
 		}
 		]]
+PropertiesBlacklist = {},
 		InstancesBlacklist = { "CoreGui", "CorePackages" },
 		--[[ Explanation of structure for InstancesBlacklist
 			{
@@ -804,28 +861,39 @@ local function synsaveinstance(CustomOptions)
 		}
 		]]
 		ExtraInstances = {},
-		NilInstances = false,
+		NilInstances = false, -- Description: Save nil instances.
+		NilInstancesFixes = {
+			Animator = function(instance)
+				local AnimationController = Instance.new("AnimationController")
+				AnimationController.Name = "Animator has to be placed under Humanoid or AnimationController"
+				instance:Clone().Parent = AnimationController
+				return AnimationController
+			end,
+		},
 		ShowStatus = true,
 		FilePath = false, --  does not need to contain a file extension, only the name of the file.
 		Object = false, -- If provided, saves as .rbxmx (Model file) instead; If Object is game, it will be saved as a .RBXL file -- ! MUST BE AN INSTANCE REFERENCE like game.Workspace for example; "optimized" mode is NOT supported with this option
-		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet)
-		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set
+		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything i Binary Mode (rbxl/rbxm).
+		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set, Description: If true scripts will be decompiled.
 		-- DecompileTimeout = OPTIONS.timeout, -- ! This takes priority over OPTIONS.timeout if set
-		IgnoreDefaultProperties = true,
+		IgnoreDefaultProperties = true, -- Description: When enabled it will ignore default properties while saving.
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false, -- Ignores property of every instance that is not a script in "scripts" mode
-		IgnoreSpecialProperties = false, -- true will disable Terrain & some other things
-		-- IsolatePlayerGui = false,
+		IgnoreSpecialProperties = false, -- true will disable Terrain & Break MeshPart Sizes (very likely)
+		IsolatePlayerGui = false,
 		IsolateStarterPlayer = false, --If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders.
 		IsolateLocalPlayer = false, -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
 		IsolateLocalPlayerCharacter = false, -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
-		-- MaxThreads = 3
-		RemovePlayerCharacters = true, -- If enabled, player characters will not be saved.
-		SavePlayers = false,
+		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
+		RemovePlayerCharacters = true, -- Description: Ignore player characters while saving.
+		SavePlayers = false, -- This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2
 		SaveCacheInterval = 0x1600, -- The less the more often it saves, but that would mean less performance due to constantly saving
 		ReadMe = true,
+
 		-- ! Risky
+
 		AllowResettingProperties = false, -- Enables Resetting of properties for sake of checking their default value (Useful for cases when Instance is NotCreatable like services yet we need to get the default value ) then sets the property back to the original value, which might get detected by some games --! WARNING: Sometimes Properties might not be able to be set to the original value due to circumstances
+IgnoreSharedStrings = true, -- ! FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY); FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU
 		SharedStringOverwrite = false, -- !  if the process is not finished aka crashed then none of the affected values will be available; SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far); Reason: Allows for potential smaller file size (can also be bigger in some cases)
 	}
 
@@ -895,7 +963,7 @@ local function synsaveinstance(CustomOptions)
 
 		local PlaceId = game.PlaceId
 		if ToSaveInstance then
-			if mode == "optimized" then -- ! NOT supported with .rbxmx
+			if mode == "optimized" then -- ! NOT supported with Model file mode
 				mode = "full"
 			end
 			if not CustomOptions.IsolateLocalPlayerCharacter then
@@ -974,8 +1042,10 @@ local function synsaveinstance(CustomOptions)
 		ToSaveList = tmp
 	end
 
-	local DecompileIgnore, InstancesBlacklist =
-		ArrayToDictionary(OPTIONS.DecompileIgnore, "table"), ArrayToDictionary(OPTIONS.InstancesBlacklist, "table")
+	local DecompileIgnore, InstancesBlacklist, PropertiesBlacklist =
+		ArrayToDictionary(OPTIONS.DecompileIgnore, "table"),
+		ArrayToDictionary(OPTIONS.InstancesBlacklist, "table"),
+		ArrayToDictionary(OPTIONS.PropertiesBlacklist, "table")
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 	local AllowResettingProperties = OPTIONS.AllowResettingProperties
@@ -987,7 +1057,9 @@ local function synsaveinstance(CustomOptions)
 	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
 	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
 	local SaveCacheInterval = OPTIONS.SaveCacheInterval
+
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
+local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 
 	local function getsizeformat()
 		local Size
@@ -1019,9 +1091,7 @@ local function synsaveinstance(CustomOptions)
 		rwait()
 	end
 	local DecompileIgnoring
-	local savehierarchy
-
-	savehierarchy = function(Hierarchy, Afterwards)
+	local function savehierarchy(Hierarchy, Afterwards)
 		if SaveCacheInterval < #savebuffer then
 			savecache()
 		end
@@ -1061,17 +1131,27 @@ local function synsaveinstance(CustomOptions)
 						local PropertyName = Property.Name
 
 						repeat
+							if PropertiesBlacklist[PropertyName] then
+								break
+							end
 							local Special = Property.Special
 							if IgnoreSpecialProperties and Special then
 								break
 							end
+
+							local ValueType = Property.ValueType
+
+							if IgnoreSharedStrings and ValueType == "SharedString" then -- ? More info in Options
+								break
+							end
+
 							local raw
 							raw, specialProperties =
 								ReadProperty(Property, instance, PropertyName, specialProperties, Special)
 							if raw == "__BREAK" then
 								break
 							end
-							local ValueType = Property.ValueType
+							
 							if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to  table if more types are added
 								ValueType = "SharedString"
 							end
@@ -1105,8 +1185,7 @@ local function synsaveinstance(CustomOptions)
 									end
 
 									if Replica and not (NotCreatable and not Reset) then
-										Default =
-											ReadProperty(Property, Replica, PropertyName, specialProperties, Special)
+										Default = ReadProperty(Property, Replica, PropertyName, specialProperties, Special)
 										-- * Improve this along with specialProperties (merge or maybe store the method to Property.Special), get this property at any cost
 
 										if Reset and not SetProperty(Replica, PropertyName, raw) and __DEBUG_MODE then -- It has been reset
@@ -1183,7 +1262,7 @@ local function synsaveinstance(CustomOptions)
 									if startIDX == 1 then
 										-- Extract the string after "Optional"
 
-										Descriptor = Descriptors[ValueType:sub(endIDX + 1)]
+										Descriptor = Descriptors[string.sub(ValueType, endIDX + 1)]
 
 										if Descriptor then
 											if raw ~= nil then
@@ -1246,6 +1325,9 @@ local function synsaveinstance(CustomOptions)
 		local nilinstances
 		if OPTIONS.NilInstances and globalcontainer.getnilinstances then
 			local tmp = {}
+
+			local NilInstancesFixes = OPTIONS.NilInstancesFixes
+			
 			for _, instance in next, globalcontainer.getnilinstances() do
 				if instance == game then
 					instance = nil
@@ -1400,21 +1482,24 @@ local function synsaveinstance(CustomOptions)
 
 	do
 		local elapse_t = os.clock()
-		local ok, err = pcall(savegame)
+		local ok, err = xpcall(savegame, function(err)
+			return debug.traceback(err)
+		end)
 		elapse_t = os.clock() - elapse_t
 
 		local Log10 = math.log10(elapse_t)
 
 		if StatusTextClone then
+local ExtraTime = 10
 			if ok then
 				StatusTextClone.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
-				task.wait(Log10 * 2 + 3)
+				task.wait(Log10 * 2 + ExtraTime)
 			else
 				StatusTextClone.Text = "Failed! Check F9 console for more info"
 				warn("Error found while saving")
 				warn("Information about error:")
 				warn(err)
-				task.wait(Log10 + 3)
+				task.wait(Log10 + ExtraTime)
 			end
 			StatusTextClone:Destroy()
 		end
