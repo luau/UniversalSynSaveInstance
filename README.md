@@ -38,6 +38,11 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
 - [ ] !!! Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
 - [ ] Check out varios Leaked Executors (Especially their Init / Lua scripts) to expand knowledge on the whole subject of saveinstance
 - [ ] Look into adding support for Binary Format Output (rbxl/rbxm)
+  - Users can already convert to Binary Format by
+    1. Open the File
+    2. Click on top left "FILE" text and select "Save to File As"
+    3. Make Sure rbxl/rbxm format is selected (not XML!)
+    4. Click Save
   - .RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
   - ! Check out [Rojo Rbx Dom Binary] & [Roblox Format Specifications Binary] for more documentation about the Binary File Format!
   - ! Also see [buffer], [bit32] libraries as well as [pack]/[unpack] from the [string] library for more information on how you can implement something like this!
@@ -97,7 +102,7 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
   - Requires looking at other scripts of ours that are aimed at speed & performance
 - [x] Support for NotScriptable Properties
   - Requires gethiddenproperty support
-- [ ] Support for as many [KRNL-like saveinstance Options]:
+- [ ] Support for as many [KRNL-like saveinstance Options] & [UNC]:
   - Change mode to invalid mode like "custom" if you only want to save ExtraInstances
   * [x] Decompile (! This takes priority over OPTIONS.noscripts if set !)
   * [x] DecompileIgnore
@@ -111,7 +116,11 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
   * [x] RemovePlayerCharacters
   * [x] SavePlayers
   * [x] ShowStatus
+    * [ ] Add Drawing Library support for ShowStatus
   * [ ] IsolatePlayerGui
+  * [ ] Callback
+  * [ ] Clipboard
+  * [ ] Binary (rbxl/rbxm)
 - [ ] Support for as many Executors as possible (🤢🤮)
 - [x] ~~Use getspecialinfo fallback function carefully as it's hardcoded~~ Useless because there's no way to tell if the Property Values of those instances are default or not
   - LOOK INTO Instance:IsPropertyModified & Instance:ResetPropertyToDefault
@@ -180,3 +189,4 @@ resources include:
 [PropertyPatches v1]: https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72
 [PropertyPatches v2]: https://github.com/rojo-rbx/rbx-dom/tree/master/patches
 [PropertyPatches v3]: https://github.com/rojo-rbx/rbx-dom/blob/9716af360307eb5da5f97d54d84d694b2bc06acf/rbx_dom_lua/src/customProperties.lua
+[UNC]: https://github.com/unified-naming-convention/NamingStandard/commit/613c1956b801ace54ba141dfc60842a16608b54f

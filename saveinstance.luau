@@ -61,38 +61,38 @@ end
 local Base64_Encode
 do
 	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
-	bit32 = table.clone(bit32)
+		bit32 = table.clone(bit32)
 
-	local function tobit(num)
-		num = num % (bit32.bxor(num, 32))
-		if num > 0x80000000 then
-			num = num - bit32.bxor(num, 32)
+		local function tobit(num)
+			num = num % (bit32.bxor(num, 32))
+			if num > 0x80000000 then
+				num = num - bit32.bxor(num, 32)
+			end
+			return num
 		end
-		return num
+
+		bit32.byteswap = function(num)
+			local BYTE_SIZE = 8
+			local MAX_BYTE_VALUE = 255
+
+			num = num % bit32.bxor(2, 32)
+
+			local a = bit32.band(num, MAX_BYTE_VALUE)
+			num = bit32.rshift(num, BYTE_SIZE)
+
+			local b = bit32.band(num, MAX_BYTE_VALUE)
+			num = bit32.rshift(num, BYTE_SIZE)
+
+			local c = bit32.band(num, MAX_BYTE_VALUE)
+			num = bit32.rshift(num, BYTE_SIZE)
+
+			local d = bit32.band(num, MAX_BYTE_VALUE)
+			num = tobit(bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d)
+			return num
+		end
+
+		table.freeze(bit32)
 	end
-
-	bit32.byteswap = function(num)
-		local BYTE_SIZE = 8
-		local MAX_BYTE_VALUE = 255
-
-		num = num % bit32.bxor(2, 32)
-
-		local a = bit32.band(num, MAX_BYTE_VALUE)
-		num = bit32.rshift(num, BYTE_SIZE)
-
-		local b = bit32.band(num, MAX_BYTE_VALUE)
-		num = bit32.rshift(num, BYTE_SIZE)
-
-		local c = bit32.band(num, MAX_BYTE_VALUE)
-		num = bit32.rshift(num, BYTE_SIZE)
-
-		local d = bit32.band(num, MAX_BYTE_VALUE)
-		num = tobit(bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d)
-		return num
-	end
-
-	table.freeze(bit32)
-end
 	local Base64_Encode_Buffer = loadstring(
 		game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
 		"Base64"
@@ -836,13 +836,15 @@ local function synsaveinstance(CustomOptions)
 		noscripts = false,
 		scriptcache = true,
 		-- decomptype = "new", -- * Deprecated
-		timeout = 30,
+		timeout = 30, -- Description: If the decompilation run time exceeds this value it gets cancelled.
 		--* New:
 		__DEBUG_MODE = false, -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it!
+		--Callback = nil, -- Description: If set, the serialized data will be sent to the callback instead of to file.
+		--Clipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			"Chat",
 			"TextChatService",
-		}, -- Descendants of ClassNames specified here will be saved but not decompiled
+		}, -- Scripts inside of these ClassNames will be saved but not decompiled
 		--[[ Explanation of structure for DecompileIgnore
 			{
 			"Chat", - This affects any descendants of instance with "Chat" ClassName 
@@ -858,7 +860,7 @@ local function synsaveinstance(CustomOptions)
 		}
 		]]
 		ExtraInstances = {},
-		NilInstances = false,
+		NilInstances = false, -- Description: Save nil instances.
 		NilInstancesFixes = {
 			Animator = function(instance)
 				local AnimationController = Instance.new("AnimationController")
@@ -870,23 +872,25 @@ local function synsaveinstance(CustomOptions)
 		ShowStatus = true,
 		FilePath = false, --  does not need to contain a file extension, only the name of the file.
 		Object = false, -- If provided, saves as .rbxmx (Model file) instead; If Object is game, it will be saved as a .RBXL file -- ! MUST BE AN INSTANCE REFERENCE like game.Workspace for example; "optimized" mode is NOT supported with this option
-		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet)
-		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set
+		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything i Binary Mode (rbxl/rbxm).
+		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set, Description: If true scripts will be decompiled.
 		-- DecompileTimeout = OPTIONS.timeout, -- ! This takes priority over OPTIONS.timeout if set
-		IgnoreDefaultProperties = true,
+		IgnoreDefaultProperties = true, -- Description: When enabled it will ignore default properties while saving.
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false, -- Ignores property of every instance that is not a script in "scripts" mode
 		IgnoreSpecialProperties = false, -- true will disable Terrain & Break MeshPart Sizes (very likely)
-		-- IsolatePlayerGui = false,
+		IsolatePlayerGui = false,
 		IsolateStarterPlayer = false, --If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders.
 		IsolateLocalPlayer = false, -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
 		IsolateLocalPlayerCharacter = false, -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
-		-- MaxThreads = 3
-		RemovePlayerCharacters = true, -- If enabled, player characters will not be saved.
+		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
+		RemovePlayerCharacters = true, -- Description: Ignore player characters while saving.
 		SavePlayers = false, -- This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2
 		SaveCacheInterval = 0x1600, -- The less the more often it saves, but that would mean less performance due to constantly saving
 		ReadMe = true,
+
 		-- ! Risky
+
 		AllowResettingProperties = false, -- Enables Resetting of properties for sake of checking their default value (Useful for cases when Instance is NotCreatable like services yet we need to get the default value ) then sets the property back to the original value, which might get detected by some games --! WARNING: Sometimes Properties might not be able to be set to the original value due to circumstances
 		IgnoreSharedStrings = true, -- ! FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY); FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU
 		SharedStringOverwrite = false, -- !  if the process is not finished aka crashed then none of the affected values will be available; SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far); Reason: Allows for potential smaller file size (can also be bigger in some cases)
@@ -958,7 +962,7 @@ local function synsaveinstance(CustomOptions)
 
 		local PlaceId = game.PlaceId
 		if ToSaveInstance then
-			if mode == "optimized" then -- ! NOT supported with .rbxmx
+			if mode == "optimized" then -- ! NOT supported with Model file mode
 				mode = "full"
 			end
 			if not CustomOptions.IsolateLocalPlayerCharacter then
