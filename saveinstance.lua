@@ -875,7 +875,6 @@ PropertiesBlacklist = {},
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false, -- Ignores property of every instance that is not a script in "scripts" mode
 		IgnoreSpecialProperties = false, -- true will disable Terrain & Break MeshPart Sizes (very likely)
-		IsolatePlayerGui = false,
 		IsolateStarterPlayer = false, --If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders.
 		IsolateLocalPlayer = false, -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
 		IsolateLocalPlayerCharacter = false, -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
@@ -961,17 +960,18 @@ IgnoreSharedStrings = true, -- ! FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY
 			if mode == "optimized" then -- ! NOT supported with Model file mode
 				mode = "full"
 			end
-			if not CustomOptions.IsolateLocalPlayerCharacter then
-				OPTIONS.IsolateLocalPlayerCharacter = false
-			end
-			if not CustomOptions.IsolateStarterPlayer then
-				OPTIONS.IsolateStarterPlayer = false
-			end
-			if not CustomOptions.IsolateLocalPlayer then
-				OPTIONS.IsolateLocalPlayer = false
-			end
-			if not CustomOptions.NilInstances then
-				OPTIONS.NilInstances = false
+			
+			for _, key in next,
+				{
+					"IsolateLocalPlayerCharacter",
+					"IsolateStarterPlayer",
+					"IsolateLocalPlayer",
+					"NilInstances",
+				}
+			do
+				if not CustomOptions[key] then
+				OPTIONS[key] = false
+end
 			end
 
 			placename = (FilePath or "model" .. PlaceId .. "_" .. ToSaveInstance:GetDebugId(0)) .. ".rbxmx" -- * GetDebugId is only unique per instance within same game session, after rejoining it might be different

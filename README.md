@@ -117,7 +117,7 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
   * [x] SavePlayers
   * [x] ShowStatus
     * [ ] Add Drawing Library support for ShowStatus
-  * [ ] IsolatePlayerGui
+  * ~~[-] IsolatePlayerGui~~ Use IsolateLocalPlayer instead
   * [ ] Callback
   * [ ] Clipboard
   * [ ] Binary (rbxl/rbxm)
