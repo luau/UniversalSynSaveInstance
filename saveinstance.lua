@@ -1408,7 +1408,9 @@ local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 				end
 			end
 	
+If you can't move the Camera, run the scripts in the Studio Command Bar:
 	
+workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
 	
 			This file was generated with the following settings:
 	]] .. service.HttpService:JSONEncode(OPTIONS) .. "\n]]")

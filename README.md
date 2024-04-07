@@ -116,10 +116,10 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
   * [x] RemovePlayerCharacters
   * [x] SavePlayers
   * [x] ShowStatus
-    * [ ] Add Drawing Library support for ShowStatus
+    - [ ] Add Drawing Library support for ShowStatus
   * ~~[-] IsolatePlayerGui~~ Use IsolateLocalPlayer instead
   * [ ] Callback
-  * [ ] Clipboard
+  * [ ] Clipboard/CopyToClipboard
   * [ ] Binary (rbxl/rbxm)
 - [ ] Support for as many Executors as possible (🤢🤮)
 - [x] ~~Use getspecialinfo fallback function carefully as it's hardcoded~~ Useless because there's no way to tell if the Property Values of those instances are default or not

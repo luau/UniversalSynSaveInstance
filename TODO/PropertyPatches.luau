@@ -2,6 +2,7 @@
 
 -- ! Source: https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua
 -- ! Extras: https://github.com/rojo-rbx/rbx-dom/tree/master/patches
+-- ! Extras: https://github.com/Dekkonot/rbx-instance-serializer/blob/23f772f6f78af879a21faa9fea3e6c4f93d1cdee/src/API.lua#L19
 
 export type GetSet = string | {
 	Get: string,
