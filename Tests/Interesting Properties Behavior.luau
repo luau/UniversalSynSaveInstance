@@ -29,7 +29,7 @@ local function ArrayToDictionary(Table, HybridMode)
 
 	return tmp
 end
-
+local s = ""
 local function Find(String, Pattern)
 	return string.find(String, Pattern, nil, true)
 end
@@ -83,7 +83,15 @@ do
 
 							Special = MemberTags.NotScriptable
 						end
-
+						local Serialization = Member.Serialization
+						if Serialization.CanLoad then
+							if Serialization.CanSave == false then
+								s ..= "Serial " .. ClassName .. " " .. PropertyName .. "\n"
+							end
+							if MemberTags and MemberTags.Deprecated then
+								s ..= "Deprecated " .. ClassName .. " " .. PropertyName .. (Serialization.CanSave and " CanSave" or "") .. "\n"
+							end
+						end
 						local ValueType = Member.ValueType
 
 						local Property = {
@@ -104,7 +112,7 @@ do
 			end
 
 			Class.Properties = ClassProperties
-
+			s ..= "\n"
 			classList[ClassName] = Class
 		end
 
@@ -114,34 +122,11 @@ do
 	end
 
 	local ok, result = pcall(FetchAPI)
+	print(s)
 	if ok then
 		ClassList = result
 	else
 		warn(result)
 		return
-	end
-end
-local F = Instance.new("Folder")
-for Class in ClassList do
-	local o, r = pcall(Instance.new, Class)
-	local x = r
-	if not o then
-		r = game:FindFirstChild(Class, true)
-		if not r then
-			r = game:FindFirstChildWhichIsA(Class, true)
-		end
-	end
-	if r then
-		o, r = pcall(function(_, _2)
-			_.Parent = _2
-		end, r, F)
-		if not o then
-			if Find(r, "locked") or Find(r, "Cannot change") or Find(r, "Invalid parent for Service") then
-				continue
-			end
-			warn(Class, r)
-		end
-	elseif not (Find(x, "Unable to create an Instance") or Find(x, "The current thread cannot create")) then
-		print(Class, x)
 	end
 end

@@ -2,8 +2,8 @@
 
 ```lua
 local Params = {
-	RepoURL = "https://raw.githubusercontent.com/luau/SynSaveInstance/main/",
-	SSI = "saveinstance",
+ RepoURL = "https://raw.githubusercontent.com/luau/SynSaveInstance/main/",
+ SSI = "saveinstance",
 }
 local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
 local Options = {} -- All Options can be found here https://github.com/luau/UniversalSynSaveInstance/blob/main/saveinstance.lua#L772
@@ -30,7 +30,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 
 # DISCORD SERVER:<br />
 
-https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
+<https://discord.com/invite/wx4ThpAsmw> **/** <https://discord.gg/wx4ThpAsmw><br />
 [<img src="https://discordapp.com/api/guilds/1022465460517740654/widget.png?style=banner2" alt="Our Official Discord Server!"></img>](https://discord.com/invite/wx4ThpAsmw)<br />
 
 # TO-DOs:
@@ -46,8 +46,9 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
   - .RBXL files are similar to .RBXLX files but are saved in Binary format, which helps reduce the file size.
   - ! Check out [Rojo Rbx Dom Binary] & [Roblox Format Specifications Binary] for more documentation about the Binary File Format!
   - ! Also see [buffer], [bit32] libraries as well as [pack]/[unpack] from the [string] library for more information on how you can implement something like this!
+  - ! [Rbx-Binary-Format]
 - [ ] Add custom decompiler in case executor doesn't have one but has getscriptbytecode (UMF)
-  - https://github.com/TheSeaweedMonster/Lua-Scripts/blob/main/decompile.lua
+  - <https://github.com/TheSeaweedMonster/Lua-Scripts/blob/main/decompile.lua>
 - [ ] Add custom timeout logic for decompiler instead of relying on executor to have one
   - Using threads & coroutines.
 - [x] Add `continue` where needed
@@ -91,7 +92,7 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
   - [x] Compound Operators
   - [x] Avoid using `next`, `ipairs` & `pairs`
   - [ ] [BENCHMARK] Interpolated strings instead of concat
-  - [ ] [BENCHMARK] `next, ` and numerical loops on both lua & luau to decide which and where to use
+  - [ ] [BENCHMARK] `next,` and numerical loops on both lua & luau to decide which and where to use
   - [ ] Type-checking (😩🙀)
   - [ ] `local maxValue = if a > b then a else b` expressions
   - [ ] print(`Bob has {count} apple(s)!`) expressions
@@ -142,7 +143,7 @@ https://discord.com/invite/wx4ThpAsmw **/** https://discord.gg/wx4ThpAsmw<br />
 - [ ] Do something about devs renaming Services therefore bypassing Ignore lists (CoreGui/CorePackages are not affected)
   - LOOK INTO Instance:IsPropertyModified & Instance:ResetPropertyToDefault
 - [ ] Fix Player's Characters not being visible (must Refresh MeshId)
-  - "https://assetdelivery.roblox.com/v1/asset/?id=" Could cause issues too (needs testing)
+  - "<https://assetdelivery.roblox.com/v1/asset/?id=>" Could cause issues too (needs testing)
   - Perhaps add a possible FIX script to README
 - [ ] Be able to exclude / blacklist any mentions of certain string in other strings
   - Example: You wish to blacklist your player's name from appearing in any property value
@@ -177,6 +178,7 @@ resources include:
 [Rojo Rbx Dom Xml]: https://github.com/rojo-rbx/rbx-dom/blob/e9732e427b8f0903b6ec9f5d02aa3f1f9e884e94/docs/xml.md
 [Rojo Rbx Dom Binary]: https://github.com/rojo-rbx/rbx-dom/blob/e9732e427b8f0903b6ec9f5d02aa3f1f9e884e94/docs/binary.md
 [Luau Syntax]: https://luau-lang.org/syntax
+[Rbx-Binary-Format]: https://github.com/Dekkonot/rbx-binary-format/blob/master/src/writer.lua
 [Roblox Client Tracker]: https://github.com/MaximumADHD/Roblox-Client-Tracker
 [Roblox File Format]: https://github.com/MaximumADHD/Roblox-File-Format
 [Roblox Format Specifications]: https://github.com/RobloxAPI/spec/

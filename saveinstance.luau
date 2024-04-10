@@ -34,9 +34,9 @@ end
 
 local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
 local service = setmetatable({}, {
-	__index = function(Self, Name)
+	__index = function(self, Name)
 		local Service = game:GetService(Name) or GlobalSettings:GetService(Name) or GlobalBasicSettings:GetService(Name)
-		Self[Name] = Service
+		self[Name] = Service
 		return Service
 	end,
 })
@@ -66,7 +66,7 @@ do
 		bit32 = table.clone(bit32)
 
 		local function tobit(num)
-			num = num % (bit32.bxor(num, 32))
+			num %= (bit32.bxor(num, 32))
 			if num > 0x80000000 then
 				num = num - bit32.bxor(num, 32)
 			end
@@ -77,7 +77,7 @@ do
 			local BYTE_SIZE = 8
 			local MAX_BYTE_VALUE = 255
 
-			num = num % bit32.bxor(2, 32)
+			num %= bit32.bxor(2, 32)
 
 			local a = bit32.band(num, MAX_BYTE_VALUE)
 			num = bit32.rshift(num, BYTE_SIZE)
@@ -107,12 +107,12 @@ end
 local SharedStrings = {}
 local sharedstrings = setmetatable({
 	identifier = 1e15, -- 1 quadrillion, up to 9.(9) quadrillion, in theory this shouldn't ever run out and be enough for all sharedstrings ever imaginable
-	-- TODO: worst case, add fallback to randomizer once numbers run out : )
+	-- TODO: worst case, add fallback to str randomizer once numbers run out : )
 }, {
 	__index = function(self, String)
-		local Identifier = self.identifier
-		self.identifier = Identifier + 1
-		Identifier = Base64_Encode(Identifier .. "")
+		local Identifier = Base64_Encode(tostring(self.identifier))
+		self.identifier += 1
+
 		self[String] = Identifier -- Todo: The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes.. We probably need to do that too for sake of safety
 		return Identifier
 	end,
@@ -152,9 +152,8 @@ Descriptors = {
 	__BINARYSTRING = Base64_Encode,
 	__BIT = function(...) -- * Credits to Friend (you know yourself)
 		local Value = 0
-		local PackedArgs = { ... }
-		for Index = 1, #PackedArgs do
-			local Bit = PackedArgs[Index]
+
+		for Index, Bit in { ... } do
 			if Bit then
 				Value = Value + 2 ^ (Index - 1)
 			end
@@ -186,6 +185,17 @@ Descriptors = {
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
 		return Find(raw, "]]>") and Descriptors.string(raw) or Descriptors.__CDATA(raw)
 	end,
+	__SEQUENCE = function(raw, ValueFormat) --The value is the text content, formatted as a space-separated list of floating point numbers.
+		-- tostring(raw) also works (but way slower rn)
+
+		local Converted = ""
+
+		for _, Keypoint in raw.Keypoints do
+			Converted ..= Keypoint.Time .. " " .. (ValueFormat and ValueFormat(Keypoint) or Keypoint.Value .. " " .. Keypoint.Envelope .. " ")
+		end
+
+		return Converted
+	end,
 	__VECTOR = function(X, Y, Z)
 		local Value = "<X>" .. X .. "</X><Y>" .. Y .. "</Y>" -- There is no Vector without at least two Coordinates.. (Vector1, at least on Roblox)
 
@@ -195,15 +205,19 @@ Descriptors = {
 
 		return Value
 	end,
+	--------------------------------------------------------------
+	--------------------------------------------------------------
+	--------------------------------------------------------------
 	Axes = function(raw)
 		--The text of this element is formatted as an integer between 0 and 7
+
 		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
 	-- BinaryString = function(raw)
 
 	-- end
 	BrickColor = function(raw) -- ! Oh well This might hurt Color3 / Color3uint8 properties
-		return raw.Number, "BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead.
+		return raw.Number, "BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
 	end,
 	CFrame = function(raw)
 		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
@@ -232,25 +246,23 @@ Descriptors = {
 	Color3 = function(raw)
 		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
-	-- Color3uint8 = function(raw) --? Not sure yet
-	-- 	local R_255 = math.floor(raw.R * 255)
-	-- 	local G_255 = math.floor(raw.G * 255)
-	-- 	local B_255 = math.floor(raw.B * 255)
-
-	-- 	return 0xFF000000 + (R_255 * 65536) + (G_255 * 256) + B_255 -- ? It is recommended that Color3uint8 is encoded with text instead of elements.
-	-- end,
+	Color3uint8 = function(raw)
+		return 0xFF000000
+			+ (math.floor(raw.R * 255) * 65536)
+			+ (math.floor(raw.G * 255) * 256)
+			+ math.floor(raw.B * 255) -- ? It is recommended that Color3uint8 is encoded with text instead of elements.
+		-- return bit32.bor(
+		-- 	bit32.bor(bit32.bor(bit32.lshift(0xFF, 24), bit32.lshift(0xFF * raw.R, 16)), bit32.lshift(0xFF * raw.G, 8)),
+		-- 	0xFF * raw.B
+		-- )
+	end,
 	ColorSequence = function(raw)
 		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
 
-		local Converted = ""
-		local Keypoints = raw.Keypoints
-		for Index = 1, #Keypoints do
-			local v = Keypoints[Index]
-			local Value = v.Value
-			Converted ..= v.Time .. " " .. Value.R .. " " .. Value.G .. " " .. Value.B .. " 0 " -- * " 0" is Envelope: Has the range 0 - 1. Currently unused by Roblox.
-		end
-
-		return Converted
+		return Descriptors.__SEQUENCE(raw, function(Keypoint)
+			local Value = Keypoint.Value
+			return Value.R .. " " .. Value.G .. " " .. Value.B .. " 0 "
+		end)
 	end,
 	Content = function(raw)
 		return raw == "" and "<null></null>" or "<url>" .. Descriptors.string(raw, true) .. "</url>"
@@ -273,21 +285,11 @@ Descriptors = {
 			.. Descriptors.__ENUMNAME(raw.Style) -- Weird but this field accepts .Name of enum instead..
 			.. "</Style>" --TODO: Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
-	NumberRange = function(raw)
+	NumberRange = function(raw) -- tostring(raw) also works
 		--The value is the text content, formatted as a space-separated list of floating point numbers.
 		return raw.Min .. " " .. raw.Max --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually
 	end,
-	NumberSequence = function(raw)
-		--The value is the text content, formatted as a space-separated list of floating point numbers.
-		local Converted = ""
-		local Keypoints = raw.Keypoints
-		for Index = 1, #Keypoints do
-			local v = Keypoints[Index]
-			Converted ..= v.Time .. " " .. v.Value .. " " .. v.Envelope .. " "
-		end
-
-		return Converted
-	end,
+	-- NumberSequence = Descriptors.__SEQUENCE,
 	PhysicalProperties = function(raw)
 		--[[Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
 
@@ -298,6 +300,7 @@ Descriptors = {
     ElasticityWeight
 
 The value of each component is represented by the text content formatted as a 32-bit floating point number (see float).]]
+
 		local CustomPhysics
 		if raw then
 			CustomPhysics = true
@@ -324,8 +327,16 @@ The value of each component is represented by the text content formatted as a 32
 		return "<min>" .. vector2(raw.Min) .. "</min><max>" .. vector2(raw.Max) .. "</max>", "Rect2D"
 	end,
 	-- Region3 = function(raw) --? Not sure yet
+	-- 	local vector3 = Descriptors.Vector3
 
-	-- 	return "???"
+	-- 	local Position = raw.CFrame.Position
+	-- 	local Size = raw.Size
+
+	-- 	return "<min>"
+	-- 		.. vector3(Position - (Size * 0.5))
+	-- 		.. "</min><max>"
+	-- 		.. vector3(Position + (Size * 0.5))
+	-- 		.. "</max>"
 	-- end,
 	-- Region3int16 = function(raw) --? Not sure yet
 	-- 	local vector3int16 = Descriptors.Vector3int16
@@ -371,15 +382,17 @@ The value of each component is represented by the text content formatted as a 32
 			.. Y.Offset
 			.. "</YO>"
 	end,
-	--UniqueId = function(raw)
+
+	-- UniqueId = function(raw)
 	--[[
-		    # UniqueId properties might be random everytime Studio saves a place file
-    # and don't have a use right now outside of packages, which SSI doesn't
-    # account for anyway. They generate diff noise, so we shouldn't serialize
-    # them until we have to.
+		     UniqueId properties might be random everytime Studio saves a place file
+	 and don't have a use right now outside of packages, which SSI doesn't
+	 account for anyway. They generate diff noise, so we shouldn't serialize
+	 them until we have to.
 	]]
-	-- 	return -- ? No idea if this even needs a Descriptor
+	-- 	return string.lower(string.gsub(game.HttpService:GenerateGUID(false), "-", "")) -- ? No idea if this even needs a Descriptor
 	-- end,
+
 	Vector2 = function(raw)
 		--[[
     X: Represents the X component. Interpreted as a <float>.
@@ -387,13 +400,7 @@ The value of each component is represented by the text content formatted as a 32
 	]]
 		return Descriptors.__VECTOR(raw.X, raw.Y)
 	end,
-	Vector2int16 = function(raw)
-		--[[
-    X: Represents the X component. Interpreted as an <int>.
-    Y: Represents the Y component. Interpreted as an <int>.
-		]]
-		return Descriptors.__VECTOR(raw.X, raw.Y)
-	end,
+	-- Vector2int16 = Descriptors.Vector2, -- except as <int>
 	Vector3 = function(raw)
 		--[[
     X: Represents the X component. Interpreted as a <float>.
@@ -402,17 +409,9 @@ The value of each component is represented by the text content formatted as a 32
 	]]
 		return Descriptors.__VECTOR(raw.X, raw.Y, raw.Z)
 	end,
-	Vector3int16 = function(raw)
-		--[[
-    X: Represents the X component. Interpreted as an <int>.
-    Y: Represents the Y component. Interpreted as an <int>.
-    Z: Represents the Z component. Interpreted as an <int>.
-	]]
-		return Descriptors.__VECTOR(raw.X, raw.Y, raw.Z)
-	end,
-	bool = function(raw)
-		return tostring(raw)
-	end,
+	-- Vector3int16 = Descriptors.Vector3, -- except as <int>\
+
+	bool = tostring,
 
 	double = function(raw, default)
 		return Descriptors.__APIPRECISION(raw, default or 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
@@ -424,7 +423,9 @@ The value of each component is represented by the text content formatted as a 32
 		return not skipcheck and raw == "" and raw or string.gsub(raw, EscapesPattern, Escapes)
 	end,
 }
-
+Descriptors.NumberSequence = Descriptors.__SEQUENCE
+Descriptors.Vector2int16 = Descriptors.Vector2
+Descriptors.Vector3int16 = Descriptors.Vector3
 for _, StaysRaw in
 	{
 		"int",
@@ -469,7 +470,7 @@ end
 local getspecialinfo = globalcontainer.getspecialinfo
 
 local function ArrayToDictionary(Table, HybridMode)
-	local tmp = table.create(#Table)
+	local tmp = {}
 
 	if HybridMode == "adjust" then
 		for Some1, Some2 in Table do
@@ -493,28 +494,26 @@ end
 local ClassList
 do
 	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/23f772f6f78af879a21faa9fea3e6c4f93d1cdee/src/API.lua#L19
-	local IgnoreClassProperties = {
-		GuiObject = { "Transparency" },
-		Instance = { "Parent" }, -- ClassName isn't included because CanLoad & CanSave are false on it
-		BasePart = { "BrickColor" },
-		Attachment = { "WorldCFrame" },
-	} -- GuiObject.Transparency is almost always 1 meaning everything will be transparent; Instance.Parent is useless in xml (no idea about binary); BasePart.BrickColor hurts other Color3 properties; Attachment.WorldCFrame breaks Attachment.CFrame (and is hidden anyway)
+	-- ! IgnoreClassProperties aren't needed anymore due to CanSave filter (see below)
+	-- local IgnoreClassProperties = {
+	-- GuiObject = { "Transparency" },
+	-- Instance = { "Parent" }, -- ClassName isn't included because CanLoad & CanSave are false on it
+	-- BasePart = { "BrickColor" },
+	-- Attachment = { "WorldCFrame" },
+	--} -- GuiObject.Transparency is almost always 1 meaning everything will be transparent; Instance.Parent is useless in xml (no idea about binary); BasePart.BrickColor hurts other Color3 properties; Attachment.WorldCFrame breaks Attachment.CFrame (and is hidden anyway)
 
-	for Class, Properties in IgnoreClassProperties do
-		IgnoreClassProperties[Class] = ArrayToDictionary(Properties)
-	end
+	-- for Class, Properties in IgnoreClassProperties do
+	-- 	IgnoreClassProperties[Class] = ArrayToDictionary(Properties)
+	-- end
+
 	local function FetchAPI()
 		local API_Dump_Url =
 			"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
 		local API_Dump = game:HttpGet(API_Dump_Url, true)
-		local API_Classes = service.HttpService:JSONDecode(API_Dump).Classes
 
 		local classList = {}
 
-		for _index_0 = 1, #API_Classes do
-			local API_Class = API_Classes[_index_0]
-			local ClassMembers = API_Class.Members
-
+		for _, API_Class in service.HttpService:JSONDecode(API_Dump).Classes do
 			local Class = {}
 
 			local ClassName = API_Class.Name
@@ -531,8 +530,7 @@ do
 
 			local ClassProperties = {}
 
-			for _index_1 = 1, #ClassMembers do
-				local Member = ClassMembers[_index_1]
+			for _, Member in API_Class.Members do
 				if Member.MemberType == "Property" then
 					local PropertyName = Member.Name
 
@@ -540,43 +538,50 @@ do
 
 					local Serialization = Member.Serialization
 
-					if Serialization.CanLoad then
-						local Ignored = IgnoreClassProperties[ClassName]
-						if not (Ignored and Ignored[PropertyName]) then
-							local Allowed = true
+					if Serialization.CanSave and Serialization.CanLoad then -- If Roblox doesn't save it why should we; If Roblox doesn't load it we don't need to save it
+						--[[  -- ! CanSave replaces "Tags.Deprecated" check because there are some old properties which are deprecated yet have CanSave. 
+						 Example: Humanoid.Health is CanSave false due to Humanoid.Health_XML being CanSave true (obsolete properties basically) - in this case both of them will Load. (aka PropertyPatches)
+						 CanSave being on same level as CanLoad also fixes potential issues with overlapping properties like Color, Color3 & Color3uint8 of BasePart, out of which only Color3uint8 should save
+						 This also fixes everything in IgnoreClassProperties automatically without need to hardcode :)
+						 A very simple fix for many problems that saveinstance scripts encounter!
+						--]]
 
-							local MemberTags = Member.Tags
+						-- local Ignored = IgnoreClassProperties[ClassName]
+						-- if not (Ignored and Ignored[PropertyName]) then
+						local Allowed = true
 
-							local Special
+						local MemberTags = Member.Tags
 
-							if MemberTags then
-								MemberTags = ArrayToDictionary(MemberTags)
+						local Special
 
-								Special = MemberTags.NotScriptable
+						if MemberTags then
+							MemberTags = ArrayToDictionary(MemberTags)
 
-								if MemberTags.Deprecated then
-									Allowed = nil
-								end
+							Special = MemberTags.NotScriptable
+
+							-- if MemberTags.Deprecated then -- ! Replaced by CanSave true filter (we could also only filter with CanSave here but if its on same level as CanLoad we possibly reduce amount of things we save therefore file size. if Roblox deems something not worth to save why should we save it too)
+							-- 	Allowed = nil
+							-- end
+						end
+						if Allowed then
+							local ValueType = Member.ValueType
+
+							local Property = {
+								Name = PropertyName,
+								Category = ValueType.Category,
+								Default = Member.Default,
+								-- Tags = MemberTags,
+								ValueType = ValueType.Name,
+							}
+
+							if Special then
+								Property.Special = true
 							end
-							if Allowed then
-								local ValueType = Member.ValueType
 
-								local Property = {
-									Name = PropertyName,
-									Category = ValueType.Category,
-									Default = Member.Default,
-									-- Tags = MemberTags,
-									ValueType = ValueType.Name,
-								}
-
-								if Special then
-									Property.Special = true
-								end
-
-								ClassProperties[PropertyName] = Property
-							end
+							ClassProperties[PropertyName] = Property
 						end
 					end
+					-- end
 				end
 			end
 
@@ -599,33 +604,20 @@ do
 	end
 end
 
-local rswait = service.RunService.RenderStepped
-local function rwait()
-	rswait:Wait()
-end
-
 local inheritedproperties = setmetatable({}, {
 	__index = function(self, ClassName)
 		local proplist = {}
 		local layer = ClassList[ClassName]
 		while layer do
-			local _list_0 = layer.Properties
-
 			-- proplist = table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
-			for _, p in _list_0 do
-				p = table.clone(p)
+			for _, p in layer.Properties do
+				-- p = table.clone(p)
 				-- p.Name = PropertyName
 				table.insert(proplist, p)
 			end
 
 			layer = ClassList[layer.Superclass]
 		end
-		table.sort(
-			proplist,
-			function(a, b) -- ? We do this as properties are always alphabetically sorted normally so Roblox might be able to detect us opening saveinstanced file if we don't do this
-				return a.Name < b.Name
-			end
-		)
 
 		self[ClassName] = proplist
 
@@ -645,9 +637,9 @@ local referents = setmetatable({
 	identifier = 0,
 }, {
 	__index = function(self, instance)
-		local Count = self.identifier
-		self.identifier = Count + 1
-		local referent = "RBX" .. Count -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase. We probably need to do that too for sake of safety
+		local referent = self.identifier -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase. We probably need to do that too for sake of safety
+		self.identifier = referent + 1 -- Is faster than self.identifier += 1 for some reason
+
 		self[instance] = referent
 		return referent
 	end,
@@ -664,8 +656,9 @@ if not StatusGui then
 	StatusGui.OnTopOfCoreBlur = true
 
 	local function randomString()
-		local randomarray = {}
-		for i = 1, math.random(10, 20) do
+		local length = math.random(10, 20)
+		local randomarray = table.create(length)
+		for i = 1, length do
 			randomarray[i] = string.char(math.random(32, 126))
 		end
 		return table.concat(randomarray)
@@ -745,7 +738,7 @@ local function synsaveinstance(CustomOptions)
 		]]
 		IgnoreList = { service.CoreGui, service.CorePackages },
 
-		ExtraInstances = {},
+		ExtraInstances = {}, -- use mode "invalidmode" to only save these instances
 		NilInstances = false, -- Description: Save nil instances.
 		NilInstancesFixes = {
 
@@ -908,7 +901,7 @@ local function synsaveinstance(CustomOptions)
 
 	local ldeccache = globalenv.scriptcache
 
-	local DecompileIgnoring, ToSaveList, ldecompile, placename
+	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t
 
 	if ToSaveInstance == game then
 		ToSaveInstance = nil
@@ -952,38 +945,37 @@ local function synsaveinstance(CustomOptions)
 		if mode == "full" then
 			tmp = TempRoot:GetChildren()
 		elseif mode == "optimized" then -- ! Incompatible with .rbxmx (Model file) mode
-			local _list_0 = {
-				"Chat",
-				"InsertService",
-				"JointsService",
-				"Lighting",
-				"MaterialService",
-				"Players",
-				"ReplicatedFirst",
-				"ReplicatedStorage",
-				"ServerScriptService", -- ? Why
-				"ServerStorage", -- ? Why
-				"SoundService",
-				"StarterGui",
-				"StarterPack",
-				"StarterPlayer",
-				"Teams",
-				"TextChatService",
-				"Workspace",
-			}
 			-- if SavePlayers then
 			-- 	table.insert(_list_0, "Players")
 			-- end
-			for _index_0 = 1, #_list_0 do
-				local x = _list_0[_index_0]
+			for _, x in
+				{
+					"Chat",
+					"InsertService",
+					"JointsService",
+					"Lighting",
+					"MaterialService",
+					"Players",
+					"ReplicatedFirst",
+					"ReplicatedStorage",
+					"ServerScriptService", -- ? Why
+					"ServerStorage", -- ? Why
+					"SoundService",
+					"StarterGui",
+					"StarterPack",
+					"StarterPlayer",
+					"Teams",
+					"TextChatService",
+					"Workspace",
+				}
+			do
 				table.insert(tmp, service[x])
 			end
 		elseif mode == "scripts" then
-			local Hierarchy = TempRoot:GetDescendants()
-			local cach = {}
-			for _index_0 = 1, #Hierarchy do
-				local instance = Hierarchy[_index_0]
-
+			-- TODO: Only save paths that lead to scripts (nothing else)
+			-- Currently saves paths along with children of each tree
+			local unique = {}
+			for _, instance in TempRoot:GetDescendants() do
 				if ScriptsClasses[instance.ClassName] then
 					local Parent = instance.Parent
 					while Parent and Parent ~= TempRoot do
@@ -991,11 +983,11 @@ local function synsaveinstance(CustomOptions)
 						Parent = instance.Parent
 					end
 					if Parent then
-						cach[instance] = true
+						unique[instance] = true
 					end
 				end
 			end
-			for instance in cach do
+			for instance in unique do
 				table.insert(tmp, instance)
 			end
 		end
@@ -1023,7 +1015,7 @@ local function synsaveinstance(CustomOptions)
 						return "-- Not found in already decompiled ScriptCache"
 					end
 				else
-					rwait()
+					task.wait()
 				end
 			end
 			local ok, result = pcall(decompile, Script, Timeout, Timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
@@ -1166,17 +1158,18 @@ local function synsaveinstance(CustomOptions)
 
 	local function getsizeformat()
 		local Size
-		local BinaryPrefixes = {
-			"B",
-			"KB",
-			"MB",
-			"GB",
-			"TB",
-		}
-		for Index = 1, #BinaryPrefixes do
-			local buffersize = #total
+		local buffersize = #total
+		for Index, BinaryPrefix in
+			{
+				"B",
+				"KB",
+				"MB",
+				"GB",
+				"TB",
+			}
+		do
 			if buffersize < 0x400 ^ Index then
-				Size = math.floor(buffersize / (0x400 ^ (Index - 1)) * 10) / 10 .. " " .. BinaryPrefixes[Index]
+				Size = math.floor(buffersize / (0x400 ^ (Index - 1)) * 10) / 10 .. " " .. BinaryPrefix
 				break
 			end
 		end
@@ -1191,7 +1184,7 @@ local function synsaveinstance(CustomOptions)
 			StatusTextClone.Text = "Saving.. Size: " .. getsizeformat()
 		end
 		savebuffer = {}
-		rwait()
+		task.wait()
 	end
 
 	local function savespecific(ClassName, Properties)
@@ -1225,9 +1218,7 @@ local function synsaveinstance(CustomOptions)
 			savecache()
 		end
 
-		for _index_0 = 1, #Hierarchy do
-			local instance = Hierarchy[_index_0]
-
+		for _, instance in Hierarchy do
 			if IgnoreNotArchivable and not instance.Archivable then
 				continue
 			end
@@ -1282,15 +1273,15 @@ local function synsaveinstance(CustomOptions)
 			local ChildrenOverride = InstanceOverride and InstanceOverride.__Children
 
 			if ChildrenOverride then
-				savebuffer[#savebuffer + 1] = savespecific(ClassName, InstanceOverride.Properties) -- ! Assuming anything that has __Children will have .Properties
+				table.insert(savebuffer, savespecific(ClassName, InstanceOverride.Properties)) -- ! Assuming anything that has __Children will have .Properties
 			else
 				local Properties = inheritedproperties[ClassName]
-				savebuffer[#savebuffer + 1] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
+				table.insert(savebuffer, ReturnItem(ClassName, instance)) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
 
 				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and ScriptsClasses[ClassName] == nil) then
 					local specialProperties, Replica
-					for _index_1 = 1, #Properties do
-						local Property = Properties[_index_1]
+
+					for _, Property in Properties do
 						local PropertyName = Property.Name
 
 						if IgnoreProperties[PropertyName] then
@@ -1416,6 +1407,7 @@ local function synsaveinstance(CustomOptions)
 											value = ldecompile(instance)
 										end
 									end
+									value = "-- Saved using UniversalSynSaveInstance\n" .. value
 								end
 
 								value = Descriptors.__PROTECTEDSTRING(value)
@@ -1439,13 +1431,13 @@ local function synsaveinstance(CustomOptions)
 						end
 
 						if tag then
-							savebuffer[#savebuffer + 1] = ReturnProperty(tag, PropertyName, value)
+							table.insert(savebuffer, ReturnProperty(tag, PropertyName, value))
 						elseif __DEBUG_MODE then
 							warn("UNSUPPORTED TYPE (OPEN A GITHUB ISSUE): ", ValueType, ClassName, PropertyName)
 						end
 					end
 				end
-				savebuffer[#savebuffer + 1] = "</Properties>"
+				table.insert(savebuffer, "</Properties>")
 			end
 
 			if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
@@ -1460,7 +1452,7 @@ local function synsaveinstance(CustomOptions)
 				DecompileIgnoring = nil
 			end
 
-			savebuffer[#savebuffer + 1] = "</Item>"
+			table.insert(savebuffer, "</Item>")
 		end
 	end
 
@@ -1584,12 +1576,12 @@ local function synsaveinstance(CustomOptions)
 			workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
 	
 			This file was generated with the following settings:
-	]] .. service.HttpService:JSONEncode(OPTIONS) .. "\n]]")
+	]] .. service.HttpService:JSONEncode(OPTIONS) .. "\n\nElapsed time: " .. os.clock() - elapse_t .. "\n]]")
 		end
 
 		local tmp = { "<SharedStrings>" }
 		for Identifier, Value in SharedStrings do
-			tmp[#tmp + 1] = '<SharedString md5="' .. Identifier .. '">' .. Value .. "</SharedString>"
+			table.insert(tmp, '<SharedString md5="' .. Identifier .. '">' .. Value .. "</SharedString>")
 		end
 
 		if 1 < #tmp then -- TODO: This sucks so much because we try to iterate a table just to check this (check above)
@@ -1650,7 +1642,7 @@ local function synsaveinstance(CustomOptions)
 	end
 
 	do
-		local elapse_t = os.clock()
+		elapse_t = os.clock()
 		local ok, err = xpcall(savegame, function(err)
 			return debug.traceback(err)
 		end)
@@ -1662,7 +1654,7 @@ local function synsaveinstance(CustomOptions)
 			task.spawn(function()
 				local ExtraTime = 10
 				if ok then
-					StatusTextClone.Text = string.format("Saved! Time %.2f seconds; Size %s", elapse_t, getsizeformat())
+					StatusTextClone.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, getsizeformat())
 					task.wait(Log10 * 2 + ExtraTime)
 				else
 					StatusTextClone.Text = "Failed! Check F9 console for more info"
