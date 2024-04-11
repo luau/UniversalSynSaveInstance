@@ -175,8 +175,8 @@ resources include:
 [DataType Exceptions]: https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_reflector/src/cli/generate.rs#L260
 [KRNL Docs]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
 [KRNL-like saveinstance Options]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
-[Rojo Rbx Dom Xml]: https://github.com/rojo-rbx/rbx-dom/blob/e9732e427b8f0903b6ec9f5d02aa3f1f9e884e94/docs/xml.md
-[Rojo Rbx Dom Binary]: https://github.com/rojo-rbx/rbx-dom/blob/e9732e427b8f0903b6ec9f5d02aa3f1f9e884e94/docs/binary.md
+[Rojo Rbx Dom Xml]: https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md
+[Rojo Rbx Dom Binary]: https://github.com/rojo-rbx/rbx-dom/blob/master/docs/binary.md
 [Luau Syntax]: https://luau-lang.org/syntax
 [Rbx-Binary-Format]: https://github.com/Dekkonot/rbx-binary-format/blob/master/src/writer.lua
 [Roblox Client Tracker]: https://github.com/MaximumADHD/Roblox-Client-Tracker
@@ -190,5 +190,5 @@ resources include:
 [Synapse X Source 2019]: https://github.com/Acrillis/SynapseX
 [PropertyPatches v1]: https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua#L72
 [PropertyPatches v2]: https://github.com/rojo-rbx/rbx-dom/tree/master/patches
-[PropertyPatches v3]: https://github.com/rojo-rbx/rbx-dom/blob/9716af360307eb5da5f97d54d84d694b2bc06acf/rbx_dom_lua/src/customProperties.lua
+[PropertyPatches v3]: https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua
 [UNC]: https://github.com/unified-naming-convention/NamingStandard/commit/613c1956b801ace54ba141dfc60842a16608b54f

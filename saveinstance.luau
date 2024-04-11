@@ -247,9 +247,11 @@ Descriptors = {
 		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
 	Color3uint8 = function(raw)
+		-- https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md#color3uint8
+
 		return 0xFF000000
-			+ (math.floor(raw.R * 255) * 65536)
-			+ (math.floor(raw.G * 255) * 256)
+			+ (math.floor(raw.R * 255) * 0x10000)
+			+ (math.floor(raw.G * 255) * 0x100)
 			+ math.floor(raw.B * 255) -- ? It is recommended that Color3uint8 is encoded with text instead of elements.
 		-- return bit32.bor(
 		-- 	bit32.bor(bit32.bor(bit32.lshift(0xFF, 24), bit32.lshift(0xFF * raw.R, 16)), bit32.lshift(0xFF * raw.G, 8)),
@@ -283,7 +285,7 @@ Descriptors = {
 			.. Descriptors.__ENUM(raw.Weight)
 			.. "</Weight><Style>"
 			.. Descriptors.__ENUMNAME(raw.Style) -- Weird but this field accepts .Name of enum instead..
-			.. "</Style>" --TODO: Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
 		--The value is the text content, formatted as a space-separated list of floating point numbers.
@@ -413,28 +415,29 @@ The value of each component is represented by the text content formatted as a 32
 
 	bool = tostring,
 
-	double = function(raw, default)
+	double = function(raw, default) -- Float64
 		return Descriptors.__APIPRECISION(raw, default or 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
 	end, -- ? wouldn't float be better as an optimization
-	float = function(raw, default)
+	float = function(raw, default) -- Float32
 		return Descriptors.__APIPRECISION(raw, default or 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
+	end,
+	int = function(raw) -- Int32
+		return Descriptors.__EXTREMIFY(raw) or raw
 	end,
 	string = function(raw, skipcheck)
 		return not skipcheck and raw == "" and raw or string.gsub(raw, EscapesPattern, Escapes)
 	end,
 }
-Descriptors.NumberSequence = Descriptors.__SEQUENCE
-Descriptors.Vector2int16 = Descriptors.Vector2
-Descriptors.Vector3int16 = Descriptors.Vector3
-for _, StaysRaw in
+
+for DescriptorName, RedirectName in
 	{
-		"int",
-		"int64",
+		NumberSequence = "__SEQUENCE",
+		Vector2int16 = "Vector2",
+		Vector3int16 = "Vector3",
+		int64 = "int", -- Int64 (long)
 	}
 do
-	Descriptors[StaysRaw] = function(raw)
-		return Descriptors.__EXTREMIFY(raw) or raw
-	end
+	Descriptors[DescriptorName] = Descriptors[RedirectName]
 end
 
 for _, originalfuncname in { "getproperties", "getspecialinfo" } do -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron, Codex
@@ -492,6 +495,13 @@ local function ArrayToDictionary(Table, HybridMode)
 end
 
 local ClassList
+
+local NotScriptableFixes = {
+	BasePart = { -- TODO: Find a way to integrate this into settings
+		Color3uint8 = "Color",
+	},
+} -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/main/Tests/Potentially%20Missing%20Properties%20Tracker.luau
+
 do
 	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/23f772f6f78af879a21faa9fea3e6c4f93d1cdee/src/API.lua#L19
 	-- ! IgnoreClassProperties aren't needed anymore due to CanSave filter (see below)
@@ -513,6 +523,37 @@ do
 
 		local classList = {}
 
+		local function ReturnPropertyInfo(Member, PropertyName)
+			local MemberTags = Member.Tags
+
+			local Special
+
+			if MemberTags then
+				MemberTags = ArrayToDictionary(MemberTags)
+
+				Special = MemberTags.NotScriptable
+
+				-- if MemberTags.Deprecated then -- ! Replaced by CanSave true filter (we could also only filter with CanSave here but if its on same level as CanLoad we possibly reduce amount of things we save therefore file size. if Roblox deems something not worth to save why should we save it too)
+				-- 	Allowed = nil
+				-- end
+			end
+			-- if Allowed then
+			local ValueType = Member.ValueType
+
+			local Property = {
+				Name = PropertyName,
+				Category = ValueType.Category,
+				Default = Member.Default,
+				-- Tags = MemberTags,
+				ValueType = ValueType.Name,
+			}
+
+			if Special then
+				Property.Special = true
+			end
+			return Property
+		end
+
 		for _, API_Class in service.HttpService:JSONDecode(API_Dump).Classes do
 			local Class = {}
 
@@ -530,11 +571,18 @@ do
 
 			local ClassProperties = {}
 
+			local Fix = NotScriptableFixes[ClassName]
+			local ClassFixes
+			if Fix then
+				ClassFixes = {}
+				for ToFix, FixName in Fix do
+					ClassFixes[FixName] = ToFix
+				end
+			end
+
 			for _, Member in API_Class.Members do
 				if Member.MemberType == "Property" then
 					local PropertyName = Member.Name
-
-					-- ? We avoid this as some Instances like services may have this property locked and thus make file unable to open and it's not even used by Roblox anyways as Parent-Child relationship is done by embedding/nesting
 
 					local Serialization = Member.Serialization
 
@@ -548,37 +596,14 @@ do
 
 						-- local Ignored = IgnoreClassProperties[ClassName]
 						-- if not (Ignored and Ignored[PropertyName]) then
-						local Allowed = true
+						-- local Allowed = true
 
-						local MemberTags = Member.Tags
-
-						local Special
-
-						if MemberTags then
-							MemberTags = ArrayToDictionary(MemberTags)
-
-							Special = MemberTags.NotScriptable
-
-							-- if MemberTags.Deprecated then -- ! Replaced by CanSave true filter (we could also only filter with CanSave here but if its on same level as CanLoad we possibly reduce amount of things we save therefore file size. if Roblox deems something not worth to save why should we save it too)
-							-- 	Allowed = nil
-							-- end
-						end
-						if Allowed then
-							local ValueType = Member.ValueType
-
-							local Property = {
-								Name = PropertyName,
-								Category = ValueType.Category,
-								Default = Member.Default,
-								-- Tags = MemberTags,
-								ValueType = ValueType.Name,
-							}
-
-							if Special then
-								Property.Special = true
-							end
-
-							ClassProperties[PropertyName] = Property
+						ClassProperties[PropertyName] = ReturnPropertyInfo(Member, PropertyName)
+						-- end
+					elseif ClassFixes then
+						local ToFix = ClassFixes[PropertyName]
+						if ToFix then
+							Fix[ToFix] = ReturnPropertyInfo(Member, PropertyName)
 						end
 					end
 					-- end
@@ -611,9 +636,7 @@ local inheritedproperties = setmetatable({}, {
 		while layer do
 			-- proplist = table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
 			for _, p in layer.Properties do
-				-- p = table.clone(p)
-				-- p.Name = PropertyName
-				table.insert(proplist, p)
+				table.insert(proplist, table.clone(p))
 			end
 
 			layer = ClassList[layer.Superclass]
@@ -794,9 +817,9 @@ local function synsaveinstance(CustomOptions)
 				local Exists = OPTIONS.NilInstancesFixes[Name]
 
 				local Fix
-				Exists = not Exists
 
-				if Exists then
+				local DoesntExist = not Exists
+				if DoesntExist then
 					Fix = Instance.new(ClassName)
 					OPTIONS.NilInstancesFixes[Name] = Fix
 					-- Fix.Name = Name
@@ -808,7 +831,7 @@ local function synsaveinstance(CustomOptions)
 
 				table.insert(InstancePropertyOverrides[Fix].__Children, instance)
 				-- InstancePropertyOverrides[instance].Parent = AnimationController
-				if Exists then
+				if DoesntExist then
 					return Fix
 				end
 			end
@@ -1135,7 +1158,7 @@ local function synsaveinstance(CustomOptions)
 	end
 
 	local function ReturnItem(ClassName, instance)
-		return '<Item class="' .. ClassName .. '" referent="' .. referents[instance] .. '"><Properties>' -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
+		return '<Item class="' .. ClassName .. '" referent="' .. referents[instance] .. '"><Properties>' -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is Enabled OR If all properties are default (reduces file size by at least 1.4%)
 	end
 	local function ReturnProperty(Tag, PropertyName, Value)
 		return "<" .. Tag .. ' name="' .. PropertyName .. '">' .. Value .. "</" .. Tag .. ">"
@@ -1154,6 +1177,14 @@ local function synsaveinstance(CustomOptions)
 		local value, tag = (Descriptor or Descriptors[ValueType])(raw)
 
 		return value, tag == nil and ValueType or tag
+	end
+
+	local function InheritsFix(Fixes, instance)
+		for className, fix in Fixes do
+			if instance:IsA(className) then
+				return fix
+			end
+		end
 	end
 
 	local function getsizeformat()
@@ -1228,7 +1259,8 @@ local function synsaveinstance(CustomOptions)
 			end
 
 			local ClassName = instance.ClassName
-			if not ClassList[ClassName] then
+			local Class = ClassList[ClassName]
+			if not Class then
 				continue
 			end
 
@@ -1275,13 +1307,13 @@ local function synsaveinstance(CustomOptions)
 			if ChildrenOverride then
 				table.insert(savebuffer, savespecific(ClassName, InstanceOverride.Properties)) -- ! Assuming anything that has __Children will have .Properties
 			else
-				local Properties = inheritedproperties[ClassName]
+				-- local Properties =
 				table.insert(savebuffer, ReturnItem(ClassName, instance)) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
 
 				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and ScriptsClasses[ClassName] == nil) then
 					local specialProperties, Replica
 
-					for _, Property in Properties do
+					for _, Property in inheritedproperties[ClassName] do
 						local PropertyName = Property.Name
 
 						if IgnoreProperties[PropertyName] then
@@ -1302,8 +1334,30 @@ local function synsaveinstance(CustomOptions)
 						local raw
 						raw, specialProperties =
 							ReadProperty(Property, instance, PropertyName, specialProperties, Special)
-						if raw == "__BREAK" then
-							continue
+						local Old_Property, Old_PropertyName, Old_Special, Old_ValueType
+						if raw == "__BREAK" then -- ! Assuming __BREAK is always returned when there's a failure to read a property
+							local Fix = InheritsFix(NotScriptableFixes, instance) -- TODO: Edit this into a NotScriptableFixes[instance] once there is at least one class which can be indexed without IsA
+
+							if Fix then
+								local PropertyFix = Fix[PropertyName]
+								if PropertyFix then
+									Old_Property, Old_PropertyName, Old_Special, Old_ValueType =
+										Property, PropertyName, Special, ValueType
+									Property, PropertyName = PropertyFix, PropertyFix.Name
+									Special, ValueType = Property.Special, Property.ValueType
+
+									raw, specialProperties =
+										ReadProperty(Property, instance, PropertyName, specialProperties, Special)
+
+									if raw == "__BREAK" then
+										continue
+									end
+								else
+									continue
+								end
+							else
+								continue
+							end
 						end
 
 						if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to  table if more types are added
@@ -1323,7 +1377,7 @@ local function synsaveinstance(CustomOptions)
 							if IgnoreDefaults[Default] then
 								local ClassTags = ClassList[ClassName].Tags
 
-								local NotCreatable = ClassTags and ClassTags.NotCreatable
+								local NotCreatable = ClassTags and ClassTags.NotCreatable -- __api_dump_class_not_creatable__ also indicates this
 
 								local Reset
 
@@ -1353,8 +1407,6 @@ local function synsaveinstance(CustomOptions)
 
 									Default = ApiFormatify(Default, Category, ValueType)
 									Property.Default = Default
-									-- if Property.Special then
-									-- end
 								end
 							elseif Default == "default" and ValueType == "PhysicalProperties" then
 								Default = "nil"
@@ -1366,6 +1418,12 @@ local function synsaveinstance(CustomOptions)
 
 								continue
 							end
+						end
+
+						-- Serialization start
+						if Old_Property then
+							Property, PropertyName, Special, ValueType =
+								Old_Property, Old_PropertyName, Old_Special, Old_ValueType
 						end
 
 						local tag, value
@@ -1407,10 +1465,12 @@ local function synsaveinstance(CustomOptions)
 											value = ldecompile(instance)
 										end
 									end
-									value = "-- Saved using UniversalSynSaveInstance\n" .. value
+									value = "-- Saved using UniversalSynSaveInstance\n\n" .. value
 								end
 
 								value = Descriptors.__PROTECTEDSTRING(value)
+							-- elseif "UniqueId" == ValueType or "SecurityCapabilities" == ValueType then -- ? Not sure yet
+							-- 	tag, value = ValueType, raw
 							else
 								--OptionalCoordinateFrame and so on, we make it dynamic
 								local startIDX, endIDX = Find(ValueType, "Optional")
@@ -1520,12 +1580,7 @@ local function synsaveinstance(CustomOptions)
 
 					local Fix = NilInstancesFixes[ClassName]
 					if not Fix then -- ! This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though); Like Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways
-						for className, fix in NilInstancesFixes do
-							if instance:IsA(className) then
-								Fix = fix
-								break
-							end
-						end
+						Fix = InheritsFix(NilInstancesFixes, instance)
 					end
 					if Fix then -- *
 						instance = Fix(instance, InstancePropertyOverrides)
@@ -1658,8 +1713,7 @@ local function synsaveinstance(CustomOptions)
 					task.wait(Log10 * 2 + ExtraTime)
 				else
 					StatusTextClone.Text = "Failed! Check F9 console for more info"
-					warn("Error found while saving")
-					warn("Information about error:")
+					warn("Error found while saving:")
 					warn(err)
 					task.wait(Log10 + ExtraTime)
 				end
