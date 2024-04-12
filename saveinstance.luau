@@ -1,4 +1,6 @@
 --!native
+-- https://discord.gg/wx4ThpAsmw
+
 local Params = {
 	RepoURL = "https://raw.githubusercontent.com/luau/SomeHub/main/",
 	UMF = "UniversalMethodFinder",
@@ -8,14 +10,16 @@ local finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params
 finder({
 	-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
 	decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
-	gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 	gethiddenproperties = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
-	sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
+	gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 	gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
 	getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
 	getproperties = 'string.find(...,"get",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
+	getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)',
 	getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
 	protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
+	request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
+	sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 	writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 }, true)
 
@@ -23,6 +27,9 @@ local decompile = globalcontainer.decompile
 local gethiddenproperty = globalcontainer.gethiddenproperty
 local sethiddenproperty = globalcontainer.sethiddenproperty
 local writefile = globalcontainer.writefile
+
+local request = globalcontainer.request
+local getscriptbytecode = globalcontainer.getscriptbytecode
 
 if not globalcontainer.getspecialinfo then
 	globalcontainer.getspecialinfo = globalcontainer.gethiddenproperties
@@ -101,6 +108,32 @@ do
 	)().encode
 	Base64_Encode = function(raw) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
 		return raw == "" and raw or buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(raw)))
+	end
+end
+
+-- if not decompile then
+if request and getscriptbytecode then
+	decompile = function(Script)
+		local bytecode = getscriptbytecode(Script)
+
+		if bytecode == "" then
+			error("Bytecode is empty")
+		end
+
+		local response = request({
+			Url = "https://decompile.glitch.me/bytecode",
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json",
+			},
+			Body = service.HttpService:JSONEncode({
+				version = 5,
+				bytecode = Base64_Encode(bytecode),
+			}),
+		})
+		local decoded = service.HttpService:JSONDecode(response.Body)
+
+		return decoded.output
 	end
 end
 
@@ -392,7 +425,8 @@ The value of each component is represented by the text content formatted as a 32
 	 account for anyway. They generate diff noise, so we shouldn't serialize
 	 them until we have to.
 	]]
-	-- 	return string.lower(string.gsub(game.HttpService:GenerateGUID(false), "-", "")) -- ? No idea if this even needs a Descriptor
+	-- https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/roblox/LuaPackages/Packages/_Index/ApolloClientTesting/ApolloClientTesting/utilities/common/makeUniqueId.lua#L62
+	-- 	return "" -- ? No idea if this even needs a Descriptor
 	-- end,
 
 	Vector2 = function(raw)
@@ -500,10 +534,10 @@ local NotScriptableFixes = {
 	BasePart = { -- TODO: Find a way to integrate this into settings
 		Color3uint8 = "Color",
 	},
-} -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/main/Tests/Potentially%20Missing%20Properties%20Tracker.luau
+} -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
 
 do
-	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/23f772f6f78af879a21faa9fea3e6c4f93d1cdee/src/API.lua#L19
+	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/master/src/API.lua#L19
 	-- ! IgnoreClassProperties aren't needed anymore due to CanSave filter (see below)
 	-- local IgnoreClassProperties = {
 	-- GuiObject = { "Transparency" },
@@ -641,7 +675,6 @@ local inheritedproperties = setmetatable({}, {
 
 			layer = ClassList[layer.Superclass]
 		end
-
 		self[ClassName] = proplist
 
 		return proplist
@@ -767,6 +800,7 @@ local function synsaveinstance(CustomOptions)
 
 			-- Service = function(instance) end, -- ? Have yet to encounter a case where an Instance with Service Tag is deleted
 		},
+
 		ScriptsClasses = { "LocalScript", "ModuleScript", Script = false }, -- Please keep this updated; "= false" means it won't be decompiled
 		IgnoreDefaults = {
 			__api_dump_class_not_creatable__ = true,
@@ -1465,7 +1499,8 @@ local function synsaveinstance(CustomOptions)
 											value = ldecompile(instance)
 										end
 									end
-									value = "-- Saved using UniversalSynSaveInstance\n\n" .. value
+									value = "-- Saved using UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
+										.. value
 								end
 
 								value = Descriptors.__PROTECTEDSTRING(value)

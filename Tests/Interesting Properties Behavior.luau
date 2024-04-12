@@ -86,11 +86,13 @@ do
 						local Serialization = Member.Serialization
 						if Serialization.CanLoad then
 							if Serialization.CanSave == false then
-								s ..= "Serial " .. ClassName .. " " .. PropertyName .. "\n"
+								s ..= "CanLoad Only " .. ClassName .. " " .. PropertyName .. "\n"
 							end
 							if MemberTags and MemberTags.Deprecated then
 								s ..= "Deprecated " .. ClassName .. " " .. PropertyName .. (Serialization.CanSave and " CanSave" or "") .. "\n"
 							end
+						elseif Serialization.CanSave then
+							s ..= "CanSave Only " .. ClassName .. " " .. PropertyName .. "\n"
 						end
 						local ValueType = Member.ValueType
 
