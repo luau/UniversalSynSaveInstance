@@ -131,7 +131,16 @@ if request and getscriptbytecode then
 				bytecode = Base64_Encode(bytecode),
 			}),
 		})
+
+		if response.Success == false then -- Server Issue
+			return response.StatusMessage
+		end
+
 		local decoded = service.HttpService:JSONDecode(response.Body)
+
+		if decoded.status ~= "ok" then -- Decompiler Issue
+			return decoded.status
+		end
 
 		return decoded.output
 	end
