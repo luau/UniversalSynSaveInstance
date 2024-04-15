@@ -145,6 +145,34 @@ if request and getscriptbytecode then
 		return decoded.output
 	end
 end
+local DecompileHandler
+if decompile then
+	DecompileHandler = function(Script, Timeout)
+		local thread = coroutine.running()
+		local finished
+
+		task.spawn(function()
+			local ok, result = pcall(decompile, Script, Timeout + 1, Timeout + 1) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
+
+			if not finished then
+				finished = true
+
+				coroutine.resume(thread, ok, result)
+			end
+		end)
+
+		task.spawn(function()
+			task.wait(Timeout)
+
+			if not finished then
+				finished = true
+				coroutine.resume(thread, nil, "Decompiler timed out")
+			end
+		end)
+
+		return coroutine.yield()
+	end
+end
 
 local SharedStrings = {}
 local sharedstrings = setmetatable({
@@ -173,7 +201,7 @@ Descriptors = {
 		end
 
 		local precision
-		if type(default) == "string" then
+		if type(default) == "string" then -- TODO: This part isn't too necessary at all and affects speed
 			local dotIndex = Find(default, ".")
 
 			if dotIndex then
@@ -197,7 +225,7 @@ Descriptors = {
 
 		for Index, Bit in { ... } do
 			if Bit then
-				Value = Value + 2 ^ (Index - 1)
+				Value += 2 ^ (Index - 1)
 			end
 		end
 
@@ -225,7 +253,7 @@ Descriptors = {
 		return Extreme
 	end,
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
-		return Find(raw, "]]>") and Descriptors.string(raw) or Descriptors.__CDATA(raw)
+		return Find(raw, "]]>") and Descriptors.string(raw, true) or Descriptors.__CDATA(raw)
 	end,
 	__SEQUENCE = function(raw, ValueFormat) --The value is the text content, formatted as a space-separated list of floating point numbers.
 		-- tostring(raw) also works (but way slower rn)
@@ -295,10 +323,13 @@ Descriptors = {
 			+ (math.floor(raw.R * 255) * 0x10000)
 			+ (math.floor(raw.G * 255) * 0x100)
 			+ math.floor(raw.B * 255) -- ? It is recommended that Color3uint8 is encoded with text instead of elements.
+
 		-- return bit32.bor(
 		-- 	bit32.bor(bit32.bor(bit32.lshift(0xFF, 24), bit32.lshift(0xFF * raw.R, 16)), bit32.lshift(0xFF * raw.G, 8)),
 		-- 	0xFF * raw.B
 		-- )
+
+		-- return tonumber(string.format("0xFF%02X%02X%02X",raw.R*255,raw.G*255,raw.B*255))
 	end,
 	ColorSequence = function(raw)
 		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
@@ -825,7 +856,7 @@ local function synsaveinstance(CustomOptions)
 		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set, Description: If true scripts will be decompiled.
 		-- DecompileTimeout = OPTIONS.timeout, -- ! This takes priority over OPTIONS.timeout if set
 		IgnoreDefaultProperties = true, -- Description: When enabled it will ignore default properties while saving.
-		IgnoreNotArchivable = true,
+		IgnoreNotArchivable = true, -- Description: Ignores the Archivable property and saves Non-Archivable instances.
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false, -- Ignores property of every instance that is not a script in "scripts" mode
 		IgnoreSpecialProperties = false, -- true will disable Terrain & Break MeshPart Sizes (very likely)
 		IsolateStarterPlayer = false, --If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders.
@@ -1069,7 +1100,7 @@ local function synsaveinstance(CustomOptions)
 		ldecompile = function()
 			return "-- Decompiling is disabled"
 		end
-	elseif decompile then
+	elseif DecompileHandler then
 		ldecompile = function(Script)
 			-- local name = scr.ClassName .. scr.Name
 			do
@@ -1084,9 +1115,10 @@ local function synsaveinstance(CustomOptions)
 					task.wait()
 				end
 			end
-			local ok, result = pcall(decompile, Script, Timeout, Timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
-			ldeccache[Script] = result
-			return ok and result or "--[[Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
+
+			local ok, result = DecompileHandler(Script, Timeout)
+			ldeccache[Script] = result -- ? Should we cache even if it timed out?
+			return ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
 		end
 	else
 		ldecompile = function()
@@ -1457,6 +1489,7 @@ local function synsaveinstance(CustomOptions)
 							end
 
 							if ApiFormatify(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
+								-- TODO: tostring(Vector3.new(0/0,math.huge,-math.huge)) returns lowercase Extremes - "nan, inf, -inf" meanwhile for everything else (in xml & dump defaults they seem to be uppercase), this can cause issues later on when a Vector3 Property comes out, default of which will include either of these of Extreme values (Needs to be watched)
 								-- print("Default not serializing", PropertyName)
 
 								continue
@@ -1700,31 +1733,39 @@ local function synsaveinstance(CustomOptions)
 		StatusTextClone = globalenv.StatusText:Clone()
 		StatusTextClone.Parent = StatusGui
 	end
-
+	local Connections
 	do
 		local Players = service.Players
 		local LocalPlayer = Players.LocalPlayer
 
-		local function IgnoreCharacter(Player)
-			Player.CharacterAdded:Connect(function(Character)
-				IgnoreList[Character] = true
-			end)
-
-			local Character = Player.Character
-			if Character then
-				IgnoreList[Character] = true
-			end
-		end
-
 		if IgnoreList.Model ~= true then
+			Connections = {}
+			local function IgnoreCharacter(Player)
+				table.insert(
+					Connections,
+					Player.CharacterAdded:Connect(function(Character)
+						IgnoreList[Character] = true
+					end)
+				)
+
+				local Character = Player.Character
+				if Character then
+					IgnoreList[Character] = true
+				end
+			end
+
 			if OPTIONS.RemovePlayerCharacters then
+				table.insert(
+					Connections,
+					Players.PlayerAdded:Connect(function(Player)
+						IgnoreCharacter(Player)
+					end)
+				)
 				for _, Player in Players:GetPlayers() do
 					IgnoreCharacter(Player)
 				end
-			else
-				if IsolateLocalPlayerCharacter then
-					IgnoreCharacter(LocalPlayer)
-				end
+			elseif IsolateLocalPlayerCharacter then
+				IgnoreCharacter(LocalPlayer)
 			end
 		end
 		if IsolateLocalPlayer and IgnoreList.Player ~= true then
@@ -1745,12 +1786,13 @@ local function synsaveinstance(CustomOptions)
 		local ok, err = xpcall(savegame, function(err)
 			return debug.traceback(err)
 		end)
-		elapse_t = os.clock() - elapse_t
-
-		local Log10 = math.log10(elapse_t)
-
+		for _, Connection in Connections do
+			Connection:Disconnect()
+		end
 		if StatusTextClone then
 			task.spawn(function()
+				elapse_t = os.clock() - elapse_t
+				local Log10 = math.log10(elapse_t)
 				local ExtraTime = 10
 				if ok then
 					StatusTextClone.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, getsizeformat())

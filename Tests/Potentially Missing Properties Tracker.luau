@@ -102,6 +102,8 @@ do
 							local o, r = true, true
 							if instance then
 								o, r = pcall(gethiddenproperty, instance, PropertyName)
+							else
+								o, r = false, "Couldn't Create Class"
 							end
 
 							(not o and warn or print)(ClassName, PropertyName, not o and r or "")
