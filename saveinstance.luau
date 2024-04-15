@@ -804,7 +804,7 @@ local function synsaveinstance(CustomOptions)
 		noscripts = false,
 		scriptcache = true,
 		-- decomptype = "new", -- * Deprecated
-		timeout = 30, -- Description: If the decompilation run time exceeds this value it gets cancelled.
+		timeout = 10, -- Description: If the decompilation run time exceeds this value it gets cancelled.
 		--* New:
 		__DEBUG_MODE = false, -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it!
 
@@ -1684,31 +1684,41 @@ local function synsaveinstance(CustomOptions)
 		end
 
 		if OPTIONS.ReadMe then
-			saveextra("README", nil, "Script", "--[[\n" .. [[
-			Thank you for using SynSaveInstance Revival.
-			We recommended to save the game right away to take advantage of the binary format (if you didn't save in binary) AND to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
-			If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere. (This is done by default)
-			If the chat system does not work, please use the explorer and delete everything inside the Chat service. 
-			Or run `game:GetService("Chat"):ClearAllChildren()`
-	
-			If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
-	
-	
-			local C = game:GetService("CoreGui")
-			local D = Enum.CollisionFidelity.Default
-	
-			for _, v in game:GetDescendants() do
-				if v:IsA("TriangleMeshPart") and not v:IsDescendantOf(C) then
-					v.CollisionFidelity = D
+			saveextra(
+				"README",
+				nil,
+				"Script",
+				"--[[\n"
+					.. [[
+				Thank you for using SynSaveInstance Revival.
+				We recommended to save the game right away to take advantage of the binary format (if you didn't save in binary) AND to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
+				If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere. (This is done by default)
+				If the chat system does not work, please use the explorer and delete everything inside the Chat service. 
+				Or run `game:GetService("Chat"):ClearAllChildren()`
+				
+				If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
+				
+				
+				local C = game:GetService("CoreGui")
+				local D = Enum.CollisionFidelity.Default
+				
+				for _, v in game:GetDescendants() do
+					if v:IsA("TriangleMeshPart") and not v:IsDescendantOf(C) then
+						v.CollisionFidelity = D
+					end
 				end
-			end
-	
-			If you can't move the Camera, run the scripts in the Studio Command Bar:
-
-			workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
-	
-			This file was generated with the following settings:
-	]] .. service.HttpService:JSONEncode(OPTIONS) .. "\n\nElapsed time: " .. os.clock() - elapse_t .. "\n]]")
+				
+				If you can't move the Camera, run the scripts in the Studio Command Bar:
+			
+				workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
+				
+				This file was generated with the following settings:
+				]]
+					.. service.HttpService:JSONEncode(OPTIONS)
+					.. "\n\nElapsed time: "
+					.. os.clock() - elapse_t
+					.. "\n]]"
+			)
 		end
 
 		local tmp = { "<SharedStrings>" }
