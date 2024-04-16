@@ -999,6 +999,7 @@ local function synsaveinstance(CustomOptions)
 
 	local ldeccache = globalenv.scriptcache
 
+	local depth = 0
 	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t
 
 	if ToSaveInstance == game then
@@ -1234,10 +1235,29 @@ local function synsaveinstance(CustomOptions)
 	end
 
 	local function ReturnItem(ClassName, instance)
-		return '<Item class="' .. ClassName .. '" referent="' .. referents[instance] .. '"><Properties>' -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is Enabled OR If all properties are default (reduces file size by at least 1.4%)
+		local x = string.rep("\t", depth)
+		return "\n"
+			.. x
+			.. '<Item class="'
+			.. ClassName
+			.. '" referent="'
+			.. referents[instance]
+			.. '">\n'
+			.. x
+			.. "\t<Properties>" -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is Enabled OR If all properties are default (reduces file size by at least 1.4%)
 	end
 	local function ReturnProperty(Tag, PropertyName, Value)
-		return "<" .. Tag .. ' name="' .. PropertyName .. '">' .. Value .. "</" .. Tag .. ">"
+		return "\n"
+			.. string.rep("\t", depth + 2)
+			.. "<"
+			.. Tag
+			.. ' name="'
+			.. PropertyName
+			.. '">'
+			.. Value
+			.. "</"
+			.. Tag
+			.. ">"
 	end
 
 	local function ApiFormatify(Value, Category, ValueType, Default)
@@ -1324,7 +1344,7 @@ local function synsaveinstance(CustomOptions)
 		if SaveCacheInterval < #savebuffer then
 			savecache()
 		end
-
+		depth += 1
 		for _, instance in Hierarchy do
 			if IgnoreNotArchivable and not instance.Archivable then
 				continue
@@ -1575,7 +1595,7 @@ local function synsaveinstance(CustomOptions)
 						end
 					end
 				end
-				table.insert(savebuffer, "</Properties>")
+				table.insert(savebuffer, "\n" .. string.rep("\t", depth + 1) .. "</Properties>")
 			end
 
 			if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
@@ -1590,8 +1610,9 @@ local function synsaveinstance(CustomOptions)
 				DecompileIgnoring = nil
 			end
 
-			table.insert(savebuffer, "</Item>")
+			table.insert(savebuffer, "\n" .. string.rep("\t", depth) .. "</Item>")
 		end
+		depth -= 1
 	end
 
 	local function saveextra(Name, Hierarchy, CustomClassName, Source)
@@ -1820,4 +1841,4 @@ local function synsaveinstance(CustomOptions)
 	end
 end
 
-return synsaveinstance
+synsaveinstance({ __DEBUG_MODE = true })
