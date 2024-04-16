@@ -149,27 +149,36 @@ end
 local DecompileHandler
 if decompile then
 	DecompileHandler = function(Script, Timeout)
-		local thread = coroutine.running()
-		local finished
+		if Timeout == -1 then
+			return pcall(decompile, Script, Timeout, Timeout) -- ? Not sure whether it's better to pass -1 Timeout or not..
+		end
 
-		task.spawn(function()
-			local ok, result = pcall(decompile, Script, Timeout + 1, Timeout + 1) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
+		local Thread = coroutine.running()
+		local Thread_Timeout
 
-			if not finished then
-				finished = true
+		local Thread_Decomp = task.spawn(function(thread, scr, timeout)
+			local ok, result = pcall(decompile, scr, timeout, timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
 
-				coroutine.resume(thread, ok, result)
+			if Thread_Timeout then
+				task.cancel(Thread_Timeout)
+			else
+				task.delay(0, function()
+					task.cancel(Thread_Timeout)
+				end)
 			end
-		end)
 
-		task.spawn(function()
-			task.wait(Timeout)
-
-			if not finished then
-				finished = true
-				coroutine.resume(thread, nil, "Decompiler timed out")
+			while coroutine.status(thread) ~= "suspended" do
+				task.wait()
 			end
-		end)
+
+			coroutine.resume(thread, ok, result)
+		end, Thread, Script, Timeout)
+
+		Thread_Timeout = task.delay(Timeout, function(thread, thread_d)
+			task.cancel(thread_d)
+
+			coroutine.resume(thread, nil, "Decompiler timed out")
+		end, Thread, Thread_Decomp)
 
 		return coroutine.yield()
 	end
@@ -744,13 +753,74 @@ local referents = setmetatable({
 
 local globalenv = getgenv and getgenv() or _G
 
-local StatusGui = globalenv.StatusGui
-if not StatusGui then
-	StatusGui = Instance.new("ScreenGui")
-	globalenv.StatusGui = StatusGui
+local function CreateStatusText()
+	-- local function RemoveStatus(self)
+	-- 	-- if Drawing then
+	-- 	-- 	for _, Alias in { "Remove", "Destroy" } do
+	-- 	-- 		pcall(self[Alias], self)
+	-- 	-- 	end
+	-- 	-- else
+	-- 	self.Destroy(self)
+	-- 	globalenv.StatusText = nil
+	-- 	-- end
+	-- end
+	-- local function UpdateStatus(self, text)
+	-- 	self.Text = text
+	-- 	-- if Drawing then
+	-- 	-- 	local viewport = workspace.CurrentCamera.ViewportSize
+	-- 	-- 	self.Position = Vector2.new(viewport.X / 2 - self.TextBounds.X / 2, 50)
+	-- 	-- end
+	-- end
+
+	do
+		local Exists = globalenv.StatusText
+		if Exists then
+			-- RemoveStatus(Exists)
+			globalenv.StatusText = nil
+			Exists:Destroy()
+		end
+	end
+
+	local StatusText
+
+	-- if Drawing then
+	-- 	StatusText = Drawing.new("Text")
+	-- 	StatusText.Color = Color3.new(1, 1, 1)
+	-- 	StatusText.Outline = true
+	-- 	StatusText.OutlineColor = Color3.new()
+	-- 	for _, Alias in { "FontSize", "Size" } do
+	-- 		pcall(function()
+	-- 			StatusText[Alias] = 50
+	-- 		end)
+	-- 	end
+	-- 	pcall(function()
+	-- 		StatusText.Visible = true
+	-- 	end)
+	-- else
+	local StatusGui = Instance.new("ScreenGui")
+
+	globalenv.StatusText = StatusGui
 
 	StatusGui.DisplayOrder = 2_000_000_000
 	StatusGui.OnTopOfCoreBlur = true
+
+	StatusText = Instance.new("TextLabel")
+
+	StatusText.Text = "Saving..."
+
+	StatusText.BackgroundTransparency = 1
+	StatusText.Font = Enum.Font.Code
+	StatusText.AnchorPoint = Vector2.new(1)
+	StatusText.Position = UDim2.new(1)
+	StatusText.Size = UDim2.new(0.3, 0, 0, 20)
+
+	StatusText.TextColor3 = Color3.new(1, 1, 1)
+	StatusText.TextScaled = true
+	StatusText.TextStrokeTransparency = 0.7
+	StatusText.TextXAlignment = Enum.TextXAlignment.Right
+	StatusText.TextYAlignment = Enum.TextYAlignment.Top
+
+	StatusText.Parent = StatusGui
 
 	local function randomString()
 		local length = math.random(10, 20)
@@ -764,7 +834,7 @@ if not StatusGui then
 	if globalcontainer.gethui then
 		StatusGui.Name = randomString()
 		StatusGui.Parent = globalcontainer.gethui()
-	elseif globalcontainer.protectgui and not (is_sirhurt_closure or (syn and DrawingImmediate)) then
+	elseif globalcontainer.protectgui then
 		StatusGui.Name = randomString()
 		globalcontainer.protectgui(StatusGui)
 		StatusGui.Parent = service.CoreGui
@@ -777,19 +847,9 @@ if not StatusGui then
 			StatusGui.Parent = service.CoreGui
 		end
 	end
-	local StatusText = Instance.new("TextLabel")
-	globalenv.StatusText = StatusText
-	StatusText.BackgroundTransparency = 1
-	StatusText.Font = Enum.Font.Code
-	StatusText.AnchorPoint = Vector2.new(1)
-	StatusText.Position = UDim2.new(1)
-	StatusText.Size = UDim2.new(0.3, 0, 0, 20)
-	StatusText.Text = "Starting..."
-	StatusText.TextColor3 = Color3.new(1, 1, 1)
-	StatusText.TextScaled = true
-	StatusText.TextStrokeTransparency = 0.7
-	StatusText.TextXAlignment = Enum.TextXAlignment.Right
-	StatusText.TextYAlignment = Enum.TextYAlignment.Top
+	-- end
+
+	return StatusText
 end
 
 local function synsaveinstance(CustomOptions)
@@ -797,7 +857,7 @@ local function synsaveinstance(CustomOptions)
 
 	local total = ""
 	local savebuffer = {}
-	local StatusTextClone
+	local StatusText
 
 	local OPTIONS
 	OPTIONS = {
@@ -805,7 +865,7 @@ local function synsaveinstance(CustomOptions)
 		noscripts = false,
 		scriptcache = true,
 		-- decomptype = "new", -- * Deprecated
-		timeout = 10, -- Description: If the decompilation run time exceeds this value it gets cancelled.
+		timeout = 10, -- Description: If the decompilation run time exceeds this value it gets cancelled; Set to -1 to disable timeout (unreliable)
 		--* New:
 		__DEBUG_MODE = false, -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it!
 
@@ -1001,6 +1061,11 @@ local function synsaveinstance(CustomOptions)
 
 	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t
 
+	if ScriptCache and not ldeccache then
+		ldeccache = {}
+		globalenv.scriptcache = ldeccache
+	end
+
 	if ToSaveInstance == game then
 		ToSaveInstance = nil
 	end
@@ -1090,11 +1155,6 @@ local function synsaveinstance(CustomOptions)
 			end
 		end
 		ToSaveList = tmp
-	end
-
-	if ScriptCache and not ldeccache then
-		ldeccache = {}
-		globalenv.scriptcache = ldeccache
 	end
 
 	if OPTIONS.noscripts then
@@ -1287,8 +1347,8 @@ local function synsaveinstance(CustomOptions)
 		local savestr = table.concat(savebuffer)
 		total ..= savestr
 		writefile(placename, total)
-		if StatusTextClone then
-			StatusTextClone.Text = "Saving.. Size: " .. getsizeformat()
+		if StatusText then
+			StatusText.Text = "Saving.. Size: " .. getsizeformat()
 		end
 		savebuffer = {}
 		task.wait()
@@ -1737,13 +1797,9 @@ local function synsaveinstance(CustomOptions)
 	end
 
 	if OPTIONS.ShowStatus then
-		local Exists = StatusGui:FindFirstChild("TextLabel")
-		if Exists then
-			Exists:Destroy()
-		end
-		StatusTextClone = globalenv.StatusText:Clone()
-		StatusTextClone.Parent = StatusGui
+		StatusText = CreateStatusText()
 	end
+
 	local Connections
 	do
 		local Players = service.Players
@@ -1800,21 +1856,21 @@ local function synsaveinstance(CustomOptions)
 		for _, Connection in Connections do
 			Connection:Disconnect()
 		end
-		if StatusTextClone then
+		if StatusText then
 			task.spawn(function()
 				elapse_t = os.clock() - elapse_t
 				local Log10 = math.log10(elapse_t)
 				local ExtraTime = 10
 				if ok then
-					StatusTextClone.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, getsizeformat())
+					StatusText.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, getsizeformat())
 					task.wait(Log10 * 2 + ExtraTime)
 				else
-					StatusTextClone.Text = "Failed! Check F9 console for more info"
+					StatusText.Text = "Failed! Check F9 console for more info"
 					warn("Error found while saving:")
 					warn(err)
 					task.wait(Log10 + ExtraTime)
 				end
-				StatusTextClone:Destroy()
+				StatusText:Destroy()
 			end)
 		end
 	end
