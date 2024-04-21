@@ -169,7 +169,7 @@ Descriptors = {
 			return raw
 		end
 
-		local Extreme = Descriptors.__EXTREMIFY(raw)
+		local Extreme = Descriptors.__EXTREME(raw)
 		if Extreme then
 			return Extreme
 		end
@@ -214,7 +214,7 @@ Descriptors = {
 	__ENUMNAME = function(raw)
 		return raw.Name
 	end,
-	__EXTREMIFY = function(raw)
+	__EXTREME = function(raw)
 		local Extreme
 		if raw ~= raw then
 			Extreme = "NAN"
@@ -226,21 +226,27 @@ Descriptors = {
 
 		return Extreme
 	end,
+	__EXTREME_RANGE = function(raw)
+		return raw ~= raw and "0" or raw -- Normally we should return "-nan(ind)" instead of "0" but this adds more compatibility
+	end,
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
 		return Find(raw, "]]>") and Descriptors.string(raw, true) or Descriptors.__CDATA(raw)
 	end,
 	__SEQUENCE = function(raw, ValueFormat) --The value is the text content, formatted as a space-separated list of floating point numbers.
 		-- tostring(raw) also works (but way slower rn)
+		local __EXTREME_RANGE = Descriptors.__EXTREME_RANGE
 
 		local Converted = ""
 
 		for _, Keypoint in raw.Keypoints do
-			Converted ..= Keypoint.Time .. " " .. (ValueFormat and ValueFormat(Keypoint) or Keypoint.Value .. " " .. Keypoint.Envelope .. " ")
+			Converted ..= Keypoint.Time .. " " .. (ValueFormat and ValueFormat(Keypoint) or __EXTREME_RANGE(
+				Keypoint.Value
+			) .. " " .. __EXTREME_RANGE(Keypoint.Envelope) .. " ")
 		end
 
 		return Converted
 	end,
-	__VECTOR = function(X, Y, Z)
+	__VECTOR = function(X, Y, Z) -- Each element is a <float>
 		local Value = "<X>" .. X .. "</X><Y>" .. Y .. "</Y>" -- There is no Vector without at least two Coordinates.. (Vector1, at least on Roblox)
 
 		if Z then
@@ -287,7 +293,7 @@ Descriptors = {
 			.. "</R22>",
 			"CoordinateFrame"
 	end,
-	Color3 = function(raw)
+	Color3 = function(raw) -- Each element is a <float>
 		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
 	Color3uint8 = function(raw)
@@ -309,8 +315,15 @@ Descriptors = {
 		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
 
 		return Descriptors.__SEQUENCE(raw, function(Keypoint)
+			local __EXTREME_RANGE = Descriptors.__EXTREME_RANGE
+
 			local Value = Keypoint.Value
-			return Value.R .. " " .. Value.G .. " " .. Value.B .. " 0 "
+			return __EXTREME_RANGE(Value.R)
+				.. " "
+				.. __EXTREME_RANGE(Value.G)
+				.. " "
+				.. __EXTREME_RANGE(Value.B)
+				.. " 0 "
 		end)
 	end,
 	Content = function(raw)
@@ -336,7 +349,9 @@ Descriptors = {
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
 		--The value is the text content, formatted as a space-separated list of floating point numbers.
-		return raw.Min .. " " .. raw.Max --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually
+		local __EXTREME_RANGE = Descriptors.__EXTREME_RANGE
+
+		return __EXTREME_RANGE(raw.Min) .. " " .. __EXTREME_RANGE(raw.Max) --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually; __EXTREME_RANGE is not needed here but it fixes the issue where "nan 10" value would reset to "0 0"
 	end,
 	-- NumberSequence = Descriptors.__SEQUENCE,
 	PhysicalProperties = function(raw)
@@ -470,7 +485,7 @@ The value of each component is represented by the text content formatted as a 32
 		return Descriptors.__APIPRECISION(raw, default or 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
 	end,
 	int = function(raw) -- Int32
-		return Descriptors.__EXTREMIFY(raw) or raw
+		return Descriptors.__EXTREME(raw) or raw
 	end,
 	string = function(raw, skipcheck)
 		return not skipcheck and raw == "" and raw or string.gsub(raw, EscapesPattern, Escapes)
@@ -1357,7 +1372,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return "<" .. Tag .. ' name="' .. PropertyName .. '">' .. Value .. "</" .. Tag .. ">"
 	end
 
-	local function ApiFormatify(Value, Category, ValueType, Default)
+	local function ApiFormat(Value, Category, ValueType, Default)
 		if Category == "Enum" then
 			Value = Descriptors.__ENUMNAME(Value)
 		elseif Category == "Primitive" then
@@ -1594,7 +1609,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										)
 									end
 
-									Default = ApiFormatify(Default, Category, ValueType)
+									Default = ApiFormat(Default, Category, ValueType)
 									Property.Default = Default
 								end
 							elseif Default == "default" and ValueType == "PhysicalProperties" then
@@ -1602,7 +1617,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								Property.Default = Default
 							end
 
-							if ApiFormatify(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font - Font.fromName, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
+							if ApiFormat(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font - Font.fromName, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
 								-- TODO: tostring(Vector3.new(0/0,math.huge,-math.huge)) returns lowercase Extremes - "nan, inf, -inf" meanwhile for everything else (in xml & dump defaults they seem to be uppercase), this can cause issues later on when a Vector3 Property comes out, default of which will include either of these of Extreme values (Needs to be watched)
 								-- print("Default not serializing", PropertyName)
 
