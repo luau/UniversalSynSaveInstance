@@ -74,8 +74,8 @@ do
 
 		local function tobit(num)
 			num %= (bit32.bxor(num, 32))
-			if num > 0x80000000 then
-				num = num - bit32.bxor(num, 32)
+			if 0x80000000 < num then
+				num -= bit32.bxor(num, 32)
 			end
 			return num
 		end
@@ -111,9 +111,10 @@ do
 	end
 end
 
--- if not decompile then
+local CustomDecomp -- TODO Temporary
+
 if request and getscriptbytecode then
-	decompile = function(Script)
+	CustomDecomp = function(Script)
 		-- Credits @Lonegwadiwaitor
 		local bytecode = getscriptbytecode(Script)
 
@@ -146,43 +147,6 @@ if request and getscriptbytecode then
 		return decoded.output
 	end
 end
-local DecompileHandler
-if decompile then
-	DecompileHandler = function(Script, Timeout)
-		if Timeout == -1 then
-			return pcall(decompile, Script, Timeout, Timeout) -- ? Not sure whether it's better to pass -1 Timeout or not..
-		end
-
-		local Thread = coroutine.running()
-		local Thread_Timeout
-
-		local Thread_Decomp = task.spawn(function(thread, scr, timeout)
-			local ok, result = pcall(decompile, scr, timeout, timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
-
-			if Thread_Timeout then
-				task.cancel(Thread_Timeout)
-			else
-				task.delay(0, function()
-					task.cancel(Thread_Timeout)
-				end)
-			end
-
-			while coroutine.status(thread) ~= "suspended" do
-				task.wait()
-			end
-
-			coroutine.resume(thread, ok, result)
-		end, Thread, Script, Timeout)
-
-		Thread_Timeout = task.delay(Timeout, function(thread, thread_d)
-			task.cancel(thread_d)
-
-			coroutine.resume(thread, nil, "Decompiler timed out")
-		end, Thread, Thread_Decomp)
-
-		return coroutine.yield()
-	end
-end
 
 local SharedStrings = {}
 local sharedstrings = setmetatable({
@@ -190,10 +154,10 @@ local sharedstrings = setmetatable({
 	-- TODO: worst case, add fallback to str randomizer once numbers run out : )
 }, {
 	__index = function(self, String)
-		local Identifier = Base64_Encode(tostring(self.identifier))
+		local Identifier = Base64_Encode(self.identifier)
 		self.identifier += 1
 
-		self[String] = Identifier -- Todo: The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes.. We probably need to do that too for sake of safety
+		self[String] = Identifier -- Todo: The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes..
 		return Identifier
 	end,
 })
@@ -438,7 +402,7 @@ The value of each component is represented by the text content formatted as a 32
 		end
 
 		return Identifier
-	end, -- TODO: Add Support for this https://github.com/RobloxAPI/spec/blob/master/formats/rbxlx.md#sharedstring
+	end,
 	UDim = function(raw)
 		--[[
     S: Represents the Scale component. Interpreted as a <float>.
@@ -718,7 +682,7 @@ local inheritedproperties = setmetatable({}, {
 		local proplist = {}
 		local layer = ClassList[ClassName]
 		while layer do
-			-- proplist = table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
+			-- table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
 			for _, p in layer.Properties do
 				table.insert(proplist, table.clone(p))
 			end
@@ -852,19 +816,18 @@ local function CreateStatusText()
 	return StatusText
 end
 
-local function synsaveinstance(CustomOptions)
+local function synsaveinstance(CustomOptions, CustomOptions2)
 	table.clear(SharedStrings)
 
 	local total = ""
 	local savebuffer = {}
 	local StatusText
 
-	local OPTIONS
-	OPTIONS = {
+	local OPTIONS = {
 		mode = "optimized", -- Change this to invalid mode like "custom" if you only want extrainstances; -- ! "optimized" mode is NOT supported with OPTIONS.Object option
 		noscripts = false,
 		scriptcache = true,
-		-- decomptype = "new", -- * Deprecated
+		decomptype = "", -- * "custom" - @Lonegwadiwaitor's custom decompiler
 		timeout = 10, -- Description: If the decompilation run time exceeds this value it gets cancelled; Set to -1 to disable timeout (unreliable)
 		--* New:
 		__DEBUG_MODE = false, -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it!
@@ -912,7 +875,8 @@ local function synsaveinstance(CustomOptions)
 
 		ShowStatus = true,
 		FilePath = false, --  does not need to contain a file extension, only the name of the file.
-		Object = false, -- If provided, saves as .rbxmx (Model file) instead; If Object is game, it will be saved as a .RBXL file -- ! MUST BE AN INSTANCE REFERENCE like game.Workspace for example; "optimized" mode is NOT supported with this option
+		Object = false, -- If provided, saves as .rbxmx (Model file) instead; If Object is game, it will be saved as a .RBXL file -- ! MUST BE AN INSTANCE REFERENCE like game.Workspace for example; "optimized" mode is NOT supported with this option; IF IsModel is set to false then Object specified here will be saved as a place file
+		IsModel = false, -- Always sets to true automatically if Object is specified, unless you set it to false manually
 		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything i Binary Mode (rbxl/rbxm).
 		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set, Description: If true scripts will be decompiled.
 		-- DecompileTimeout = OPTIONS.timeout, -- ! This takes priority over OPTIONS.timeout if set
@@ -938,7 +902,7 @@ local function synsaveinstance(CustomOptions)
 		IgnoreSharedStrings = true, -- ! FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY); FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU
 		SharedStringOverwrite = false, -- !  if the process is not finished aka crashed then none of the affected values will be available; SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far); Reason: Allows for potential smaller file size (can also be bigger in some cases)
 
-		OptionsAliases = {
+		OptionsAliases = { -- You can't really modify these as a user
 			FilePath = "FileName",
 			IgnoreDefaultProperties = "IgnoreDefaultProps",
 			SavePlayers = "IsolatePlayers",
@@ -946,6 +910,15 @@ local function synsaveinstance(CustomOptions)
 			timeout = "DecompileTimeout",
 		},
 	}
+
+	local function CheckAlias(key)
+		for Option, Alias in OPTIONS.OptionsAliases do
+			if key == Alias then
+				return Option
+			end
+		end
+	end
+
 	do
 		local function NilInstanceFixGeneral(Name, ClassName)
 			return function(instance, InstancePropertyOverrides)
@@ -988,34 +961,55 @@ local function synsaveinstance(CustomOptions)
 		OPTIONS.NilInstancesFixes.Attachment =
 			NilInstanceFixGeneral("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
 
+		if CustomOptions2 and type(CustomOptions2) == "table" then
+			local tmp = CustomOptions
+			local Type = typeof(tmp)
+			CustomOptions = CustomOptions2
+			if Type == "Instance" then
+				CustomOptions.Object = tmp
+			elseif Type == "table" and typeof(tmp[1]) == "Instance" then
+				CustomOptions.ExtraInstances = tmp
+				OPTIONS.IsModel = true
+			end
+		end
+
 		local Type = typeof(CustomOptions)
+
 		if Type == "table" then
-			for key, value in CustomOptions do
-				if OPTIONS[key] == nil then
-					for Option, Alias in OPTIONS.OptionsAliases do
-						if key == Alias then
+			if typeof(CustomOptions[1]) == "Instance" then
+				OPTIONS.mode = "invalidmode"
+				OPTIONS.ExtraInstances = CustomOptions
+				OPTIONS.IsModel = true
+				CustomOptions = {}
+			else
+				for key, value in CustomOptions do
+					if OPTIONS[key] == nil then
+						local Option = CheckAlias(key)
+
+						if Option then
 							OPTIONS[Option] = value
-							break
 						end
+					else
+						OPTIONS[key] = value
 					end
-				else
-					OPTIONS[key] = value
+				end
+				local Decompile = CustomOptions.Decompile
+				if Decompile ~= nil then
+					OPTIONS.noscripts = not Decompile
+				end
+				local IgnoreArchivable = CustomOptions.IgnoreArchivable
+				if IgnoreArchivable ~= nil then
+					OPTIONS.IgnoreNotArchivable = not IgnoreArchivable
+				end
+				local SavePlayerCharacters = CustomOptions.SavePlayerCharacters
+				if SavePlayerCharacters ~= nil then
+					OPTIONS.RemovePlayerCharacters = not SavePlayerCharacters
 				end
 			end
-			local Decompile = CustomOptions.Decompile
-			if Decompile ~= nil then
-				OPTIONS.noscripts = not Decompile
-			end
-			local IgnoreArchivable = CustomOptions.IgnoreArchivable
-			if IgnoreArchivable ~= nil then
-				OPTIONS.IgnoreNotArchivable = not IgnoreArchivable
-			end
-			local SavePlayerCharacters = CustomOptions.SavePlayerCharacters
-			if SavePlayerCharacters ~= nil then
-				OPTIONS.RemovePlayerCharacters = not SavePlayerCharacters
-			end
-		elseif Type == "Instance" and CustomOptions ~= game then
-			CustomOptions = { FilePath = CustomOptions }
+		elseif Type == "Instance" then
+			OPTIONS.mode = "invalidmode"
+			OPTIONS.Object = CustomOptions
+			CustomOptions = {}
 		else
 			CustomOptions = {}
 		end
@@ -1034,7 +1028,10 @@ local function synsaveinstance(CustomOptions)
 	local FilePath = OPTIONS.FilePath
 	local SaveCacheInterval = OPTIONS.SaveCacheInterval
 	local ToSaveInstance = OPTIONS.Object
-
+	local IsModel = OPTIONS.IsModel
+	if ToSaveInstance and CustomOptions.IsModel == nil then
+		IsModel = true
+	end
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
 	local IgnoreDefaults = OPTIONS.IgnoreDefaults
 	local IgnoreNotArchivable = OPTIONS.IgnoreNotArchivable
@@ -1044,7 +1041,7 @@ local function synsaveinstance(CustomOptions)
 	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
 	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
 	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
-	local SavePlayers = OPTIONS.SavePlayers
+	local IsolatePlayers = OPTIONS.SavePlayers
 
 	local SaveNonCreatable = OPTIONS.SaveNonCreatable
 
@@ -1067,7 +1064,9 @@ local function synsaveinstance(CustomOptions)
 	end
 
 	if ToSaveInstance == game then
+		OPTIONS.mode = "full"
 		ToSaveInstance = nil
+		IsModel = nil
 	end
 
 	do
@@ -1075,7 +1074,7 @@ local function synsaveinstance(CustomOptions)
 		local tmp = table.clone(OPTIONS.ExtraInstances)
 
 		local PlaceId = game.PlaceId
-		if ToSaveInstance then
+		if IsModel then
 			if mode == "optimized" then -- ! NOT supported with Model file mode
 				mode = "full"
 			end
@@ -1084,17 +1083,20 @@ local function synsaveinstance(CustomOptions)
 				{
 					"IsolateLocalPlayerCharacter",
 					"IsolateStarterPlayer",
-					"SavePlayers",
+					"IsolatePlayers",
 					"IsolateLocalPlayer",
 					"NilInstances",
 				}
 			do
-				if not CustomOptions[key] then
-					OPTIONS[key] = false
+				if CustomOptions[key] == nil then
+					local Option = CheckAlias(key)
+					if CustomOptions[Option] == nil then
+						OPTIONS[key] = false
+					end
 				end
 			end
 
-			placename = (FilePath or "model" .. PlaceId .. "_" .. ToSaveInstance:GetDebugId(0)) .. ".rbxmx" -- * GetDebugId is only unique per instance within same game session, after rejoining it might be different
+			placename = (FilePath or "model" .. PlaceId .. "_" .. (ToSaveInstance or tmp[1]):GetDebugId(0)) .. ".rbxmx" -- * GetDebugId is only unique per instance within same game session, after rejoining it might be different
 		else
 			placename = (FilePath or "place" .. PlaceId) .. ".rbxlx"
 		end
@@ -1106,7 +1108,10 @@ local function synsaveinstance(CustomOptions)
 		local TempRoot = ToSaveInstance or game
 
 		if mode == "full" then
-			tmp = TempRoot:GetChildren()
+			local Children = TempRoot:GetChildren()
+			if 0 < #Children then
+				table.move(Children, 1, #Children, #tmp + 1, tmp)
+			end
 		elseif mode == "optimized" then -- ! Incompatible with .rbxmx (Model file) mode
 			-- if SavePlayers then
 			-- 	table.insert(_list_0, "Players")
@@ -1156,34 +1161,86 @@ local function synsaveinstance(CustomOptions)
 		end
 		ToSaveList = tmp
 	end
+	do
+		local Decompiler = OPTIONS.decomptype == "custom" and CustomDecomp or decompile or CustomDecomp
 
-	if OPTIONS.noscripts then
-		ldecompile = function()
-			return "-- Decompiling is disabled"
-		end
-	elseif DecompileHandler then
-		ldecompile = function(Script)
-			-- local name = scr.ClassName .. scr.Name
-			do
-				if ScriptCache then
-					local Cached = ldeccache[Script]
-					if Cached then
-						return Cached
-					elseif DecompileJobless then
-						return "-- Not found in already decompiled ScriptCache"
-					end
-				else
-					task.wait()
+		if Decompiler == CustomDecomp then
+			local key = "DecompileTimeout"
+			if CustomOptions[key] == nil then
+				local Option = CheckAlias(key)
+				if CustomOptions[Option] == nil then
+					Timeout = 0.1
 				end
 			end
-
-			local ok, result = DecompileHandler(Script, Timeout)
-			ldeccache[Script] = result -- ? Should we cache even if it timed out?
-			return ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
 		end
-	else
-		ldecompile = function()
-			return "-- Decompiling is NOT supported on your executor"
+
+		if OPTIONS.noscripts then
+			ldecompile = function()
+				return "-- Decompiling is disabled"
+			end
+		elseif Decompiler then
+			local function DecompileHandler(Script)
+				if Timeout == -1 then
+					return pcall(Decompiler, Script, Timeout, Timeout) -- ? Not sure whether it's better to pass -1 Timeout or not..
+				end
+
+				local Thread = coroutine.running()
+				local Thread_Timeout, Cancelled
+
+				task.spawn(function(thread, scr, timeout)
+					local ok, result = pcall(Decompiler, scr, timeout, timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
+
+					if Cancelled then
+						return
+					end
+
+					if Thread_Timeout then
+						task.cancel(Thread_Timeout)
+					else
+						task.delay(0, function()
+							task.cancel(Thread_Timeout)
+						end)
+					end
+
+					while coroutine.status(thread) ~= "suspended" do
+						task.wait()
+					end
+
+					coroutine.resume(thread, ok, result)
+				end, Thread, Script, Timeout)
+
+				Thread_Timeout = task.delay(Timeout, function(thread)
+					Cancelled = true -- TODO task.cancel
+
+					coroutine.resume(thread, nil, "Decompiler timed out")
+				end, Thread)
+
+				return coroutine.yield()
+			end
+
+			ldecompile = function(Script)
+				-- local name = scr.ClassName .. scr.Name
+				do
+					if ScriptCache then
+						local Cached = ldeccache[Script]
+						if Cached then
+							return Cached
+						elseif DecompileJobless then
+							return "-- Not found in already decompiled ScriptCache"
+						end
+					else
+						task.wait()
+					end
+				end
+
+				local ok, result = DecompileHandler(Script)
+				ldeccache[Script] = result -- ? Should we cache even if it timed out?
+				return ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
+			end
+		else
+			ldecompile = function()
+				return "-- Decompiling is NOT supported on your executor"
+			end
 		end
 	end
 
@@ -1381,10 +1438,6 @@ local function synsaveinstance(CustomOptions)
 	end
 
 	local function savehierarchy(Hierarchy, Afterwards)
-		if SaveCacheInterval < #savebuffer then
-			savecache()
-		end
-
 		for _, instance in Hierarchy do
 			if IgnoreNotArchivable and not instance.Archivable then
 				continue
@@ -1549,7 +1602,7 @@ local function synsaveinstance(CustomOptions)
 								Property.Default = Default
 							end
 
-							if ApiFormatify(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
+							if ApiFormatify(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font - Font.fromName, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
 								-- TODO: tostring(Vector3.new(0/0,math.huge,-math.huge)) returns lowercase Extremes - "nan, inf, -inf" meanwhile for everything else (in xml & dump defaults they seem to be uppercase), this can cause issues later on when a Vector3 Property comes out, default of which will include either of these of Extreme values (Needs to be watched)
 								-- print("Default not serializing", PropertyName)
 
@@ -1636,6 +1689,10 @@ local function synsaveinstance(CustomOptions)
 					end
 				end
 				table.insert(savebuffer, "</Properties>")
+
+				if SaveCacheInterval < #savebuffer then
+					savecache()
+				end
 			end
 
 			if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
@@ -1664,7 +1721,7 @@ local function synsaveinstance(CustomOptions)
 
 	local function savegame()
 		local Starter = '<roblox version="4">'
-		if ToSaveInstance then
+		if IsModel then
 			Starter ..= '<Meta name="ExplicitAutoJoints">true</Meta>'
 		end
 		table.insert(savebuffer, Starter) --[[
@@ -1699,7 +1756,7 @@ local function synsaveinstance(CustomOptions)
 			saveextra("StarterPlayer", service.StarterPlayer:GetChildren())
 		end
 
-		if SavePlayers then
+		if IsolatePlayers then
 			SaveNonCreatable = true
 			saveextra("Players", service.Players:GetChildren())
 		end
@@ -1844,7 +1901,7 @@ local function synsaveinstance(CustomOptions)
 		IgnoreList.StarterPlayer = false
 	end
 
-	if SavePlayers then
+	if IsolatePlayers then
 		IgnoreList.Players = false
 	end
 
