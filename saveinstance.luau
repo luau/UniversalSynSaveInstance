@@ -117,7 +117,7 @@ local CustomDecomp -- TODO Temporary
 
 if request and getscriptbytecode then
 	CustomDecomp = function(Script)
-		-- Credits @Lonegwadiwaitor
+		-- Credits @atrexus , @Lonegwadiwaitor
 		local bytecode = getscriptbytecode(Script)
 
 		if bytecode == "" then
@@ -1670,12 +1670,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 								if PropertyName == "Source" then
 									local IsLocalScript = instance:IsA("LocalScript")
-									local RunContext = instance.RunContext
+
 									if
-										IsLocalScript and RunContext == Enum.RunContext.Server
+										IsLocalScript and instance.RunContext == Enum.RunContext.Server
 										or not IsLocalScript
 											and instance:IsA("Script")
-											and RunContext ~= Enum.RunContext.Client
+											and instance.RunContext ~= Enum.RunContext.Client
 									then
 										value = "-- Server Scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
 									else
