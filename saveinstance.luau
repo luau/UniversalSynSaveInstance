@@ -9,6 +9,7 @@ local finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params
 
 finder({
 	-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
+	base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
 	decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
 	gethiddenproperties = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
 	gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
@@ -21,15 +22,15 @@ finder({
 	request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 	sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 	writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
-}, true)
+}, true, 10)
 
-local decompile = globalcontainer.decompile
 local gethiddenproperty = globalcontainer.gethiddenproperty
 local sethiddenproperty = globalcontainer.sethiddenproperty
 local writefile = globalcontainer.writefile
 
 local request = globalcontainer.request
 local getscriptbytecode = globalcontainer.getscriptbytecode
+local base64encode = globalcontainer.base64encode
 
 if not globalcontainer.getspecialinfo then
 	globalcontainer.getspecialinfo = globalcontainer.gethiddenproperties
@@ -67,8 +68,7 @@ for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
 	end
 end
 
-local Base64_Encode
-do
+if not base64encode then
 	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
 		bit32 = table.clone(bit32)
 
@@ -102,11 +102,13 @@ do
 
 		table.freeze(bit32)
 	end
+
+	-- Credits @Reselim
 	local Base64_Encode_Buffer = loadstring(
 		game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
 		"Base64"
 	)().encode
-	Base64_Encode = function(raw) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
+	base64encode = function(raw) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
 		return raw == "" and raw or buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(raw)))
 	end
 end
@@ -130,18 +132,18 @@ if request and getscriptbytecode then
 			},
 			Body = service.HttpService:JSONEncode({
 				version = 5,
-				bytecode = Base64_Encode(bytecode),
+				bytecode = base64encode(bytecode),
 			}),
 		})
 
 		if response.Success == false then -- Server Issue
-			return response.StatusMessage
+			error(response.StatusMessage)
 		end
 
 		local decoded = service.HttpService:JSONDecode(response.Body)
 
 		if decoded.status ~= "ok" then -- Decompiler Issue
-			return decoded.status
+			error(decoded.status)
 		end
 
 		return decoded.output
@@ -154,7 +156,7 @@ local sharedstrings = setmetatable({
 	-- TODO: worst case, add fallback to str randomizer once numbers run out : )
 }, {
 	__index = function(self, String)
-		local Identifier = Base64_Encode(self.identifier)
+		local Identifier = base64encode(tostring(self.identifier)) -- tostring is only needed for built-in base64encode, Reselim's doesn't need it as buffers autoconvert
 		self.identifier += 1
 
 		self[String] = Identifier -- Todo: The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes..
@@ -193,7 +195,7 @@ Descriptors = {
 
 		return raw
 	end,
-	__BINARYSTRING = Base64_Encode,
+	__BINARYSTRING = base64encode,
 	__BIT = function(...) -- * Credits to Friend (you know yourself)
 		local Value = 0
 
@@ -408,7 +410,7 @@ The value of each component is represented by the text content formatted as a 32
 	-- 	return "<min>" .. vector3int16(raw.Min) .. "</min><max>" .. vector3int16(raw.Max) .. "</max>"
 	-- end,
 	SharedString = function(raw)
-		raw = Base64_Encode(raw)
+		raw = base64encode(raw)
 
 		local Identifier = sharedstrings[raw]
 
@@ -730,7 +732,7 @@ local referents = setmetatable({
 	end,
 })
 
-local globalenv = getgenv and getgenv() or _G
+local globalenv = getgenv and getgenv() or _G or shared
 
 local function CreateStatusText()
 	-- local function RemoveStatus(self)
@@ -880,7 +882,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- Service = function(instance) end, -- ? Have yet to encounter a case where an Instance with Service Tag is deleted
 		},
 
-		ScriptsClasses = { "LocalScript", "ModuleScript", Script = false }, -- Please keep this updated; "= false" means it won't be decompiled
 		IgnoreDefaults = {
 			__api_dump_class_not_creatable__ = true,
 			__api_dump_no_string_value__ = true,
@@ -1032,11 +1033,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local InstancePropertyOverrides = {}
 
-	local DecompileIgnore, IgnoreList, IgnoreProperties, ScriptsClasses =
+	local DecompileIgnore, IgnoreList, IgnoreProperties =
 		ArrayToDictionary(OPTIONS.DecompileIgnore, "adjust"),
 		ArrayToDictionary(OPTIONS.IgnoreList, "adjust"),
-		ArrayToDictionary(OPTIONS.IgnoreProperties, "adjust"),
-		ArrayToDictionary(OPTIONS.ScriptsClasses, "adjust")
+		ArrayToDictionary(OPTIONS.IgnoreProperties, "adjust")
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
@@ -1082,6 +1082,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		OPTIONS.mode = "full"
 		ToSaveInstance = nil
 		IsModel = nil
+	end
+
+	local function HasSource(instance)
+		return instance:IsA("LuaSourceContainer")
 	end
 
 	do
@@ -1159,7 +1163,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- Currently saves paths along with children of each tree
 			local unique = {}
 			for _, instance in TempRoot:GetDescendants() do
-				if ScriptsClasses[instance.ClassName] then
+				if HasSource(instance) then
 					local Parent = instance.Parent
 					while Parent and Parent ~= TempRoot do
 						instance = instance.Parent
@@ -1177,7 +1181,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		ToSaveList = tmp
 	end
 	do
-		local Decompiler = OPTIONS.decomptype == "custom" and CustomDecomp or decompile or CustomDecomp
+		local Decompiler = OPTIONS.decomptype == "custom" and CustomDecomp or globalcontainer.decompile or CustomDecomp
 
 		if Decompiler == CustomDecomp then
 			local key = "DecompileTimeout"
@@ -1249,8 +1253,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				local ok, result = DecompileHandler(Script)
-				ldeccache[Script] = result -- ? Should we cache even if it timed out?
-				return ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
+
+				local output = ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
+				if ScriptCache then
+					ldeccache[Script] = output -- ? Should we cache even if it timed out?
+				end
+				return output
 			end
 		else
 			ldecompile = function()
@@ -1514,7 +1522,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				-- local Properties =
 				table.insert(savebuffer, ReturnItem(ClassName, instance)) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
 
-				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and ScriptsClasses[ClassName] == nil) then
+				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not HasSource(instance)) then
 					local specialProperties, Replica
 
 					for _, Property in inheritedproperties[ClassName] do
@@ -1570,7 +1578,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 						local Category = Property.Category
 
-						if IgnoreDefaultProperties and PropertyName ~= "Source" then -- ? Source is special, might need to be changed to check for LuaSourceContainer IsA instead
+						if IgnoreDefaultProperties and not (HasSource(instance) and PropertyName == "Source") then -- ? Could be not just "Source" in the future
 							local ok, IsModified = pcall(IsPropertyModified, instance, PropertyName) -- ? Not yet enabled lol (580)
 							if ok and not IsModified then
 								continue
@@ -1661,8 +1669,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								tag = ValueType
 
 								if PropertyName == "Source" then
-									if ScriptsClasses[ClassName] == false then
-										value = "-- Server scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
+									local IsLocalScript = instance:IsA("LocalScript")
+									local RunContext = instance.RunContext
+									if
+										IsLocalScript and RunContext == Enum.RunContext.Server
+										or not IsLocalScript
+											and instance:IsA("Script")
+											and RunContext ~= Enum.RunContext.Client
+									then
+										value = "-- Server Scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
 									else
 										if DecompileIgnoring then
 											value = "-- Ignored"
@@ -1670,7 +1685,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 											value = ldecompile(instance)
 										end
 									end
-									value = "-- Saved using UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
+									value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
 										.. value
 								end
 
