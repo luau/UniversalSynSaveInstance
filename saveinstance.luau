@@ -140,7 +140,12 @@ if request and getscriptbytecode then
 			error(response.StatusMessage)
 		end
 
-		local decoded = service.HttpService:JSONDecode(response.Body)
+		local Body = response.Body
+		if Body == "" then
+			error("Body is empty")
+		end
+
+		local decoded = service.HttpService:JSONDecode(Body)
 
 		if decoded.status ~= "ok" then -- Decompiler Issue
 			error(decoded.status)
@@ -909,8 +914,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		SaveNonCreatable = false, --Description: Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable)
 		RemovePlayerCharacters = true, -- Description: Ignore player characters while saving.
 		SavePlayers = false, -- This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2
-		SaveCacheInterval = 0x1600, -- The less the more often it saves, but that would mean less performance due to constantly saving
+		SaveCacheInterval = 0x1600 * 2, -- The less the more often it saves, but that would mean less performance due to constantly saving
 		ReadMe = true,
+		SafeMode = false, -- Description: Kicks you before Saving, which prevents you from being detected in certain games
 
 		-- ! Risky
 
@@ -1137,23 +1143,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- end
 			for _, x in
 				{
-					"Chat",
-					"InsertService",
-					"JointsService",
+					"Workspace",
+					"Players",
 					"Lighting",
 					"MaterialService",
-					"Players",
 					"ReplicatedFirst",
 					"ReplicatedStorage",
+
 					"ServerScriptService", -- ? Why
 					"ServerStorage", -- ? Why
-					"SoundService",
+
 					"StarterGui",
 					"StarterPack",
 					"StarterPlayer",
 					"Teams",
+					"SoundService",
 					"TextChatService",
-					"Workspace",
+					"Chat",
+
+					-- "InsertService",
+					"JointsService",
 				}
 			do
 				table.insert(tmp, service[x])
@@ -1188,7 +1197,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if CustomOptions[key] == nil then
 				local Option = CheckAlias(key)
 				if CustomOptions[Option] == nil then
-					Timeout = 0.1
+					Timeout = 1
 				end
 			end
 		end
@@ -1253,6 +1262,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				local ok, result = DecompileHandler(Script)
+
+				if ok then -- TODO Temporary
+					result = string.gsub(result, "\0", "\\0")
+				end
 
 				local output = ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
 				if ScriptCache then
@@ -1883,10 +1896,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		savecache()
 	end
 
-	if OPTIONS.ShowStatus then
-		StatusText = CreateStatusText()
-	end
-
 	local Connections
 	do
 		local Players = service.Players
@@ -1918,8 +1927,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				for _, Player in Players:GetPlayers() do
 					IgnoreCharacter(Player)
 				end
-			elseif IsolateLocalPlayerCharacter then
-				IgnoreCharacter(LocalPlayer)
+			else
+				IgnoreNotArchivable = false -- TODO Bad solution (Characters are NotArchivable); Also make sure the next solution is compatible with IsolateLocalPlayerCharacter
+				if IsolateLocalPlayerCharacter then
+					IgnoreCharacter(LocalPlayer)
+				end
 			end
 		end
 		if IsolateLocalPlayer and IgnoreList.Player ~= true then
@@ -1935,7 +1947,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreList.Players = false
 	end
 
+	if OPTIONS.ShowStatus then
+		StatusText = CreateStatusText()
+	end
+
 	do
+		if OPTIONS.SafeMode then
+			service.Players.LocalPlayer:Kick("\nSaving in Progress..\nPlease do NOT leave")
+			task.delay(5, service.GuiService.ClearError, service.GuiService)
+		end
+
 		elapse_t = os.clock()
 		local ok, err = xpcall(savegame, function(err)
 			return debug.traceback(err)
