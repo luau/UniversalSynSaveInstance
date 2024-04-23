@@ -882,10 +882,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		ExtraInstances = {}, -- use mode "invalidmode" to only save these instances
 		NilInstances = false, -- Description: Save nil instances.
-		NilInstancesFixes = {
-
-			-- Service = function(instance) end, -- ? Have yet to encounter a case where an Instance with Service Tag is deleted
-		},
+		NilInstancesFixes = {},
 
 		IgnoreDefaults = {
 			__api_dump_class_not_creatable__ = true,
@@ -1825,16 +1822,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						-- continue
 					end
 
-					-- ? Have yet to encounter a case where an Instance with Service Tag is deleted
-					-- local Class = ClassList[ClassName]
-					-- if Class then
-					-- 	local ClassTags = Class.Tags
-					-- 	if ClassTags and ClassTags.Service then
-					-- 		instance.Parent = game
-					-- 		instance = nil
-					-- 		-- continue
-					-- 	end
-					-- end
+					local Class = ClassList[ClassName]
+					if Class then
+						local ClassTags = Class.Tags
+						if ClassTags and ClassTags.Service then -- For CSGDictionaryService, NonReplicatedCSGDictionaryService, LogService, ProximityPromptService, TestService & more
+							-- instance.Parent = game
+							instance = nil
+							-- continue
+						end
+					end
 				end
 				if instance then
 					table.insert(nilinstances, instance)
@@ -1851,32 +1847,37 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				"Script",
 				"--[[\n"
 					.. [[
-				Thank you for using SynSaveInstance Revival.
-				We recommended to save the game right away to take advantage of the binary format (if you didn't save in binary) AND to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
-				If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere. (This is done by default)
-				If the chat system does not work, please use the explorer and delete everything inside the Chat service. 
-				Or run `game:GetService("Chat"):ClearAllChildren()`
+		Thank you for using UniversalSynSaveInstance.
+
+		If you didn't save in Binary - we recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
+		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
+
+		If your player cannot spawn into the game, please move the scripts in StarterPlayeelsewhere (This is done by default).
+
+		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 
+
+		Or run `game:GetService("Chat"):ClearAllChildren()`
 				
-				If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
+		If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
 				
 				
-				local C = game:GetService("CoreGui")
-				local D = Enum.CollisionFidelity.Default
+		local C = game:GetService("CoreGui")
+		local D = Enum.CollisionFidelity.Default
 				
-				for _, v in game:GetDescendants() do
-					if v:IsA("TriangleMeshPart") and not v:IsDescendantOf(C) then
-						v.CollisionFidelity = D
-					end
-				end
+		for _, v in game:GetDescendants() do
+			if v:IsA("TriangleMeshPart") and not v:IsDescendantOf(C) then
+				v.CollisionFidelity = D
+			end
+		end
 				
-				If you can't move the Camera, run the scripts in the Studio Command Bar:
+		If you can't move the Camera, run the scripts in the Studio Command Bar:
 			
-				workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
+		workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
 				
-				This file was generated with the following settings:
+		This file was generated with the following settings:
 				]]
 					.. service.HttpService:JSONEncode(OPTIONS)
-					.. "\n\nElapsed time: "
+					.. "\n\n\t\tElapsed time: "
 					.. os.clock() - elapse_t
 					.. "\n]]"
 			)
