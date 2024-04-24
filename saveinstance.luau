@@ -54,6 +54,7 @@ local EscapesPattern = "[&<>\"'\1-\9\11-\12\14-\31\127-\255]" -- * The safe way 
 -- Characters from: https://create.roblox.com/docs/en-us/ui/rich-text#escape-forms
 -- TODO: EscapesPattern should be ordered from most common to least common characters for sake of speed
 -- TODO: Might wanna use their numerical codes instead of named codes for reduced file size (Could be an Option)
+-- TODO Maybe we should invert the pattern to only allow certain characters (future-proof)
 local Escapes = {
 	["&"] = "&amp;", -- 38
 	["<"] = "&lt;", -- 60
@@ -1095,7 +1096,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local mode = string.lower(OPTIONS.mode)
 		local tmp = table.clone(OPTIONS.ExtraInstances)
 
-		local PlaceId = game.PlaceId
+		local PlaceName = game.PlaceId
+
+		pcall(function()
+			PlaceName ..= " " .. service.MarketplaceService:GetProductInfo(PlaceName).Name
+		end)
+
+		local function SanitizeForFile(str)
+			return string.gsub(string.sub(str, 1, 240), "[^%w _]", "_")
+		end
+
 		if IsModel then
 			if mode == "optimized" then -- ! NOT supported with Model file mode
 				mode = "full"
@@ -1118,9 +1128,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 
-			placename = (FilePath or "model" .. PlaceId .. "_" .. (ToSaveInstance or tmp[1]):GetDebugId(0)) .. ".rbxmx" -- * GetDebugId is only unique per instance within same game session, after rejoining it might be different
+			placename = (
+				FilePath or SanitizeForFile("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1]):GetFullName())
+			) .. ".rbxmx"
 		else
-			placename = (FilePath or "place" .. PlaceId) .. ".rbxlx"
+			placename = (FilePath or SanitizeForFile("place " .. PlaceName)) .. ".rbxlx"
 		end
 
 		if mode ~= "scripts" then
@@ -1186,6 +1198,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 		ToSaveList = tmp
 	end
+
 	do
 		local Decompiler = OPTIONS.decomptype == "custom" and CustomDecomp or globalcontainer.decompile or CustomDecomp
 
