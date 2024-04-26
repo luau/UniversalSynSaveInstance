@@ -1103,7 +1103,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end)
 
 		local function SanitizeForFile(str)
-			return string.gsub(string.sub(str, 1, 240), "[^%w _]", "_")
+			return string.sub(string.gsub(string.gsub(string.gsub(str, "[^%w _]", ""), " +", " "), " +$", ""), 1, 240)
 		end
 
 		if IsModel then
@@ -1892,6 +1892,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					.. service.HttpService:JSONEncode(OPTIONS)
 					.. "\n\n\t\tElapsed time: "
 					.. os.clock() - elapse_t
+					.. " PlaceId: "
+					.. game.PlaceId
 					.. "\n]]"
 			)
 		end
