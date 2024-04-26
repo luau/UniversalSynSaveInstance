@@ -1,41 +1,6 @@
 --!native
 -- https://discord.gg/wx4ThpAsmw
 
-local Params = {
-	RepoURL = "https://raw.githubusercontent.com/luau/SomeHub/main/",
-	UMF = "UniversalMethodFinder",
-}
-local finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params.UMF .. ".luau", true), Params.UMF)()
-
-finder({
-	-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
-	base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
-	decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
-	gethiddenproperties = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
-	gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
-	gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
-	getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
-	getproperties = 'string.find(...,"get",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
-	getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)',
-	getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
-	protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
-	request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
-	sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
-	writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
-}, true, 10)
-
-local gethiddenproperty = globalcontainer.gethiddenproperty
-local sethiddenproperty = globalcontainer.sethiddenproperty
-local writefile = globalcontainer.writefile
-
-local request = globalcontainer.request
-local getscriptbytecode = globalcontainer.getscriptbytecode
-local base64encode = globalcontainer.base64encode
-
-if not globalcontainer.getspecialinfo then
-	globalcontainer.getspecialinfo = globalcontainer.gethiddenproperties
-end
-
 local function Find(String, Pattern)
 	return string.find(String, Pattern, nil, true)
 end
@@ -67,6 +32,48 @@ for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
 	for charCode = string.byte(rangeStart), string.byte(rangeEnd) do
 		Escapes[string.char(charCode)] = "&#" .. charCode .. ";"
 	end
+end
+
+local globalcontainer
+do
+	local Params = {
+		RepoURL = "https://raw.githubusercontent.com/luau/SomeHub/main/",
+		UMF = "UniversalMethodFinder",
+	}
+	local finder
+	finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params.UMF .. ".luau", true), Params.UMF)()
+
+	finder({
+		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
+		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
+		decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
+		gethiddenproperties = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
+		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
+		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
+		getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
+		getproperties = 'string.find(...,"get",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
+		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)',
+		getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
+		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
+		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
+		request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
+		sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
+		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
+	}, true, 10)
+end
+
+local gethiddenproperty = globalcontainer.gethiddenproperty
+local sethiddenproperty = globalcontainer.sethiddenproperty
+local writefile = globalcontainer.writefile
+
+local request = globalcontainer.request
+local getscriptbytecode = globalcontainer.getscriptbytecode
+local base64encode = globalcontainer.base64encode
+local hash = globalcontainer.hash
+local sha384
+
+if not globalcontainer.getspecialinfo then
+	globalcontainer.getspecialinfo = globalcontainer.gethiddenproperties
 end
 
 if not base64encode then
@@ -112,6 +119,19 @@ if not base64encode then
 	base64encode = function(raw) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
 		return raw == "" and raw or buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(raw)))
 	end
+end
+
+if hash then
+	sha384 = function(data)
+		return hash(data, "sha384")
+	end
+else
+	local FileName = "RequireOnlineModule"
+
+	sha384 = loadstring(
+		game:HttpGet("https://raw.githubusercontent.com/luau/SomeHub/main/" .. FileName .. ".luau", true),
+		FileName
+	)()(4544052033).sha384
 end
 
 local CustomDecomp -- TODO Temporary
@@ -901,7 +921,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		FilePath = false, --  does not need to contain a file extension, only the name of the file.
 		Object = false, -- If provided, saves as .rbxmx (Model file) instead; If Object is game, it will be saved as a .RBXL file -- ! MUST BE AN INSTANCE REFERENCE like game.Workspace for example; "optimized" mode is NOT supported with this option; IF IsModel is set to false then Object specified here will be saved as a place file
 		IsModel = false, -- Always sets to true automatically if Object is specified, unless you set it to false manually
-		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything i Binary Mode (rbxl/rbxm).
+		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
 		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set, Description: If true scripts will be decompiled.
 		-- DecompileTimeout = OPTIONS.timeout, -- ! This takes priority over OPTIONS.timeout if set
 		IgnoreDefaultProperties = true, -- Description: When enabled it will ignore default properties while saving.
@@ -1224,14 +1244,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		elseif Decompiler then
 			local function DecompileHandler(Script)
 				if Timeout == -1 then
-					return pcall(Decompiler, Script, Timeout, Timeout) -- ? Not sure whether it's better to pass -1 Timeout or not..
+					return pcall(Decompiler, Script)
 				end
 
 				local Thread = coroutine.running()
 				local Thread_Timeout, Cancelled
 
-				task.spawn(function(thread, scr, timeout)
-					local ok, result = pcall(Decompiler, scr, timeout, timeout) -- ! This might break on Syn due to second param being bool or string (deprecated tho)
+				task.spawn(function(thread, scr)
+					local ok, result = pcall(Decompiler, scr)
 
 					if Cancelled then
 						return
@@ -1250,7 +1270,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 
 					coroutine.resume(thread, ok, result)
-				end, Thread, Script, Timeout)
+				end, Thread, Script)
 
 				Thread_Timeout = task.delay(Timeout, function(thread)
 					Cancelled = true -- TODO task.cancel
@@ -1263,17 +1283,23 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			ldecompile = function(Script)
 				-- local name = scr.ClassName .. scr.Name
-				do
-					if ScriptCache then
-						local Cached = ldeccache[Script]
-						if Cached then
-							return Cached
-						elseif DecompileJobless then
-							return "-- Not found in already decompiled ScriptCache"
-						end
-					else
-						task.wait()
+				local hashed_bytecode
+				if ScriptCache then
+					local s, bytecode = pcall(getscriptbytecode, Script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
+					local Cached
+
+					if s then
+						hashed_bytecode = sha384(bytecode)
+						Cached = ldeccache[hashed_bytecode]
 					end
+
+					if Cached then
+						return Cached
+					elseif DecompileJobless then
+						return "-- Not found in already decompiled ScriptCache"
+					end
+				else
+					task.wait()
 				end
 
 				local ok, result = DecompileHandler(Script)
@@ -1283,9 +1309,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				local output = ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
-				if ScriptCache then
-					ldeccache[Script] = output -- ? Should we cache even if it timed out?
+
+				if ScriptCache and hashed_bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
+					ldeccache[hashed_bytecode] = output -- ? Should we cache even if it timed out?
 				end
+
 				return output
 			end
 		else
