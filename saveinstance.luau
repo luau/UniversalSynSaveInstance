@@ -117,6 +117,11 @@ end
 local CustomDecomp -- TODO Temporary
 
 if request and getscriptbytecode then
+	local Url = identifyexecutor
+			and identifyexecutor() == "Krampus"
+			and "https://unluau.lonegladiator.dev/unluau/decompile"
+		or "https://decompile.glitch.me/bytecode"
+
 	CustomDecomp = function(Script)
 		-- Credits @atrexus , @Lonegwadiwaitor
 		local bytecode = getscriptbytecode(Script)
@@ -126,7 +131,7 @@ if request and getscriptbytecode then
 		end
 
 		local response = request({
-			Url = "https://decompile.glitch.me/bytecode",
+			Url = Url,
 			Method = "POST",
 			Headers = {
 				["Content-Type"] = "application/json",
