@@ -661,7 +661,7 @@ do
 
 			local ClassProperties = {}
 
-			-- ? Check HASH commit - If a NotScriptableFix is needed that relies on another NotScriptable Property (which doesn't really make sense in the first place)
+			-- ? Check 96ea8b2a755e55a78aedb55a7de7e83980e11077 commit - If a NotScriptableFix is needed that relies on another NotScriptable Property (which doesn't really make sense in the first place)
 
 			for _, Member in API_Class.Members do
 				if Member.MemberType == "Property" then
