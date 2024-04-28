@@ -299,7 +299,7 @@ Descriptors = {
 	-- BinaryString = function(raw)
 
 	-- end
-	BrickColor = function(raw) -- ! Oh well This might hurt Color3 / Color3uint8 properties
+	BrickColor = function(raw)
 		return raw.Number, "BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
 	end,
 	CFrame = function(raw)
@@ -592,12 +592,6 @@ end
 
 local ClassList
 
-local NotScriptableFixes = {
-	BasePart = { -- TODO: Find a way to integrate this into settings
-		Color3uint8 = "Color",
-	},
-} -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
-
 do
 	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/master/src/API.lua#L19
 	-- ! IgnoreClassProperties aren't needed anymore due to CanSave filter (see below)
@@ -667,14 +661,7 @@ do
 
 			local ClassProperties = {}
 
-			local Fix = NotScriptableFixes[ClassName]
-			local ClassFixes
-			if Fix then
-				ClassFixes = {}
-				for ToFix, FixName in Fix do
-					ClassFixes[FixName] = ToFix
-				end
-			end
+			-- ? Check HASH commit - If a NotScriptableFix is needed that relies on another NotScriptable Property (which doesn't really make sense in the first place)
 
 			for _, Member in API_Class.Members do
 				if Member.MemberType == "Property" then
@@ -696,11 +683,6 @@ do
 
 						ClassProperties[PropertyName] = ReturnPropertyInfo(Member, PropertyName)
 						-- end
-					elseif ClassFixes then
-						local ToFix = ClassFixes[PropertyName]
-						if ToFix then
-							Fix[ToFix] = ReturnPropertyInfo(Member, PropertyName)
-						end
 					end
 					-- end
 				end
@@ -908,7 +890,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		ExtraInstances = {}, -- use mode "invalidmode" to only save these instances
 		NilInstances = false, -- Description: Save nil instances.
-		NilInstancesFixes = {},
+		NilInstancesFixes = {}, -- ! This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though); Like Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways; TO AVOID THIS BEHAVIOR USE THIS EXAMPLE: {ClassName_That_Doesnt_Need_Fix = false}
 
 		IgnoreDefaults = {
 			__api_dump_class_not_creatable__ = true,
@@ -954,6 +936,47 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			scriptcache = "DecompileJobless",
 			timeout = "DecompileTimeout",
 		},
+
+		-- * This functions the same way as NilInstancesFixes (It's recommended to read the Note near NilInstancesFixes)
+		NotScriptableFixes = { -- This is useful for execs that lack gethiddenproperty
+			-- Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
+
+			BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
+			BasePart = {
+				Color3uint8 = "Color",
+				MaterialVariantSerialized = "MaterialVariant",
+				size = "Size",
+				_Inheritors = {
+					FormFactorPart = { formFactorRaw = "FormFactor", _Inheritors = { Part = { shape = "Shape" } } },
+					MeshPart = { InitialSize = "MeshSize" },
+					TrussPart = { style = "Style" },
+				},
+			},
+			Fire = { heat_xml = "Heat", size_xml = "Size" },
+
+			Humanoid = { Health_XML = "Health" },
+			MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
+
+			Model = {
+				ScaleFactor = function(instance)
+					return instance:GetScale()
+				end,
+				WorldPivotData = "WorldPivot",
+				-- _Inheritors = {
+				-- 	Workspace = { SignalBehavior2 = "SignalBehavior" }, -- * Both are NotScriptable so it doesn't make sense to keep
+				-- },
+			},
+			PackageLink = { PackageIdSerialize = "PackageId" },
+
+			Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
+			Sound = {
+				xmlRead_MaxDistance_3 = "MaxDistance",
+				opacity_xml = "Opacity",
+				riseVelocity_xml = "RiseVelocity",
+			},
+
+			WeldConstraint = { Part0Internal = "Part0", Part1Internal = "Part1" },
+		}, -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
 	}
 
 	local function CheckAlias(key)
@@ -1097,6 +1120,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local AllowResettingProperties = OPTIONS.AllowResettingProperties
 	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
+	local NotScriptableFixes = OPTIONS.NotScriptableFixes
 
 	local ldeccache = globalenv.scriptcache
 
@@ -1304,7 +1328,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				local ok, result = DecompileHandler(Script)
 
-				if ok then -- TODO Temporary
+				if ok then -- TODO Temporary (due to unluau)
 					result = string.gsub(result, "\0", "\\0")
 				end
 
@@ -1451,10 +1475,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return value, tag == nil and ValueType or tag
 	end
 
-	local function InheritsFix(Fixes, instance)
-		for className, fix in Fixes do
-			if instance:IsA(className) then
-				return fix
+	local function InheritsFix(Fixes, ClassName, instance)
+		local Fix = Fixes[ClassName]
+		if Fix then
+			return Fix
+		elseif Fix == nil then
+			for className, fix in Fixes do
+				if instance:IsA(className) then
+					return fix
+				end
 			end
 		end
 	end
@@ -1602,24 +1631,39 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						local raw
 						raw, specialProperties =
 							ReadProperty(Property, instance, PropertyName, specialProperties, Special)
-						local Old_Property, Old_PropertyName, Old_Special, Old_ValueType
 						if raw == "__BREAK" then -- ! Assuming __BREAK is always returned when there's a failure to read a property
-							local Fix = InheritsFix(NotScriptableFixes, instance) -- TODO: Edit this into a NotScriptableFixes[instance] once there is at least one class which can be indexed without IsA
-
-							if Fix then
-								local PropertyFix = Fix[PropertyName]
-								if PropertyFix then
-									Old_Property, Old_PropertyName, Old_Special, Old_ValueType =
-										Property, PropertyName, Special, ValueType
-									Property, PropertyName = PropertyFix, PropertyFix.Name
-									Special, ValueType = Property.Special, Property.ValueType
-
-									raw, specialProperties =
-										ReadProperty(Property, instance, PropertyName, specialProperties, Special)
-
-									if raw == "__BREAK" then
-										continue
+							local PropertyFix
+							do
+								local Inheritors = NotScriptableFixes
+								while Inheritors do
+									local fix
+									for Superclass, Fixes in Inheritors do
+										if instance:IsA(Superclass) then
+											fix = Fixes
+											break
+										end
 									end
+									if fix then
+										PropertyFix = fix[PropertyName]
+										if PropertyFix then
+											break
+										end
+									else
+										break
+									end
+									Inheritors = fix._Inheritors
+								end
+							end
+
+							if PropertyFix then
+								local ok, result = pcall(
+									type(PropertyFix) == "function" and PropertyFix or getsafeproperty,
+									instance,
+									PropertyFix
+								)
+
+								if ok then
+									raw = result
 								else
 									continue
 								end
@@ -1690,10 +1734,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 
 						-- Serialization start
-						if Old_Property then
-							Property, PropertyName, Special, ValueType =
-								Old_Property, Old_PropertyName, Old_Special, Old_ValueType
-						end
 
 						local tag, value
 						if Category == "Class" then
@@ -1859,11 +1899,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				else
 					local ClassName = instance.ClassName
 
-					local Fix = NilInstancesFixes[ClassName]
-					if not Fix then -- ! This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though); Like Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways
-						Fix = InheritsFix(NilInstancesFixes, instance)
-					end
-					if Fix then -- *
+					local Fix = InheritsFix(NilInstancesFixes, ClassName, instance)
+
+					if Fix then
 						instance = Fix(instance, InstancePropertyOverrides)
 						-- continue
 					end
