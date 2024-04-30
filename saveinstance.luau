@@ -300,7 +300,7 @@ Descriptors = {
 
 	-- end
 	BrickColor = function(raw)
-		return raw.Number, "BrickColor" -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
+		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
 	end,
 	CFrame = function(raw)
 		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
@@ -939,19 +939,37 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- * This functions the same way as NilInstancesFixes (It's recommended to read the Note near NilInstancesFixes)
 		NotScriptableFixes = { -- This is useful for execs that lack gethiddenproperty
-			-- Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
-
+			Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
+			-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
 			BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
 			BasePart = {
 				Color3uint8 = "Color",
 				MaterialVariantSerialized = "MaterialVariant",
 				size = "Size",
 				_Inheritors = {
+					TriangleMeshPart = {
+						FluidFidelityInternal = "FluidFidelity",
+						_Inheritors = {
+							MeshPart = { InitialSize = "MeshSize" },
+							PartOperation = { InitialSize = "MeshSize" },
+						},
+					},
 					FormFactorPart = { formFactorRaw = "FormFactor", _Inheritors = { Part = { shape = "Shape" } } },
-					MeshPart = { InitialSize = "MeshSize" },
+
 					TrussPart = { style = "Style" },
 				},
 			},
+			-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
+			-- 	local Receiver  = instance:GetAttachedReceivers()[1]
+			-- 	if Receiver then
+			-- 		return Receiver:GetCurrentValue()
+			-- 	else
+			-- 		error("No Receiver")
+			-- 	end
+			-- end},
+
+			DoubleConstrainedValue = { value = "Value" },
+			IntConstrainedValue = { value = "Value" },
 			Fire = { heat_xml = "Heat", size_xml = "Size" },
 
 			Humanoid = { Health_XML = "Health" },
@@ -962,19 +980,29 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					return instance:GetScale()
 				end,
 				WorldPivotData = "WorldPivot",
+				-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
 				-- _Inheritors = {
 				-- 	Workspace = { SignalBehavior2 = "SignalBehavior" }, -- * Both are NotScriptable so it doesn't make sense to keep
 				-- },
 			},
-			PackageLink = { PackageIdSerialize = "PackageId" },
+			PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
 
+			StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
 			Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
 			Sound = {
 				xmlRead_MaxDistance_3 = "MaxDistance",
-				opacity_xml = "Opacity",
-				riseVelocity_xml = "RiseVelocity",
 			},
-
+			-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
+			-- 	CameraCFrame = function(instance) -- *
+			-- 		local CurrentCamera = instance.CurrentCamera
+			-- 		if CurrentCamera then
+			-- 			return CurrentCamera.CFrame
+			-- 		else
+			-- 			error("No CurrentCamera")
+			-- 		end
+			-- 	end,
+			-- 	-- CameraFieldOfView =
+			-- },
 			WeldConstraint = { Part0Internal = "Part0", Part1Internal = "Part1" },
 		}, -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
 	}
@@ -1754,7 +1782,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								tag = ValueType
 								value = Descriptors.__BINARYSTRING(raw)
 
-								if -- ? Roblox doesn't CDATA anything else other than these as far as we know (feel free to prove us wrong)
+								if -- ? Roblox doesn't CDATA anything else other than these as far as we know (try to prove this wrong)
 									PropertyName == "SmoothGrid"
 									or PropertyName == "MaterialColors"
 									or PropertyName == "PhysicsGrid"
