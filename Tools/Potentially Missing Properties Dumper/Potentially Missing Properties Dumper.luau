@@ -5,11 +5,9 @@
 
 -- Only types to fail so far: BinaryString, SharedString, Color3uint8
 
-local ClassList
-local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
 local service = setmetatable({}, {
 	__index = function(Self, Name)
-		local Service = game:GetService(Name) or GlobalSettings:GetService(Name) or GlobalBasicSettings:GetService(Name)
+		local Service = game:GetService(Name)
 		Self[Name] = Service
 		return Service
 	end,
@@ -36,10 +34,6 @@ local function ArrayToDictionary(Table, HybridMode)
 
 	return tmp
 end
-local s = ""
-local function Find(String, Pattern)
-	return string.find(String, Pattern, nil, true)
-end
 
 do
 	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/23f772f6f78af879a21faa9fea3e6c4f93d1cdee/src/API.lua#L19
@@ -51,7 +45,7 @@ do
 		local API_Classes = service.HttpService:JSONDecode(API_Dump).Classes
 
 		local classList = {}
-
+		local InheritorsIndex = {}
 		for _index_0 = 1, #API_Classes do
 			local API_Class = API_Classes[_index_0]
 			local ClassMembers = API_Class.Members
@@ -68,7 +62,16 @@ do
 
 			-- ClassInfo.Name = ClassName
 			Class.Tags = ClassTags -- or {}
-			Class.Superclass = API_Class.Superclass
+			local Superclass = API_Class.Superclass
+			Class.Superclass = Superclass
+
+			local SuperclassInheritors = InheritorsIndex[Superclass]
+			if SuperclassInheritors then
+				table.insert(SuperclassInheritors, ClassName)
+			else
+				SuperclassInheritors = { ClassName }
+				InheritorsIndex[Superclass] = SuperclassInheritors
+			end
 
 			local ClassProperties = {}
 
@@ -92,41 +95,31 @@ do
 						end
 						local Serialization = Member.Serialization
 						if Serialization.CanLoad and Serialization.CanSave and Special then
-							local instance
-							if ClassTags and ClassTags.NotCreatable then
-								instance = game:FindFirstChildWhichIsA(ClassName, true)
-							else
-								instance = Instance.new(ClassName)
+							local ValueType = Member.ValueType
+
+							local Property = {
+								Name = PropertyName,
+								Category = ValueType.Category,
+								Default = Member.Default,
+								-- Tags = MemberTags,
+								ValueType = ValueType.Name,
+							}
+
+							if Special then
+								Property.Special = true
 							end
 
-							local o, r = true, true
-							if instance then
-								o, r = pcall(gethiddenproperty, instance, PropertyName)
-							else
-								o, r = false, "Couldn't Create Class"
-							end
-
-							(not o and warn or print)(ClassName, PropertyName, not o and r or "")
+							ClassProperties[PropertyName] = Property
 						end
-						local ValueType = Member.ValueType
-
-						local Property = {
-							Name = PropertyName,
-							Category = ValueType.Category,
-							Default = Member.Default,
-							-- Tags = MemberTags,
-							ValueType = ValueType.Name,
-						}
-
-						if Special then
-							Property.Special = true
-						end
-
-						ClassProperties[PropertyName] = Property
 					end
 				end
 			end
-
+			local ClassInheritors = InheritorsIndex[ClassName]
+			if not ClassInheritors then
+				ClassInheritors = {}
+				InheritorsIndex[ClassName] = ClassInheritors
+			end
+			Class.Inheritors = ClassInheritors
 			Class.Properties = ClassProperties
 
 			classList[ClassName] = Class
@@ -137,12 +130,71 @@ do
 		return classList
 	end
 
-	local ok, result = pcall(FetchAPI)
+	local s = `Varies per executor; Tested on {identifyexecutor()}\n\n`
+	for ClassName, ClassInfo in FetchAPI() do
+		local instance
 
-	if ok then
-		ClassList = result
-	else
-		warn(result)
-		return
+		local _
+		_, instance = pcall(Instance.new, ClassName)
+		if not _ then
+			instance = nil
+			if ClassName == "UserGameSettings" then
+				instance = UserSettings():GetService("UserGameSettings")
+			elseif ClassName == "UserSettings" then
+				instance = UserSettings()
+			elseif ClassName == "GlobalSettings" then
+				instance = settings()
+			end
+			if ClassInfo.Tags and ClassInfo.Tags.Service and ClassName ~= "VoiceChatInternal" then
+				-- writefile("crasher", ClassName)
+				pcall(function()
+					instance = game:GetService(ClassName)
+				end)
+				if not instance then
+					pcall(function()
+						instance = game:GetService(ClassName)
+					end)
+				end
+			end
+			if not instance then
+				instance = game:FindFirstChild(ClassName, true)
+				if not instance then
+					instance = game:FindFirstChildWhichIsA(ClassName, true)
+					if not instance then
+						for i, Inheritor_ClassName in ClassInfo.Inheritors do
+							_, instance = pcall(Instance.new, Inheritor_ClassName)
+							if _ then
+								warn("Success!")
+								break
+							else
+								instance = nil
+							end
+						end
+					end
+				end
+			end
+		end
+		local prevsiz = #s
+		for _, PropertyInfo in ClassInfo.Properties do
+			local PropertyName = PropertyInfo.Name
+			local o, r = true, true
+			if instance then
+				o, r = pcall(gethiddenproperty, instance, PropertyName)
+			else
+				o = nil
+			end
+			if o == nil or o == false then
+				s ..= ClassName .. "." .. PropertyName .. ` {if o == nil then "{NotCreatable Class}" else ""} {if o
+						== false
+					then r
+					else ""}\n`
+			end
+			-- (not o and warn or print)(ClassName, PropertyName, not o and r or "")
+		end
+		if prevsiz ~= #s then
+			s ..= "\n"
+		end
 	end
+	warn("Finished")
+	writefile("!missing", s)
 end

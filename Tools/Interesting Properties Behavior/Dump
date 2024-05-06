@@ -1,0 +1,470 @@
+Instance.Parent {CanLoad Only}
+Instance.archivable {CanLoad Only}
+Instance.archivable {Deprecated} 
+
+AdPortal.PortalVersion {CanSave Only}
+
+AnalyticsService.ApiKey {Deprecated}  {CanSave}
+
+AnimationTrack.TimePosition {CanLoad Only}
+
+Attachment.Axis {CanLoad Only}
+Attachment.SecondaryAxis {CanLoad Only}
+Attachment.WorldAxis {CanLoad Only}
+Attachment.WorldCFrame {CanLoad Only}
+Attachment.WorldSecondaryAxis {CanLoad Only}
+
+Bone.Transform {CanLoad Only}
+
+AudioAnalyzer.PeakLevel {CanSave Only}
+AudioAnalyzer.RmsLevel {CanSave Only}
+
+AudioDeviceInput.IsReady {CanSave Only}
+
+AudioPlayer.Asset {CanLoad Only}
+AudioPlayer.IsReady {CanSave Only}
+AudioPlayer.TimeLength {CanSave Only}
+
+AudioSearchParams.AudioSubtype {CanLoad Only}
+AudioSearchParams.AudioSubtype {Deprecated} 
+
+BaseImportData.Id {CanSave Only}
+
+MaterialImportData.IsPbr {CanSave Only}
+
+MeshImportData.CageManifold {CanSave Only}
+MeshImportData.CageMeshNotIntersected {CanSave Only}
+MeshImportData.CageNoOverlappingVertices {CanSave Only}
+MeshImportData.CageUVMatched {CanSave Only}
+MeshImportData.Dimensions {CanSave Only}
+MeshImportData.MeshNoHoleDetected {CanSave Only}
+MeshImportData.NoIrrelevantCageModified {CanSave Only}
+MeshImportData.NoOuterCageFarExtendedFromMesh {CanSave Only}
+MeshImportData.PolygonCount {CanSave Only}
+
+RootImportData.FileDimensions {CanSave Only}
+RootImportData.PolygonCount {CanSave Only}
+
+CoreGui.Version {CanSave Only}
+
+StarterGui.ResetPlayerGuiOnSpawn {Deprecated}  {CanSave}
+
+BodyAngularVelocity.angularvelocity {CanLoad Only}
+BodyAngularVelocity.angularvelocity {Deprecated} 
+BodyAngularVelocity.maxTorque {CanLoad Only}
+BodyAngularVelocity.maxTorque {Deprecated} 
+
+BodyForce.force {CanLoad Only}
+BodyForce.force {Deprecated} 
+
+BodyGyro.cframe {CanLoad Only}
+BodyGyro.cframe {Deprecated} 
+BodyGyro.maxTorque {CanLoad Only}
+BodyGyro.maxTorque {Deprecated} 
+
+BodyPosition.maxForce {CanLoad Only}
+BodyPosition.maxForce {Deprecated} 
+BodyPosition.position {CanLoad Only}
+BodyPosition.position {Deprecated} 
+
+BodyThrust.force {CanLoad Only}
+BodyThrust.force {Deprecated} 
+BodyThrust.location {CanLoad Only}
+BodyThrust.location {Deprecated} 
+
+BodyVelocity.maxForce {CanLoad Only}
+BodyVelocity.maxForce {Deprecated} 
+BodyVelocity.velocity {CanLoad Only}
+BodyVelocity.velocity {Deprecated} 
+
+Camera.CoordinateFrame {CanLoad Only}
+Camera.CoordinateFrame {Deprecated} 
+Camera.NearPlaneZ {CanSave Only}
+Camera.ViewportSize {CanSave Only}
+Camera.focus {CanLoad Only}
+Camera.focus {Deprecated} 
+
+BodyColors.HeadColor {CanLoad Only}
+BodyColors.LeftArmColor {CanLoad Only}
+BodyColors.LeftLegColor {CanLoad Only}
+BodyColors.RightArmColor {CanLoad Only}
+BodyColors.RightLegColor {CanLoad Only}
+BodyColors.TorsoColor {CanLoad Only}
+
+Clothing.Outfit1 {CanLoad Only}
+Clothing.Outfit2 {CanLoad Only}
+
+DragDetector.Axis {CanLoad Only}
+DragDetector.SecondaryAxis {CanLoad Only}
+DragDetector.WorldAxis {CanLoad Only}
+DragDetector.WorldSecondaryAxis {CanLoad Only}
+
+CommandInstance.Checked {CanLoad Only}
+CommandInstance.DisplayName {CanLoad Only}
+CommandInstance.Enabled {CanLoad Only}
+CommandInstance.Icon {CanLoad Only}
+CommandInstance.StatusTip {CanLoad Only}
+
+ConnectivityService.NetworkStatus {CanSave Only}
+
+HingeConstraint.CurrentAngle {CanSave Only}
+HingeConstraint.SoftlockServoUponReachingTarget {Deprecated}  {CanSave}
+
+RodConstraint.CurrentDistance {CanSave Only}
+
+RopeConstraint.CurrentDistance {CanSave Only}
+
+SlidingBallConstraint.CurrentPosition {CanSave Only}
+SlidingBallConstraint.SoftlockServoUponReachingTarget {Deprecated}  {CanSave}
+
+CylindricalConstraint.CurrentAngle {CanSave Only}
+CylindricalConstraint.SoftlockAngularServoUponReachingTarget {Deprecated}  {CanSave}
+CylindricalConstraint.WorldRotationAxis {CanSave Only}
+
+SpringConstraint.CurrentLength {CanSave Only}
+
+TorsionSpringConstraint.CurrentAngle {CanSave Only}
+TorsionSpringConstraint.LimitEnabled {Deprecated}  {CanSave}
+
+ContentProvider.BaseUrl {CanSave Only}
+ContentProvider.RequestQueueSize {CanSave Only}
+
+DataStoreInfo.CreatedTime {CanSave Only}
+DataStoreInfo.DataStoreName {CanSave Only}
+DataStoreInfo.UpdatedTime {CanSave Only}
+
+DataStoreKey.KeyName {CanSave Only}
+
+DataStoreKeyInfo.CreatedTime {CanSave Only}
+DataStoreKeyInfo.UpdatedTime {CanSave Only}
+DataStoreKeyInfo.Version {CanSave Only}
+
+DataStoreObjectVersionInfo.CreatedTime {CanSave Only}
+DataStoreObjectVersionInfo.IsDeleted {CanSave Only}
+DataStoreObjectVersionInfo.Version {CanSave Only}
+
+DataStoreService.LegacyNamingScheme {Deprecated}  {CanSave}
+
+Debris.MaxItems {Deprecated}  {CanSave}
+
+DebugSettings.DataModel {CanSave Only}
+DebugSettings.InstanceCount {CanSave Only}
+DebugSettings.JobCount {CanSave Only}
+DebugSettings.PlayerCount {CanSave Only}
+DebugSettings.RobloxVersion {CanSave Only}
+
+DebuggerManager.DebuggingEnabled {CanSave Only}
+
+Decal.Shiny {CanLoad Only}
+Decal.Shiny {Deprecated} 
+Decal.Specular {CanLoad Only}
+Decal.Specular {Deprecated} 
+
+Fire.Heat {CanLoad Only}
+Fire.Size {CanLoad Only}
+Fire.size {CanLoad Only}
+Fire.size {Deprecated} 
+
+FloatCurve.Length {CanSave Only}
+
+FunctionalTest.AllowSleep {CanLoad Only}
+FunctionalTest.Is30FpsThrottleEnabled {CanLoad Only}
+FunctionalTest.PhysicsEnvironmentalThrottle {CanLoad Only}
+FunctionalTest.Timeout {CanLoad Only}
+
+GameSettings.VideoRecording {CanLoad Only}
+
+GuiBase2d.Localize {CanLoad Only}
+GuiBase2d.Localize {Deprecated} 
+
+GuiObject.BackgroundColor {CanLoad Only}
+GuiObject.BackgroundColor {Deprecated} 
+GuiObject.BorderColor {CanLoad Only}
+GuiObject.BorderColor {Deprecated} 
+GuiObject.Draggable {Deprecated}  {CanSave}
+GuiObject.GuiState {CanSave Only}
+GuiObject.Transparency {CanLoad Only}
+
+TextButton.Font {CanLoad Only}
+TextButton.FontSize {CanLoad Only}
+TextButton.FontSize {Deprecated} 
+TextButton.LocalizedText {CanSave Only}
+TextButton.TextColor {CanLoad Only}
+TextButton.TextColor {Deprecated} 
+TextButton.TextWrap {CanLoad Only}
+TextButton.TextWrap {Deprecated} 
+
+TextLabel.Font {CanLoad Only}
+TextLabel.FontSize {CanLoad Only}
+TextLabel.FontSize {Deprecated} 
+TextLabel.LocalizedText {CanSave Only}
+TextLabel.TextColor {CanLoad Only}
+TextLabel.TextColor {Deprecated} 
+TextLabel.TextWrap {CanLoad Only}
+TextLabel.TextWrap {Deprecated} 
+
+ScrollingFrame.AbsoluteCanvasSize {CanSave Only}
+ScrollingFrame.AbsoluteWindowSize {CanSave Only}
+
+TextBox.Font {CanLoad Only}
+TextBox.FontSize {CanLoad Only}
+TextBox.FontSize {Deprecated} 
+TextBox.TextColor {CanLoad Only}
+TextBox.TextColor {Deprecated} 
+TextBox.TextWrap {CanLoad Only}
+TextBox.TextWrap {Deprecated} 
+
+ViewportFrame.CurrentCamera {CanLoad Only}
+
+DockWidgetPluginGui.HostWidgetWasRestored {CanSave Only}
+
+ScreenGui.IgnoreGuiInset {CanLoad Only}
+
+GuiBase3d.Color {CanLoad Only}
+GuiBase3d.Color {Deprecated} 
+
+SelectionBox.SurfaceColor {CanLoad Only}
+SelectionBox.SurfaceColor {Deprecated} 
+
+SelectionSphere.SurfaceColor {CanLoad Only}
+SelectionSphere.SurfaceColor {Deprecated} 
+
+Path2D.SelectedControlPoint {CanLoad Only}
+Path2D.SelectedControlPointData {CanLoad Only}
+
+GuiService.MenuIsOpen {CanSave Only}
+
+Humanoid.CollisionType {Deprecated}  {CanSave}
+Humanoid.Health {CanLoad Only}
+Humanoid.Jump {CanLoad Only}
+Humanoid.LeftLeg {CanLoad Only}
+Humanoid.LeftLeg {Deprecated} 
+Humanoid.RightLeg {CanLoad Only}
+Humanoid.RightLeg {Deprecated} 
+Humanoid.RootPart {CanSave Only}
+Humanoid.Torso {CanLoad Only}
+Humanoid.Torso {Deprecated} 
+Humanoid.maxHealth {CanLoad Only}
+Humanoid.maxHealth {Deprecated} 
+
+InsertService.AllowInsertFreeModels {Deprecated}  {CanSave}
+
+InternalSyncItem.Target {CanLoad Only}
+
+Motor.CurrentAngle {CanLoad Only}
+
+Lighting.ClockTime {CanLoad Only}
+Lighting.Outlines {Deprecated}  {CanSave}
+Lighting.ShadowColor {CanLoad Only}
+Lighting.ShadowColor {Deprecated} 
+
+LocalizationTable.DevelopmentLanguage {CanLoad Only}
+LocalizationTable.DevelopmentLanguage {Deprecated} 
+
+BaseScript.LinkedSource {Deprecated}  {CanSave}
+
+ModuleScript.LinkedSource {Deprecated}  {CanSave}
+
+MarkerCurve.Length {CanSave Only}
+
+MetaBreakpoint.Id {CanSave Only}
+MetaBreakpoint.IsLogpoint {CanSave Only}
+MetaBreakpoint.Valid {CanSave Only}
+
+Mouse.Hit {CanSave Only}
+Mouse.Origin {CanSave Only}
+Mouse.Target {CanSave Only}
+Mouse.TargetSurface {CanSave Only}
+Mouse.UnitRay {CanSave Only}
+Mouse.ViewSizeX {CanSave Only}
+Mouse.ViewSizeY {CanSave Only}
+Mouse.X {CanSave Only}
+Mouse.Y {CanSave Only}
+
+NotificationService.SelectedTheme {CanLoad Only}
+
+BasePart.AssemblyAngularVelocity {CanLoad Only}
+BasePart.AssemblyLinearVelocity {CanLoad Only}
+BasePart.BackParamA {Deprecated}  {CanSave}
+BasePart.BackParamB {Deprecated}  {CanSave}
+BasePart.BackSurfaceInput {Deprecated}  {CanSave}
+BasePart.BottomParamA {Deprecated}  {CanSave}
+BasePart.BottomParamB {Deprecated}  {CanSave}
+BasePart.BottomSurfaceInput {Deprecated}  {CanSave}
+BasePart.BrickColor {CanLoad Only}
+BasePart.CollisionGroupId {Deprecated}  {CanSave}
+BasePart.Color {CanLoad Only}
+BasePart.Elasticity {CanLoad Only}
+BasePart.Elasticity {Deprecated} 
+BasePart.Friction {CanLoad Only}
+BasePart.Friction {Deprecated} 
+BasePart.FrontParamA {Deprecated}  {CanSave}
+BasePart.FrontParamB {Deprecated}  {CanSave}
+BasePart.FrontSurfaceInput {Deprecated}  {CanSave}
+BasePart.LeftParamA {Deprecated}  {CanSave}
+BasePart.LeftParamB {Deprecated}  {CanSave}
+BasePart.LeftSurfaceInput {Deprecated}  {CanSave}
+BasePart.RightParamA {Deprecated}  {CanSave}
+BasePart.RightParamB {Deprecated}  {CanSave}
+BasePart.RightSurfaceInput {Deprecated}  {CanSave}
+BasePart.RotVelocity {Deprecated}  {CanSave}
+BasePart.Rotation {CanLoad Only}
+BasePart.Size {CanLoad Only}
+BasePart.TopParamA {Deprecated}  {CanSave}
+BasePart.TopParamB {Deprecated}  {CanSave}
+BasePart.TopSurfaceInput {Deprecated}  {CanSave}
+BasePart.Velocity {Deprecated}  {CanSave}
+BasePart.brickColor {CanLoad Only}
+BasePart.brickColor {Deprecated} 
+BasePart.siz {CanLoad Only}
+
+FormFactorPart.FormFactor {CanLoad Only}
+FormFactorPart.FormFactor {Deprecated} 
+FormFactorPart.formFactor {CanLoad Only}
+FormFactorPart.formFactor {Deprecated} 
+
+Part.Shape {CanLoad Only}
+Part.shap {CanLoad Only}
+
+Terrain.ClusterGrid {CanLoad Only}
+Terrain.ClusterGridV2 {CanLoad Only}
+Terrain.ClusterGridV3 {CanLoad Only}
+
+TriangleMeshPart.CollisionFidelity {CanLoad Only}
+TriangleMeshPart.FluidFidelity {CanLoad Only}
+
+MeshPart.MeshID {CanLoad Only}
+MeshPart.MeshID {Deprecated} 
+
+PartOperation.TriangleCount {CanSave Only}
+
+TrussPart.Style {CanLoad Only}
+
+HopperBin.Command {CanLoad Only}
+HopperBin.TextureName {CanLoad Only}
+
+Workspace.CollisionGroups {CanLoad Only}
+Workspace.StreamingPauseMode {CanLoad Only}
+
+PackageLink.PackageId {CanSave Only}
+PackageLink.VersionNumber {CanLoad Only}
+
+DataStoreKeyPages.Cursor {CanSave Only}
+
+DataStoreListingPages.Cursor {CanSave Only}
+
+ParticleEmitter.VelocitySpread {CanLoad Only}
+ParticleEmitter.VelocitySpread {Deprecated} 
+
+Path.Status {CanSave Only}
+
+PathfindingService.EmptyCutoff {CanLoad Only}
+PathfindingService.EmptyCutoff {Deprecated} 
+
+Player.CharacterAppearance {Deprecated}  {CanSave}
+Player.FollowUserId {CanSave Only}
+
+PluginMenu.Icon {CanLoad Only}
+PluginMenu.Title {CanLoad Only}
+
+PluginToolbarButton.ClickableWhenViewportHidden {CanLoad Only}
+PluginToolbarButton.Enabled {CanLoad Only}
+PluginToolbarButton.Icon {CanLoad Only}
+
+Pose.MaskWeight {CanLoad Only}
+Pose.MaskWeight {Deprecated} 
+
+RenderSettings.EnableFRM {CanLoad Only}
+
+RotationCurve.Length {CanSave Only}
+
+SyncScriptBuilder.RawBytecode {Deprecated}  {CanSave}
+
+Selection.SelectionBoxThickness {CanSave Only}
+Selection.SelectionLineThickness {CanSave Only}
+
+DataModel.PrivateServerId {CanSave Only}
+DataModel.PrivateServerOwnerId {CanSave Only}
+DataModel.VIPServerId {CanSave Only}
+DataModel.VIPServerOwnerId {CanSave Only}
+
+Smoke.Opacity {CanLoad Only}
+Smoke.RiseVelocity {CanLoad Only}
+Smoke.Size {CanLoad Only}
+
+Sound.EmitterSize {Deprecated}  {CanSave}
+Sound.MinDistance {CanLoad Only}
+Sound.MinDistance {Deprecated} 
+Sound.Pitch {CanLoad Only}
+Sound.Pitch {Deprecated} 
+Sound.xmlRead_MaxDistance_3 {Deprecated}  {CanSave}
+Sound.xmlRead_MinDistance_3 {CanLoad Only}
+Sound.xmlRead_MinDistance_3 {Deprecated} 
+
+Sparkles.Color {CanLoad Only}
+
+Studio.UI Theme {CanSave Only}
+
+StudioService.UseLocalSpace {CanLoad Only}
+
+TaskScheduler.SchedulerDutyCycle {CanSave Only}
+TaskScheduler.SchedulerRate {CanSave Only}
+TaskScheduler.ThreadPoolSize {CanSave Only}
+
+Team.AutoColorCharacters {CanLoad Only}
+Team.AutoColorCharacters {Deprecated} 
+Team.Score {CanLoad Only}
+Team.Score {Deprecated} 
+
+TeleportAsyncResult.PrivateServerId {CanSave Only}
+TeleportAsyncResult.ReservedServerAccessCode {CanSave Only}
+
+TeleportService.CustomizedTeleportUI {CanLoad Only}
+TeleportService.CustomizedTeleportUI {Deprecated} 
+
+TerrainRegion.GridV3 {CanLoad Only}
+
+TestService.ErrorCount {CanSave Only}
+TestService.Is30FpsThrottleEnabled {CanLoad Only}
+TestService.IsPhysicsEnvironmentalThrottled {CanLoad Only}
+TestService.TestCount {CanSave Only}
+TestService.WarnCount {CanSave Only}
+
+Translator.LocaleId {CanSave Only}
+
+TweenBase.PlaybackState {CanSave Only}
+
+UIListLayout.HorizontalPadding {CanLoad Only}
+UIListLayout.VerticalPadding {CanLoad Only}
+
+UIPageLayout.CurrentPage {CanSave Only}
+
+UserGameSettings.IsUsingCameraYInverted {CanSave Only}
+UserGameSettings.IsUsingGamepadCameraSensitivity {CanSave Only}
+UserGameSettings.MicroProfilerWebServerIP {CanSave Only}
+UserGameSettings.MicroProfilerWebServerPort {CanSave Only}
+
+UserInputService.AccelerometerEnabled {CanSave Only}
+UserInputService.GamepadEnabled {CanSave Only}
+UserInputService.GyroscopeEnabled {CanSave Only}
+UserInputService.KeyboardEnabled {CanSave Only}
+UserInputService.MouseDeltaSensitivity {CanLoad Only}
+UserInputService.MouseEnabled {CanSave Only}
+UserInputService.TouchEnabled {CanSave Only}
+UserInputService.VREnabled {CanSave Only}
+
+DoubleConstrainedValue.ConstrainedValue {CanLoad Only}
+DoubleConstrainedValue.Value {CanLoad Only}
+
+IntConstrainedValue.ConstrainedValue {CanLoad Only}
+IntConstrainedValue.Value {CanLoad Only}
+
+VideoDeviceInput.IsReady {CanSave Only}
+
+WeldConstraint.Active {CanSave Only}
+WeldConstraint.CFrame1 {CanLoad Only}
+WeldConstraint.Enabled {CanLoad Only}
+WeldConstraint.Part0 {CanLoad Only}
+WeldConstraint.Part1 {CanLoad Only}
+
+Wire.Connected {CanSave Only}

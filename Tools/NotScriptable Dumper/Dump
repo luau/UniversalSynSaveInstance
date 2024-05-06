@@ -1,0 +1,256 @@
+Instance.Capabilities
+Instance.DefinesCapabilities
+Instance.HistoryId
+Instance.Tags {BinaryString}
+Instance.UniqueId
+
+AnimationClip.GuidBinaryString {BinaryString}
+
+AnimationRigData.articulatedJoint {BinaryString}
+AnimationRigData.endEffectorRotationConstraint {BinaryString}
+AnimationRigData.endEffectorTranslationConstraint {BinaryString}
+AnimationRigData.endEffectorWeight {BinaryString}
+AnimationRigData.facsControl {BinaryString}
+AnimationRigData.label {BinaryString}
+AnimationRigData.name {BinaryString}
+AnimationRigData.parent {BinaryString}
+AnimationRigData.postTransform {BinaryString}
+AnimationRigData.preTransform {BinaryString}
+AnimationRigData.rootMotion {BinaryString}
+AnimationRigData.transform {BinaryString}
+AnimationRigData.weight {BinaryString}
+
+StarterGui.RtlTextSupport
+StarterGui.VirtualCursorMode
+
+BaseWrap.HSRAssetId
+BaseWrap.HSRData
+BaseWrap.HSRMeshIdData
+BaseWrap.TemporaryCageMeshId
+
+WrapLayer.TemporaryReferenceId
+
+BallSocketConstraint.MaxFrictionTorqueXml
+
+CustomEvent.PersistedCurrentValue
+
+BevelMesh.Bevel
+BevelMesh.Bevel Roundness
+BevelMesh.Bulge
+
+RobloxEditableMesh.MeshDataSerialize {BinaryString}
+
+DebuggerBreakpoint.line
+
+RobloxEditableImage.ImageDataSerialize {BinaryString}
+
+Fire.heat_xml
+Fire.size_xml
+
+FloatCurve.ValuesAndTimes {BinaryString}
+
+FunctionalTest.HasMigratedSettingsToTestService
+
+GoogleAnalyticsConfiguration.gaID
+
+ViewportFrame.CameraCFrame
+ViewportFrame.CameraFieldOfView
+
+Path2D.PropertiesSerialize {BinaryString}
+
+HiddenSurfaceRemovalAsset.HSRData {BinaryString}
+HiddenSurfaceRemovalAsset.HSRMeshIdData {BinaryString}
+
+Humanoid.Health_XML
+Humanoid.InternalBodyScale
+Humanoid.InternalHeadScale
+
+HumanoidDescription.AccessoryBlob
+HumanoidDescription.AccessoryRigidAndLayeredBlob
+HumanoidDescription.EmotesDataInternal
+HumanoidDescription.EquippedEmotesDataInternal
+
+InsertService.AllowClientInsertModels
+
+Lighting.Technology
+
+LocalizationTable.Contents
+
+LuaSourceContainer.ScriptGuid
+
+MarkerCurve.ValuesAndTimes {BinaryString}
+
+MaterialService.AsphaltName
+MaterialService.BasaltName
+MaterialService.BrickName
+MaterialService.CardboardName
+MaterialService.CarpetName
+MaterialService.CeramicTilesName
+MaterialService.ClayRoofTilesName
+MaterialService.CobblestoneName
+MaterialService.ConcreteName
+MaterialService.CorrodedMetalName
+MaterialService.CrackedLavaName
+MaterialService.DiamondPlateName
+MaterialService.FabricName
+MaterialService.FoilName
+MaterialService.GlacierName
+MaterialService.GraniteName
+MaterialService.GrassName
+MaterialService.GroundName
+MaterialService.IceName
+MaterialService.LeafyGrassName
+MaterialService.LeatherName
+MaterialService.LimestoneName
+MaterialService.MarbleName
+MaterialService.MetalName
+MaterialService.MudName
+MaterialService.PavementName
+MaterialService.PebbleName
+MaterialService.PlasterName
+MaterialService.PlasticName
+MaterialService.RockName
+MaterialService.RoofShinglesName
+MaterialService.RubberName
+MaterialService.SaltName
+MaterialService.SandName
+MaterialService.SandstoneName
+MaterialService.SlateName
+MaterialService.SmoothPlasticName
+MaterialService.SnowName
+MaterialService.Use2022MaterialsXml
+MaterialService.WoodName
+MaterialService.WoodPlanksName
+
+MaterialVariant.TexturePack
+
+MetaBreakpointContext.ContextDataInternal
+
+BasePart.Color3uint8
+BasePart.MaterialVariantSerialized
+BasePart.size
+
+FormFactorPart.formFactorRaw
+
+Part.shape
+
+Terrain.AcquisitionMethod
+Terrain.Decoration
+Terrain.GrassLength
+Terrain.MaterialColors {BinaryString}
+Terrain.PhysicsGrid {BinaryString}
+Terrain.SmoothGrid {BinaryString}
+
+TriangleMeshPart.AeroMeshData
+TriangleMeshPart.FluidFidelityInternal
+TriangleMeshPart.PhysicalConfigData
+
+MeshPart.InitialSize
+MeshPart.PhysicsData {BinaryString}
+MeshPart.VertexCount
+
+PartOperation.AssetId
+PartOperation.ChildData {BinaryString}
+PartOperation.ChildData2
+PartOperation.FormFactor
+PartOperation.InitialSize
+PartOperation.MeshData {BinaryString}
+PartOperation.MeshData2
+PartOperation.PhysicsData {BinaryString}
+
+TrussPart.style
+
+Model.ModelMeshCFrame
+Model.ModelMeshData
+Model.ModelMeshSize
+Model.NeedsPivotMigration
+Model.ScaleFactor
+Model.WorldPivotData
+
+Workspace.AvatarUnificationMode
+Workspace.CSGAsyncDynamicCollision
+Workspace.CollisionGroupData {BinaryString}
+Workspace.DecreaseMinimumPartDensityMode
+Workspace.EditorLiveScripting
+Workspace.ExplicitAutoJoints
+Workspace.FluidForces
+Workspace.IKControlConstraintSupport
+Workspace.MeshPartHeadsAndAccessories
+Workspace.ModelStreamingBehavior
+Workspace.PhysicsSteppingMethod
+Workspace.PlayerCharacterDestroyBehavior
+Workspace.PrimalPhysicsSolver
+Workspace.RejectCharacterDeletions
+Workspace.ReplicateInstanceDestroySetting
+Workspace.SignalBehavior2
+Workspace.StreamOutBehavior
+Workspace.StreamingIntegrityMode
+Workspace.StreamingMinRadius
+Workspace.StreamingTargetRadius
+Workspace.TerrainWeldsFixed
+Workspace.TouchesUseCollisionGroups
+
+PackageLink.AutoUpdate
+PackageLink.ModifiedState
+PackageLink.PackageIdSerialize
+PackageLink.VersionIdSerialize
+
+PartOperationAsset.ChildData {BinaryString}
+PartOperationAsset.MeshData {BinaryString}
+
+Player.RawJoinData {BinaryString}
+
+Players.UseStrafingAnimations
+
+RotationCurve.ValuesAndTimes {BinaryString}
+
+ScriptDebugger.CoreScriptIdentifier
+ScriptDebugger.ScriptGuid
+
+ServerScriptService.LoadStringEnabled
+
+Smoke.opacity_xml
+Smoke.riseVelocity_xml
+Smoke.size_xml
+
+Sound.xmlRead_MaxDistance_3
+
+SoundService.VolumetricAudio
+
+StarterPlayer.AvatarJointUpgrade_Serialized
+StarterPlayer.EnableDynamicHeads
+StarterPlayer.LoadCharacterLayeredClothing
+
+StyleRule.Index
+StyleRule.PropertiesSerialize {BinaryString}
+
+StyleDerive.Index
+
+TerrainDetail.TexturePack
+
+TerrainRegion.ExtentsMax
+TerrainRegion.ExtentsMin
+TerrainRegion.SmoothGrid {BinaryString}
+
+UnvalidatedAssetService.CachedData
+
+UserGameSettings.CompletedTutorials
+UserGameSettings.ComputerCameraMovementChanged
+UserGameSettings.ComputerMovementChanged
+UserGameSettings.StartMaximized
+UserGameSettings.StartScreenPosition
+UserGameSettings.StartScreenSize
+UserGameSettings.TouchCameraMovementChanged
+UserGameSettings.TouchMovementChanged
+UserGameSettings.gaID
+
+BinaryStringValue.Value {BinaryString}
+
+DoubleConstrainedValue.value
+
+IntConstrainedValue.value
+
+WeldConstraint.CFrame0
+WeldConstraint.Part0Internal
+WeldConstraint.Part1Internal
+WeldConstraint.State

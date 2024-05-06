@@ -1,0 +1,91 @@
+Varies per executor; Tested on Codex
+
+TriangleMeshPart.AeroMeshData  Unable to get property AeroMeshData, type SharedString
+TriangleMeshPart.PhysicalConfigData  Unable to get property PhysicalConfigData, type SharedString
+
+PartOperationAsset.ChildData  Unable to get property ChildData, type BinaryString
+PartOperationAsset.MeshData  Unable to get property MeshData, type BinaryString
+
+DebuggerBreakpoint.line {NotCreatable Class} 
+
+BasePart.Color3uint8  Unable to get property Color3uint8, type Color3uint8
+
+AnimationRigData.transform  Unable to get property transform, type BinaryString
+AnimationRigData.endEffectorRotationConstraint  Unable to get property endEffectorRotationConstraint, type BinaryString
+AnimationRigData.label  Unable to get property label, type BinaryString
+AnimationRigData.endEffectorTranslationConstraint  Unable to get property endEffectorTranslationConstraint, type BinaryString
+AnimationRigData.postTransform  Unable to get property postTransform, type BinaryString
+AnimationRigData.endEffectorWeight  Unable to get property endEffectorWeight, type BinaryString
+AnimationRigData.rootMotion  Unable to get property rootMotion, type BinaryString
+AnimationRigData.facsControl  Unable to get property facsControl, type BinaryString
+AnimationRigData.weight  Unable to get property weight, type BinaryString
+AnimationRigData.preTransform  Unable to get property preTransform, type BinaryString
+AnimationRigData.articulatedJoint  Unable to get property articulatedJoint, type BinaryString
+AnimationRigData.parent  Unable to get property parent, type BinaryString
+AnimationRigData.name  Unable to get property name, type BinaryString
+
+FloatCurve.ValuesAndTimes  Unable to get property ValuesAndTimes, type BinaryString
+
+Workspace.CollisionGroupData  Unable to get property CollisionGroupData, type BinaryString
+
+RotationCurve.ValuesAndTimes  Unable to get property ValuesAndTimes, type BinaryString
+
+Instance.Capabilities  Unable to get property Capabilities, type SecurityCapabilities
+Instance.Tags  Unable to get property Tags, type BinaryString
+Instance.UniqueId  Unable to get property UniqueId, type UniqueId
+Instance.AttributesSerialize  Unable to get property AttributesSerialize, type BinaryString
+Instance.HistoryId  Unable to get property HistoryId, type UniqueId
+
+Terrain.MaterialColors  Unable to get property MaterialColors, type BinaryString
+Terrain.SmoothGrid  Unable to get property SmoothGrid, type BinaryString
+Terrain.PhysicsGrid  Unable to get property PhysicsGrid, type BinaryString
+
+RobloxEditableImage.ImageDataSerialize  Unable to get property ImageDataSerialize, type BinaryString
+
+BinaryStringValue.Value  Unable to get property Value, type BinaryString
+
+BaseWrap.HSRMeshIdData  Unable to get property HSRMeshIdData, type SharedString
+BaseWrap.HSRData  Unable to get property HSRData, type SharedString
+
+MetaBreakpointContext.ContextDataInternal {NotCreatable Class} 
+
+Path2D.PropertiesSerialize  Unable to get property PropertiesSerialize, type BinaryString
+
+TerrainRegion.SmoothGrid  Unable to get property SmoothGrid, type BinaryString
+TerrainRegion.ExtentsMax  Unable to get property ExtentsMax, type Vector3int16
+TerrainRegion.ExtentsMin  Unable to get property ExtentsMin, type Vector3int16
+
+StyleRule.PropertiesSerialize  Unable to get property PropertiesSerialize, type BinaryString
+
+MeshPart.PhysicsData  Unable to get property PhysicsData, type BinaryString
+
+PartOperation.PhysicsData  Unable to get property PhysicsData, type BinaryString
+PartOperation.ChildData  Unable to get property ChildData, type BinaryString
+PartOperation.MeshData  Unable to get property MeshData, type BinaryString
+PartOperation.ChildData2  Unable to get property ChildData2, type SharedString
+PartOperation.MeshData2  Unable to get property MeshData2, type SharedString
+
+ScriptDebugger.ScriptGuid {NotCreatable Class} 
+ScriptDebugger.CoreScriptIdentifier {NotCreatable Class} 
+
+Model.WorldPivotData  Unable to get property WorldPivotData, type OptionalCoordinateFrame
+Model.ModelMeshData  Unable to get property ModelMeshData, type SharedString
+
+MarkerCurve.ValuesAndTimes  Unable to get property ValuesAndTimes, type BinaryString
+
+Player.RawJoinData  Unable to get property RawJoinData, type BinaryString
+
+GoogleAnalyticsConfiguration.gaID {NotCreatable Class} 
+
+AnimationClip.GuidBinaryString  Unable to get property GuidBinaryString, type BinaryString
+
+HiddenSurfaceRemovalAsset.HSRMeshIdData  Unable to get property HSRMeshIdData, type BinaryString
+HiddenSurfaceRemovalAsset.HSRData  Unable to get property HSRData, type BinaryString
+
+RobloxEditableMesh.MeshDataSerialize  Unable to get property MeshDataSerialize, type BinaryString
+
+PackageLink.VersionIdSerialize {NotCreatable Class} 
+PackageLink.ModifiedState {NotCreatable Class} 
+PackageLink.PackageIdSerialize {NotCreatable Class} 
+PackageLink.AutoUpdate {NotCreatable Class} 
+

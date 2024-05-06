@@ -1,4 +1,3 @@
-local ClassList
 local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
 local service = setmetatable({}, {
 	__index = function(Self, Name)
@@ -29,10 +28,7 @@ local function ArrayToDictionary(Table, HybridMode)
 
 	return tmp
 end
-
-local function Find(String, Pattern)
-	return string.find(String, Pattern, nil, true)
-end
+local s = "\n"
 
 do
 	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/23f772f6f78af879a21faa9fea3e6c4f93d1cdee/src/API.lua#L19
@@ -64,7 +60,7 @@ do
 			Class.Superclass = API_Class.Superclass
 
 			local ClassProperties = {}
-
+			local prevsiz = #s
 			for _index_1 = 1, #ClassMembers do
 				local Member = ClassMembers[_index_1]
 				if Member.MemberType == "Property" then
@@ -83,7 +79,17 @@ do
 
 							Special = MemberTags.NotScriptable
 						end
-
+						local Serialization = Member.Serialization
+						if Serialization.CanLoad then
+							if Serialization.CanSave == false then
+								s ..= ClassName .. "." .. PropertyName .. " {CanLoad Only}" .. "\n"
+							end
+							if MemberTags and MemberTags.Deprecated then
+								s ..= ClassName .. "." .. PropertyName .. " {Deprecated} " .. (Serialization.CanSave and " {CanSave}" or "") .. "\n"
+							end
+						elseif Serialization.CanSave then
+							s ..= ClassName .. "." .. PropertyName .. " {CanSave Only}\n"
+						end
 						local ValueType = Member.ValueType
 
 						local Property = {
@@ -104,7 +110,9 @@ do
 			end
 
 			Class.Properties = ClassProperties
-
+			if #s ~= prevsiz then
+				s ..= "\n"
+			end
 			classList[ClassName] = Class
 		end
 
@@ -114,34 +122,11 @@ do
 	end
 
 	local ok, result = pcall(FetchAPI)
+	print(s)
 	if ok then
 		ClassList = result
 	else
 		warn(result)
 		return
-	end
-end
-local F = Instance.new("Folder")
-for Class in ClassList do
-	local o, r = pcall(Instance.new, Class)
-	local x = r
-	if not o then
-		r = game:FindFirstChild(Class, true)
-		if not r then
-			r = game:FindFirstChildWhichIsA(Class, true)
-		end
-	end
-	if r then
-		o, r = pcall(function(_, _2)
-			_.Parent = _2
-		end, r, F)
-		if not o then
-			if Find(r, "locked") or Find(r, "Cannot change") or Find(r, "Invalid parent for Service") then
-				continue
-			end
-			warn(Class, r)
-		end
-	elseif not (Find(x, "Unable to create an Instance") or Find(x, "The current thread cannot create")) then
-		print(Class, x)
 	end
 end

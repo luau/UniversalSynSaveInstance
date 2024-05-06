@@ -72,18 +72,13 @@ do
 				local MemberType = Member.MemberType
 				if MemberType == "Property" then
 					local Serialization = Member.Serialization
-					local MemberTags = Member.Tags
 
-					local Special
-
-					if MemberTags then
-						MemberTags = ArrayToDictionary(MemberTags)
-
-						Special = MemberTags.NotScriptable
-					end
-					if Serialization.CanLoad and Serialization.CanSave and Special then
-						local ValueType = Member.ValueType.Name
-						s ..= ClassName .. "." .. MemberName .. (ValueType == "BinaryString" and " {BinaryString}" or "") .. "\n"
+					if Serialization.CanLoad and Serialization.CanSave then
+						local ValueType = Member.ValueType
+						if ValueType.Category == "Class" and ValueType.Name ~= "Instance" then
+							-- warn(ClassName, MemberName, ValueType.Name)
+							s ..= ClassName .. "." .. MemberName .. " {" .. ValueType.Name .. "}\n"
+						end
 					end
 				end
 			end

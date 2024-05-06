@@ -1,0 +1,11 @@
+! InternalSyncItem: Internal Permission is required for this feature.
+AdPortal: AdPortal must be parented to a Part.
+Animator: Animator has to be placed under Humanoid or AnimationController!
+Attachment: Attachments must be parented to a BasePart or another Attachment.
+BaseWrap: BaseWrap must be parented to a MeshPart.
+Bone: Bones must be parented to a BasePart or another Bone.
+DebuggerWatch: DebuggerWatch must be a child of ScriptDebugger
+Player: Parent of Player can not be changed
+PluginAction: Parent of PluginAction must be Plugin or PluginMenu that created it!
+WrapLayer: BaseWrap must be parented to a MeshPart.
+WrapTarget: BaseWrap must be parented to a MeshPart.
