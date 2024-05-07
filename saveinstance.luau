@@ -5,10 +5,9 @@ local function Find(String, Pattern)
 	return string.find(String, Pattern, nil, true)
 end
 
-local GlobalSettings, GlobalBasicSettings = settings(), UserSettings()
 local service = setmetatable({}, {
 	__index = function(self, Name)
-		local Service = game:GetService(Name) or GlobalSettings:GetService(Name) or GlobalBasicSettings:GetService(Name)
+		local Service = game:GetService(Name) or settings():GetService(Name) or UserSettings():GetService(Name)
 		self[Name] = Service
 		return Service
 	end,
@@ -52,7 +51,7 @@ do
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
 		getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
 		getproperties = 'string.find(...,"get",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
-		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)',
+		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true) or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true)',
 		getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
@@ -568,13 +567,13 @@ end
 
 local getspecialinfo = globalcontainer.getspecialinfo
 
-local function ArrayToDictionary(Table, HybridMode)
+local function ArrayToDictionary(Table, HybridMode, ValueOverride)
 	local tmp = {}
 
 	if HybridMode == "adjust" then
 		for Some1, Some2 in Table do
 			if type(Some1) == "number" then
-				tmp[Some2] = true
+				tmp[Some2] = ValueOverride or true
 			elseif type(Some2) == "table" then
 				tmp[Some1] = ArrayToDictionary(Some2, "adjust") -- Some1 is Class, Some2 is Name
 			else
@@ -917,7 +916,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- DisableCompression = false, --Description: Disables compression in the binary output
 		DecompileJobless = false, --Description: Includes already decompiled code in the output. No new scripts are decompiled.
 		SaveNonCreatable = false, --Description: Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable)
-		RemovePlayerCharacters = true, -- Description: Ignore player characters while saving.
+		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui" }, -- {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable
+		RemovePlayerCharacters = true, -- Description: Ignore player characters while saving. (Enables SaveNonCreatable automatically)
 		SavePlayers = false, -- This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2
 		SaveCacheInterval = 0x1600 * 2, -- The less the more often it saves, but that would mean less performance due to constantly saving
 		ReadMe = true,
@@ -935,6 +935,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			SavePlayers = "IsolatePlayers",
 			scriptcache = "DecompileJobless",
 			timeout = "DecompileTimeout",
+			SaveNonCreatable = "SaveNotCreatable",
 		},
 
 		-- * This functions the same way as NilInstancesFixes (It's recommended to read the Note near NilInstancesFixes)
@@ -1113,10 +1114,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local InstancePropertyOverrides = {}
 
-	local DecompileIgnore, IgnoreList, IgnoreProperties =
+	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
 		ArrayToDictionary(OPTIONS.DecompileIgnore, "adjust"),
 		ArrayToDictionary(OPTIONS.IgnoreList, "adjust"),
-		ArrayToDictionary(OPTIONS.IgnoreProperties, "adjust")
+		ArrayToDictionary(OPTIONS.IgnoreProperties, "adjust"),
+		ArrayToDictionary(OPTIONS.NotCreatableFixes, "adjust", "Folder")
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
@@ -1152,7 +1154,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local ldeccache = globalenv.scriptcache
 
-	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t
+	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNonCreatableWillBeEnabled
 
 	if ScriptCache and not ldeccache then
 		ldeccache = {}
@@ -1351,7 +1353,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						return "-- Not found in already decompiled ScriptCache"
 					end
 				else
-					task.wait()
+					task.wait() -- TODO Maybe remove?
 				end
 
 				local ok, result = DecompileHandler(Script)
@@ -1544,7 +1546,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			StatusText.Text = "Saving.. Size: " .. getsizeformat()
 		end
 		savebuffer = {}
-		task.wait()
+		task.wait() -- TODO Remove maybe?
 	end
 
 	local function savespecific(ClassName, Properties)
@@ -1609,21 +1611,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 			local InstanceOverride
-			if ClassName == "Player" or ClassName == "PlayerScripts" or ClassName == "PlayerGui" then
-				if SaveNonCreatable then
-					if InstanceName ~= ClassName then
-						InstanceOverride = InstancePropertyOverrides[instance]
-						if not InstanceOverride then
-							InstanceOverride = { Properties = {} }
-							InstancePropertyOverrides[instance] = InstanceOverride
+
+			do
+				local Fix = NotCreatableFixes[ClassName]
+				if Fix then
+					if SaveNonCreatable then
+						if InstanceName ~= ClassName then
+							InstanceOverride = InstancePropertyOverrides[instance]
+							if not InstanceOverride then
+								InstanceOverride = { Properties = {} }
+								InstancePropertyOverrides[instance] = InstanceOverride
+							end
+							InstanceOverride.Properties.Name = "[" .. ClassName .. "] " .. InstanceName -- ! Assuming anything that has __Children will have .Properties
 						end
-						InstanceOverride.Properties.Name = "[" .. ClassName .. "] " .. InstanceName -- ! Assuming anything that has __Children will have .Properties
+						ClassName = Fix
+					else
+						continue -- They won't show up in Studio anyway (Enable SavePlayers if you wish to bypass this)
 					end
-					ClassName = "Folder"
-				else
-					continue -- They won't show up in Studio anyway (Enable SavePlayers if you wish to bypass this)
 				end
 			end
+
 			if not InstanceOverride then
 				InstanceOverride = InstancePropertyOverrides[instance]
 			end
@@ -1767,6 +1774,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if Category == "Class" then
 							tag = "Ref"
 							if raw then
+								if SaveNonCreatableWillBeEnabled then
+									local Fix = NotCreatableFixes[raw.ClassName]
+									if
+										Fix
+										and (
+											PropertyName == "PlayerToHideFrom"
+											or ValueType ~= "Instance" and ValueType ~= Fix
+										)
+									then
+										continue
+									end
+								end
 								value = referents[raw]
 							else
 								value = "null"
@@ -1884,6 +1903,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
 		]]
 
+		-- TODO Find a better solution for this
+		SaveNonCreatableWillBeEnabled = SaveNonCreatable
+			or (IsolateLocalPlayer or IsolateLocalPlayerCharacter) and IsolateLocalPlayer
+			or IsolatePlayers
+			or OPTIONS.NilInstances and globalcontainer.getnilinstances -- ! Make sure this accurately reflects everything below
 		if ToSaveInstance then
 			savehierarchy({ ToSaveInstance }, ToSaveList)
 		else
