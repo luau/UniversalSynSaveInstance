@@ -138,11 +138,11 @@ local CustomDecomp -- TODO Temporary
 if request and getscriptbytecode then
 	local Url = identifyexecutor
 			and identifyexecutor() == "Krampus"
-			and "https://unluau.lonegladiator.dev/unluau/decompile"
+			and "https://unluau.lonegladiator.dev/wdec/decompile"
 		or "https://decompile.glitch.me/bytecode"
 
 	CustomDecomp = function(Script)
-		-- Credits @atrexus , @Lonegwadiwaitor
+		-- Credits @wofflevm , @atrexus , @Lonegwadiwaitor
 		local bytecode = getscriptbytecode(Script)
 
 		if bytecode == "" then
