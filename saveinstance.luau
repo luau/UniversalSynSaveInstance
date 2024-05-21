@@ -1263,20 +1263,21 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do
+		load_decompiler(Timeout)
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
 			or globalcontainer.decompile
 			or custom_decompiler
 
-		if Decompiler == custom_decompiler then
-			local key = "DecompileTimeout"
-			if CustomOptions[key] == nil then
-				local Option = CheckAlias(key)
-				if CustomOptions[Option] == nil then
-					Timeout = 1
-				end
-			end
-			load_decompiler(Timeout)
-		end
+		-- if Decompiler == custom_decompiler then -- Cope
+		-- 	local key = "DecompileTimeout"
+		-- 	if CustomOptions[key] == nil then
+		-- 		local Option = CheckAlias(key)
+		-- 		if CustomOptions[Option] == nil then
+		-- 			Timeout = 1
+		-- 		end
+		-- 	end
+
+		-- end
 
 		if OPTIONS.noscripts then
 			ldecompile = function()
