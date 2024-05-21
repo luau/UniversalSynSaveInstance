@@ -133,50 +133,34 @@ else
 	)()(4544052033).sha384
 end
 
-local CustomDecomp -- TODO Temporary
+local custom_decompiler, load_decompiler -- TODO Temporary
 
 if request and getscriptbytecode then
-	local Url = identifyexecutor
-			and identifyexecutor() == "Krampus"
-			and "https://unluau.lonegladiator.dev/wdec/decompile"
-		or "https://decompile.glitch.me/bytecode"
+	-- Credits @w-a-e
+	local decompiler_source =
+		game:HttpGet("https://raw.githubusercontent.com/w-a-e/Advanced-Decompiler-V3/main/init.lua", true)
 
-	CustomDecomp = function(Script)
-		-- Credits @wofflevm , @atrexus , @Lonegwadiwaitor
-		local bytecode = getscriptbytecode(Script)
-
-		if bytecode == "" then
-			error("Bytecode is empty")
-		end
-
-		local response = request({
-			Url = Url,
-			Method = "POST",
-			Headers = {
-				["Content-Type"] = "application/json",
-			},
-			Body = service.HttpService:JSONEncode({
-				version = 5,
-				bytecode = base64encode(bytecode),
-			}),
-		})
-
-		if response.Success == false then -- Server Issue
-			error(response.StatusMessage)
-		end
-
-		local Body = response.Body
-		if Body == "" then
-			error("Body is empty")
-		end
-
-		local decoded = service.HttpService:JSONDecode(Body)
-
-		if decoded.status ~= "ok" then -- Decompiler Issue
-			error(decoded.status)
-		end
-
-		return decoded.output
+	load_decompiler = function(decomptimeout)
+		local CONSTANTS = [[
+	local ENABLED_REMARKS = {
+		NATIVE_REMARK = true,
+		INLINE_REMARK = true
+	}
+	local DECOMPILER_TIMEOUT = ]] .. decomptimeout .. [[
+		
+	local READER_FLOAT_PRECISION = 7 -- up to 99
+	local SHOW_INSTRUCTION_LINES = false
+	local SHOW_REFERENCES = true
+	local SHOW_OPERATION_NAMES = false
+	local SHOW_MISC_OPERATIONS = true
+	local LIST_USED_GLOBALS = true
+	local RETURN_ELAPSED_TIME = false
+	]]
+		local _ENV = (getgenv or getrenv or getfenv)()
+		local old = _ENV.decompile
+		loadstring(string.gsub(decompiler_source, ";;CONSTANTS HERE;;", CONSTANTS), "Advanced-Decompiler-V3")()
+		custom_decompiler = _ENV.decompile
+		_ENV.decompile = old
 	end
 end
 
@@ -1279,9 +1263,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do
-		local Decompiler = OPTIONS.decomptype == "custom" and CustomDecomp or globalcontainer.decompile or CustomDecomp
+		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
+			or globalcontainer.decompile
+			or custom_decompiler
 
-		if Decompiler == CustomDecomp then
+		if Decompiler == custom_decompiler then
 			local key = "DecompileTimeout"
 			if CustomOptions[key] == nil then
 				local Option = CheckAlias(key)
@@ -1289,6 +1275,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					Timeout = 1
 				end
 			end
+			load_decompiler(Timeout)
 		end
 
 		if OPTIONS.noscripts then
