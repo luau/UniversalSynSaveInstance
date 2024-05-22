@@ -1,3 +1,4 @@
+Instance.AttributesSerialize {BinaryString}
 Instance.Capabilities
 Instance.DefinesCapabilities
 Instance.HistoryId
@@ -181,6 +182,7 @@ Workspace.PhysicsSteppingMethod
 Workspace.PlayerCharacterDestroyBehavior
 Workspace.PrimalPhysicsSolver
 Workspace.RejectCharacterDeletions
+Workspace.RenderingCacheOptimizations
 Workspace.ReplicateInstanceDestroySetting
 Workspace.SignalBehavior2
 Workspace.StreamOutBehavior
@@ -254,3 +256,4 @@ WeldConstraint.CFrame0
 WeldConstraint.Part0Internal
 WeldConstraint.Part1Internal
 WeldConstraint.State
+

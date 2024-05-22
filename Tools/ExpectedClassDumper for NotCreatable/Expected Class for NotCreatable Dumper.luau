@@ -10,25 +10,6 @@ local service = setmetatable({}, {
 		return Service
 	end,
 })
-local List
-do
-	local mt
-	mt = {
-		__index = function(self, index)
-			local Category = rawget(self, index)
-			if not Category then
-				Category = setmetatable({}, mt)
-				self[index] = Category
-			end
-			return Category
-		end,
-	}
-	List = setmetatable({ Accessible = setmetatable({}, mt), Inaccessible = setmetatable({}, mt) }, {
-		__index = function(self, Accessible)
-			return Accessible and self.Accessible or self.Inaccessible
-		end,
-	})
-end
 
 service.HttpService.HttpEnabled = true
 

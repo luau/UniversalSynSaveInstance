@@ -10,35 +10,16 @@ local service = setmetatable({}, {
 		return Service
 	end,
 })
-local List
-do
-	local mt
-	mt = {
-		__index = function(self, index)
-			local Category = rawget(self, index)
-			if not Category then
-				Category = setmetatable({}, mt)
-				self[index] = Category
-			end
-			return Category
-		end,
-	}
-	List = setmetatable({ Accessible = setmetatable({}, mt), Inaccessible = setmetatable({}, mt) }, {
-		__index = function(self, Accessible)
-			return Accessible and self.Accessible or self.Inaccessible
-		end,
-	})
-end
 
 service.HttpService.HttpEnabled = true
 
-local function ArrayToDictionary(Table, HybridMode)
-	local tmp = table.create(#Table)
+local function ArrayToDictionary(Table, HybridMode, ValueOverride)
+	local tmp = {}
 
 	if HybridMode == "adjust" then
 		for Some1, Some2 in Table do
 			if type(Some1) == "number" then
-				tmp[Some2] = true
+				tmp[Some2] = ValueOverride or true
 			elseif type(Some2) == "table" then
 				tmp[Some1] = ArrayToDictionary(Some2, "adjust") -- Some1 is Class, Some2 is Name
 			else
@@ -47,7 +28,9 @@ local function ArrayToDictionary(Table, HybridMode)
 		end
 	else
 		for _, Key in Table do
-			tmp[Key] = true
+			if type(Key) == "string" then
+				tmp[Key] = true
+			end
 		end
 	end
 
@@ -64,7 +47,7 @@ do
 			local API_Class = API_Classes[_index_0]
 			local ClassName = API_Class.Name
 			local ClassMembers = API_Class.Members
-			
+
 			local prevsiz = #s
 			for _index_1 = 1, #ClassMembers do
 				local Member = ClassMembers[_index_1]
@@ -78,7 +61,6 @@ do
 
 					if MemberTags then
 						MemberTags = ArrayToDictionary(MemberTags)
-
 						Special = MemberTags.NotScriptable
 					end
 					if Serialization.CanLoad and Serialization.CanSave and Special then
@@ -91,7 +73,6 @@ do
 				s ..= "\n"
 			end
 		end
-	
 	end
 
 	local ok, result = pcall(FetchAPI)

@@ -55,7 +55,7 @@ do
 		getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
-		request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
+		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 	}, true, 10)
@@ -65,7 +65,6 @@ local gethiddenproperty = globalcontainer.gethiddenproperty
 local sethiddenproperty = globalcontainer.sethiddenproperty
 local writefile = globalcontainer.writefile
 
-local request = globalcontainer.request
 local getscriptbytecode = globalcontainer.getscriptbytecode
 local base64encode = globalcontainer.base64encode
 local hash = globalcontainer.hash
@@ -135,7 +134,7 @@ end
 
 local custom_decompiler, load_decompiler -- TODO Temporary
 
-if request and getscriptbytecode then
+if getscriptbytecode then
 	-- Credits @w-a-e
 	local decompiler_source =
 		game:HttpGet("https://raw.githubusercontent.com/w-a-e/Advanced-Decompiler-V3/main/init.lua", true)
@@ -152,7 +151,7 @@ if request and getscriptbytecode then
 	local SHOW_INSTRUCTION_LINES = false
 	local SHOW_REFERENCES = true
 	local SHOW_OPERATION_NAMES = false
-	local SHOW_MISC_OPERATIONS = true
+	local SHOW_MISC_OPERATIONS = false
 	local LIST_USED_GLOBALS = true
 	local RETURN_ELAPSED_TIME = false
 	]]
@@ -566,7 +565,9 @@ local function ArrayToDictionary(Table, HybridMode, ValueOverride)
 		end
 	else
 		for _, Key in Table do
-			tmp[Key] = true
+			if type(Key) == "string" then
+				tmp[Key] = true
+			end
 		end
 	end
 
@@ -1976,7 +1977,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		If you didn't save in Binary - we recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
 		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
 
-		If your player cannot spawn into the game, please move the scripts in StarterPlayeelsewhere (This is done by default).
+		If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere.
 
 		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 
 
