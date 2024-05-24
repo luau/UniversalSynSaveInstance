@@ -839,6 +839,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local OPTIONS = {
 		mode = "optimized", -- Change this to invalid mode like "custom" if you only want extrainstances; -- ! "optimized" mode is NOT supported with OPTIONS.Object option
+		filename = nil
 		noscripts = false,
 		scriptcache = true,
 		decomptype = "", -- * "custom" - @Lonegwadiwaitor's custom decompiler
@@ -1192,11 +1193,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 
-			placename = (
+			if filename then
+			    placename = filename .. ".rbxmx"
+			else
+			    placename = (
 				FilePath or SanitizeForFile("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1]):GetFullName())
 			) .. ".rbxmx"
+			end
 		else
+		    if filename then
+			placename = filename .. ".rbxlx"
+		    else
 			placename = (FilePath or SanitizeForFile("place " .. PlaceName)) .. ".rbxlx"
+		    end
 		end
 
 		if mode ~= "scripts" then
