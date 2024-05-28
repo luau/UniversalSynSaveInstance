@@ -830,6 +830,74 @@ local function CreateStatusText()
 	return StatusText
 end
 
+--[=[
+    @class SynSaveInstance
+    Represents the options for saving instances with custom settings using the synsaveinstance function.
+]=]
+
+--- @interface CustomOptions table
+--- * Structure of the main CustomOptions table.
+--- * Note: Aliases take priority over parent option name.
+--- @within SynSaveInstance
+--- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
+--- @field ReadMe boolean --___Default:___ true
+--- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in certain games. ___Default:___ true
+--- @field ShowStatus boolean -- ___Default:___ true
+--- @field mode string -- Change this to invalid mode like "custom" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
+--- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
+--- @field scriptcache boolean -- ___Default:___ true
+--- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ ""
+--- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
+--- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
+--- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference. ___Default:___ {Chat, TextChatService}
+--- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore**. ___Default:___ {CoreGui, CorePackages}
+--- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
+--- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
+--- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 2
+--- @field FilePath string -- Must only contain the name of the file, no file extension. ___Default:___ false
+--- @field Object string -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
+--- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
+--- @field NilInstances boolean -- Save nil instances. ___Default:___ false
+--- .NilInstancesFixes {[Instance.ClassName] = function} -- * This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though). For example, Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways. **TO AVOID THIS BEHAVIOR USE THIS EXAMPLE:** {ClassName_That_Doesnt_Need_Fix = false}. ___Default:___ {Animator = function, AdPortal = function, BaseWrap = function, Attachment = function}
+--- .NotScriptableFixes {[Instance.ClassName] = {<string>PropertyToFix = <string>PropertyFix, _Inheritors = {[Instance.ClassName] = {<string>PropertyToFix_Name = <string>PropertyFix_Name}}}} -- * Structure is similar to **@NilInstancesFixes**. This is useful for execs that lack gethiddenproperty. ___Default:___ *too much to list*
+--- .IgnoreDefaults {[string] = boolean} -- Related to API Dump & IgnoreDefaultProperties. ___Default:___ {"__api_dump_class_not_creatable__", "__api_dump_no_string_value__", "__api_dump_skipped_class__",}
+--- @field IgnoreDefaultProperties boolean -- Ignores default properties during saving.  ___Default:___ true
+--- @field IgnoreNotArchivable boolean -- Ignores the Archivable property and saves Non-Archivable instances. ___Default:___ true
+--- @field IgnorePropertiesOfNotScriptsOnScriptsMode boolean -- Ignores property of every instance that is not a script in "scripts" mode. ___Default:___ false
+--- @field IgnoreSpecialProperties boolean -- Ignores hidden/secret properties that are only accessible through `gethiddenproperty`. If your file is corrupted after saving, you can try turning this on. ___Default:___ false
+--- @field IsolateLocalPlayer boolean -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
+--- @field IsolateStarterPlayer boolean -- If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders. ___Default:___ false
+--- @field IsolateLocalPlayerCharacter boolean -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
+--- @field RemovePlayerCharacters boolean -- Ignore player characters while saving. (Enables SaveNonCreatable automatically). ___Default:___ true
+--- @field SaveNonCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). ___Default:___ false
+--- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "Player", "PlayerScripts", "PlayerGui" }
+--- @field SavePlayers boolean -- * This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2. ___Default:___ false
+--- @field AllowResettingProperties boolean -- * **RISKY:** Enables Resetting of properties for sake of checking their default value (Useful for cases when Instance is NotCreatable like services yet we need to get the default value ) then sets the property back to the original value, which might get detected by some games **WARNING: Sometimes Properties might not be able to be set to the original value due to circumstances**. ___Default:___ false
+--- @field IgnoreSharedStrings boolean -- * **RISKY: FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY). FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU**. ___Default:___ true
+--- @field SharedStringOverwrite boolean -- * **RISKY:** if the process is not finished aka crashed then none of the affected values will be available. SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far). Reason: Allows for potential smaller file size (can also be bigger in some cases). ___Default:___ false
+
+--- @interface OptionsAliases
+--- @within SynSaveInstance
+--- Aliases for the CustomOptions.
+--- @field FilePath string -- FileName
+--- @field IgnoreDefaultProperties string -- IgnoreDefaultProps
+--- @field SaveNonCreatable string -- SaveNotCreatable
+--- @field SavePlayers string -- IsolatePlayers
+--- @field scriptcache string -- DecompileJobless
+--- @field timeout string -- DecompileTimeout
+--- @field IgnoreNotArchivable string -- INVERSE IgnoreArchivable
+--- @field RemovePlayerCharacters string -- INVERSE SavePlayerCharacters
+
+--[=[
+	@function saveinstance
+	Saves instances with specified options.
+	TODO: CODE BLOCK EXAMPLES
+	@within SynSaveInstance
+	@yields
+	@param Parameter_1 variant<table, table<Instance>> -- Can either be CustomOptions or an array table filled with with Instances (then it will be treated as ExtraInstances with an invalid mode and IsModel will be true).
+	@param Parameter_2 table -- If present, then Parameter_2 will be assumed to be CustomOptions. And then if the Parameter_1 is an Instance, then it will be assumed to be CustomOptions.Object. If Parameter_1 is a table filled with instances ({Instance}), then it will be assumed to be CustomOptions.ExtraInstances and IsModel will be true)
+]=]
+
 local function synsaveinstance(CustomOptions, CustomOptions2)
 	table.clear(SharedStrings)
 
@@ -838,93 +906,78 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local StatusText
 
 	local OPTIONS = {
-		mode = "optimized", -- Change this to invalid mode like "custom" if you only want extrainstances; -- ! "optimized" mode is NOT supported with OPTIONS.Object option
+		mode = "optimized",
 		noscripts = false,
 		scriptcache = true,
-		decomptype = "", -- * "custom" - @Lonegwadiwaitor's custom decompiler
-		timeout = 10, -- Description: If the decompilation run time exceeds this value it gets cancelled; Set to -1 to disable timeout (unreliable)
+		decomptype = "",
+		timeout = 10,
 		--* New:
-		__DEBUG_MODE = false, -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it!
+		__DEBUG_MODE = false,
 
+		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
 		--Callback = nil, -- Description: If set, the serialized data will be sent to the callback instead of to file.
 		--Clipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
+		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
+		-- DisableCompression = false, --Description: Disables compression in the binary output
 
-		--[[ Explanation of structure for DecompileIgnore
-		{
-			"Chat", - This ignores any instance with "Chat" ClassName
-			Players = {"MyPlayerName"} - This ignores any descendants of instance with "Players" Class AND "MyPlayerName" Name ONLY
-			workspace, - This ignores only the this specific instance & it's descendants (Workspace in our case)
-		}
-		]]
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			service.Chat,
 			service.TextChatService,
-		}, -- Scripts inside of these ClassNames will be saved but not decompiled
+		},
 
 		IgnoreProperties = {},
-		--[[ Explanation of structure for IgnoreList
-		{
-			"Chat", - This ignores any instance with "Chat" ClassName
-			Players = {"MyPlayerName"} - This ignores any descendants of instance with "Players" Class AND "MyPlayerName" Name ONLY
-			workspace, - This ignores only the this specific instance & it's descendants (Workspace in our case)
-			StarterPlayer = false, - This saves StarterPlayer without it's descendants
-		}
-		]]
+
 		IgnoreList = { service.CoreGui, service.CorePackages },
 
-		ExtraInstances = {}, -- use mode "invalidmode" to only save these instances
-		NilInstances = false, -- Description: Save nil instances.
-		NilInstancesFixes = {}, -- ! This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though); Like Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways; TO AVOID THIS BEHAVIOR USE THIS EXAMPLE: {ClassName_That_Doesnt_Need_Fix = false}
+		ExtraInstances = {},
+		NilInstances = false,
+		NilInstancesFixes = {},
 
 		IgnoreDefaults = {
-			__api_dump_class_not_creatable__ = true,
-			__api_dump_no_string_value__ = true,
-			__api_dump_skipped_class__ = true,
-			-- __api_dump_write_only_property__ = true, -- ? Is this needed
+			"__api_dump_class_not_creatable__",
+			"__api_dump_no_string_value__",
+			"__api_dump_skipped_class__",
+			-- "__api_dump_write_only_property__" , -- ? Is this needed
 		},
 
 		ShowStatus = true,
-		FilePath = false, --  does not need to contain a file extension, only the name of the file.
-		Object = false, -- If provided, saves as .rbxmx (Model file) instead; If Object is game, it will be saved as a .RBXL file -- ! MUST BE AN INSTANCE REFERENCE like game.Workspace for example; "optimized" mode is NOT supported with this option; IF IsModel is set to false then Object specified here will be saved as a place file
-		IsModel = false, -- Always sets to true automatically if Object is specified, unless you set it to false manually
-		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
-		-- Decompile = not OPTIONS.noscripts, -- ! This takes priority over OPTIONS.noscripts if set, Description: If true scripts will be decompiled.
-		-- DecompileTimeout = OPTIONS.timeout, -- ! This takes priority over OPTIONS.timeout if set
-		IgnoreDefaultProperties = true, -- Description: When enabled it will ignore default properties while saving.
-		IgnoreNotArchivable = true, -- Description: Ignores the Archivable property and saves Non-Archivable instances.
-		IgnorePropertiesOfNotScriptsOnScriptsMode = false, -- Ignores property of every instance that is not a script in "scripts" mode
-		IgnoreSpecialProperties = false, -- true will disable Terrain & Break MeshPart Sizes (very likely)
-		IsolateStarterPlayer = false, --If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders.
-		IsolateLocalPlayer = false, -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
-		IsolateLocalPlayerCharacter = false, -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving
-		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
-		-- DisableCompression = false, --Description: Disables compression in the binary output
-		DecompileJobless = false, --Description: Includes already decompiled code in the output. No new scripts are decompiled.
-		SaveNonCreatable = false, --Description: Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable)
-		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui" }, -- {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable
-		RemovePlayerCharacters = true, -- Description: Ignore player characters while saving. (Enables SaveNonCreatable automatically)
-		SavePlayers = false, -- This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2
-		SaveCacheInterval = 0x1600 * 2, -- The less the more often it saves, but that would mean less performance due to constantly saving
+		FilePath = false,
+		Object = false,
+		IsModel = false,
+
+		IgnoreDefaultProperties = true,
+		IgnoreNotArchivable = true,
+		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
+		IgnoreSpecialProperties = false,
+		IsolateLocalPlayer = false,
+		IsolateStarterPlayer = false,
+		IsolateLocalPlayerCharacter = false,
+
+		DecompileJobless = false,
+		SaveNonCreatable = false,
+		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui" },
+		RemovePlayerCharacters = true,
+		SavePlayers = false,
+		SaveCacheInterval = 0x1600 * 2,
 		ReadMe = true,
-		SafeMode = false, -- Description: Kicks you before Saving, which prevents you from being detected in certain games
+		SafeMode = false,
 
 		-- ! Risky
 
-		AllowResettingProperties = false, -- Enables Resetting of properties for sake of checking their default value (Useful for cases when Instance is NotCreatable like services yet we need to get the default value ) then sets the property back to the original value, which might get detected by some games --! WARNING: Sometimes Properties might not be able to be set to the original value due to circumstances
-		IgnoreSharedStrings = true, -- ! FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY); FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU
-		SharedStringOverwrite = false, -- !  if the process is not finished aka crashed then none of the affected values will be available; SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far); Reason: Allows for potential smaller file size (can also be bigger in some cases)
+		AllowResettingProperties = false,
+		IgnoreSharedStrings = true,
+		SharedStringOverwrite = false,
 
 		OptionsAliases = { -- You can't really modify these as a user
 			FilePath = "FileName",
 			IgnoreDefaultProperties = "IgnoreDefaultProps",
+			SaveNonCreatable = "SaveNotCreatable",
 			SavePlayers = "IsolatePlayers",
 			scriptcache = "DecompileJobless",
 			timeout = "DecompileTimeout",
-			SaveNonCreatable = "SaveNotCreatable",
 		},
 
-		-- * This functions the same way as NilInstancesFixes (It's recommended to read the Note near NilInstancesFixes)
-		NotScriptableFixes = { -- This is useful for execs that lack gethiddenproperty
+		NotScriptableFixes = {
 			Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
 			-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
 			BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
@@ -1099,11 +1152,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local InstancePropertyOverrides = {}
 
-	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
+	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes, IgnoreDefaults =
 		ArrayToDictionary(OPTIONS.DecompileIgnore, "adjust"),
 		ArrayToDictionary(OPTIONS.IgnoreList, "adjust"),
-		ArrayToDictionary(OPTIONS.IgnoreProperties, "adjust"),
-		ArrayToDictionary(OPTIONS.NotCreatableFixes, "adjust", "Folder")
+		ArrayToDictionary(OPTIONS.IgnoreProperties),
+		ArrayToDictionary(OPTIONS.NotCreatableFixes, "adjust", "Folder"),
+		ArrayToDictionary(OPTIONS.IgnoreDefaults)
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
@@ -1115,7 +1169,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IsModel = true
 	end
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
-	local IgnoreDefaults = OPTIONS.IgnoreDefaults
 	local IgnoreNotArchivable = OPTIONS.IgnoreNotArchivable
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
 	local IgnoreSpecialProperties = OPTIONS.IgnoreSpecialProperties
@@ -1347,9 +1400,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				local ok, result = DecompileHandler(Script)
 
-				if ok then -- TODO Temporary (due to unluau)
-					result = string.gsub(result, "\0", "\\0")
-				end
+				-- if ok then -- TODO Temporary (due to unluau)
+				-- 	result = string.gsub(result, "\0", "\\0")
+				-- end
 
 				local output = ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
 
@@ -1966,6 +2019,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if OPTIONS.ReadMe then
+			local exec_name = identifyexecutor or getexecutorname or whatexecutor
+
 			saveextra(
 				"README",
 				nil,
@@ -2006,6 +2061,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					.. os.clock() - elapse_t
 					.. " PlaceId: "
 					.. game.PlaceId
+					.. " Executor: "
+					.. (exec_name and table.concat({ exec_name() }, " ") or "Unknown")
 					.. "\n]]"
 			)
 		end
