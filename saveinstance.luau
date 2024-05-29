@@ -902,7 +902,8 @@ end
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
 	local totalsize = 0
-	local savebuffer, savebuffer_count = {}, 1
+	local savebuffer = {}
+	local savebuffer_count = 1
 	local StatusText
 
 	local OPTIONS = {
