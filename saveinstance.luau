@@ -902,8 +902,8 @@ end
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
 	local totalsize = 0
-	local savebuffer = {}
-	local savebuffer_count = 1
+	local savebuffer, savebuffer_count = {}, 1
+
 	local StatusText
 
 	local OPTIONS = {
@@ -1587,7 +1587,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		appendfile(placename, savestr)
 		totalsize += #savestr
 
-		savebuffer = table.clear(savebuffer)
+		table.clear(savebuffer)
 		savebuffer_count = 1
 
 		if StatusText then
