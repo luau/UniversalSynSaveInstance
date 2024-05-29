@@ -58,12 +58,14 @@ do
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
+		appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
 	}, true, 10)
 end
 
 local gethiddenproperty = globalcontainer.gethiddenproperty
 local sethiddenproperty = globalcontainer.sethiddenproperty
 local writefile = globalcontainer.writefile
+local appendfile = globalcontainer.appendfile
 
 local getscriptbytecode = globalcontainer.getscriptbytecode
 local base64encode = globalcontainer.base64encode
@@ -878,7 +880,7 @@ end
 
 --- @interface OptionsAliases
 --- @within SynSaveInstance
---- Aliases for the CustomOptions.
+--- Aliases for the [SynSaveInstance.CustomOptions table].
 --- @field FilePath string -- FileName
 --- @field IgnoreDefaultProperties string -- IgnoreDefaultProps
 --- @field SaveNonCreatable string -- SaveNotCreatable
@@ -894,15 +896,13 @@ end
 	TODO: CODE BLOCK EXAMPLES
 	@within SynSaveInstance
 	@yields
-	@param Parameter_1 variant<table, table<Instance>> -- Can either be CustomOptions or an array table filled with with Instances (then it will be treated as ExtraInstances with an invalid mode and IsModel will be true).
-	@param Parameter_2 table -- If present, then Parameter_2 will be assumed to be CustomOptions. And then if the Parameter_1 is an Instance, then it will be assumed to be CustomOptions.Object. If Parameter_1 is a table filled with instances ({Instance}), then it will be assumed to be CustomOptions.ExtraInstances and IsModel will be true)
+	@param Parameter_1 variant<table, table<Instance>> -- Can either be [SynSaveInstance.CustomOptions table] or a filled with instances ({Instance}), (then it will be treated as ExtraInstances with an invalid mode and IsModel will be true).
+	@param Parameter_2 table -- [OPTIONAL] If present, then Parameter_2 will be assumed to be [SynSaveInstance.CustomOptions table]. And then if the Parameter_1 is an Instance, then it will be assumed to be [SynSaveInstance.CustomOptions table].Object. If Parameter_1 is a table filled with instances ({Instance}), then it will be assumed to be [SynSaveInstance.CustomOptions table].ExtraInstances and IsModel will be true). This exists for sake compatibility with `saveinstance(game, {})`
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
-	table.clear(SharedStrings)
-
-	local total = ""
-	local savebuffer = {}
+	local totalsize = 0
+	local savebuffer, savebuffer_count = {}, 1
 	local StatusText
 
 	local OPTIONS = {
@@ -1562,7 +1562,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local function getsizeformat()
 		local Size
-		local buffersize = #total
+
 		for Index, BinaryPrefix in
 			{
 				"B",
@@ -1572,8 +1572,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				"TB",
 			}
 		do
-			if buffersize < 0x400 ^ Index then
-				Size = math.floor(buffersize / (0x400 ^ (Index - 1)) * 10) / 10 .. " " .. BinaryPrefix
+			if totalsize < 0x400 ^ Index then
+				Size = math.floor(totalsize / (0x400 ^ (Index - 1)) * 10) / 10 .. " " .. BinaryPrefix
 				break
 			end
 		end
@@ -1582,12 +1582,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local function savecache()
 		local savestr = table.concat(savebuffer)
-		total ..= savestr
-		writefile(placename, total)
+
+		appendfile(placename, savestr)
+		totalsize += #savestr
+
+		savebuffer = table.clear(savebuffer)
+		savebuffer_count = 1
+
 		if StatusText then
 			StatusText.Text = "Saving.. Size: " .. getsizeformat()
 		end
-		savebuffer = {}
+
 		task.wait() -- TODO Remove maybe?
 	end
 
@@ -1679,11 +1684,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local ChildrenOverride = InstanceOverride and InstanceOverride.__Children
 
 			if ChildrenOverride then
-				table.insert(savebuffer, savespecific(ClassName, InstanceOverride.Properties)) -- ! Assuming anything that has __Children will have .Properties
+				savebuffer[savebuffer_count] = savespecific(ClassName, InstanceOverride.Properties) -- ! Assuming anything that has __Children will have .Properties
+				savebuffer_count += 1
 			else
 				-- local Properties =
-				table.insert(savebuffer, ReturnItem(ClassName, instance)) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
-
+				savebuffer[savebuffer_count] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
+				savebuffer_count += 1
 				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not HasSource(instance)) then
 					local specialProperties, Replica
 
@@ -1897,15 +1903,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 
 						if tag then
-							table.insert(savebuffer, ReturnProperty(tag, PropertyName, value))
+							savebuffer[savebuffer_count] = ReturnProperty(tag, PropertyName, value)
+							savebuffer_count += 1
 						elseif __DEBUG_MODE then
 							warn("UNSUPPORTED TYPE (OPEN A GITHUB ISSUE): ", ValueType, ClassName, PropertyName)
 						end
 					end
 				end
-				table.insert(savebuffer, "</Properties>")
+				savebuffer[savebuffer_count] = "</Properties>"
+				savebuffer_count += 1
 
-				if SaveCacheInterval < #savebuffer then
+				if SaveCacheInterval < savebuffer_count then
 					savecache()
 				end
 			end
@@ -1922,28 +1930,34 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				DecompileIgnoring = nil
 			end
 
-			table.insert(savebuffer, "</Item>")
+			savebuffer[savebuffer_count] = "</Item>"
+			savebuffer_count += 1
 		end
 	end
 
 	local function saveextra(Name, Hierarchy, CustomClassName, Source)
-		table.insert(savebuffer, savespecific((CustomClassName or "Folder"), { Name = Name, Source = Source }))
+		savebuffer[savebuffer_count] = savespecific((CustomClassName or "Folder"), { Name = Name, Source = Source })
+		savebuffer_count += 1
 		if Hierarchy then
 			savehierarchy(Hierarchy)
 		end
-		table.insert(savebuffer, "</Item>")
+		savebuffer[savebuffer_count] = "</Item>"
+		savebuffer_count += 1
 	end
 
 	local function savegame()
+		writefile(placename, "")
+
 		local Starter = '<roblox version="4">'
 		if IsModel then
 			Starter ..= '<Meta name="ExplicitAutoJoints">true</Meta>'
 		end
-		table.insert(savebuffer, Starter) --[[
+		savebuffer[savebuffer_count] = Starter--[[
 			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
 		Also http can be converted to https but not sure if Roblox would decide to detect that
 		-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
 		]]
+		savebuffer_count += 1
 
 		-- TODO Find a better solution for this
 		SaveNonCreatableWillBeEnabled = SaveNonCreatable
@@ -2073,12 +2087,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if 1 < #tmp then -- TODO: This sucks so much because we try to iterate a table just to check this (check above)
-			table.insert(savebuffer, table.concat(tmp))
-			table.insert(savebuffer, "</SharedStrings>")
+			savebuffer[savebuffer_count] = table.concat(tmp)
+			savebuffer[savebuffer_count] = "</SharedStrings>"
+			savebuffer_count += 2 -- ? Is this fine
 		end
 
-		table.insert(savebuffer, "</roblox>")
+		savebuffer[savebuffer_count] = "</roblox>"
+		savebuffer_count += 1
 		savecache()
+
+		table.clear(SharedStrings)
 	end
 
 	local Connections
