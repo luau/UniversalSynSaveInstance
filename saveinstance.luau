@@ -926,7 +926,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			service.TextChatService,
 		},
 
-		IgnoreProperties = {},
+		IgnoreProperties = { "ScriptGuid", "UniqueId", "HistoryId" },
 
 		IgnoreList = { service.CoreGui, service.CorePackages },
 
@@ -2047,7 +2047,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		If you didn't save in Binary - we recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
 		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
 
-		If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere.
+		If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere & Set CharacterAutoLoads to true on Players service.
 
 		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 
 
