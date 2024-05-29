@@ -1400,9 +1400,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				local ok, result = DecompileHandler(Script)
 
-				-- if ok then -- TODO Temporary (due to unluau)
-				-- 	result = string.gsub(result, "\0", "\\0")
-				-- end
+				if ok then -- TODO Temporary (decompiler issue)
+					result = string.gsub(result, "\0", "\\0")
+				end
 
 				local output = ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
 
