@@ -1872,11 +1872,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									else
 										local should_decompile = true
 
-										local LinkedSource = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
-										if LinkedSource ~= "" then
-											local LinkedSource_Hash = string.match(LinkedSource, "%w+$") -- TODO: No sure if this pattern matches possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
-											if LinkedSource_Hash then
-												local Cached = ldeccache[LinkedSource_Hash]
+										local LinkedSourceUrl = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
+										if LinkedSourceUrl ~= "" then
+											local LinkedSource = string.match(LinkedSourceUrl, "%w+$") -- TODO: No sure if this pattern matches possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
+											if LinkedSource then
+												local Cached = ldeccache[LinkedSource]
 
 												if Cached then
 													value = Cached
@@ -1885,15 +1885,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													value = "-- Not found in already decompiled ScriptCache"
 													should_decompile = nil
 												end
+
 												local Source
 												local ok = pcall(function()
 													Source = game:HttpGet(
-														"https://assetdelivery.roproxy.com/v1/asset/?hash="
-															.. LinkedSource_Hash
+														"https://assetdelivery.roproxy.com/v1/asset/?"
+															.. (string.find(LinkedSource, "%a") and "hash" or "id")
+															.. "="
+															.. LinkedSource
 													)
 												end)
 												if ok then
-													ldeccache[LinkedSource_Hash] = Source
+													ldeccache[LinkedSource] = Source
 
 													value = Source
 
@@ -1910,7 +1913,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 												warn(
 													"FAILED TO EXTRACT ORIGINAL SCRIPT SOURCE (OPEN A GITHUB ISSUE): ",
 													instance:GetFullName(),
-													LinkedSource
+													LinkedSourceUrl
 												)
 											end
 										end
@@ -2136,16 +2139,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					.. "\n]]"
 			)
 		end
+		do
+			local tmp = { "<SharedStrings>" }
+			for Identifier, Value in SharedStrings do
+				table.insert(tmp, '<SharedString md5="' .. Identifier .. '">' .. Value .. "</SharedString>")
+			end
 
-		local tmp = { "<SharedStrings>" }
-		for Identifier, Value in SharedStrings do
-			table.insert(tmp, '<SharedString md5="' .. Identifier .. '">' .. Value .. "</SharedString>")
-		end
-
-		if 1 < #tmp then -- TODO: This sucks so much because we try to iterate a table just to check this (check above)
-			savebuffer[savebuffer_count] = table.concat(tmp)
-			savebuffer[savebuffer_count] = "</SharedStrings>"
-			savebuffer_count += 2 -- ? Is this fine
+			if 1 < #tmp then -- TODO: This sucks so much because we try to iterate a table just to check this (check above)
+				savebuffer[savebuffer_count] = table.concat(tmp)
+				savebuffer[savebuffer_count] = "</SharedStrings>"
+				savebuffer_count += 2 -- ? Is this fine
+			end
 		end
 
 		savebuffer[savebuffer_count] = "</roblox>"
