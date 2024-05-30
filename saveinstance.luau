@@ -116,7 +116,7 @@ if not base64encode then
 		game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
 		"Base64"
 	)().encode
-	base64encode = function(raw) -- ? Reselim broke all scripts that rely on their Base64 Implementation because they changed to buffers from strings (both as input & output)
+	base64encode = function(raw)
 		return raw == "" and raw or buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(raw)))
 	end
 end
@@ -579,19 +579,6 @@ end
 local ClassList
 
 do
-	-- TODO: More @ https://github.com/Dekkonot/rbx-instance-serializer/blob/master/src/API.lua#L19
-	-- ! IgnoreClassProperties aren't needed anymore due to CanSave filter (see below)
-	-- local IgnoreClassProperties = {
-	-- GuiObject = { "Transparency" },
-	-- Instance = { "Parent" }, -- ClassName isn't included because CanLoad & CanSave are false on it
-	-- BasePart = { "BrickColor" },
-	-- Attachment = { "WorldCFrame" },
-	--} -- GuiObject.Transparency is almost always 1 meaning everything will be transparent; Instance.Parent is useless in xml (no idea about binary); BasePart.BrickColor hurts other Color3 properties; Attachment.WorldCFrame breaks Attachment.CFrame (and is hidden anyway)
-
-	-- for Class, Properties in IgnoreClassProperties do
-	-- 	IgnoreClassProperties[Class] = ArrayToDictionary(Properties)
-	-- end
-
 	local function FetchAPI()
 		local API_Dump_Url =
 			"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
@@ -608,12 +595,8 @@ do
 				MemberTags = ArrayToDictionary(MemberTags)
 
 				Special = MemberTags.NotScriptable
-
-				-- if MemberTags.Deprecated then -- ! Replaced by CanSave true filter (we could also only filter with CanSave here but if its on same level as CanLoad we possibly reduce amount of things we save therefore file size. if Roblox deems something not worth to save why should we save it too)
-				-- 	Allowed = nil
-				-- end
 			end
-			-- if Allowed then
+
 			local ValueType = Member.ValueType
 
 			local Property = {
@@ -641,7 +624,6 @@ do
 				ClassTags = ArrayToDictionary(ClassTags)
 			end
 
-			-- ClassInfo.Name = ClassName
 			Class.Tags = ClassTags -- or {}
 			Class.Superclass = API_Class.Superclass
 
@@ -663,14 +645,8 @@ do
 						 A very simple fix for many problems that saveinstance scripts encounter!
 						--]]
 
-						-- local Ignored = IgnoreClassProperties[ClassName]
-						-- if not (Ignored and Ignored[PropertyName]) then
-						-- local Allowed = true
-
 						ClassProperties[PropertyName] = ReturnPropertyInfo(Member, PropertyName)
-						-- end
 					end
-					-- end
 				end
 			end
 
@@ -679,7 +655,7 @@ do
 			classList[ClassName] = Class
 		end
 
-		-- classList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering throguh properties to remove this
+		-- classList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering through properties to remove this
 
 		return classList
 	end
@@ -734,28 +710,9 @@ local referents = setmetatable({
 local globalenv = getgenv and getgenv() or _G or shared
 
 local function CreateStatusText()
-	-- local function RemoveStatus(self)
-	-- 	-- if Drawing then
-	-- 	-- 	for _, Alias in { "Remove", "Destroy" } do
-	-- 	-- 		pcall(self[Alias], self)
-	-- 	-- 	end
-	-- 	-- else
-	-- 	self.Destroy(self)
-	-- 	globalenv.StatusText = nil
-	-- 	-- end
-	-- end
-	-- local function UpdateStatus(self, text)
-	-- 	self.Text = text
-	-- 	-- if Drawing then
-	-- 	-- 	local viewport = workspace.CurrentCamera.ViewportSize
-	-- 	-- 	self.Position = Vector2.new(viewport.X / 2 - self.TextBounds.X / 2, 50)
-	-- 	-- end
-	-- end
-
 	do
 		local Exists = globalenv.StatusText
 		if Exists then
-			-- RemoveStatus(Exists)
 			globalenv.StatusText = nil
 			Exists:Destroy()
 		end
@@ -763,20 +720,6 @@ local function CreateStatusText()
 
 	local StatusText
 
-	-- if Drawing then
-	-- 	StatusText = Drawing.new("Text")
-	-- 	StatusText.Color = Color3.new(1, 1, 1)
-	-- 	StatusText.Outline = true
-	-- 	StatusText.OutlineColor = Color3.new()
-	-- 	for _, Alias in { "FontSize", "Size" } do
-	-- 		pcall(function()
-	-- 			StatusText[Alias] = 50
-	-- 		end)
-	-- 	end
-	-- 	pcall(function()
-	-- 		StatusText.Visible = true
-	-- 	end)
-	-- else
 	local StatusGui = Instance.new("ScreenGui")
 
 	globalenv.StatusText = StatusGui
@@ -1817,7 +1760,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 							if ApiFormat(raw, Category, ValueType, Default) == Default then -- ! PhysicalProperties, Font - Font.fromName, CFrame, BrickColor (and Enum to some extent) aren't being defaulted properly in the api dump, meaning an issue must be created.. (They're not being tostringed or fail to do so)
 								-- TODO: tostring(Vector3.new(0/0,math.huge,-math.huge)) returns lowercase Extremes - "nan, inf, -inf" meanwhile for everything else (in xml & dump defaults they seem to be uppercase), this can cause issues later on when a Vector3 Property comes out, default of which will include either of these of Extreme values (Needs to be watched)
-								-- print("Default not serializing", PropertyName)
 
 								continue
 							end
