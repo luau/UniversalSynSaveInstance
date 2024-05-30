@@ -1381,11 +1381,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			ldecompile = function(Script)
 				-- local name = scr.ClassName .. scr.Name
 				local hashed_bytecode
-				if ScriptCache then
+				if ScriptCache and getscriptbytecode then
 					local s, bytecode = pcall(getscriptbytecode, Script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
 					local Cached
 
 					if s then
+						if not bytecode or bytecode == "" then
+							return "-- The Script is Empty"
+						end
 						hashed_bytecode = sha384(bytecode)
 						Cached = ldeccache[hashed_bytecode]
 					end
