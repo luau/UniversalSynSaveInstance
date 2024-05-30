@@ -1193,7 +1193,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local ldeccache = globalenv.scriptcache
 
-	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNonCreatableWillBeEnabled
+	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNonCreatableWillBeEnabled, RecoveredScripts
 
 	if ScriptCache and not ldeccache then
 		ldeccache = {}
@@ -1206,7 +1206,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IsModel = nil
 	end
 
-	local function HasSource(instance)
+	local function IsLuaSourceContainer(instance)
 		return instance:IsA("LuaSourceContainer")
 	end
 
@@ -1299,7 +1299,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- Currently saves paths along with children of each tree
 			local unique = {}
 			for _, instance in TempRoot:GetDescendants() do
-				if HasSource(instance) then
+				if IsLuaSourceContainer(instance) then
 					local Parent = instance.Parent
 					while Parent and Parent ~= TempRoot do
 						instance = instance.Parent
@@ -1691,7 +1691,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				-- local Properties =
 				savebuffer[savebuffer_count] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
 				savebuffer_count += 1
-				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not HasSource(instance)) then
+				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not IsLuaSourceContainer(instance)) then
 					local specialProperties, Replica
 
 					for _, Property in inheritedproperties[ClassName] do
@@ -1762,7 +1762,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 						local Category = Property.Category
 
-						if IgnoreDefaultProperties and not (HasSource(instance) and PropertyName == "Source") then -- ? Could be not just "Source" in the future
+						if
+							IgnoreDefaultProperties
+							and not (IsLuaSourceContainer(instance) and PropertyName == "Source")
+						then -- ? Could be not just "Source" in the future
 							local ok, IsModified = pcall(IsPropertyModified, instance, PropertyName) -- ? Not yet enabled lol (580)
 							if ok and not IsModified then
 								continue
@@ -1861,26 +1864,72 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								tag = ValueType
 
 								if PropertyName == "Source" then
-									local IsLocalScript = instance:IsA("LocalScript")
-
-									if
-										IsLocalScript and instance.RunContext == Enum.RunContext.Server
-										or not IsLocalScript
-											and instance:IsA("Script")
-											and instance.RunContext ~= Enum.RunContext.Client
-									then
-										value = "-- Server Scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
+									if DecompileIgnoring then -- ? Should this really prevent extraction of the original source if present ?
+										value = "-- Ignored"
 									else
-										if DecompileIgnoring then
-											value = "-- Ignored"
-										else
-											value = ldecompile(instance)
-										end
-									end
-									value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
-										.. value
-								end
+										local should_decompile = true
 
+										local LinkedSource = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
+										if LinkedSource ~= "" then
+											local LinkedSource_Hash = string.match(LinkedSource, "%w+$") -- TODO: No sure if this pattern matches possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
+											if LinkedSource_Hash then
+												local Cached = ldeccache[LinkedSource_Hash]
+
+												if Cached then
+													value = Cached
+													should_decompile = nil
+												elseif DecompileJobless then
+													value = "-- Not found in already decompiled ScriptCache"
+													should_decompile = nil
+												end
+												local Source
+												local ok = pcall(function()
+													Source = game:HttpGet(
+														"https://assetdelivery.roproxy.com/v1/asset/?hash="
+															.. LinkedSource_Hash
+													)
+												end)
+												if ok then
+													ldeccache[LinkedSource_Hash] = Source
+
+													value = Source
+
+													local Path = instance:GetFullName()
+													if RecoveredScripts then
+														table.insert(RecoveredScripts, Path)
+													else
+														RecoveredScripts = { Path }
+													end
+
+													should_decompile = nil
+												end
+											else --if __DEBUG_MODE then -- * We print this anyway because very important
+												warn(
+													"FAILED TO EXTRACT ORIGINAL SCRIPT SOURCE (OPEN A GITHUB ISSUE): ",
+													instance:GetFullName(),
+													LinkedSource
+												)
+											end
+										end
+
+										if should_decompile then
+											local IsLocalScript = instance:IsA("LocalScript")
+											if
+												IsLocalScript and instance.RunContext == Enum.RunContext.Server
+												or not IsLocalScript
+													and instance:IsA("Script")
+													and instance.RunContext ~= Enum.RunContext.Client
+											then
+												value = "-- Server Scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
+											else
+												value = ldecompile(instance)
+											end
+										end
+
+										value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
+											.. value
+									end
+								end
 								value = Descriptors.__PROTECTEDSTRING(value)
 							-- elseif "UniqueId" == ValueType or "SecurityCapabilities" == ValueType then -- ? Not sure yet
 							-- 	tag, value = ValueType, raw
@@ -2041,6 +2090,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				nil,
 				"Script",
 				"--[[\n"
+					.. (RecoveredScripts and "\t\tIMPORTANT: Original Source of these Scripts was Recovered: " .. service.HttpService:JSONEncode(
+						RecoveredScripts
+					) .. "\n" or "")
 					.. [[
 		Thank you for using UniversalSynSaveInstance.
 
