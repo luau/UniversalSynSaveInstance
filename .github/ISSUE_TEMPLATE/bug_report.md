@@ -7,6 +7,9 @@ assignees: phoriah
 
 ---
 
+**Are you sure a similar issue hasn't been opened yet?**
+Check Open & Closed issues, including pull requests and avoid making a duplicate if so.
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
