@@ -349,6 +349,7 @@ Descriptors = {
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. Descriptors.CFrame(raw) .. "</CFrame>"
 	end,
+	-- DateTime = function(raw) end,
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
 		return "<faces>"
@@ -725,7 +726,9 @@ local function CreateStatusText()
 	globalenv.StatusText = StatusGui
 
 	StatusGui.DisplayOrder = 2_000_000_000
-	StatusGui.OnTopOfCoreBlur = true
+	pcall(function() -- Compat with level 2
+		StatusGui.OnTopOfCoreBlur = true
+	end)
 
 	StatusText = Instance.new("TextLabel")
 
@@ -1084,6 +1087,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if SavePlayerCharacters ~= nil then
 					OPTIONS.RemovePlayerCharacters = not SavePlayerCharacters
 				end
+				local RemovePlayers = CustomOptions.RemovePlayers
+				if RemovePlayers ~= nil then
+					OPTIONS.SavePlayers = not RemovePlayers
+				end
 			end
 		elseif Type == "Instance" then
 			OPTIONS.mode = "invalidmode"
@@ -1233,6 +1240,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 					-- "InsertService",
 					"JointsService",
+
+					-- "LocalizationService",
+					-- "TestService",
+					-- "VoiceChatService",
 				}
 			do
 				table.insert(tmp, service[x])
@@ -2169,6 +2180,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		for _, Connection in Connections do
 			Connection:Disconnect()
 		end
+
 		if StatusText then
 			task.spawn(function()
 				elapse_t = os.clock() - elapse_t
@@ -2176,9 +2188,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local ExtraTime = 10
 				if ok then
 					StatusText.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, getsizeformat())
+					StatusText.TextColor3 = Color3.new(0, 1)
 					task.wait(Log10 * 2 + ExtraTime)
 				else
 					StatusText.Text = "Failed! Check F9 console for more info"
+					StatusText.TextColor3 = Color3.new(1)
 					warn("Error found while saving:")
 					warn(err)
 					task.wait(Log10 + ExtraTime)
