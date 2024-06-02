@@ -136,7 +136,7 @@ end
 
 local custom_decompiler, load_decompiler -- TODO Temporary
 
-if getscriptbytecode then
+if getscriptbytecode and false then
 	-- Credits @w-a-e
 	local decompiler_source =
 		game:HttpGet("https://raw.githubusercontent.com/w-a-e/Advanced-Decompiler-V3/main/init.lua", true)
@@ -1282,8 +1282,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		ToSaveList = tmp
 	end
 
-	do
-		load_decompiler(Timeout)
+	do if load_decompiler then
+		load_decompiler(Timeout) end
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
 			or globalcontainer.decompile
 			or custom_decompiler
