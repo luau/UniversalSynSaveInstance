@@ -15,43 +15,54 @@ def array_to_dictionary(table, hybrid_mode=None):
     else:
         for value in table:
             if isinstance(value, str):
-             tmp[value] = True
+                tmp[value] = True
     return tmp
 
+
+def find_first_table(array):
+
+    for item in array:
+        if isinstance(item, dict):
+            return item
+    return None
+
+
 s = "\n"
+
 
 def fetch_api():
     api_dump_url = "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
     response = requests.get(api_dump_url)
-    api_classes = response.json()['Classes']
+    api_classes = response.json()["Classes"]
 
     global s
     for api_class in api_classes:
-        class_name = api_class['Name']
-        class_members = api_class['Members']
+        class_name = api_class["Name"]
+        class_members = api_class["Members"]
 
         prev_len = len(s)
         for member in class_members:
-            member_name = member['Name']
-            member_type = member['MemberType']
+            member_name = member["Name"]
+            member_type = member["MemberType"]
             if member_type == "Property":
-                serialization = member['Serialization']
-                member_tags = member.get('Tags')
-
+                serialization = member["Serialization"]
+                member_tags = member.get("Tags")
+                original_tags = member_tags
                 special = False
                 if member_tags:
                     member_tags = array_to_dictionary(member_tags)
-                    special = member_tags.get('NotScriptable')
+                    special = member_tags.get("NotScriptable")
 
-                if serialization['CanLoad'] and serialization['CanSave'] and special:
-                    value_type = member['ValueType']['Name']
-                    if value_type == "BinaryString":
-                        s += f"{class_name}.{member_name} {{BinaryString}}\n"
-                    else:
-                        s += f"{class_name}.{member_name}\n"
-
+                if serialization["CanLoad"] and serialization["CanSave"] and special:
+                    value_type = member["ValueType"]["Name"]
+                    s += f"{class_name}.{member_name} {'{BinaryString}' if value_type == 'BinaryString' else ''}"
+                    table_found = find_first_table(original_tags)
+                    if table_found:
+                        s += f"{'{'+table_found.get('PreferredDescriptorName')+'}'}"
+                    s += "\n"
         if len(s) != prev_len:
             s += "\n"
+
 
 try:
     fetch_api()

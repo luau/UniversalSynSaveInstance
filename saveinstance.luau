@@ -23,8 +23,8 @@ local Escapes = {
 	["&"] = "&amp;", -- 38
 	["<"] = "&lt;", -- 60
 	[">"] = "&gt;", -- 62
-	['"'] = "&quot;", -- 34
-	["'"] = "&apos;", -- 39
+	['"'] = "&#34;", --  quot
+	["'"] = "&#39;", -- apos
 }
 
 for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
@@ -820,7 +820,7 @@ end
 --- @field RemovePlayerCharacters boolean -- Ignore player characters while saving. (Enables SaveNonCreatable automatically). ___Default:___ true
 --- @field SaveNonCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). ___Default:___ false
 --- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "Player", "PlayerScripts", "PlayerGui" }
---- @field SavePlayers boolean -- * This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2. ___Default:___ false
+--- @field IsolatePlayers boolean -- * This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2. ___Default:___ false
 --- @field AllowResettingProperties boolean -- * **RISKY:** Enables Resetting of properties for sake of checking their default value (Useful for cases when Instance is NotCreatable like services yet we need to get the default value ) then sets the property back to the original value, which might get detected by some games **WARNING: Sometimes Properties might not be able to be set to the original value due to circumstances**. ___Default:___ false
 --- @field IgnoreSharedStrings boolean -- * **RISKY: FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY). FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU**. ___Default:___ true
 --- @field SharedStringOverwrite boolean -- * **RISKY:** if the process is not finished aka crashed then none of the affected values will be available. SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far). Reason: Allows for potential smaller file size (can also be bigger in some cases). ___Default:___ false
@@ -831,7 +831,7 @@ end
 --- @field FilePath string -- FileName
 --- @field IgnoreDefaultProperties string -- IgnoreDefaultProps
 --- @field SaveNonCreatable string -- SaveNotCreatable
---- @field SavePlayers string -- IsolatePlayers
+--- @field IsolatePlayers string -- SavePlayers
 --- @field scriptcache string -- DecompileJobless
 --- @field timeout string -- DecompileTimeout
 --- @field IgnoreNotArchivable string -- INVERSE IgnoreArchivable
@@ -902,12 +902,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
 		IgnoreSpecialProperties = false,
-		IsolateLocalPlayer = false,
-		IsolateStarterPlayer = false,
-		IsolateLocalPlayerCharacter = false,
 
+		IsolateLocalPlayer = false,
+		IsolateLocalPlayerCharacter = false,
+		IsolatePlayers = false,
+		IsolateStarterPlayer = false,
 		RemovePlayerCharacters = true,
-		SavePlayers = false,
 
 		SaveNonCreatable = false,
 		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui" },
@@ -922,7 +922,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			FilePath = "FileName",
 			IgnoreDefaultProperties = "IgnoreDefaultProps",
 			SaveNonCreatable = "SaveNotCreatable",
-			SavePlayers = "IsolatePlayers",
+			IsolatePlayers = "SavePlayers",
 			scriptcache = "DecompileJobless",
 			timeout = "DecompileTimeout",
 		},
@@ -979,7 +979,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
 			Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
 			Sound = {
-				xmlRead_MaxDistance_3 = "MaxDistance",
+				xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
 			},
 			-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
 			-- 	CameraCFrame = function(instance) -- *
@@ -1092,7 +1092,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 				local RemovePlayers = CustomOptions.RemovePlayers
 				if RemovePlayers ~= nil then
-					OPTIONS.SavePlayers = not RemovePlayers
+					OPTIONS.IsolatePlayers = not RemovePlayers
 				end
 			end
 		elseif Type == "Instance" then
@@ -1130,7 +1130,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
 	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
 	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
-	local IsolatePlayers = OPTIONS.SavePlayers
+	local IsolatePlayers = OPTIONS.IsolatePlayers
 
 	local SaveNonCreatable = OPTIONS.SaveNonCreatable
 
@@ -1184,10 +1184,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			for _, key in
 				{
-					"IsolateLocalPlayerCharacter",
-					"IsolateStarterPlayer",
-					"IsolatePlayers",
 					"IsolateLocalPlayer",
+					"IsolateLocalPlayerCharacter",
+					"IsolatePlayers",
+					"IsolateStarterPlayer",
 					"NilInstances",
 				}
 			do
@@ -1218,7 +1218,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				table.move(Children, 1, #Children, #tmp + 1, tmp)
 			end
 		elseif mode == "optimized" then -- ! Incompatible with .rbxmx (Model file) mode
-			-- if SavePlayers then
+			-- if IsolatePlayers then
 			-- 	table.insert(_list_0, "Players")
 			-- end
 			for _, x in
@@ -1668,7 +1668,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 						ClassName = Fix
 					else
-						continue -- They won't show up in Studio anyway (Enable SavePlayers if you wish to bypass this)
+						continue -- They won't show up in Studio anyway (Enable IsolatePlayers if you wish to bypass this)
 					end
 				end
 			end
