@@ -136,13 +136,18 @@ end
 
 local custom_decompiler, load_decompiler -- TODO Temporary
 
-if getscriptbytecode and false then
+if getscriptbytecode then
 	-- Credits @w-a-e
-	local decompiler_source =
-		game:HttpGet("https://raw.githubusercontent.com/w-a-e/Advanced-Decompiler-V3/main/init.lua", true)
+	local decompiler_source
 
-	load_decompiler = function(decomptimeout)
-		local CONSTANTS = [[
+	if
+		pcall(function()
+			decompiler_source =
+				game:HttpGet("https://raw.githubusercontent.com/w-a-e/Advanced-Decompiler-V3/main/init.lua", true)
+		end)
+	then
+		load_decompiler = function(decomptimeout)
+			local CONSTANTS = [[
 	local ENABLED_REMARKS = {
 		NATIVE_REMARK = true,
 		INLINE_REMARK = true
@@ -157,19 +162,29 @@ if getscriptbytecode and false then
 	local LIST_USED_GLOBALS = true
 	local RETURN_ELAPSED_TIME = false
 	]]
-		local _ENV = (getgenv or getrenv or getfenv)()
-		local old = _ENV.decompile
+			local _ENV = (getgenv or getrenv or getfenv)()
+			local old = _ENV.decompile
 
-		loadstring(
-			string.gsub(
-				string.gsub(decompiler_source, " (.+) // (.+)", " math.floor(%1 / %2)", 1), -- TODO Temporary fix for macsploit (// operator)
-				";;CONSTANTS HERE;;",
-				CONSTANTS
-			),
-			"Advanced-Decompiler-V3"
-		)()
-		custom_decompiler = _ENV.decompile
-		_ENV.decompile = old
+			local f = loadstring(
+				string.gsub(
+					string.gsub(
+						decompiler_source,
+						"return %(x %% 2^32%) // %(2^disp%)",
+						"return math.floor((x %% 2^32) / (2^disp))",
+						1
+					), -- TODO Temporary fix for macsploit (// operator)
+					";;CONSTANTS HERE;;",
+					CONSTANTS
+				),
+				"Advanced-Decompiler-V3"
+			)
+			if not f then
+				return
+			end
+			f()
+			custom_decompiler = _ENV.decompile
+			_ENV.decompile = old
+		end
 	end
 end
 
@@ -1282,8 +1297,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		ToSaveList = tmp
 	end
 
-	do if load_decompiler then
-		load_decompiler(Timeout) end
+	do
+		if load_decompiler then
+			load_decompiler(Timeout)
+		end
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
 			or globalcontainer.decompile
 			or custom_decompiler
