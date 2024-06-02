@@ -159,7 +159,15 @@ if getscriptbytecode then
 	]]
 		local _ENV = (getgenv or getrenv or getfenv)()
 		local old = _ENV.decompile
-		loadstring(string.gsub(decompiler_source, ";;CONSTANTS HERE;;", CONSTANTS), "Advanced-Decompiler-V3")()
+
+		loadstring(
+			string.gsub(
+				string.gsub(decompiler_source, " (.+) // (.+)", " math.floor(%1 / %2)", 1), -- TODO Temporary fix for macsploit (// operator)
+				";;CONSTANTS HERE;;",
+				CONSTANTS
+			),
+			"Advanced-Decompiler-V3"
+		)()
 		custom_decompiler = _ENV.decompile
 		_ENV.decompile = old
 	end
@@ -349,7 +357,7 @@ Descriptors = {
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. Descriptors.CFrame(raw) .. "</CFrame>"
 	end,
-	-- DateTime = function(raw) end,
+	-- DateTime = function(raw) end,-- TODO
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
 		return "<faces>"
@@ -1510,9 +1518,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if not ok or FilterResult(raw) then
 					return "__BREAK", specialProperties
 				end
-			elseif true == CanRead then
+			elseif CanRead then
 				raw = instance[PropertyName]
-			elseif false == CanRead then -- * Skips because we've checked this property before
+			else -- * Skips because we've checked this property before
 				return "__BREAK", specialProperties
 			end
 		end
