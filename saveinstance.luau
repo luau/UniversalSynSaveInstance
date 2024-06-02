@@ -797,6 +797,7 @@ end
 --- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ ""
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
+--- @field SaveBytecodeIfDecompilerFails boolean -- Includes bytecode in the output if the decompiler fails. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
 --- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference. ___Default:___ {Chat, TextChatService}
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore**. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
@@ -867,10 +868,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
 		-- DisableCompression = false, --Description: Disables compression in the binary output
 
+		DecompileJobless = false,
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			service.Chat,
 			service.TextChatService,
 		},
+		SaveBytecodeIfDecompilerFails = false,
 
 		IgnoreProperties = { "ScriptGuid", "UniqueId", "HistoryId" },
 
@@ -887,7 +890,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- "__api_dump_write_only_property__" , -- ? Is this needed
 		},
 
+		SaveCacheInterval = 0x1600 * 2,
 		ShowStatus = true,
+		SafeMode = false,
+		ReadMe = true,
 		FilePath = false,
 		Object = false,
 		IsModel = false,
@@ -900,14 +906,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IsolateStarterPlayer = false,
 		IsolateLocalPlayerCharacter = false,
 
-		DecompileJobless = false,
-		SaveNonCreatable = false,
-		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui" },
 		RemovePlayerCharacters = true,
 		SavePlayers = false,
-		SaveCacheInterval = 0x1600 * 2,
-		ReadMe = true,
-		SafeMode = false,
+
+		SaveNonCreatable = false,
+		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui" },
 
 		-- ! Risky
 
@@ -1287,10 +1290,30 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- 	end
 
 		-- end
+		local SaveBytecode
+		if OPTIONS.SaveBytecodeIfDecompilerFails then
+			SaveBytecode = function(DefaultOutput, Script)
+				local s, bytecode = pcall(getscriptbytecode, Script)
+
+				if s then
+					if bytecode and bytecode ~= "" then
+						return DefaultOutput .. "\n--Bytecode (Base64):\n-- " .. base64encode(bytecode)
+					end
+				end
+
+				return DefaultOutput
+			end
+		end
 
 		if OPTIONS.noscripts then
-			ldecompile = function()
-				return "-- Decompiling is disabled"
+			ldecompile = function(Script)
+				local output = "-- Decompiling is disabled"
+
+				if SaveBytecode then
+					return SaveBytecode(output, Script)
+				end
+
+				return output
 			end
 		elseif Decompiler then
 			local function DecompileHandler(Script)
@@ -1362,7 +1385,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					result = string.gsub(result, "\0", "\\0")
 				end
 
-				local output = ok and result or "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
+				local output
+				if ok then
+					output = result
+				else
+					output = "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
+					if SaveBytecode then
+						output = SaveBytecode(output, Script)
+					end
+				end
 
 				if ScriptCache and hashed_bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
 					ldeccache[hashed_bytecode] = output -- ? Should we cache even if it timed out?
@@ -1371,8 +1402,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				return output
 			end
 		else
-			ldecompile = function()
-				return "-- Decompiling is NOT supported on your executor"
+			ldecompile = function(Script)
+				local output = "-- Decompiling is NOT supported on your executor"
+
+				if SaveBytecode then
+					return SaveBytecode(output, Script)
+				end
+
+				return output
 			end
 		end
 	end
@@ -1826,7 +1863,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										local should_decompile = true
 
 										local LinkedSourceUrl = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
-										if LinkedSourceUrl ~= "" then
+										local LinkedSourceNotEmpty = LinkedSourceUrl ~= ""
+										if LinkedSourceNotEmpty then
 											local LinkedSource = string.match(LinkedSourceUrl, "%w+$") -- TODO: No sure if this pattern matches possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 											if LinkedSource then
 												local Cached = ldeccache[LinkedSource]
@@ -1886,6 +1924,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										end
 
 										value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
+											.. (LinkedSourceNotEmpty and "-- Original Source: " .. LinkedSourceUrl .. " (use https://assetdelivery.roproxy.com/v1/asset/?id=ASSETID)\n\n" or "")
 											.. value
 									end
 								end
