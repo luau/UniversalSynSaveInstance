@@ -15,13 +15,15 @@ synsaveinstance(Options)
 Or shortly USSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019] & Other Executor Source leaks :trollface:.<br />
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
+Important part about this saveinstance is that it doesn't modify anything, therefore reduces the amount of detection vectors by a lot.
+
 # Notes
 
 - Credits are appreciated 💖
 - Do NOT claim you wrote this :accessibility:
 - Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) :finnadie:
 
-# 💖 Support Us & Our Work:
+# 💖 Support Us & Our Work
 
 <a href='https://ko-fi.com/M4M1JNH5G' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' title='KO-FI' /></a>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1JNH5G "KO-FI")
@@ -33,10 +35,8 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 <https://discord.com/invite/wx4ThpAsmw> **/** <https://discord.gg/wx4ThpAsmw><br />
 [<img src="https://discordapp.com/api/guilds/1022465460517740654/widget.png?style=banner2" alt="Our Official Discord Server!"></img>](https://discord.com/invite/wx4ThpAsmw)<br />
 
-# TO-DOs:
+# TO-DOs
 
-- [ ] !!! Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
-- [ ] Check out varios Leaked Executors (Especially their Init / Lua scripts) to expand knowledge on the whole subject of saveinstance
 - [ ] Look into adding support for Binary Format Output (rbxl/rbxm)
   - Users can already convert to Binary Format by
     1. Open the File
@@ -47,16 +47,16 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - ! Check out [Rojo Rbx Dom Binary] & [Roblox Format Specifications Binary] for more documentation about the Binary File Format!
   - ! Also see [buffer], [bit32] libraries as well as [pack]/[unpack] from the [string] library for more information on how you can implement something like this!
   - ! [Rbx-Binary-Format]
-- [ ] Add custom decompiler in case executor doesn't have one but has getscriptbytecode (UMF)
+- [x] Add custom decompiler in case executor doesn't have one but has getscriptbytecode (UMF)
   - <https://github.com/TheSeaweedMonster/Lua-Scripts/blob/main/decompile.lua>
-- [ ] Add custom timeout logic for decompiler instead of relying on executor to have one
+- [x] Add custom timeout logic for decompiler instead of relying on executor to have one
   - Using threads & coroutines.
 - [x] Add `continue` where needed
 - [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
 - [ ] Merge SharedStrings and sharedstrings tables
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
 - [x] Add getproperties as fallback for specialinfo
-- [ ] Add Redirects to some special (in a bad way 😡) values, more info @ ~~[PropertyPatches v1]~~ [PropertyPatches v2]+[PropertyPatches v3], otherwise they will fallback to default when file is opened
+- [x] ~~Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches v1][PropertyPatches v2]+[PropertyPatches v3], otherwise they will fallback to default when file is opened~~ Relying on CanSave instead
   - Not all though, test each & see if it carries over or not (when file is opened)..
   - All current redirects: [Here](https://github.com/luau/SynSaveInstance/blob/main/TODO/PropertyPatches)
 - [ ] Add more Fixes for Errors that **_can_** pop up during opening process
@@ -65,11 +65,9 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Add table.clone instead {} in some cases if possible
 - [ ] Avoid scanning for default values of properties if those properties won't get serialized anyway (e.g. don't have a Descriptor)
 - [x] Add --!native tag just in case
-- [ ] Find default values of binarystring properties (MaximumADHD might have a clue)
-  - LOOK INTO Instance:IsPropertyModified & Instance:ResetPropertyToDefault
 - [x] ~~Auto-Detect DataTypes/ValueType Categories of Properties (CFrame, UDim2 so on)~~ Full API Dump Solves this ?
 - [x] Bring said DataType serializer into an outside function
-- [ ] ~~Bypass NotCreatable by hardcoding links/references/indexes to said Classes~~ Should be Solved by IsPropertyModified
+- [-] ~~Bypass NotCreatable by hardcoding links/references/indexes to said Classes~~ Should be Solved by IsPropertyModified
   - Example: Terrain class can be indexed by doing workspace.Terrain but is NotCreatable
 - [x] Check if table.concat is actually the fastest way as compared to other alternatives (IT'S NOT)
 - [x] Do ~~clean-up in inheritor &~~ (API Dumps solve this, illogical) automatically assume the top-most class that owns the property, while also cleaning up said property from classes that inherit from it
@@ -84,18 +82,16 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [ ] Support for Model files:
   - [x] rbxmx (xml)
   - [ ] rbxm (binary)
-- [ ] ~~Possibly convert to non-Name tables & use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}~~ Add too much complexity for now
+- [x] Possibly convert to non-Name tables & use instance references instead (Perhaps make a config Bool Toggle for this, false by default), ex. DecompileIgnore = {game.CoreGui}
   - This will allow for more flexibility of saveinstancing
 - [x] ~~Remove Useless tables & functions of specialinfo~~ Repurposed
 - [x] Implement [Luau Syntax] (important for performance!):
 
   - [x] Compound Operators
   - [x] Avoid using `next`, `ipairs` & `pairs`
-  - [ ] [BENCHMARK] Interpolated strings instead of concat
-  - [ ] [BENCHMARK] `next,` and numerical loops on both lua & luau to decide which and where to use
+  - [-] ~~Interpolated strings instead of concat~~ Slower
   - [ ] Type-checking (😩🙀)
-  - [ ] `local maxValue = if a > b then a else b` expressions
-  - [ ] print(`Bob has {count} apple(s)!`) expressions
+  - [ ] `if-then-else` expressions
   - [ ] Floor division
 
 - [ ] Speed things up as much as possible
@@ -117,31 +113,34 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   * [x] RemovePlayerCharacters
   * [x] SavePlayers
   * [x] ShowStatus
-    - [ ] Add Drawing Library support for ShowStatus
-  * ~~[-] IsolatePlayerGui~~ Use IsolateLocalPlayer instead
+    - [-] ~~Add Drawing Library support for ShowStatus~~ Can't reliably test if it's working on an executor
+  * [-] ~~IsolatePlayerGui~~ Use IsolateLocalPlayer instead
   * [ ] Callback
-  * [ ] Clipboard/CopyToClipboard
+  * [ ] CopyToClipboard/Clipboard
   * [ ] Binary (rbxl/rbxm)
 - [ ] Support for as many Executors as possible (🤢🤮)
 - [x] ~~Use getspecialinfo fallback function carefully as it's hardcoded~~ Useless because there's no way to tell if the Property Values of those instances are default or not
   - LOOK INTO Instance:IsPropertyModified & Instance:ResetPropertyToDefault
 - [x] Isolators must clear
-- [x] Store all functions outside that are used during saveinstancing for sake of performance
-- [x] ~~Remove buffersize, savebuffer & so on for sake of performance by concatenating <Item> strings to total string then writing it to file (no extra steps like table.concat)~~ table.concat proved faster in the case of huge amount of concatenations
+- [-] ~~Store all functions outside that are used during saveinstancing for sake of performance~~ Arguable
+- [ ] ~~Remove buffersize, savebuffer & so on for sake of performance by concatenating <Item> strings to total string then writing it to file (no extra steps like table.concat)~~ table.concat proved faster in the case of huge amount of concatenations
   - Test table.concat vs string ..= with a full buffer (this benchmark differs per usecase)
 - [ ] Make sure BinaryStrings are compared to Defaults properly (aka in same format)
-- [ ] Add Option to restart saveinstance from the point that it crashed on
+  - Find default values of BinaryStrings properties (MaximumADHD might have a clue)
+- [ ] Add Option to restart saveinstance from the point that it crashed on (perhaps by skipping)
 - [ ] Check out [DataType Exceptions]
 - [x] Add README Similar to current Synapse
-- [ ] Ignore all properties of instances that aren't Local or Module Scripts except Name if mode is set to "scripts"
-- [ ] Maybe modes should do more than just affecting the list of instances to save, like changing IgnoreDefaultProperties to false if mode is "full" for example
+- [x] ~~Ignore all properties of instances that aren't Local or Module Scripts except Name if mode is set to "scripts"~~ IgnorePropertiesOfNotScriptsOnScriptsMode
+- [ ] Maybe modes should do more than just determining the list of instances to save, like changing IgnoreDefaultProperties to false if mode is "full" for example
 - [x] Add Support for [SharedStrings]
   - Fun fact: SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up). By replacing `<BinaryString name="Tags">Base64EncodedValue</BinaryString>` with `<SharedString name="Tags">UniqueIdentifierForSharedString</SharedString>` & putting `<SharedString md5="UniqueIdentifierForSharedString">Base64EncodedValue</SharedString>` into SharedStrings container you can achieve this amazing behaviour. This should be only enabled using an optional setting<br />Only known to work with (probably because both are base64 encoded):
   * BinaryString
-- [x] Add Lua & Luau versions instead of merged (WARNING: LUAU WILL ALWAYS BE MORE UPDATED THAN LUA VERSION - IDC & CBA SIMPLY, lua version exists just for sake of old & bad executors, ask devs of your executors to support luau as its latest & greatest)
-- [ ] Add Support for multiple Instances to be saved as a model
-- [ ] Do something about devs renaming Services therefore bypassing Ignore lists (CoreGui/CorePackages are not affected)
+- [x] Add Lua & Luau versions instead of merged (WARNING: LUAU WILL ALWAYS BE MORE UPDATED THAN LUA VERSION, lua version exists just for the sake of old & bad executors, ask devs of your executors to support luau as its latest & greatest)
+- [x] ~~Add Support for multiple Instances to be saved as a model~~ IsModel = true & ExtraInstances
+- [x] Do something about devs renaming Services therefore bypassing Ignore lists (CoreGui/CorePackages are not affected)
   - LOOK INTO Instance:IsPropertyModified & Instance:ResetPropertyToDefault
+- [ ] Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
+- [ ] Check out varios Leaked Executors (Especially their Init / Lua scripts) to expand knowledge on the whole subject of saveinstance
 - [ ] Fix Player's Characters not being visible (must Refresh MeshId)
   - "<https://assetdelivery.roblox.com/v1/asset/?id=>" Could cause issues too (needs testing)
   - Perhaps add a possible FIX script to README
@@ -172,7 +171,7 @@ resources include:
 [pack]: https://create.roblox.com/docs/reference/engine/libraries/string#pack
 [unpack]: https://create.roblox.com/docs/reference/engine/libraries/string#unpack
 [string]: https://create.roblox.com/docs/reference/engine/libraries/string
-[DataType Exceptions]: https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_reflector/src/cli/generate.rs#L260
+[DataType Exceptions]: https://github.com/rojo-rbx/rbx-dom/blob/8ca9250fa5a5ad3756c89e1e111e1aabaf698b27/rbx_reflector/src/cli/generate.rs#L196
 [KRNL Docs]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
 [KRNL-like saveinstance Options]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
 [Rojo Rbx Dom Xml]: https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md
