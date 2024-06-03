@@ -1,0 +1,40 @@
+Doesnt get everything; Also varies per executor; Tested on Codex
+
+BallSocketConstraint.MaxFrictionTorqueXml - MaxFrictionTorque
+
+BasePart.MaterialVariantSerialized - MaterialVariant
+BasePart.MaterialVariantSerialized - CurrentPhysicalProperties
+BasePart.MaterialVariantSerialized - PropertyStatusStudio
+
+DoubleConstrainedValue.value - 1.53736
+
+Fire.size_xml - Size
+Fire.heat_xml - Heat
+
+FormFactorPart.formFactorRaw - FormFactor
+
+Humanoid.Health_XML - Health
+
+IntConstrainedValue.value - 2
+
+MaterialService.Use2022MaterialsXml - Use2022Materials
+
+MeshPart.InitialSize - MeshSize
+
+Part.shape - Shape
+Part.shape - AssemblyMass
+Part.shape - AssemblyCenterOfMass
+
+Smoke.opacity_xml - Opacity
+Smoke.size_xml - Size
+Smoke.riseVelocity_xml - RiseVelocity
+
+Sound.xmlRead_MaxDistance_3 - MaxDistance
+Sound.xmlRead_MaxDistance_3 - RollOffMaxDistance
+
+WeldConstraint.State - Enabled
+WeldConstraint.Part0Internal - Part0
+WeldConstraint.Part1Internal - Part1
+
+Workspace.SignalBehavior2 - SignalBehavior
+
