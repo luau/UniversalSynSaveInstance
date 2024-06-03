@@ -872,7 +872,7 @@ end
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
 	local totalstr = ""
-	local savebuffer, savebuffer_count = {}, 1
+	local savebuffer, savebuffer_count = { '<roblox version="4">' }, 1
 
 	local StatusText
 
@@ -1015,7 +1015,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- 	end,
 			-- 	-- CameraFieldOfView =
 			-- },
-			WeldConstraint = { Part0Internal = "Part0", Part1Internal = "Part1" },
+			WeldConstraint = {
+				Part0Internal = "Part0",
+				Part1Internal = "Part1",
+				-- State = function(instance)
+				-- 	-- If untouched then default state is 3 (default true)
+				-- 	return instance.Enabled and 1 or 0
+				-- end,
+			},
 		}, -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
 	}
 
@@ -1603,7 +1610,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		totalstr ..= table.concat(savebuffer)
 
 		writefile(placename, totalstr)
-		-- appendfile(placename, savestr) -- TODO: Sadly breaks evon (fixable) AND supposedly causes uneven amount of Tags (e.g. <Item> must be closed with </Item> but sometimes there's more of one than the other)
+		-- appendfile(placename, savestr) -- TODO: Sadly breaks evon (fixable) AND supposedly causes uneven amount of Tags (e.g. <Item> must be closed with </Item> but sometimes there's more of one than the other). While being under load, the function produces unexpected output?
 		-- totalsize += #savestr
 
 		table.clear(savebuffer)
@@ -2019,18 +2026,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function savegame()
-		writefile(placename, "")
+		-- writefile(placename, "")
 
-		local Starter = '<roblox version="4">'
 		if IsModel then
-			Starter ..= '<Meta name="ExplicitAutoJoints">true</Meta>'
+			savebuffer[savebuffer_count] = '<Meta name="ExplicitAutoJoints">true</Meta>'
+			savebuffer_count += 1
 		end
-		savebuffer[savebuffer_count] = Starter--[[
+		--[[
 			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
 		Also http can be converted to https but not sure if Roblox would decide to detect that
 		-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
 		]]
-		savebuffer_count += 1
 
 		-- TODO Find a better solution for this
 		SaveNonCreatableWillBeEnabled = SaveNonCreatable
