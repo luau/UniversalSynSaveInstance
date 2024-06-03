@@ -58,14 +58,14 @@ do
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		sethiddenproperty = 'string.find(...,"set",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
-		appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
+		-- appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
 	}, true, 10)
 end
 
 local gethiddenproperty = globalcontainer.gethiddenproperty
 local sethiddenproperty = globalcontainer.sethiddenproperty
 local writefile = globalcontainer.writefile
-local appendfile = globalcontainer.appendfile
+-- local appendfile = globalcontainer.appendfile
 
 local getscriptbytecode = globalcontainer.getscriptbytecode
 local base64encode = globalcontainer.base64encode
@@ -871,7 +871,7 @@ end
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
-	local totalsize = 0
+	local totalstr = ""
 	local savebuffer, savebuffer_count = {}, 1
 
 	local StatusText
@@ -1406,12 +1406,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				local ok, result = DecompileHandler(Script)
 
-				if ok then -- TODO Temporary (decompiler issue)
-					result = string.gsub(result, "\0", "\\0")
-				end
-
 				local output
 				if ok then
+					result = string.gsub(result, "\0", "\\0") -- TODO Temporary (decompiler issue)
 					output = result
 				else
 					output = "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
@@ -1583,6 +1580,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local function getsizeformat()
 		local Size
 
+		local totalsize = #totalstr
+
 		for Index, BinaryPrefix in
 			{
 				"B",
@@ -1601,10 +1600,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function savecache()
-		local savestr = table.concat(savebuffer)
+		totalstr ..= table.concat(savebuffer)
 
-		appendfile(placename, savestr)
-		totalsize += #savestr
+		writefile(placename, totalstr)
+		-- appendfile(placename, savestr) -- TODO: Sadly breaks evon (fixable) AND supposedly causes uneven amount of Tags (e.g. <Item> must be closed with </Item> but sometimes there's more of one than the other)
+		-- totalsize += #savestr
 
 		table.clear(savebuffer)
 		savebuffer_count = 1
