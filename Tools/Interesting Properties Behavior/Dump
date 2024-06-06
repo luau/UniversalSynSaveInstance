@@ -6,8 +6,13 @@ Instance.archivable {Deprecated}
 AdPortal.PortalVersion {CanSave Only}
 
 AnalyticsService.ApiKey {Deprecated}  {CanSave}
+AnalyticsService is NotCreatable but AnalyticsService.ApiKey has a default value: 
 
 AnimationTrack.TimePosition {CanLoad Only}
+
+AssetDeliveryProxy is NotCreatable but AssetDeliveryProxy.Interface has a default value: 
+
+AssetPatchSettings is NotCreatable but AssetPatchSettings.ContentId has a default value: 
 
 Attachment.Axis {CanLoad Only}
 Attachment.SecondaryAxis {CanLoad Only}
@@ -29,6 +34,12 @@ AudioPlayer.TimeLength {CanSave Only}
 AudioSearchParams.AudioSubtype {CanLoad Only}
 AudioSearchParams.AudioSubtype {Deprecated} 
 
+AvatarChatService is NotCreatable but AvatarChatService.ClientFeatures has a default value: 0
+
+Avatar2DGenerationJob is NotCreatable but Avatar2DGenerationJob.Result has a default value: 
+
+Avatar3DGenerationJob is NotCreatable but Avatar3DGenerationJob.Result has a default value: 
+
 BaseImportData.Id {CanSave Only}
 
 MaterialImportData.IsPbr {CanSave Only}
@@ -47,6 +58,8 @@ RootImportData.FileDimensions {CanSave Only}
 RootImportData.PolygonCount {CanSave Only}
 
 CoreGui.Version {CanSave Only}
+
+PlayerGui is NotCreatable but PlayerGui.CurrentScreenOrientation has a default value: LandscapeLeft
 
 StarterGui.ResetPlayerGuiOnSpawn {Deprecated}  {CanSave}
 
@@ -95,10 +108,14 @@ BodyColors.TorsoColor {CanLoad Only}
 Clothing.Outfit1 {CanLoad Only}
 Clothing.Outfit2 {CanLoad Only}
 
+Chat is NotCreatable but Chat.BubbleChatEnabled has a default value: false
+
 DragDetector.Axis {CanLoad Only}
 DragDetector.SecondaryAxis {CanLoad Only}
 DragDetector.WorldAxis {CanLoad Only}
 DragDetector.WorldSecondaryAxis {CanLoad Only}
+
+Collaborator is NotCreatable but Collaborator.CFrame has a default value: __api_dump_no_string_value__
 
 CommandInstance.Checked {CanLoad Only}
 CommandInstance.DisplayName {CanLoad Only}
@@ -107,6 +124,7 @@ CommandInstance.Icon {CanLoad Only}
 CommandInstance.StatusTip {CanLoad Only}
 
 ConnectivityService.NetworkStatus {CanSave Only}
+ConnectivityService is NotCreatable but ConnectivityService.NetworkStatus has a default value: Unknown
 
 HingeConstraint.CurrentAngle {CanSave Only}
 HingeConstraint.SoftlockServoUponReachingTarget {Deprecated}  {CanSave}
@@ -145,6 +163,7 @@ DataStoreObjectVersionInfo.IsDeleted {CanSave Only}
 DataStoreObjectVersionInfo.Version {CanSave Only}
 
 DataStoreService.LegacyNamingScheme {Deprecated}  {CanSave}
+DataStoreService is NotCreatable but DataStoreService.AutomaticRetry has a default value: true
 
 Debris.MaxItems {Deprecated}  {CanSave}
 
@@ -154,12 +173,24 @@ DebugSettings.JobCount {CanSave Only}
 DebugSettings.PlayerCount {CanSave Only}
 DebugSettings.RobloxVersion {CanSave Only}
 
+DebuggerBreakpoint is NotCreatable but DebuggerBreakpoint.Condition has a default value: __api_dump_skipped_class__
+
 DebuggerManager.DebuggingEnabled {CanSave Only}
+
+DraggerService is NotCreatable but DraggerService.AlignDraggedObjects has a default value: __api_dump_skipped_class__
+
+ExperienceStateCaptureService is NotCreatable but ExperienceStateCaptureService.IsInCaptureMode has a default value: false
+
+FaceAnimatorService is NotCreatable but FaceAnimatorService.AudioAnimationEnabled has a default value: true
 
 Decal.Shiny {CanLoad Only}
 Decal.Shiny {Deprecated} 
 Decal.Specular {CanLoad Only}
 Decal.Specular {Deprecated} 
+
+FacialAnimationRecordingService is NotCreatable but FacialAnimationRecordingService.BiometricDataConsent has a default value: __api_dump_skipped_class__
+
+FacialAnimationStreamingServiceV2 is NotCreatable but FacialAnimationStreamingServiceV2.ServiceState has a default value: 0
 
 Fire.Heat {CanLoad Only}
 Fire.Size {CanLoad Only}
@@ -174,6 +205,8 @@ FunctionalTest.PhysicsEnvironmentalThrottle {CanLoad Only}
 FunctionalTest.Timeout {CanLoad Only}
 
 GameSettings.VideoRecording {CanLoad Only}
+
+GamepadService is NotCreatable but GamepadService.GamepadCursorEnabled has a default value: false
 
 GuiBase2d.Localize {CanLoad Only}
 GuiBase2d.Localize {Deprecated} 
@@ -218,6 +251,7 @@ TextBox.TextWrap {Deprecated}
 ViewportFrame.CurrentCamera {CanLoad Only}
 
 DockWidgetPluginGui.HostWidgetWasRestored {CanSave Only}
+DockWidgetPluginGui is NotCreatable but DockWidgetPluginGui.HostWidgetWasRestored has a default value: false
 
 ScreenGui.IgnoreGuiInset {CanLoad Only}
 
@@ -235,6 +269,8 @@ Path2D.SelectedControlPointData {CanLoad Only}
 
 GuiService.MenuIsOpen {CanSave Only}
 
+HttpService is NotCreatable but HttpService.HttpEnabled has a default value: false
+
 Humanoid.CollisionType {Deprecated}  {CanSave}
 Humanoid.Health {CanLoad Only}
 Humanoid.Jump {CanLoad Only}
@@ -248,7 +284,12 @@ Humanoid.Torso {Deprecated}
 Humanoid.maxHealth {CanLoad Only}
 Humanoid.maxHealth {Deprecated} 
 
+IncrementalPatchBuilder is NotCreatable but IncrementalPatchBuilder.AddPathsToBundle has a default value: false
+
+InputObject is NotCreatable but InputObject.Delta has a default value: 0, 0, 0
+
 InsertService.AllowInsertFreeModels {Deprecated}  {CanSave}
+InsertService is NotCreatable but InsertService.AllowClientInsertModels has a default value: false
 
 InternalSyncItem.Target {CanLoad Only}
 
@@ -258,9 +299,16 @@ Lighting.ClockTime {CanLoad Only}
 Lighting.Outlines {Deprecated}  {CanSave}
 Lighting.ShadowColor {CanLoad Only}
 Lighting.ShadowColor {Deprecated} 
+Lighting is NotCreatable but Lighting.Ambient has a default value: 0.5, 0.5, 0.5
+
+LiveScriptingService is NotCreatable but LiveScriptingService.ServerLiveEditingMode has a default value: Uninitialized
+
+LocalizationService is NotCreatable but LocalizationService.ForcePlayModeGameLocaleId has a default value: 
 
 LocalizationTable.DevelopmentLanguage {CanLoad Only}
 LocalizationTable.DevelopmentLanguage {Deprecated} 
+
+LodDataEntity is NotCreatable but LodDataEntity.EntityData has a default value: __api_dump_no_string_value__
 
 BaseScript.LinkedSource {Deprecated}  {CanSave}
 
@@ -268,9 +316,14 @@ ModuleScript.LinkedSource {Deprecated}  {CanSave}
 
 MarkerCurve.Length {CanSave Only}
 
+MaterialService is NotCreatable but MaterialService.AsphaltName has a default value: Asphalt
+
 MetaBreakpoint.Id {CanSave Only}
 MetaBreakpoint.IsLogpoint {CanSave Only}
 MetaBreakpoint.Valid {CanSave Only}
+MetaBreakpoint is NotCreatable but MetaBreakpoint.Condition has a default value: 
+
+MetaBreakpointContext is NotCreatable but MetaBreakpointContext.ContextDataInternal has a default value: 0 1 2 
 
 Mouse.Hit {CanSave Only}
 Mouse.Origin {CanSave Only}
@@ -330,6 +383,7 @@ Part.shap {CanLoad Only}
 Terrain.ClusterGrid {CanLoad Only}
 Terrain.ClusterGridV2 {CanLoad Only}
 Terrain.ClusterGridV3 {CanLoad Only}
+Terrain is NotCreatable but Terrain.AcquisitionMethod has a default value: None
 
 TriangleMeshPart.CollisionFidelity {CanLoad Only}
 TriangleMeshPart.FluidFidelity {CanLoad Only}
@@ -349,6 +403,7 @@ Workspace.StreamingPauseMode {CanLoad Only}
 
 PackageLink.PackageId {CanSave Only}
 PackageLink.VersionNumber {CanLoad Only}
+PackageLink is NotCreatable but PackageLink.AutoUpdate has a default value: false
 
 DataStoreKeyPages.Cursor {CanSave Only}
 
@@ -357,13 +412,18 @@ DataStoreListingPages.Cursor {CanSave Only}
 ParticleEmitter.VelocitySpread {CanLoad Only}
 ParticleEmitter.VelocitySpread {Deprecated} 
 
+PatchMapping is NotCreatable but PatchMapping.FlattenTree has a default value: false
+
 Path.Status {CanSave Only}
 
 PathfindingService.EmptyCutoff {CanLoad Only}
 PathfindingService.EmptyCutoff {Deprecated} 
+PathfindingService is NotCreatable but PathfindingService.EmptyCutoff has a default value: 0
 
 Player.CharacterAppearance {Deprecated}  {CanSave}
 Player.FollowUserId {CanSave Only}
+
+PlayerEmulatorService is NotCreatable but PlayerEmulatorService.CustomPoliciesEnabled has a default value: false
 
 PluginMenu.Icon {CanLoad Only}
 PluginMenu.Title {CanLoad Only}
@@ -372,6 +432,8 @@ PluginToolbarButton.ClickableWhenViewportHidden {CanLoad Only}
 PluginToolbarButton.Enabled {CanLoad Only}
 PluginToolbarButton.Icon {CanLoad Only}
 
+PolicyService is NotCreatable but PolicyService.IsLuobuServer has a default value: Unknown
+
 Pose.MaskWeight {CanLoad Only}
 Pose.MaskWeight {Deprecated} 
 
@@ -379,15 +441,26 @@ RenderSettings.EnableFRM {CanLoad Only}
 
 RotationCurve.Length {CanSave Only}
 
+SafetyService is NotCreatable but SafetyService.IsCaptureModeForReport has a default value: false
+
 SyncScriptBuilder.RawBytecode {Deprecated}  {CanSave}
+SyncScriptBuilder is NotCreatable but SyncScriptBuilder.CompileTarget has a default value: CoreScript
+
+ScriptContext is NotCreatable but ScriptContext.ScriptsDisabled has a default value: false
+
+ScriptDebugger is NotCreatable but ScriptDebugger.CoreScriptIdentifier has a default value: 
 
 Selection.SelectionBoxThickness {CanSave Only}
 Selection.SelectionLineThickness {CanSave Only}
+
+ServerScriptService is NotCreatable but ServerScriptService.LoadStringEnabled has a default value: false
 
 DataModel.PrivateServerId {CanSave Only}
 DataModel.PrivateServerOwnerId {CanSave Only}
 DataModel.VIPServerId {CanSave Only}
 DataModel.VIPServerOwnerId {CanSave Only}
+
+ServiceVisibilityService is NotCreatable but ServiceVisibilityService.HiddenServices has a default value: 
 
 Smoke.Opacity {CanLoad Only}
 Smoke.RiseVelocity {CanLoad Only}
@@ -402,11 +475,24 @@ Sound.xmlRead_MaxDistance_3 {Deprecated}  {CanSave}
 Sound.xmlRead_MinDistance_3 {CanLoad Only}
 Sound.xmlRead_MinDistance_3 {Deprecated} 
 
+ChannelSelectorSoundEffect is NotCreatable but ChannelSelectorSoundEffect.Channel has a default value: 1
+
+SoundService is NotCreatable but SoundService.AmbientReverb has a default value: NoReverb
+
 Sparkles.Color {CanLoad Only}
+
+StarterPlayer is NotCreatable but StarterPlayer.AllowCustomAnimations has a default value: true
 
 Studio.UI Theme {CanSave Only}
 
+StudioData is NotCreatable but StudioData.EnableScriptCollabByDefaultOnLoad has a default value: false
+
+StudioDeviceEmulatorService is NotCreatable but StudioDeviceEmulatorService.HasMultiTouchStarted has a default value: __api_dump_skipped_class__
+
+StudioPublishService is NotCreatable but StudioPublishService.PublishLocked has a default value: false
+
 StudioService.UseLocalSpace {CanLoad Only}
+StudioService is NotCreatable but StudioService.ActiveScript has a default value: __api_dump_skipped_class__
 
 TaskScheduler.SchedulerDutyCycle {CanSave Only}
 TaskScheduler.SchedulerRate {CanSave Only}
@@ -416,6 +502,8 @@ Team.AutoColorCharacters {CanLoad Only}
 Team.AutoColorCharacters {Deprecated} 
 Team.Score {CanLoad Only}
 Team.Score {Deprecated} 
+
+TeamCreateData is NotCreatable but TeamCreateData.InitialCameraCFrame has a default value: __api_dump_no_string_value__
 
 TeleportAsyncResult.PrivateServerId {CanSave Only}
 TeleportAsyncResult.ReservedServerAccessCode {CanSave Only}
@@ -431,6 +519,18 @@ TestService.IsPhysicsEnvironmentalThrottled {CanLoad Only}
 TestService.TestCount {CanSave Only}
 TestService.WarnCount {CanSave Only}
 
+BubbleChatConfiguration is NotCreatable but BubbleChatConfiguration.AdorneeName has a default value: HumanoidRootPart
+
+ChatInputBarConfiguration is NotCreatable but ChatInputBarConfiguration.AbsolutePosition has a default value: 0, 0
+
+ChatWindowConfiguration is NotCreatable but ChatWindowConfiguration.AbsolutePosition has a default value: 0, 0
+
+TextChatMessage is NotCreatable but TextChatMessage.BubbleChatMessageProperties has a default value: __api_dump_no_string_value__
+
+TextChatService is NotCreatable but TextChatService.ChatTranslationEnabled has a default value: true
+
+TextSource is NotCreatable but TextSource.CanSend has a default value: true
+
 Translator.LocaleId {CanSave Only}
 
 TweenBase.PlaybackState {CanSave Only}
@@ -439,6 +539,8 @@ UIListLayout.HorizontalPadding {CanLoad Only}
 UIListLayout.VerticalPadding {CanLoad Only}
 
 UIPageLayout.CurrentPage {CanSave Only}
+
+UnvalidatedAssetService is NotCreatable but UnvalidatedAssetService.CachedData has a default value: {"lastSaveTime":0,"lastKnownPublishRequest":0,"users":[]}
 
 UserGameSettings.IsUsingCameraYInverted {CanSave Only}
 UserGameSettings.IsUsingGamepadCameraSensitivity {CanSave Only}
@@ -453,6 +555,9 @@ UserInputService.MouseDeltaSensitivity {CanLoad Only}
 UserInputService.MouseEnabled {CanSave Only}
 UserInputService.TouchEnabled {CanSave Only}
 UserInputService.VREnabled {CanSave Only}
+UserInputService is NotCreatable but UserInputService.AccelerometerEnabled has a default value: __api_dump_skipped_class__
+
+VRService is NotCreatable but VRService.AutomaticScaling has a default value: World
 
 DoubleConstrainedValue.ConstrainedValue {CanLoad Only}
 DoubleConstrainedValue.Value {CanLoad Only}
@@ -460,7 +565,15 @@ DoubleConstrainedValue.Value {CanLoad Only}
 IntConstrainedValue.ConstrainedValue {CanLoad Only}
 IntConstrainedValue.Value {CanLoad Only}
 
+VersionControlService is NotCreatable but VersionControlService.ScriptCollabEnabled has a default value: false
+
+VideoCaptureService is NotCreatable but VideoCaptureService.Active has a default value: false
+
 VideoDeviceInput.IsReady {CanSave Only}
+
+VoiceChatInternal is NotCreatable but VoiceChatInternal.VoiceChatState has a default value: Idle
+
+VoiceChatService is NotCreatable but VoiceChatService.EnableDefaultVoice has a default value: true
 
 WeldConstraint.Active {CanSave Only}
 WeldConstraint.CFrame1 {CanLoad Only}

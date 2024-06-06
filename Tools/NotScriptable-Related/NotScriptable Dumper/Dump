@@ -179,6 +179,7 @@ Workspace.FluidForces
 Workspace.IKControlConstraintSupport 
 Workspace.MeshPartHeadsAndAccessories 
 Workspace.ModelStreamingBehavior 
+Workspace.MoverConstraintRootBehavior 
 Workspace.PhysicsSteppingMethod 
 Workspace.PlayerCharacterDestroyBehavior 
 Workspace.PrimalPhysicsSolver 
