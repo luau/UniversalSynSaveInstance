@@ -1251,7 +1251,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					if Thread_Timeout then
 						task.cancel(Thread_Timeout)
 					else
-						task.delay(0, function()
+						task.defer(function()
 							task.cancel(Thread_Timeout)
 						end)
 					end
@@ -1391,7 +1391,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if ok then
 					raw = result
-				else
+				elseif not IgnoreSpecialProperties then
 					if specialProperties == nil and getspecialinfo then
 						specialProperties = getspecialinfo(instance)
 						raw = specialProperties[PropertyName]
@@ -1634,7 +1634,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 
 						local Special = Property.Special
-						if IgnoreSpecialProperties and Special then
+						if IgnoreSpecialProperties and Special then 
 							continue
 						end
 
