@@ -668,7 +668,7 @@ local globalenv = getgenv and getgenv() or _G or shared
 --- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ ""
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
---- @field SaveBytecodeIfDecompilerFails boolean -- Includes bytecode in the output if the decompiler fails. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
+--- @field SaveBytecode boolean -- Includes bytecode in the output ONLY in these cases: if decompiler fails, if noscripts is enabled, if decompiler isn't found. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
 --- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference. ___Default:___ {Chat, TextChatService}
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore**. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
@@ -742,7 +742,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			service.Chat,
 			service.TextChatService,
 		},
-		SaveBytecodeIfDecompilerFails = false,
+		SaveBytecode = false,
 
 		IgnoreProperties = { "ScriptGuid", "UniqueId", "HistoryId" },
 
@@ -1159,7 +1159,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- end
 		local SaveBytecode
-		if OPTIONS.SaveBytecodeIfDecompilerFails then
+		if OPTIONS.SaveBytecode then
 			SaveBytecode = function(DefaultOutput, Script)
 				local s, bytecode = pcall(getscriptbytecode, Script)
 
