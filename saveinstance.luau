@@ -47,13 +47,10 @@ do
 		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
 		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
 		decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
-		gethiddenproperties = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
 		getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
-		getproperties = 'string.find(...,"get",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) == "s"',
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true) or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true)',
-		getspecialinfo = 'string.find(...,"get",nil,true) and string.find(...,"spec",nil,true)',
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
@@ -70,10 +67,6 @@ local getscriptbytecode = globalcontainer.getscriptbytecode
 local base64encode = globalcontainer.base64encode
 local hash = globalcontainer.hash
 local sha384
-
-if not globalcontainer.getspecialinfo then
-	globalcontainer.getspecialinfo = globalcontainer.gethiddenproperties
-end
 
 if not base64encode then
 	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
@@ -543,38 +536,6 @@ do
 	Descriptors[DescriptorName] = Descriptors[RedirectName]
 end
 
-for _, originalfuncname in { "getproperties", "getspecialinfo" } do -- * Some executors only allow certain Classes for this method (like UnionOperation, MeshPart, Terrain), for example Electron, Codex
-	local originalfunc = globalcontainer[originalfuncname]
-	if originalfunc then
-		globalcontainer[originalfuncname] = function(instance)
-			local ok, result = pcall(originalfunc, instance)
-			return ok and result or {}
-		end
-	end
-end
-
-local getproperties = globalcontainer.getproperties
-
-if getproperties then
-	if globalcontainer.getspecialinfo then
-		local old_getspecialinfo = globalcontainer.getspecialinfo
-
-		globalcontainer.getspecialinfo = function(instance)
-			local specialinfo = getproperties(instance)
-
-			for Property, Value in old_getspecialinfo(instance) do
-				specialinfo[Property] = Value
-			end
-
-			return specialinfo
-		end
-	else
-		globalcontainer.getspecialinfo = getproperties
-	end
-end
-
-local getspecialinfo = globalcontainer.getspecialinfo
-
 local function ArrayToDictionary(Table, HybridMode, ValueOverride)
 	local tmp = {}
 
@@ -609,55 +570,23 @@ do
 
 		local classList = {}
 
-		local function ReturnPropertyInfo(Member, PropertyName)
-			local MemberTags = Member.Tags
-
-			local Special
-
-			if MemberTags then
-				MemberTags = ArrayToDictionary(MemberTags)
-
-				Special = MemberTags.NotScriptable
-			end
-
-			local ValueType = Member.ValueType
-
-			local Property = {
-				Name = PropertyName,
-				Category = ValueType.Category,
-				-- Default = Member.Default,
-				-- Tags = MemberTags,
-				ValueType = ValueType.Name,
-			}
-
-			if Special then
-				Property.Special = true
-			end
-			return Property
-		end
-
 		for _, API_Class in service.HttpService:JSONDecode(API_Dump).Classes do
-			local Class = {}
-
-			local ClassName = API_Class.Name
+			local ClassProperties = {}
+			local Class = {
+				Properties = ClassProperties,
+				Superclass = API_Class.Superclass,
+			}
 
 			local ClassTags = API_Class.Tags
 
 			if ClassTags then
-				ClassTags = ArrayToDictionary(ClassTags)
+				Class.Tags = ArrayToDictionary(ClassTags) -- or {}
 			end
-
-			Class.Tags = ClassTags -- or {}
-			Class.Superclass = API_Class.Superclass
-
-			local ClassProperties = {}
 
 			-- ? Check 96ea8b2a755e55a78aedb55a7de7e83980e11077 commit - If a NotScriptableFix is needed that relies on another NotScriptable Property (which doesn't really make sense in the first place)
 
 			for _, Member in API_Class.Members do
 				if Member.MemberType == "Property" then
-					local PropertyName = Member.Name
-
 					local Serialization = Member.Serialization
 
 					if Serialization.CanSave and Serialization.CanLoad then -- If Roblox doesn't save it why should we; If Roblox doesn't load it we don't need to save it
@@ -667,15 +596,37 @@ do
 						 This also fixes everything in IgnoreClassProperties automatically without need to hardcode :)
 						 A very simple fix for many problems that saveinstance scripts encounter!
 						--]]
+						local PropertyName = Member.Name
 
-						ClassProperties[PropertyName] = ReturnPropertyInfo(Member, PropertyName)
+						local MemberTags = Member.Tags
+
+						local ValueType = Member.ValueType
+
+						local Special
+
+						if MemberTags then
+							MemberTags = ArrayToDictionary(MemberTags)
+
+							Special = MemberTags.NotScriptable
+						end
+						-- if not Special then
+						ClassProperties[PropertyName] = {
+							Name = PropertyName,
+							Category = ValueType.Category,
+							-- Default = Member.Default,
+							-- Tags = MemberTags,
+							ValueType = ValueType.Name,
+
+							Special = Special,
+
+							CanRead = nil,
+						}
+						-- end
 					end
 				end
 			end
 
-			Class.Properties = ClassProperties
-
-			classList[ClassName] = Class
+			classList[API_Class.Name] = Class
 		end
 
 		-- classList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering through properties to remove this
@@ -1300,7 +1251,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				local output
 				if ok then
-					result = string.gsub(result, "\0", "\\0") -- TODO Temporary (decompiler issue)
+					result = string.gsub(result, "\0", "\\0") -- ? Some decompilers sadly output \0 which prevents files from opening
 					output = result
 				else
 					output = "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
@@ -1332,21 +1283,21 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return instance[PropertyName]
 	end
 
-	local function ReadProperty(Property, instance, PropertyName, specialProperties, Special)
+	local function ReadProperty(Property, instance, PropertyName, Special)
 		local raw
 
 		local InstanceOverride = InstancePropertyOverrides[instance]
 		if InstanceOverride then
 			local PropertyOverride = InstanceOverride.Properties[PropertyName]
 			if PropertyOverride then
-				return PropertyOverride, specialProperties
+				return PropertyOverride
 			end
 		end
 
 		local CanRead = Property.CanRead
 
 		if CanRead == false then -- * Skips because we've checked this property before
-			return "__BREAK", specialProperties
+			return "__BREAK"
 		end
 
 		local function FilterResult(Result) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
@@ -1360,17 +1311,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if Special then
-			if specialProperties == nil and getspecialinfo then
-				specialProperties = getspecialinfo(instance)
-				raw = specialProperties[PropertyName]
-			end
+			local ok, result = pcall(gethiddenproperty, instance, PropertyName)
 
-			if raw == nil then
-				local ok, result = pcall(gethiddenproperty, instance, PropertyName)
-
-				if ok then
-					raw = result
-				end
+			if ok then
+				raw = result
 			end
 
 			if FilterResult(raw) then
@@ -1381,7 +1325,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				-- Property.Special = false
 				Property.CanRead = false
 
-				return "__BREAK", specialProperties -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
+				return "__BREAK" -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
 			end
 		else
 			if CanRead then
@@ -1392,21 +1336,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if ok then
 					raw = result
 				elseif not IgnoreSpecialProperties then
-					if specialProperties == nil and getspecialinfo then
-						specialProperties = getspecialinfo(instance)
-						raw = specialProperties[PropertyName]
-					end
+					ok, result = pcall(gethiddenproperty, instance, PropertyName)
 
-					if raw == nil then
-						ok, result = pcall(gethiddenproperty, instance, PropertyName)
-
-						if ok then
-							raw = result
-
-							Property.Special = true
-						end
-					else
-						ok = true
+					if ok then
+						raw = result
 
 						Property.Special = true
 					end
@@ -1414,12 +1347,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				Property.CanRead = ok
 				if not ok or FilterResult(raw) then
-					return "__BREAK", specialProperties
+					return "__BREAK"
 				end
 			end
 		end
 
-		return raw, specialProperties
+		return raw
 	end
 
 	local function ReturnItem(ClassName, instance)
@@ -1456,23 +1389,20 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function GetInheritedProps(ClassName)
-		local proplist = inherited_properties[ClassName]
-		if not proplist then
-			proplist = {}
-			local propcount = 1
-			local layer = ClassList[ClassName]
-			while layer do
-				-- local _list_0 = layer.Properties
-				-- table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
-				for _, p in layer.Properties do
-					proplist[propcount] = p -- ? table.clone is needed for case where .Default is modified
-					propcount += 1
-				end
-
-				layer = ClassList[layer.Superclass]
+		local proplist = {}
+		local propcount = 1
+		local layer = ClassList[ClassName]
+		while layer do
+			-- local _list_0 = layer.Properties
+			-- table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
+			for _, p in layer.Properties do
+				proplist[propcount] = p -- ? table.clone is needed for case where .Default is modified
+				propcount += 1
 			end
-			inherited_properties[ClassName] = proplist
+
+			layer = ClassList[layer.Superclass]
 		end
+		inherited_properties[ClassName] = proplist
 		return proplist
 	end
 
@@ -1610,7 +1540,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				savebuffer[savebuffer_count] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
 				savebuffer_count += 1
 				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not IsLuaSourceContainer(instance)) then
-					local specialProperties
 					local def_instance, new_def_inst
 
 					if IgnoreDefaultProperties then
@@ -1626,7 +1555,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							end
 						end
 					end
-					for _, Property in GetInheritedProps(ClassName) do
+					local proplist = inherited_properties[ClassName]
+					if not proplist then
+						proplist = GetInheritedProps(ClassName)
+						inherited_properties[ClassName] = proplist
+					end
+					for _, Property in proplist do
 						local PropertyName = Property.Name
 
 						if IgnoreProperties[PropertyName] then
@@ -1634,7 +1568,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 
 						local Special = Property.Special
-						if IgnoreSpecialProperties and Special then 
+						if IgnoreSpecialProperties and Special then
 							continue
 						end
 
@@ -1644,9 +1578,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							continue
 						end
 
-						local raw
-						raw, specialProperties =
-							ReadProperty(Property, instance, PropertyName, specialProperties, Special)
+						local raw = ReadProperty(Property, instance, PropertyName, Special)
 						if raw == "__BREAK" then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 							local PropertyFix
 							do
@@ -1692,8 +1624,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							ValueType = "SharedString"
 						end
 
-						local Category = Property.Category
-
 						if
 							def_instance
 							and not Property.Special
@@ -1709,6 +1639,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 
 						-- Serialization start
+						local Category = Property.Category
 
 						local tag, value
 						if Category == "Class" then
@@ -1762,11 +1693,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										value = "-- Ignored"
 									else
 										local should_decompile = true
-
+										local LinkedSource
 										local LinkedSourceUrl = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
 										local LinkedSourceNotEmpty = LinkedSourceUrl ~= ""
 										if LinkedSourceNotEmpty then
-											local LinkedSource = string.match(LinkedSourceUrl, "%w+$") -- TODO: No sure if this pattern matches possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
+											LinkedSource = string.match(LinkedSourceUrl, "%w+$") -- TODO: No sure if this pattern matches possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 											if LinkedSource then
 												local Cached = ldeccache[LinkedSource]
 
@@ -1825,7 +1756,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										end
 
 										value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
-											.. (LinkedSourceNotEmpty and "-- Original Source: " .. LinkedSourceUrl .. " (use https://assetdelivery.roproxy.com/v1/asset/?id=ASSETID)\n\n" or "")
+											.. (LinkedSourceNotEmpty and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?id=" .. (LinkedSource or LinkedSourceUrl) .. "\n\n" or "")
 											.. value
 									end
 								end
@@ -1844,7 +1775,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										if raw ~= nil then
 											value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
 										else
-											value, tag = "", ValueType
+											value, tag = "", ValueType -- ? It can be empty supposedly, because it's optional
 										end
 									end
 								end

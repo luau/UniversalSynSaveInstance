@@ -36,8 +36,12 @@ def fetch_api():
         class_tags = api_class.get("Tags")
 
         if class_tags:
-            print(class_tags)
+            # print(class_tags)
+            if len(class_tags) == 0:
+                print("tagsempty")
             class_tags = array_to_dictionary(class_tags)
+        else:
+            print(class_name, "notags")
 
         class_info = {
             "Tags": class_tags,
