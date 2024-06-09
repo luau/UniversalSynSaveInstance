@@ -2,10 +2,6 @@
 --!optimize 2
 -- https://discord.gg/wx4ThpAsmw
 
-local function Find(String, Pattern)
-	return string.find(String, Pattern, nil, true)
-end
-
 local service = setmetatable({}, {
 	__index = function(self, Name)
 		local Service = game:GetService(Name) or settings():GetService(Name) or UserSettings():GetService(Name)
@@ -13,6 +9,10 @@ local service = setmetatable({}, {
 		return Service
 	end,
 })
+
+local function Find(String, Pattern)
+	return string.find(String, Pattern, nil, true)
+end
 
 local EscapesPattern = "[&<>\"'\1-\9\11-\12\14-\31\127-\255]" -- * The safe way is to escape all five characters in text. However, the three characters " ' and > needn't be escaped in text
 -- %z (\0 aka NULL) might not be needed as Roblox automatically converts it to space everywhere it seems like
@@ -243,9 +243,7 @@ Descriptors = {
 	__ENUM = function(raw)
 		return raw.Value, "token"
 	end,
-	__ENUMNAME = function(raw)
-		return raw.Name
-	end,
+
 	__EXTREME = function(raw)
 		local Extreme
 		if raw ~= raw then
@@ -372,12 +370,17 @@ Descriptors = {
 			.. "</faces>"
 	end,
 	Font = function(raw)
+		local FontString = tostring(raw) -- TODO: Temporary fix
+
+		local EmptyWeight = Find(FontString, "Weight = ,")
+		local EmptyStyle = Find(FontString, "Style =  }")
+
 		return "<Family>"
 			.. Descriptors.Content(raw.Family)
 			.. "</Family><Weight>"
-			.. Descriptors.__ENUM(raw.Weight)
+			.. (EmptyWeight and "" or Descriptors.__ENUM(raw.Weight))
 			.. "</Weight><Style>"
-			.. Descriptors.__ENUMNAME(raw.Style) -- Weird but this field accepts .Name of enum instead..
+			.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
 			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
@@ -665,10 +668,10 @@ local globalenv = getgenv and getgenv() or _G or shared
 --- @field mode string -- Change this to invalid mode like "custom" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
 --- @field scriptcache boolean -- ___Default:___ true
---- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ ""
+--- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ Your executor's decompiler, if available. Otherwise uses "custom" if not.
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
---- @field SaveBytecode boolean -- Includes bytecode in the output ONLY in these cases: if decompiler fails, if noscripts is enabled, if decompiler isn't found. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
+--- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
 --- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference. ___Default:___ {Chat, TextChatService}
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore**. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
@@ -677,7 +680,7 @@ local globalenv = getgenv and getgenv() or _G or shared
 --- @field FilePath string -- Must only contain the name of the file, no file extension. ___Default:___ false
 --- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
 --- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
---- @field NilInstances boolean -- Save nil instances. ___Default:___ false
+--- @field NilInstances boolean -- Save instances that aren't Parented (Parented to nil). ___Default:___ false
 --- .NilInstancesFixes {[Instance.ClassName] = function} -- * This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though). For example, Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways. **TO AVOID THIS BEHAVIOR USE THIS EXAMPLE:** {ClassName_That_Doesnt_Need_Fix = false}. ___Default:___ {Animator = function, AdPortal = function, BaseWrap = function, Attachment = function}
 --- .NotScriptableFixes {[Instance.ClassName] = {<string>PropertyToFix = <string>PropertyFix, _Inheritors = {[Instance.ClassName] = {<string>PropertyToFix_Name = <string>PropertyFix_Name}}}} -- * Structure is similar to **@NilInstancesFixes**. This is useful for execs that lack gethiddenproperty. ___Default:___ *too much to list*
 --- @field IgnoreDefaultProperties boolean -- Ignores default properties during saving.  ___Default:___ true
@@ -993,6 +996,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IgnoreNotArchivable = OPTIONS.IgnoreNotArchivable
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
 	local IgnoreSpecialProperties = OPTIONS.IgnoreSpecialProperties
+	local notIgnoreSpecialProperties = not IgnoreSpecialProperties
 
 	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
 	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
@@ -1009,6 +1013,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
 	local NotScriptableFixes = OPTIONS.NotScriptableFixes
+
+	local SaveBytecode
+	if OPTIONS.SaveBytecode then
+		SaveBytecode = function(Script)
+			local s, bytecode = pcall(getscriptbytecode, Script)
+
+			if s then
+				if bytecode and bytecode ~= "" then
+					return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
+				end
+			end
+		end
+	end
 
 	local ldeccache = globalenv.scriptcache
 
@@ -1158,30 +1175,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- 	end
 
 		-- end
-		local SaveBytecode
-		if OPTIONS.SaveBytecode then
-			SaveBytecode = function(DefaultOutput, Script)
-				local s, bytecode = pcall(getscriptbytecode, Script)
-
-				if s then
-					if bytecode and bytecode ~= "" then
-						return DefaultOutput .. "\n--Bytecode (Base64):\n-- " .. base64encode(bytecode)
-					end
-				end
-
-				return DefaultOutput
-			end
-		end
 
 		if OPTIONS.noscripts then
-			ldecompile = function(Script)
-				local output = "-- Decompiling is disabled"
-
-				if SaveBytecode then
-					return SaveBytecode(output, Script)
-				end
-
-				return output
+			ldecompile = function()
+				return "-- Decompiling is disabled"
 			end
 		elseif Decompiler then
 			local function DecompileHandler(Script)
@@ -1255,9 +1252,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					output = result
 				else
 					output = "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
-					if SaveBytecode then
-						output = SaveBytecode(output, Script)
-					end
 				end
 
 				if ScriptCache and hashed_bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
@@ -1267,14 +1261,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				return output
 			end
 		else
-			ldecompile = function(Script)
-				local output = "-- Decompiling is NOT supported on your executor"
-
-				if SaveBytecode then
-					return SaveBytecode(output, Script)
-				end
-
-				return output
+			ldecompile = function()
+				return "-- Decompiling is NOT supported on your executor"
 			end
 		end
 	end
@@ -1335,7 +1323,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if ok then
 					raw = result
-				elseif not IgnoreSpecialProperties then
+				elseif notIgnoreSpecialProperties then
 					ok, result = pcall(gethiddenproperty, instance, PropertyName)
 
 					if ok then
@@ -1626,7 +1614,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 						if
 							def_instance
-							and not Property.Special
+							and not Property.Special -- TODO: .Special is checked more than once
 							and not (PropertyName == "Source" and IsLuaSourceContainer(instance))
 						then -- ? Could be not just "Source" in the future
 							if new_def_inst then
@@ -1752,6 +1740,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 												value = "-- Server Scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
 											else
 												value = ldecompile(instance)
+												if SaveBytecode then
+													local output = SaveBytecode(instance)
+													if output then
+														value = output .. value
+													end
+												end
 											end
 										end
 
