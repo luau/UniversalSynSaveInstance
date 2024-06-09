@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v2.3.1">
 <title data-rh="true">SynSaveInstance | UniversalSynSaveInstance</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="SynSaveInstance | UniversalSynSaveInstance"><meta data-rh="true" name="description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><meta data-rh="true" property="og:description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><link data-rh="true" rel="canonical" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="en"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="x-default"><link rel="stylesheet" href="/UniversalSynSaveInstance/assets/css/styles.e1adec2f.css">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.b2bbb8a4.js" as="script">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.b596f103.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.73238456.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.e21031ba.js" as="script">
 </head>
 <body class="navigation-with-keyboard">
 <script>!function(){function e(e){document.documentElement.setAttribute("data-theme",e)}var t=function(){var e=null;try{e=localStorage.getItem("theme")}catch(e){}return e}();null!==t?e(t):window.matchMedia("(prefers-color-scheme: dark)").matches?e("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,e("light"))}()</script><div id="__docusaurus">
@@ -46,7 +46,7 @@
 </span></span></div><div><code>IgnoreProperties<!-- -->: </code><code class="blue_P4bS">table</code><span class="inlineDescription_G7Er">-- <span>
 <p>Ignores properties by Name. <strong><em>Default:</em></strong> {}</p>
 </span></span></div><div><code>SaveCacheInterval<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
-<p>The less the value the more often it saves, but that would mean less performance due to constantly saving. <strong><em>Default:</em></strong> 0x1600 * 2</p>
+<p>The less the value the more often it saves, but that would mean less performance due to constantly saving. <strong><em>Default:</em></strong> 0x1600 * 8</p>
 </span></span></div><div><code>FilePath<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p>Must only contain the name of the file, no file extension. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>Object<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><span class="inlineDescription_G7Er">-- <span>
@@ -243,7 +243,7 @@
                 {
                     &quot;name&quot;: &quot;SaveCacheInterval&quot;,
                     &quot;lua_type&quot;: &quot;number&quot;,
-                    &quot;desc&quot;: &quot;The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 2&quot;
+                    &quot;desc&quot;: &quot;The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 8&quot;
                 },
                 {
                     &quot;name&quot;: &quot;FilePath&quot;,
@@ -404,7 +404,7 @@
         &quot;path&quot;: &quot;saveinstance.luau&quot;
     }
 }</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#types" class="table-of-contents__link toc-highlight">Types</a><ul><li><a href="#CustomOptions table" class="table-of-contents__link toc-highlight">CustomOptions table</a></li><li><a href="#OptionsAliases" class="table-of-contents__link toc-highlight">OptionsAliases</a></li></ul></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#saveinstance" class="table-of-contents__link toc-highlight">.saveinstance</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2024 luau. Built with Moonwave and Docusaurus.</div></div></div></footer></div>
-<script src="/UniversalSynSaveInstance/assets/js/runtime~main.b2bbb8a4.js"></script>
-<script src="/UniversalSynSaveInstance/assets/js/main.b596f103.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/runtime~main.73238456.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/main.e21031ba.js"></script>
 </body>
 </html>
