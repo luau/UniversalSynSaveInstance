@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v2.3.1">
 <title data-rh="true">SynSaveInstance | UniversalSynSaveInstance</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="SynSaveInstance | UniversalSynSaveInstance"><meta data-rh="true" name="description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><meta data-rh="true" property="og:description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><link data-rh="true" rel="canonical" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="en"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="x-default"><link rel="stylesheet" href="/UniversalSynSaveInstance/assets/css/styles.e1adec2f.css">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.2188f784.js" as="script">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.9276de7c.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.bad0a1f0.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.cdee7643.js" as="script">
 </head>
 <body class="navigation-with-keyboard">
 <script>!function(){function e(e){document.documentElement.setAttribute("data-theme",e)}var t=function(){var e=null;try{e=localStorage.getItem("theme")}catch(e){}return e}();null!==t?e(t):window.matchMedia("(prefers-color-scheme: dark)").matches?e("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,e("light"))}()</script><div id="__docusaurus">
@@ -27,14 +27,14 @@
 <p><strong><em>Default:</em></strong> true</p>
 </span></span></div><div><code>decomptype<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <ul>
-  <li>"custom" - for built-in custom decompiler. <strong><em>Default:</em></strong> ""</li>
+  <li>"custom" - for built-in custom decompiler. <strong><em>Default:</em></strong> Your executor's decompiler, if available. Otherwise uses "custom" if not.</li>
 </ul>
 </span></span></div><div><code>timeout<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). <strong><em>Aliases</em></strong>: <code>DecompileTimeout</code>. <strong><em>Default:</em></strong> 10</p>
 </span></span></div><div><code>DecompileJobless<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p>Includes already decompiled code in the output. No new scripts are decompiled. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>SaveBytecode<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
-<p>Includes bytecode in the output ONLY in these cases: if decompiler fails, if noscripts is enabled, if decompiler isn't found. Useful if you wish to be able to decompile it yourself later. <strong><em>Default:</em></strong> false</p>
+<p>Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>DecompileIgnore<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">Instance.ClassName</code><code class="op_lSLc"> | </code><span><code>[</code><code class="blue_P4bS">Instance.ClassName</code><code>]</code></span><code class="blue_P4bS">=</code><code class="green_DgR4">{</code><code class="blue_P4bS">Instance.Name</code><code class="green_DgR4">}</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
 <ul>
   <li>Ignores match &#x26; it's descendants. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, <code>workspace</code> - matches Instance by reference. <strong><em>Default:</em></strong> {Chat, TextChatService}</li>
@@ -56,7 +56,7 @@
 </span></span></div><div><code>IsModel<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p>If Object is specified then sets to true automatically, unless you set it to false. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>NilInstances<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
-<p>Save nil instances. <strong><em>Default:</em></strong> false</p>
+<p>Save instances that aren't Parented. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>NilInstancesFixes<!-- -->: </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS">Instance.ClassName</code><code>]</code></span><code class="blue_P4bS">=</code><code class="blue_P4bS">function</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
 <ul>
   <li>This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though). For example, Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways. <strong>TO AVOID THIS BEHAVIOR USE THIS EXAMPLE:</strong> {ClassName_That_Doesnt_Need_Fix = false}. <strong><em>Default:</em></strong> {Animator = function, AdPortal = function, BaseWrap = function, Attachment = function}</li>
@@ -203,7 +203,7 @@
                 {
                     &quot;name&quot;: &quot;decomptype&quot;,
                     &quot;lua_type&quot;: &quot;string&quot;,
-                    &quot;desc&quot;: &quot;* \&quot;custom\&quot; - for built-in custom decompiler. ___Default:___ \&quot;\&quot;&quot;
+                    &quot;desc&quot;: &quot;* \&quot;custom\&quot; - for built-in custom decompiler. ___Default:___ Your executor&#x27;s decompiler, if available. Otherwise uses \&quot;custom\&quot; if not.&quot;
                 },
                 {
                     &quot;name&quot;: &quot;timeout&quot;,
@@ -218,7 +218,7 @@
                 {
                     &quot;name&quot;: &quot;SaveBytecode&quot;,
                     &quot;lua_type&quot;: &quot;boolean&quot;,
-                    &quot;desc&quot;: &quot;Includes bytecode in the output ONLY in these cases: if decompiler fails, if noscripts is enabled, if decompiler isn&#x27;t found. Useful if you wish to be able to decompile it yourself later. ___Default:___ false&quot;
+                    &quot;desc&quot;: &quot;Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false&quot;
                 },
                 {
                     &quot;name&quot;: &quot;DecompileIgnore&quot;,
@@ -263,7 +263,7 @@
                 {
                     &quot;name&quot;: &quot;NilInstances&quot;,
                     &quot;lua_type&quot;: &quot;boolean&quot;,
-                    &quot;desc&quot;: &quot;Save nil instances. ___Default:___ false&quot;
+                    &quot;desc&quot;: &quot;Save instances that aren&#x27;t Parented. ___Default:___ false&quot;
                 },
                 {
                     &quot;name&quot;: &quot;NilInstancesFixes&quot;,
@@ -404,7 +404,7 @@
         &quot;path&quot;: &quot;saveinstance.luau&quot;
     }
 }</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#types" class="table-of-contents__link toc-highlight">Types</a><ul><li><a href="#CustomOptions table" class="table-of-contents__link toc-highlight">CustomOptions table</a></li><li><a href="#OptionsAliases" class="table-of-contents__link toc-highlight">OptionsAliases</a></li></ul></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#saveinstance" class="table-of-contents__link toc-highlight">.saveinstance</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2024 luau. Built with Moonwave and Docusaurus.</div></div></div></footer></div>
-<script src="/UniversalSynSaveInstance/assets/js/runtime~main.2188f784.js"></script>
-<script src="/UniversalSynSaveInstance/assets/js/main.9276de7c.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/runtime~main.bad0a1f0.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/main.cdee7643.js"></script>
 </body>
 </html>
