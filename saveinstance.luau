@@ -512,8 +512,9 @@ The value of each component is represented by the text content formatted as a 32
 	end,
 	-- Vector3int16 = Descriptors.Vector3, -- except as <int>\
 
-	bool = tostring,
-
+	bool = function(raw)
+		return raw and "true" or "false"
+	end,
 	double = function(raw, default) -- Float64
 		return Descriptors.__APIPRECISION(raw, default or 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
 	end, -- ? wouldn't float be better as an optimization
