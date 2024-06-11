@@ -433,6 +433,9 @@ The value of each component is represented by the text content formatted as a 32
 			Descriptors.Vector3
 		)
 	end,
+	Region3int16 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/App/v8tree/EnumProperty.cpp#L346)
+		return Descriptors.__MINMAX(raw.Min, raw.Max, Descriptors.Vector3int16)
+	end,
 	SharedString = function(raw)
 		raw = base64encode(raw)
 
