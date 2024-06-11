@@ -259,6 +259,9 @@ Descriptors = {
 	__EXTREME_RANGE = function(raw)
 		return raw ~= raw and "0" or raw -- Normally we should return "-nan(ind)" instead of "0" but this adds more compatibility
 	end,
+	__MINMAX = function(min, max, descriptor)
+		return "<min>" .. descriptor(min) .. "</min><max>" .. descriptor(max) .. "</max>"
+	end,
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
 		return Find(raw, "]]>") and Descriptors.string(raw, true) or Descriptors.__CDATA(raw)
 	end,
@@ -293,9 +296,7 @@ Descriptors = {
 
 		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
-	-- BinaryString = function(raw)
-
-	-- end
+	-- BinaryString = function(raw) end,
 	BrickColor = function(raw)
 		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
 	end,
@@ -413,18 +414,14 @@ The value of each component is represented by the text content formatted as a 32
 				and CustomPhysics .. "<Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
 			or CustomPhysics
 	end,
-	-- ProtectedString = function(raw)
-	-- 	return tostring(raw), "ProtectedString"
-	-- end,
+	-- ProtectedString = function(raw) return tostring(raw), "ProtectedString" end,
 	Ray = function(raw)
 		local vector3 = Descriptors.Vector3
 
 		return "<origin>" .. vector3(raw.Origin) .. "</origin><direction>" .. vector3(raw.Direction) .. "</direction>"
 	end,
 	Rect = function(raw)
-		local vector2 = Descriptors.Vector2
-
-		return "<min>" .. vector2(raw.Min) .. "</min><max>" .. vector2(raw.Max) .. "</max>", "Rect2D"
+		return Descriptors.__MINMAX(raw.Min, raw.Max, Descriptors.Vector2), "Rect2D"
 	end,
 	-- Region3 = function(raw) --? Not sure yet
 	-- 	local vector3 = Descriptors.Vector3
