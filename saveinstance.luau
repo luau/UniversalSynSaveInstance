@@ -423,23 +423,16 @@ The value of each component is represented by the text content formatted as a 32
 	Rect = function(raw)
 		return Descriptors.__MINMAX(raw.Min, raw.Max, Descriptors.Vector2), "Rect2D"
 	end,
-	-- Region3 = function(raw) --? Not sure yet
-	-- 	local vector3 = Descriptors.Vector3
+	Region3 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/Network/Replicator.cpp#L1306)
+		local Translation = raw.CFrame.Position
+		local HalfSize = raw.Size * 0.5
 
-	-- 	local Position = raw.CFrame.Position
-	-- 	local Size = raw.Size
-
-	-- 	return "<min>"
-	-- 		.. vector3(Position - (Size * 0.5))
-	-- 		.. "</min><max>"
-	-- 		.. vector3(Position + (Size * 0.5))
-	-- 		.. "</max>"
-	-- end,
-	-- Region3int16 = function(raw) --? Not sure yet
-	-- 	local vector3int16 = Descriptors.Vector3int16
-
-	-- 	return "<min>" .. vector3int16(raw.Min) .. "</min><max>" .. vector3int16(raw.Max) .. "</max>"
-	-- end,
+		return Descriptors.__MINMAX(
+			Translation - HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L38
+			Translation + HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L42
+			Descriptors.Vector3
+		)
+	end,
 	SharedString = function(raw)
 		raw = base64encode(raw)
 
