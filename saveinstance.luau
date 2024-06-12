@@ -17,8 +17,8 @@ end
 local EscapesPattern = "[&<>\"'\1-\9\11-\12\14-\31\127-\255]" -- * The safe way is to escape all five characters in text. However, the three characters " ' and > needn't be escaped in text
 -- %z (\0 aka NULL) might not be needed as Roblox automatically converts it to space everywhere it seems like
 -- Characters from: https://create.roblox.com/docs/en-us/ui/rich-text#escape-forms
--- TODO: EscapesPattern should be ordered from most common to least common characters for sake of speed
--- TODO: Might wanna use their numerical codes instead of named codes for reduced file size (Could be an Option)
+-- * EscapesPattern should be ordered from most common to least common characters for sake of speed
+-- * Might wanna use their numerical codes instead of named codes for reduced file size (Could be an Option)
 -- TODO Maybe we should invert the pattern to only allow certain characters (future-proof)
 local Escapes = {
 	["&"] = "&amp;", -- 38
@@ -189,14 +189,14 @@ local sharedstrings = setmetatable({
 		local Identifier = base64encode(tostring(self.identifier)) -- tostring is only needed for built-in base64encode, Reselim's doesn't need it as buffers autoconvert
 		self.identifier += 1
 
-		self[String] = Identifier -- Todo: The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes..
+		self[String] = Identifier -- ? The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes..
 		return Identifier
 	end,
 })
 
 local Descriptors
 Descriptors = {
-	__APIPRECISION = function(raw, default)
+	__APIPRECISION = function(raw, precision)
 		if raw == 0 or raw % 1 == 0 then
 			return raw
 		end
@@ -206,24 +206,10 @@ Descriptors = {
 			return Extreme
 		end
 
-		local precision
-		if type(default) == "string" then -- TODO: This part isn't too necessary at all and affects speed
-			local dotIndex = Find(default, ".")
+		-- TODO: scientific notation formatting also takes place if value is a decimal (only counts if it starts with 0.) then values like 0.00008 will be formatted as 8.0000000000000006544e-05 ("%.19e"), it must have 5 or more consecutive (?) zeros for this, on other hand, if it doesn't start with 0. then e20+ format is applied in case it has 20 or more consecutive (?) zeros so 1e20 will be formatted as 1e+20 and upwards (1e+19 is not allowed, same as 1e-04 for decimals)
+		-- ? The good part is compression of value so less file size BUT at the potential cost of precision loss
 
-			if dotIndex then
-				precision = #default - dotIndex
-			end
-		else
-			precision = default
-		end
-		if precision then
-			-- TODO: scientific notation formatting also takes place if value is a decimal (only counts if it starts with 0.) then values like 0.00008 will be formatted as 8.0000000000000006544e-05 ("%.19e"), it must have 5 or more consecutive (?) zeros for this, on other hand, if it doesn't start with 0. then e20+ format is applied in case it has 20 or more consecutive (?) zeros so 1e20 will be formatted as 1e+20 and upwards (1e+19 is not allowed, same as 1e-04 for decimals)
-			-- ? The good part is compression of value so less file size BUT at the potential cost of precision loss
-
-			return string.format("%." .. precision .. "f", raw)
-		end
-
-		return raw
+		return string.format("%." .. precision .. "f", raw)
 	end,
 	__BINARYSTRING = base64encode,
 	__BIT = function(...) -- * Credits to Friend (you know yourself)
@@ -363,7 +349,7 @@ Descriptors = {
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. Descriptors.CFrame(raw) .. "</CFrame>"
 	end,
-	-- DateTime = function(raw) end,-- TODO
+	-- DateTime = function(raw) return raw.UnixTimestampMillis end, -- TODO
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
 		return "<faces>"
@@ -508,11 +494,11 @@ The value of each component is represented by the text content formatted as a 32
 	bool = function(raw)
 		return raw and "true" or "false"
 	end,
-	double = function(raw, default) -- Float64
-		return Descriptors.__APIPRECISION(raw, default or 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
+	double = function(raw) -- Float64
+		return Descriptors.__APIPRECISION(raw, 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
 	end, -- ? wouldn't float be better as an optimization
-	float = function(raw, default) -- Float32
-		return Descriptors.__APIPRECISION(raw, default or 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
+	float = function(raw) -- Float32
+		return Descriptors.__APIPRECISION(raw, 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
 	end,
 	int = function(raw) -- Int32
 		return Descriptors.__EXTREME(raw) or raw
@@ -642,7 +628,7 @@ end
 
 local inherited_properties = {}
 local default_instances = {}
-local referents, ref_count = {}, 0 -- Todo: Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase.
+local referents, ref_count = {}, 0 -- ? Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase.
 
 local globalenv = getgenv and getgenv() or _G or shared
 
@@ -1602,7 +1588,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							end
 						end
 
-						if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to  table if more types are added
+						if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to table if more types are added
 							ValueType = "SharedString"
 						end
 
@@ -1679,7 +1665,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										local LinkedSourceUrl = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
 										local LinkedSourceNotEmpty = LinkedSourceUrl ~= ""
 										if LinkedSourceNotEmpty then
-											LinkedSource = string.match(LinkedSourceUrl, "%w+$") -- TODO: No sure if this pattern matches possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
+											LinkedSource = string.match(LinkedSourceUrl, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 											if LinkedSource then
 												local Cached = ldeccache[LinkedSource]
 
