@@ -772,79 +772,90 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		},
 
 		NotScriptableFixes = {
-			Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
-			-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
-			BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
-			BasePart = {
-				Color3uint8 = "Color",
-				MaterialVariantSerialized = "MaterialVariant",
-				size = "Size",
+			Instance = {
+				Tags = function(instance)
+					-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
+					return table.concat(instance:GetTags(), "\0")
+				end,
 				_Inheritors = {
-					TriangleMeshPart = {
-						FluidFidelityInternal = "FluidFidelity",
+					Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
+					-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
+					BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
+					BasePart = {
+						Color3uint8 = "Color",
+						MaterialVariantSerialized = "MaterialVariant",
+						size = "Size",
 						_Inheritors = {
-							MeshPart = { InitialSize = "MeshSize" },
-							PartOperation = { InitialSize = "MeshSize" },
+							TriangleMeshPart = {
+								FluidFidelityInternal = "FluidFidelity",
+								_Inheritors = {
+									MeshPart = { InitialSize = "MeshSize" },
+									PartOperation = { InitialSize = "MeshSize" },
+								},
+							},
+							FormFactorPart = {
+								formFactorRaw = "FormFactor",
+								_Inheritors = { Part = { shape = "Shape" } },
+							},
+
+							TrussPart = { style = "Style" },
 						},
 					},
-					FormFactorPart = { formFactorRaw = "FormFactor", _Inheritors = { Part = { shape = "Shape" } } },
+					-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
+					-- 	local Receiver  = instance:GetAttachedReceivers()[1]
+					-- 	if Receiver then
+					-- 		return Receiver:GetCurrentValue()
+					-- 	else
+					-- 		error("No Receiver")
+					-- 	end
+					-- end},
 
-					TrussPart = { style = "Style" },
-				},
+					DoubleConstrainedValue = { value = "Value" },
+					IntConstrainedValue = { value = "Value" },
+					Fire = { heat_xml = "Heat", size_xml = "Size" },
+
+					Humanoid = { Health_XML = "Health" },
+					MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
+
+					Model = {
+						ScaleFactor = function(instance)
+							return instance:GetScale()
+						end,
+						WorldPivotData = "WorldPivot",
+						-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
+						-- _Inheritors = {
+						-- 	Workspace = { SignalBehavior2 = "SignalBehavior" }, -- * Both are NotScriptable so it doesn't make sense to keep
+						-- },
+					},
+					PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
+
+					StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
+					Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
+					Sound = {
+						xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
+					},
+					-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
+					-- 	CameraCFrame = function(instance) -- *
+					-- 		local CurrentCamera = instance.CurrentCamera
+					-- 		if CurrentCamera then
+					-- 			return CurrentCamera.CFrame
+					-- 		else
+					-- 			error("No CurrentCamera")
+					-- 		end
+					-- 	end,
+					-- 	-- CameraFieldOfView =
+					-- },
+					WeldConstraint = {
+						Part0Internal = "Part0",
+						Part1Internal = "Part1",
+						-- State = function(instance)
+						-- 	-- If untouched then default state is 3 (default true)
+						-- 	return instance.Enabled and 1 or 0
+						-- end,
+					},
+				}, -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
 			},
-			-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
-			-- 	local Receiver  = instance:GetAttachedReceivers()[1]
-			-- 	if Receiver then
-			-- 		return Receiver:GetCurrentValue()
-			-- 	else
-			-- 		error("No Receiver")
-			-- 	end
-			-- end},
-
-			DoubleConstrainedValue = { value = "Value" },
-			IntConstrainedValue = { value = "Value" },
-			Fire = { heat_xml = "Heat", size_xml = "Size" },
-
-			Humanoid = { Health_XML = "Health" },
-			MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
-
-			Model = {
-				ScaleFactor = function(instance)
-					return instance:GetScale()
-				end,
-				WorldPivotData = "WorldPivot",
-				-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
-				-- _Inheritors = {
-				-- 	Workspace = { SignalBehavior2 = "SignalBehavior" }, -- * Both are NotScriptable so it doesn't make sense to keep
-				-- },
-			},
-			PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
-
-			StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
-			Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
-			Sound = {
-				xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
-			},
-			-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
-			-- 	CameraCFrame = function(instance) -- *
-			-- 		local CurrentCamera = instance.CurrentCamera
-			-- 		if CurrentCamera then
-			-- 			return CurrentCamera.CFrame
-			-- 		else
-			-- 			error("No CurrentCamera")
-			-- 		end
-			-- 	end,
-			-- 	-- CameraFieldOfView =
-			-- },
-			WeldConstraint = {
-				Part0Internal = "Part0",
-				Part1Internal = "Part1",
-				-- State = function(instance)
-				-- 	-- If untouched then default state is 3 (default true)
-				-- 	return instance.Enabled and 1 or 0
-				-- end,
-			},
-		}, -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
+		},
 	}
 
 	local function CheckAlias(key)
