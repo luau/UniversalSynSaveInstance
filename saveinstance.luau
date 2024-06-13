@@ -823,9 +823,62 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end,
 						WorldPivotData = "WorldPivot",
 						-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
-						-- _Inheritors = {
-						-- 	Workspace = { SignalBehavior2 = "SignalBehavior" }, -- * Both are NotScriptable so it doesn't make sense to keep
-						-- },
+						_Inheritors = {
+							Workspace = {
+								-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
+								CollisionGroupData = function()
+									local groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
+
+									local ngroups = #groups
+
+									if ngroups == 0 then
+										return "\1\0"
+									end
+
+									local totalSize = 3 -- Initial size
+
+									for _, group in groups do
+										totalSize += 7 + #group.name
+									end
+
+									totalSize -= 1 -- Except Default group
+
+									local b = buffer.create(totalSize)
+									local offset = 0
+
+									buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte
+									offset += 1
+									buffer.writeu8(b, offset, ngroups) -- Group count
+									offset += 1
+									buffer.writeu8(b, offset, 0) -- ? [CONSTANT] Not sure
+									offset += 1
+
+									for i, group in groups do
+										local name, id, mask = group.name, i - 1, group.mask
+										local nameLength = #name
+
+										if id ~= 0 then
+											buffer.writeu8(b, offset, id) -- ID
+											offset += 1
+										end
+
+										buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure
+										offset += 1
+
+										buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
+										offset += 4
+
+										buffer.writeu8(b, offset, nameLength) -- Name length
+										offset += 1
+										buffer.writestring(b, offset, name) -- Name
+										offset += nameLength
+									end
+
+									-- print(totalSize == offset)
+									return buffer.tostring(b)
+								end,
+							},
+						},
 					},
 					PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
 
@@ -2084,7 +2137,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	do
 		if OPTIONS.SafeMode then
 			service.Players.LocalPlayer:Kick("\nSaving in Progress..\nPlease do NOT leave")
-			task.delay(5, service.GuiService.ClearError, service.GuiService)
+			task.delay(10, service.GuiService.ClearError, service.GuiService)
 		end
 
 		elapse_t = os.clock()
