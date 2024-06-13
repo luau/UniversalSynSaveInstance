@@ -16,7 +16,7 @@ Or shortly USSI, a project aimed at resurrecting saveinstance function from [Syn
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
 Important part about this saveinstance is that it doesn't modify anything, therefore reduces the amount of detection vectors by a lot.
-
+You can also enable the `SafeMode` option to completely bypass any detections and save **ANY** game!
 # Notes
 
 - Credits are appreciated 💖
