@@ -786,6 +786,49 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						MaterialVariantSerialized = "MaterialVariant",
 						size = "Size",
 						_Inheritors = {
+							Terrain = {
+								MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
+									local TERRAIN_MATERIAL_COLORS =
+										{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
+											Enum.Material.Grass,
+											Enum.Material.Slate,
+											Enum.Material.Concrete,
+											Enum.Material.Brick,
+											Enum.Material.Sand,
+											Enum.Material.WoodPlanks,
+											Enum.Material.Rock,
+											Enum.Material.Glacier,
+											Enum.Material.Snow,
+											Enum.Material.Sandstone,
+											Enum.Material.Mud,
+											Enum.Material.Basalt,
+											Enum.Material.Ground,
+											Enum.Material.CrackedLava,
+											Enum.Material.Asphalt,
+											Enum.Material.Cobblestone,
+											Enum.Material.Ice,
+											Enum.Material.LeafyGrass,
+											Enum.Material.Salt,
+											Enum.Material.Limestone,
+											Enum.Material.Pavement,
+										}
+
+									local b = buffer.create(69) -- 69 bytes: 6 reserved + 63 for colors (21 materials * 3 components)
+									local offset = 6 -- 6 reserved bytes
+
+									local RGB_components = { "R", "G", "B" }
+
+									for _, material in TERRAIN_MATERIAL_COLORS do
+										local color = instance:GetMaterialColor(material)
+										for _, component in RGB_components do
+											buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
+											offset += 1
+										end
+									end
+
+									return buffer.tostring(b)
+								end,
+							},
 							TriangleMeshPart = {
 								FluidFidelityInternal = "FluidFidelity",
 								_Inheritors = {
@@ -793,12 +836,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									PartOperation = { InitialSize = "MeshSize" },
 								},
 							},
+							TrussPart = { style = "Style" },
 							FormFactorPart = {
 								formFactorRaw = "FormFactor",
 								_Inheritors = { Part = { shape = "Shape" } },
 							},
-
-							TrussPart = { style = "Style" },
 						},
 					},
 					-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
