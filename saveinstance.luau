@@ -194,14 +194,269 @@ local sharedstrings = setmetatable({
 	end,
 })
 
-local Descriptors
-Descriptors = {
+local Type_IDs = {
+	string = 0x02,
+	boolean = 0x03,
+	-- float = 0x05,
+	number = 0x06,
+	UDim = 0x09,
+	UDim2 = 0x0A,
+	BrickColor = 0x0E,
+	Color3 = 0x0F,
+	Vector2 = 0x10,
+	Vector3 = 0x11,
+	CFrame = 0x14,
+	EnumItem = 0x15,
+	NumberSequence = 0x17,
+	ColorSequence = 0x19,
+	NumberRange = 0x1B,
+	Rect = 0x1C,
+	Font = 0x21,
+}
+local CFrame_Rotation_IDs = {
+	["\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63"] = 0x02,
+	["\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0\0\0\128\63\0\0\0\0"] = 0x03,
+	["\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191"] = 0x05,
+	["\0\0\128\63\0\0\0\0\0\0\0\128\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0\0\0\128\191\0\0\0\0"] = 0x06,
+	["\0\0\0\0\0\0\128\63\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191"] = 0x07,
+	["\0\0\0\0\0\0\0\0\0\0\128\63\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0"] = 0x09,
+	["\0\0\0\0\0\0\128\191\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\128\0\0\0\0\0\0\0\0\0\0\128\63"] = 0x0a,
+	["\0\0\0\0\0\0\0\0\0\0\128\191\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0"] = 0x0c,
+	["\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\128\63\0\0\0\0\0\0\0\0"] = 0x0d,
+	["\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0\0\0\128\63\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\0"] = 0x0e,
+	["\0\0\0\0\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191\0\0\128\63\0\0\0\0\0\0\0\0"] = 0x10,
+	["\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0\0\0\128\191\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\128"] = 0x11,
+	["\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191"] = 0x14,
+	["\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0\0\0\128\63\0\0\0\128"] = 0x15,
+	["\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63"] = 0x17,
+	["\0\0\128\191\0\0\0\0\0\0\0\128\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0\0\0\128\191\0\0\0\128"] = 0x18,
+	["\0\0\0\0\0\0\128\63\0\0\0\128\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63"] = 0x19,
+	["\0\0\0\0\0\0\0\0\0\0\128\191\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0"] = 0x1b,
+	["\0\0\0\0\0\0\128\191\0\0\0\128\0\0\128\191\0\0\0\0\0\0\0\128\0\0\0\0\0\0\0\0\0\0\128\191"] = 0x1c,
+	["\0\0\0\0\0\0\0\0\0\0\128\63\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0"] = 0x1e,
+	["\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\191\0\0\128\191\0\0\0\0\0\0\0\0"] = 0x1f,
+	["\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0\0\0\128\63\0\0\0\128\0\0\128\191\0\0\0\0\0\0\0\0"] = 0x20,
+	["\0\0\0\0\0\0\128\191\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\128\191\0\0\0\0\0\0\0\0"] = 0x22,
+	["\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0\0\0\128\191\0\0\0\128\0\0\128\191\0\0\0\0\0\0\0\128"] = 0x23,
+}
+local Binary_Descriptors
+Binary_Descriptors = {
+	__SEQUENCE = function(raw, ValueFormat, Keypoint_size, Envelope)
+		local Keypoints = raw.Keypoints
+		local Keypoints_n = #Keypoints
+
+		local len = 4 + (Keypoint_size or 12) * Keypoints_n
+		local b = buffer.create(len)
+		local offset = 0
+
+		buffer.writeu32(b, offset, Keypoints_n)
+		offset += 4
+
+		for _, Keypoint in Keypoints do
+			buffer.writef32(b, offset, Envelope or Keypoint.Envelope)
+			offset += 4
+			buffer.writef32(b, offset, Keypoint.Time)
+			offset += 4
+
+			local Value = Keypoint.Value
+			if ValueFormat then
+				offset += ValueFormat(Value, b, offset)
+			else
+				buffer.writef32(b, offset, Value)
+				offset += 4
+			end
+		end
+
+		return b, len
+	end,
+	["string"] = function(raw)
+		local raw_len = #raw
+		local len = 4 + raw_len
+
+		local b = buffer.create(len)
+
+		buffer.writeu32(b, 0, raw_len)
+		buffer.writestring(b, 4, raw)
+
+		return b, len
+	end,
+	["boolean"] = function(raw)
+		local b = buffer.create(1)
+
+		buffer.writeu8(b, 0, raw and 1 or 0)
+
+		return b, 1
+	end,
+	["number"] = function(raw) -- double
+		local b = buffer.create(8)
+
+		buffer.writef64(b, 0, raw)
+
+		return b, 8
+	end,
+	["UDim"] = function(raw)
+		local b = buffer.create(8)
+
+		buffer.writef32(b, 0, raw.Scale)
+		buffer.writei32(b, 4, raw.Offset)
+
+		return b, 8
+	end,
+	["UDim2"] = function(raw)
+		local b = buffer.create(16)
+
+		local Descriptors_UDim = Binary_Descriptors.UDim
+		local X = Descriptors_UDim(raw.X)
+		buffer.copy(b, 0, X)
+		local Y = Descriptors_UDim(raw.Y)
+		buffer.copy(b, 8, Y)
+
+		return b, 16
+	end,
+	["BrickColor"] = function(raw)
+		local b = buffer.create(4)
+
+		buffer.writeu32(b, 0, raw.Number)
+
+		return b, 4
+	end,
+	["Color3"] = function(raw)
+		local b = buffer.create(12)
+
+		buffer.writef32(b, 0, raw.R)
+		buffer.writef32(b, 4, raw.G)
+		buffer.writef32(b, 8, raw.B)
+
+		return b, 12
+	end,
+	["Vector2"] = function(raw)
+		local b = buffer.create(8)
+
+		buffer.writef32(b, 0, raw.X)
+		buffer.writef32(b, 4, raw.Y)
+
+		return b, 8
+	end,
+	["Vector3"] = function(raw)
+		local b = buffer.create(12)
+
+		buffer.writef32(b, 0, raw.X)
+		buffer.writef32(b, 4, raw.Y)
+		buffer.writef32(b, 8, raw.Z)
+
+		return b, 12
+	end,
+	["CFrame"] = function(raw)
+		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
+
+		local rotation_ID = CFrame_Rotation_IDs[string.pack("<fffffffff", R00, R01, R02, R10, R11, R12, R20, R21, R22)]
+
+		local len = rotation_ID and 13 or 49
+		local b = buffer.create(len)
+
+		-- ? TODO
+		-- local write_vector3 = Descriptors.Vector3
+		-- local pos = write_vector3(raw.Position)
+		-- buffer.copy(b, 0, pos)
+
+		buffer.writef32(b, 0, X)
+		buffer.writef32(b, 4, Y)
+		buffer.writef32(b, 8, Z)
+
+		if rotation_ID then
+			buffer.writeu8(b, 12, rotation_ID)
+		else
+			buffer.writeu8(b, 12, 0x0)
+
+			-- ? TODO
+			-- buffer.copy(b, 13, write_vector3(raw.XVector)) -- R00, R10, R20
+			-- buffer.copy(b, 13 + 12, write_vector3(raw.YVector)) -- R01, R11, R21
+			-- buffer.copy(b, 13 + 24, write_vector3(raw.ZVector)) -- R02, R12, R22
+
+			buffer.writef32(b, 13, R00)
+			buffer.writef32(b, 17, R01)
+			buffer.writef32(b, 21, R02)
+
+			buffer.writef32(b, 25, R10)
+			buffer.writef32(b, 29, R11)
+			buffer.writef32(b, 33, R12)
+
+			buffer.writef32(b, 37, R20)
+			buffer.writef32(b, 41, R21)
+			buffer.writef32(b, 45, R22)
+		end
+
+		return b, len
+	end,
+	["EnumItem"] = function(raw)
+		local b_Name, Name_size = Binary_Descriptors.string(tostring(raw.EnumType))
+
+		local len = Name_size + 4
+		local b = buffer.create(len)
+
+		buffer.copy(b, 0, b_Name)
+		buffer.writeu32(b, Name_size, raw.Value)
+
+		return b, len
+	end,
+	["NumberSequence"] = nil,
+
+	["ColorSequence"] = function(raw)
+		return Binary_Descriptors.__SEQUENCE(raw, function(Value, b, offset)
+			local color3 = Binary_Descriptors.Color3(Value)
+			buffer.copy(b, offset, color3)
+			return 12
+		end, 20, 0)
+	end,
+	["NumberRange"] = function(raw)
+		local b = buffer.create(8)
+
+		buffer.writef32(b, 0, raw.Min)
+		buffer.writef32(b, 4, raw.Max)
+
+		return b, 8
+	end,
+	["Rect"] = function(raw)
+		local b = buffer.create(16)
+
+		local Descriptors_Vector2 = Binary_Descriptors.Vector2
+		local Min = Descriptors_Vector2(raw.Min)
+		buffer.copy(b, 0, Min)
+		local Max = Descriptors_Vector2(raw.Max)
+		buffer.copy(b, 8, Max)
+
+		return b, 16
+	end,
+	["Font"] = function(raw)
+		local Descriptors_string = Binary_Descriptors.string
+
+		local b_Family, Family_size = Descriptors_string(raw.Family)
+		local b_CachedFaceId, CachedFaceId_size = Descriptors_string("")
+
+		local len = 3 + Family_size + CachedFaceId_size
+		local b = buffer.create(len)
+
+		buffer.writeu16(b, 0, raw.Weight.Value)
+		buffer.writeu8(b, 2, raw.Style.Value)
+
+		buffer.copy(b, 3, b_Family)
+		buffer.copy(b, 3 + Family_size, b_CachedFaceId)
+
+		return b, len
+	end,
+}
+do
+	Binary_Descriptors.NumberSequence = Binary_Descriptors.__SEQUENCE
+end
+
+local XML_Descriptors
+XML_Descriptors = {
 	__APIPRECISION = function(raw, precision)
 		if raw == 0 or raw % 1 == 0 then
 			return raw
 		end
 
-		local Extreme = Descriptors.__EXTREME(raw)
+		local Extreme = XML_Descriptors.__EXTREME(raw)
 		if Extreme then
 			return Extreme
 		end
@@ -249,18 +504,20 @@ Descriptors = {
 		return "<min>" .. descriptor(min) .. "</min><max>" .. descriptor(max) .. "</max>"
 	end,
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
-		return Find(raw, "]]>") and Descriptors.string(raw, true) or Descriptors.__CDATA(raw)
+		return Find(raw, "]]>") and XML_Descriptors.string(raw, true) or XML_Descriptors.__CDATA(raw)
 	end,
 	__SEQUENCE = function(raw, ValueFormat) --The value is the text content, formatted as a space-separated list of floating point numbers.
 		-- tostring(raw) also works (but way slower rn)
-		local __EXTREME_RANGE = Descriptors.__EXTREME_RANGE
+		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
 
 		local Converted = ""
 
 		for _, Keypoint in raw.Keypoints do
-			Converted ..= Keypoint.Time .. " " .. (ValueFormat and ValueFormat(Keypoint) or __EXTREME_RANGE(
-				Keypoint.Value
-			) .. " " .. __EXTREME_RANGE(Keypoint.Envelope) .. " ")
+			local Value = Keypoint.Value
+
+			Converted ..= Keypoint.Time .. " " .. (ValueFormat and ValueFormat(Value) or __EXTREME_RANGE(Value) .. " " .. __EXTREME_RANGE(
+				Keypoint.Envelope
+			) .. " ")
 		end
 
 		return Converted
@@ -280,7 +537,7 @@ Descriptors = {
 	Axes = function(raw)
 		--The text of this element is formatted as an integer between 0 and 7
 
-		return "<axes>" .. Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
+		return "<axes>" .. XML_Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
 	-- BinaryString = function(raw) end,
 	BrickColor = function(raw)
@@ -288,7 +545,7 @@ Descriptors = {
 	end,
 	CFrame = function(raw)
 		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
-		return Descriptors.__VECTOR(X, Y, Z)
+		return XML_Descriptors.__VECTOR(X, Y, Z)
 			.. "<R00>"
 			.. R00
 			.. "</R00><R01>"
@@ -331,10 +588,9 @@ Descriptors = {
 	ColorSequence = function(raw)
 		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
 
-		return Descriptors.__SEQUENCE(raw, function(Keypoint)
-			local __EXTREME_RANGE = Descriptors.__EXTREME_RANGE
+		return XML_Descriptors.__SEQUENCE(raw, function(Value)
+			local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
 
-			local Value = Keypoint.Value
 			return __EXTREME_RANGE(Value.R)
 				.. " "
 				.. __EXTREME_RANGE(Value.G)
@@ -344,16 +600,16 @@ Descriptors = {
 		end)
 	end,
 	Content = function(raw)
-		return raw == "" and "<null></null>" or "<url>" .. Descriptors.string(raw, true) .. "</url>"
+		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw, true) .. "</url>"
 	end,
 	CoordinateFrame = function(raw)
-		return "<CFrame>" .. Descriptors.CFrame(raw) .. "</CFrame>"
+		return "<CFrame>" .. XML_Descriptors.CFrame(raw) .. "</CFrame>"
 	end,
 	-- DateTime = function(raw) return raw.UnixTimestampMillis end, -- TODO
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
 		return "<faces>"
-			.. Descriptors.__BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front)
+			.. XML_Descriptors.__BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front)
 			.. "</faces>"
 	end,
 	Font = function(raw)
@@ -363,19 +619,20 @@ Descriptors = {
 		local EmptyStyle = Find(FontString, "Style =  }")
 
 		return "<Family>"
-			.. Descriptors.Content(raw.Family)
+			.. XML_Descriptors.Content(raw.Family)
 			.. "</Family><Weight>"
-			.. (EmptyWeight and "" or Descriptors.__ENUM(raw.Weight))
+			.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
 			.. "</Weight><Style>"
 			.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
 			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
 		--The value is the text content, formatted as a space-separated list of floating point numbers.
-		local __EXTREME_RANGE = Descriptors.__EXTREME_RANGE
+		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
 
 		return __EXTREME_RANGE(raw.Min) .. " " .. __EXTREME_RANGE(raw.Max) --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually; __EXTREME_RANGE is not needed here but it fixes the issue where "nan 10" value would reset to "0 0"
 	end,
+	NumberSequence = nil,
 	-- NumberSequence = Descriptors.__SEQUENCE,
 	PhysicalProperties = function(raw)
 		--[[Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
@@ -394,7 +651,7 @@ The value of each component is represented by the text content formatted as a 32
 		else
 			CustomPhysics = false
 		end
-		CustomPhysics = "<CustomPhysics>" .. Descriptors.bool(CustomPhysics) .. "</CustomPhysics>"
+		CustomPhysics = "<CustomPhysics>" .. XML_Descriptors.bool(CustomPhysics) .. "</CustomPhysics>"
 
 		return raw
 				and CustomPhysics .. "<Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
@@ -402,25 +659,25 @@ The value of each component is represented by the text content formatted as a 32
 	end,
 	-- ProtectedString = function(raw) return tostring(raw), "ProtectedString" end,
 	Ray = function(raw)
-		local vector3 = Descriptors.Vector3
+		local vector3 = XML_Descriptors.Vector3
 
 		return "<origin>" .. vector3(raw.Origin) .. "</origin><direction>" .. vector3(raw.Direction) .. "</direction>"
 	end,
 	Rect = function(raw)
-		return Descriptors.__MINMAX(raw.Min, raw.Max, Descriptors.Vector2), "Rect2D"
+		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector2), "Rect2D"
 	end,
 	Region3 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/Network/Replicator.cpp#L1306)
 		local Translation = raw.CFrame.Position
 		local HalfSize = raw.Size * 0.5
 
-		return Descriptors.__MINMAX(
+		return XML_Descriptors.__MINMAX(
 			Translation - HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L38
 			Translation + HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L42
-			Descriptors.Vector3
+			XML_Descriptors.Vector3
 		)
 	end,
 	Region3int16 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/App/v8tree/EnumProperty.cpp#L346)
-		return Descriptors.__MINMAX(raw.Min, raw.Max, Descriptors.Vector3int16)
+		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector3int16)
 	end,
 	SharedString = function(raw)
 		raw = base64encode(raw)
@@ -478,8 +735,9 @@ The value of each component is represented by the text content formatted as a 32
     X: Represents the X component. Interpreted as a <float>.
     Y: Represents the Y component. Interpreted as a <float>.
 	]]
-		return Descriptors.__VECTOR(raw.X, raw.Y)
+		return XML_Descriptors.__VECTOR(raw.X, raw.Y)
 	end,
+	Vector2int16 = nil,
 	-- Vector2int16 = Descriptors.Vector2, -- except as <int>
 	Vector3 = function(raw)
 		--[[
@@ -487,22 +745,23 @@ The value of each component is represented by the text content formatted as a 32
     Y: Represents the Y component. Interpreted as a <float>.
     Z: Represents the Z component. Interpreted as a <float>.
 	]]
-		return Descriptors.__VECTOR(raw.X, raw.Y, raw.Z)
+		return XML_Descriptors.__VECTOR(raw.X, raw.Y, raw.Z)
 	end,
+	Vector3int16 = nil,
 	-- Vector3int16 = Descriptors.Vector3, -- except as <int>\
-
 	bool = function(raw)
 		return raw and "true" or "false"
 	end,
 	double = function(raw) -- Float64
-		return Descriptors.__APIPRECISION(raw, 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
+		return XML_Descriptors.__APIPRECISION(raw, 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
 	end, -- ? wouldn't float be better as an optimization
 	float = function(raw) -- Float32
-		return Descriptors.__APIPRECISION(raw, 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
+		return XML_Descriptors.__APIPRECISION(raw, 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
 	end,
 	int = function(raw) -- Int32
-		return Descriptors.__EXTREME(raw) or raw
+		return XML_Descriptors.__EXTREME(raw) or raw
 	end,
+	int64 = nil,
 	string = function(raw, skipcheck)
 		return not skipcheck and raw == "" and raw or string.gsub(raw, EscapesPattern, Escapes)
 	end,
@@ -516,7 +775,7 @@ for DescriptorName, RedirectName in
 		int64 = "int", -- Int64 (long)
 	}
 do
-	Descriptors[DescriptorName] = Descriptors[RedirectName]
+	XML_Descriptors[DescriptorName] = XML_Descriptors[RedirectName]
 end
 
 local function ArrayToDictionary(Table, HybridMode, ValueOverride)
@@ -773,9 +1032,76 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		NotScriptableFixes = {
 			Instance = {
+				AttributesSerialize = function(instance)
+					-- * There are certain restrictions for names of attributes
+					-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
+					-- But it seems like even if those are present, Studio still opens the file just fine
+					-- So there is no need to check for them currently
+
+					-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
+					-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
+
+					local attrs = instance:GetAttributes()
+
+					local attrs_n = 0
+					local buffer_size = 4
+					local attrs_sorted = {}
+					local attrs_formatted = table.clone(attrs)
+					-- warn(instance)
+					for attr, val in attrs do
+						attrs_n += 1
+						attrs_sorted[attrs_n] = attr
+
+						local Type = typeof(val)
+
+						local Descriptor = Binary_Descriptors[Type]
+						local attr_size
+
+						attrs_formatted[attr], attr_size = Descriptor(val)
+
+						buffer_size += 5 + #attr + attr_size
+					end
+					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
+					if attrs_n == 0 then
+						return ""
+					end
+					table.sort(attrs_sorted)
+
+					local b = buffer.create(buffer_size)
+
+					local offset = 0
+
+					buffer.writeu32(b, offset, attrs_n)
+					offset += 4
+
+					local Descriptors_string = Binary_Descriptors.string
+					for _, attr in attrs_sorted do
+						local b_Name, Name_size = Descriptors_string(attr)
+
+						buffer.copy(b, offset, b_Name)
+						offset += Name_size
+
+						buffer.writeu8(b, offset, Type_IDs[typeof(attrs[attr])])
+						offset += 1
+
+						local bb = attrs_formatted[attr]
+
+						buffer.copy(b, offset, bb)
+						offset += buffer.len(bb)
+					end
+
+					return buffer.tostring(b)
+				end,
 				Tags = function(instance)
 					-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
-					return table.concat(instance:GetTags(), "\0")
+
+					local tags = instance:GetTags()
+
+					if #tags == 0 then
+						return ""
+					end
+
+					return table.concat(tags, "\0")
 				end,
 				_Inheritors = {
 					Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
@@ -886,6 +1212,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									totalSize -= 1 -- Except Default group
 
 									local b = buffer.create(totalSize)
+
 									local offset = 0
 
 									buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte
@@ -916,7 +1243,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										offset += nameLength
 									end
 
-									-- print(totalSize == offset)
 									return buffer.tostring(b)
 								end,
 							},
@@ -1444,7 +1770,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function ReturnValueAndTag(raw, ValueType, Descriptor)
-		local value, tag = (Descriptor or Descriptors[ValueType])(raw)
+		local value, tag = (Descriptor or XML_Descriptors[ValueType])(raw)
 
 		return value, tag == nil and ValueType or tag
 	end
@@ -1529,7 +1855,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- TODO: Improve all sort of overrides & exceptions in the code (code below is awful)
 			if "Source" == PropertyName then
 				tag = "ProtectedString"
-				value = Descriptors.__PROTECTEDSTRING(PropertyValue)
+				value = XML_Descriptors.__PROTECTEDSTRING(PropertyValue)
 				Class = "Script"
 			elseif "Name" == PropertyName then
 				Class = "Instance"
@@ -1679,7 +2005,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 							if PropertyFix then
 								local ok, result = pcall(
-									type(PropertyFix) == "function" and PropertyFix or getsafeproperty,
+									type(PropertyFix) == "string" and getsafeproperty or PropertyFix,
 									instance,
 									PropertyFix
 								)
@@ -1742,23 +2068,24 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								value = "null"
 							end
 						elseif Category == "Enum" then -- ! We do this order (Enums before Descriptors) specifically because Font Enum might get a Font Descriptor despite having Enum Category, unlike Font DataType which that Descriptor is meant for
-							value, tag = Descriptors.__ENUM(raw)
+							value, tag = XML_Descriptors.__ENUM(raw)
 						else
-							local Descriptor = Descriptors[ValueType]
+							local Descriptor = XML_Descriptors[ValueType]
 
 							if Descriptor then
 								value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
 							elseif "BinaryString" == ValueType then -- TODO: Try fitting this inside Descriptors
 								tag = ValueType
-								value = Descriptors.__BINARYSTRING(raw)
+								value = XML_Descriptors.__BINARYSTRING(raw)
 
-								if -- ? Roblox doesn't CDATA anything else other than these as far as we know (try to prove this wrong)
-									PropertyName == "SmoothGrid"
-									or PropertyName == "MaterialColors"
-									or PropertyName == "PhysicsGrid"
-								then
-									value = Descriptors.__CDATA(value)
-								end
+								-- ! Assuming all base64 encoded strings won't have newlines
+								-- if -- ? Roblox doesn't CDATA anything else other than these as far as we know (try to prove this wrong) (CollisionGroupData too)
+								-- 	PropertyName == "SmoothGrid"
+								-- 	or PropertyName == "MaterialColors"
+								-- 	or PropertyName == "PhysicsGrid"
+								-- then
+								-- 	value = Descriptors.__CDATA(value)
+								-- end
 							elseif "ProtectedString" == ValueType then -- TODO: Try fitting this inside Descriptors
 								tag = ValueType
 
@@ -1771,6 +2098,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										local LinkedSourceUrl = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
 										local LinkedSourceNotEmpty = LinkedSourceUrl ~= ""
 										if LinkedSourceNotEmpty then
+											local Path = instance:GetFullName()
+											if RecoveredScripts then
+												table.insert(RecoveredScripts, Path)
+											else
+												RecoveredScripts = { Path }
+											end
+
+											do -- TODO Temporary fix for crashes (getscriptbytecode calls on scripts with LinkedSource), originally was inside the "ok" block below
+												should_decompile = nil
+												value = ""
+											end
+
 											LinkedSource = string.match(LinkedSourceUrl, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 											if LinkedSource then
 												local Cached = ldeccache[LinkedSource]
@@ -1792,19 +2131,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 															.. LinkedSource
 													)
 												end)
+
 												if ok then
 													ldeccache[LinkedSource] = Source
 
 													value = Source
 
-													local Path = instance:GetFullName()
-													if RecoveredScripts then
-														table.insert(RecoveredScripts, Path)
-													else
-														RecoveredScripts = { Path }
-													end
-
-													should_decompile = nil
+													-- should_decompile = nil
 												end
 											else --if __DEBUG_MODE then -- * We print this anyway because very important
 												warn(
@@ -1840,7 +2173,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 											.. value
 									end
 								end
-								value = Descriptors.__PROTECTEDSTRING(value)
+								value = XML_Descriptors.__PROTECTEDSTRING(value)
 							-- elseif "UniqueId" == ValueType or "SecurityCapabilities" == ValueType then -- ? Not sure yet
 							-- 	tag, value = ValueType, raw
 							else
@@ -1849,7 +2182,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								if string.sub(ValueType, 1, 8) == "Optional" then
 									-- Extract the string after "Optional"
 
-									Descriptor = Descriptors[string.sub(ValueType, 9)]
+									Descriptor = XML_Descriptors[string.sub(ValueType, 9)]
 
 									if Descriptor then
 										if raw ~= nil then
