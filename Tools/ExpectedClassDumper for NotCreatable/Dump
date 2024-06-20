@@ -79,6 +79,9 @@ TextChatMessage.TextSource {TextSource}
 Trail.Attachment0 {Attachment}
 Trail.Attachment1 {Attachment}
 
+UIDragDetector.BoundingUI {GuiBase2d}
+UIDragDetector.ReferenceUIInstance {GuiObject}
+
 WeldConstraint.Part0Internal {BasePart}
 WeldConstraint.Part1Internal {BasePart}
 

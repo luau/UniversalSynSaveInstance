@@ -179,7 +179,7 @@ DebuggerManager.DebuggingEnabled {CanSave Only}
 
 DraggerService is NotCreatable but DraggerService.AlignDraggedObjects has a default value: __api_dump_skipped_class__
 
-ExperienceStateCaptureService is NotCreatable but ExperienceStateCaptureService.IsInCaptureMode has a default value: false
+ExperienceStateCaptureService is NotCreatable but ExperienceStateCaptureService.HiddenSelectionEnabled has a default value: false
 
 FaceAnimatorService is NotCreatable but FaceAnimatorService.AudioAnimationEnabled has a default value: true
 
@@ -223,6 +223,7 @@ TextButton.Font {CanLoad Only}
 TextButton.FontSize {CanLoad Only}
 TextButton.FontSize {Deprecated} 
 TextButton.LocalizedText {CanSave Only}
+TextButton.OpenTypeFeaturesError {CanSave Only}
 TextButton.TextColor {CanLoad Only}
 TextButton.TextColor {Deprecated} 
 TextButton.TextWrap {CanLoad Only}
@@ -232,6 +233,7 @@ TextLabel.Font {CanLoad Only}
 TextLabel.FontSize {CanLoad Only}
 TextLabel.FontSize {Deprecated} 
 TextLabel.LocalizedText {CanSave Only}
+TextLabel.OpenTypeFeaturesError {CanSave Only}
 TextLabel.TextColor {CanLoad Only}
 TextLabel.TextColor {Deprecated} 
 TextLabel.TextWrap {CanLoad Only}
@@ -243,6 +245,7 @@ ScrollingFrame.AbsoluteWindowSize {CanSave Only}
 TextBox.Font {CanLoad Only}
 TextBox.FontSize {CanLoad Only}
 TextBox.FontSize {Deprecated} 
+TextBox.OpenTypeFeaturesError {CanSave Only}
 TextBox.TextColor {CanLoad Only}
 TextBox.TextColor {Deprecated} 
 TextBox.TextWrap {CanLoad Only}

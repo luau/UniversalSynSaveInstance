@@ -168,6 +168,8 @@ do
 				instance = UserSettings()
 			elseif ClassName == "GlobalSettings" then
 				instance = settings()
+			elseif ClassName == "TerrainRegion" then
+				instance = workspace.Terrain:CopyRegion(Region3int16.new())
 			end
 			if ClassInfo.Tags and ClassInfo.Tags.Service and ClassName ~= "VoiceChatInternal" then
 				-- writefile("crasher.txt", ClassName)

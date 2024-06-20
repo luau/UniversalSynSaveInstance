@@ -9,18 +9,12 @@ Instance.UniqueId
 AnimationClip.GuidBinaryString {BinaryString}
 
 AnimationRigData.articulatedJoint {BinaryString}
-AnimationRigData.endEffectorRotationConstraint {BinaryString}
-AnimationRigData.endEffectorTranslationConstraint {BinaryString}
-AnimationRigData.endEffectorWeight {BinaryString}
-AnimationRigData.facsControl {BinaryString}
 AnimationRigData.label {BinaryString}
 AnimationRigData.name {BinaryString}
 AnimationRigData.parent {BinaryString}
 AnimationRigData.postTransform {BinaryString}
 AnimationRigData.preTransform {BinaryString}
-AnimationRigData.rootMotion {BinaryString}
 AnimationRigData.transform {BinaryString}
-AnimationRigData.weight {BinaryString}
 
 StarterGui.RtlTextSupport 
 StarterGui.VirtualCursorMode 
@@ -173,7 +167,6 @@ Workspace.AvatarUnificationMode
 Workspace.CSGAsyncDynamicCollision 
 Workspace.CollisionGroupData {BinaryString}
 Workspace.DecreaseMinimumPartDensityMode 
-Workspace.EditorLiveScripting 
 Workspace.ExplicitAutoJoints 
 Workspace.FluidForces 
 Workspace.IKControlConstraintSupport 
@@ -205,6 +198,8 @@ PartOperationAsset.MeshData {BinaryString}
 Player.RawJoinData {BinaryString}
 
 Players.UseStrafingAnimations 
+
+ColorCorrectionEffect.TonemapperPreset 
 
 RotationCurve.ValuesAndTimes {BinaryString}
 
