@@ -56,7 +56,7 @@ You can also enable the `SafeMode` option to completely bypass any detections an
 - [ ] Merge SharedStrings and sharedstrings tables
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
 - [x] Add getproperties as fallback for specialinfo
-- [x] ~~Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches v1][PropertyPatches v2]+[PropertyPatches v3], otherwise they will fallback to default when file is opened~~ Relying on CanSave instead
+- [x] ~~Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches v1],[PropertyPatches v2]+[PropertyPatches v3], otherwise they will fallback to default when file is opened~~ Relying on CanSave instead
   - Not all though, test each & see if it carries over or not (when file is opened)..
   - All current redirects: [Here](https://github.com/luau/SynSaveInstance/blob/main/TODO/PropertyPatches)
 - [ ] Add more Fixes for Errors that **_can_** pop up during opening process
@@ -156,6 +156,7 @@ This document is based largely on the efforts of [@Anaminus] & [@Dekkonot], auth
 resources include:
 
 - [Syngp Synapse X Source code 2019][Synapse X Source 2019] for base saveinstance code (extended by [@mblouka] & [@Acrillis])
+- [Moon/LorekeeperZinnia][@LorekeeperZinnia] for being the original creator of saveinstance that was used in Synapse X, Elysian and many others. As well as being an inspiration for this project.
 - [Rojo Rbx Dom Xml] for being a fallback documentation in case something wasn't clear in the [Roblox Format Specifications]
 - [Roblox File Format] for a list of redirects of old/deprecated xml properties that still use the old tag values
 - [Roblox Client Tracker] for an extended & close to full JSON Api Dump (with hidden properties & default values)
@@ -166,6 +167,7 @@ resources include:
 [@Anaminus]: https://github.com/Anaminus
 [@Dekkonot]: https://github.com/Dekkonot
 [@mblouka]: https://github.com/mblouka
+[@LorekeeperZinnia]: https://github.com/LorekeeperZinnia
 [bit32]: https://create.roblox.com/docs/reference/engine/libraries/bit32
 [buffer]: https://create.roblox.com/docs/reference/engine/libraries/buffer
 [pack]: https://create.roblox.com/docs/reference/engine/libraries/string#pack
