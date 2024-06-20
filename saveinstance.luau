@@ -1195,52 +1195,51 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							Workspace = {
 								-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
 								CollisionGroupData = function()
-									local groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
+									local collision_groups = game:GetService("PhysicsService")
+										:GetRegisteredCollisionGroups()
 
-									local ngroups = #groups
+									local col_groups_n = #collision_groups
 
-									if ngroups == 0 then
+									if col_groups_n == 0 then
 										return "\1\0"
 									end
 
-									local totalSize = 3 -- Initial size
+									local buffer_size = 3 -- Initial size
 
-									for _, group in groups do
-										totalSize += 7 + #group.name
+									for _, group in collision_groups do
+										buffer_size += 7 + #group.name
 									end
 
-									totalSize -= 1 -- Except Default group
+									buffer_size -= 1 -- Except Default group
 
-									local b = buffer.create(totalSize)
+									local b = buffer.create(buffer_size)
 
 									local offset = 0
 
-									buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte
+									buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
 									offset += 1
-									buffer.writeu8(b, offset, ngroups) -- Group count
-									offset += 1
-									buffer.writeu8(b, offset, 0) -- ? [CONSTANT] Not sure
-									offset += 1
+									buffer.writeu16(b, offset, col_groups_n * 10) -- Group count (not sure about u16)
+									offset += 2
 
-									for i, group in groups do
+									for i, group in collision_groups do
 										local name, id, mask = group.name, i - 1, group.mask
-										local nameLength = #name
+										local name_len = #name
 
 										if id ~= 0 then
 											buffer.writeu8(b, offset, id) -- ID
 											offset += 1
 										end
 
-										buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure
+										buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
 										offset += 1
 
 										buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
 										offset += 4
 
-										buffer.writeu8(b, offset, nameLength) -- Name length
+										buffer.writeu8(b, offset, name_len) -- Name length
 										offset += 1
 										buffer.writestring(b, offset, name) -- Name
-										offset += nameLength
+										offset += name_len
 									end
 
 									return buffer.tostring(b)
