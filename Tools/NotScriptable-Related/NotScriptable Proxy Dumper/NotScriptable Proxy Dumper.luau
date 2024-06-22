@@ -201,7 +201,7 @@ do
 			end
 		end
 		local prevsiz = #s
-		print(ClassName)
+		-- print(ClassName)
 		for _, PropertyInfo in ClassInfo.Properties do
 			local PropertyName = PropertyInfo.Name
 
@@ -252,9 +252,11 @@ do
 				local ValueType = PropertyInfo.ValueType
 
 				if PropertyInfo.Category == "Enum" then
-					pcall(function()
+					if not pcall(function()
 						value = Enum[ValueType]:GetEnumItems()[1]
-					end)
+					end) then
+						warn("Enum", ValueType)
+					end
 				else
 					value = t[ValueType]
 				end
