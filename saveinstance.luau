@@ -904,7 +904,7 @@ local globalenv = getgenv and getgenv() or _G or shared
 --- @field ReadMe boolean --___Default:___ true
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in certain games. ___Default:___ true
 --- @field ShowStatus boolean -- ___Default:___ true
---- @field mode string -- Change this to invalid mode like "custom" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
+--- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
 --- @field scriptcache boolean -- ___Default:___ true
 --- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ Your executor's decompiler, if available. Otherwise uses "custom" if not.
@@ -950,8 +950,19 @@ local globalenv = getgenv and getgenv() or _G or shared
 
 --[=[
 	@function saveinstance
-	Saves instances with specified options.
-	TODO: CODE BLOCK EXAMPLES
+	Saves instances with specified options. Example:
+	```lua
+	local Params = {
+		RepoURL = "https://raw.githubusercontent.com/luau/SynSaveInstance/main/",
+		SSI = "saveinstance",
+	}
+
+	local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
+
+	local CustomOptions = { SafeMode = true, timeout = 15, SaveBytecode = true }
+	
+	synsaveinstance(CustomOptions)
+	```
 	@within SynSaveInstance
 	@yields
 	@param Parameter_1 variant<table, table<Instance>> -- Can either be [SynSaveInstance.CustomOptions table] or a filled with instances ({Instance}), (then it will be treated as ExtraInstances with an invalid mode and IsModel will be true).
@@ -959,7 +970,7 @@ local globalenv = getgenv and getgenv() or _G or shared
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
-	local totalstr = ""
+	local totalstr, totalsize = "", 0
 	local savebuffer, savebuffer_count = { '<roblox version="4">' }, 2
 
 	local StatusText
@@ -994,7 +1005,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		NilInstances = false,
 		NilInstancesFixes = {},
 
-		SaveCacheInterval = 0x1600 * 2,
+		SaveCacheInterval = 0x1600 * 10,
 		ShowStatus = true,
 		SafeMode = false,
 		ReadMe = true,
@@ -1808,7 +1819,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local function getsizeformat()
 		local Size
 
-		local totalsize = #totalstr
+		-- local totalsize = #totalstr
 
 		for Index, BinaryPrefix in
 			{
@@ -1824,15 +1835,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				break
 			end
 		end
+
 		return Size
 	end
 
 	local function savecache()
-		totalstr ..= table.concat(savebuffer)
+		local savestr = table.concat(savebuffer)
+		totalstr ..= savestr
 
-		writefile(placename, totalstr)
-		-- appendfile(placename, savestr) -- TODO: Sadly breaks evon (fixable) AND supposedly causes uneven amount of Tags (e.g. <Item> must be closed with </Item> but sometimes there's more of one than the other). While being under load, the function produces unexpected output?
-		-- totalsize += #savestr
+		-- writefile(placename, totalstr)
+		-- appendfile(placename, savestr) -- * supposedly causes uneven amount of Tags (e.g. <Item> must be closed with </Item> but sometimes there's more of one than the other). While being under load, the function produces unexpected output?
+		totalsize += #savestr
 
 		table.clear(savebuffer)
 		savebuffer_count = 1
@@ -2238,7 +2251,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function savegame()
-		-- writefile(placename, "")
+		writefile(placename, "")
 
 		if IsModel then
 			savebuffer[savebuffer_count] = '<Meta name="ExplicitAutoJoints">true</Meta>'
@@ -2390,7 +2403,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		savebuffer[savebuffer_count] = "</roblox>"
 		savebuffer_count += 1
 		savecache()
-
+		do
+			writefile(placename, totalstr)
+			-- local SegmentLength = 250 * SaveCacheInterval
+			-- local Length = math.ceil(totalsize / SegmentLength)
+			-- print(Length)
+			-- for i = 1, Length do
+			-- 	local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
+			-- 	print(#savestr)
+			-- 	appendfile(placename, savestr)
+			-- 	print("saved")
+			-- 	task.wait(1)
+			-- end
+		end
 		table.clear(SharedStrings)
 	end
 
