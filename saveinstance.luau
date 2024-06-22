@@ -2404,7 +2404,35 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		savebuffer_count += 1
 		savecache()
 		do
+			local Loading
+			if StatusText then
+				Loading = task.spawn(function()
+					local function GetLoading()
+						local SpinnerCount = 0
+						local Chars = { "|", "/", "—", "\\" }
+
+						return function()
+							SpinnerCount += 1
+
+							if #Chars < SpinnerCount then
+								SpinnerCount = 1
+							end
+
+							return Chars[SpinnerCount]
+						end
+					end
+					local GetLoadingText = GetLoading()
+					while true do
+						StatusText.Text = "Writing to File.. " .. GetLoadingText()
+						task.wait(0.25)
+					end
+				end)
+			end
+
 			writefile(placename, totalstr)
+			if Loading then
+				task.cancel(Loading)
+			end
 			-- local SegmentLength = 250 * SaveCacheInterval
 			-- local Length = math.ceil(totalsize / SegmentLength)
 			-- print(Length)
