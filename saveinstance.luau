@@ -2421,9 +2421,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							return Chars[SpinnerCount]
 						end
 					end
+					local Text = "Writing " .. getsizeformat() .. " to File.. "
+
 					local GetLoadingText = GetLoading()
 					while true do
-						StatusText.Text = "Writing to File.. " .. GetLoadingText()
+						StatusText.Text = Text .. GetLoadingText()
 						task.wait(0.25)
 					end
 				end)
