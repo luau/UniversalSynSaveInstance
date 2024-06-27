@@ -517,7 +517,7 @@ XML_Descriptors = {
 
 			Converted ..= Keypoint.Time .. " " .. (ValueFormat and ValueFormat(Value) or __EXTREME_RANGE(Value) .. " " .. __EXTREME_RANGE(
 				Keypoint.Envelope
-			) .. " ")
+			) .. " ") -- ? Trailing whitespace is only needed for lune compatibility
 		end
 
 		return Converted
@@ -915,7 +915,7 @@ local globalenv = getgenv and getgenv() or _G or shared
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore**. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
---- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 2
+--- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
 --- @field FilePath string -- Must only contain the name of the file, no file extension. ___Default:___ false
 --- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
 --- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
@@ -1579,6 +1579,62 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		ToSaveList = tmp
 	end
 
+	local function getsizeformat()
+		local Size
+
+		-- local totalsize = #totalstr
+
+		for Index, BinaryPrefix in
+			{
+				"B",
+				"KB",
+				"MB",
+				"GB",
+				"TB",
+			}
+		do
+			if totalsize < 0x400 ^ Index then
+				Size = math.floor(totalsize / (0x400 ^ (Index - 1)) * 10) / 10 .. " " .. BinaryPrefix
+				break
+			end
+		end
+
+		return Size
+	end
+
+	local function run_with_loading(text, taskFunction, ...)
+		local Loading
+		if StatusText then
+			Loading = task.spawn(function(Text)
+				local SpinnerCount = 0
+				local Chars = { "|", "/", "—", "\\" }
+
+				local function GetLoadingText()
+					SpinnerCount += 1
+
+					if #Chars < SpinnerCount then
+						SpinnerCount = 1
+					end
+
+					return Chars[SpinnerCount]
+				end
+				Text ..= " "
+				while true do
+					StatusText.Text = Text .. GetLoadingText()
+					task.wait(0.25)
+				end
+			end, text)
+		end
+
+		local result = { taskFunction(...) }
+
+		if Loading then
+			task.cancel(Loading)
+		end
+
+		return unpack(result)
+	end
+
 	do
 		if load_decompiler then
 			load_decompiler(Timeout)
@@ -1666,7 +1722,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					task.wait() -- TODO Maybe remove?
 				end
 
-				local ok, result = DecompileHandler(Script)
+				local ok, result = run_with_loading("Decompiling " .. Script.Name, DecompileHandler, Script)
+
+				if not result then
+					ok, result = false, "Empty Output"
+				end
 
 				local output
 				if ok then
@@ -1814,29 +1874,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 		inherited_properties[ClassName] = proplist
 		return proplist
-	end
-
-	local function getsizeformat()
-		local Size
-
-		-- local totalsize = #totalstr
-
-		for Index, BinaryPrefix in
-			{
-				"B",
-				"KB",
-				"MB",
-				"GB",
-				"TB",
-			}
-		do
-			if totalsize < 0x400 ^ Index then
-				Size = math.floor(totalsize / (0x400 ^ (Index - 1)) * 10) / 10 .. " " .. BinaryPrefix
-				break
-			end
-		end
-
-		return Size
 	end
 
 	local function savecache()
@@ -2404,37 +2441,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		savebuffer_count += 1
 		savecache()
 		do
-			local Loading
-			if StatusText then
-				Loading = task.spawn(function()
-					local function GetLoading()
-						local SpinnerCount = 0
-						local Chars = { "|", "/", "—", "\\" }
+			run_with_loading("Writing " .. getsizeformat() .. " to File", writefile, placename, totalstr)
 
-						return function()
-							SpinnerCount += 1
-
-							if #Chars < SpinnerCount then
-								SpinnerCount = 1
-							end
-
-							return Chars[SpinnerCount]
-						end
-					end
-					local Text = "Writing " .. getsizeformat() .. " to File.. "
-
-					local GetLoadingText = GetLoading()
-					while true do
-						StatusText.Text = Text .. GetLoadingText()
-						task.wait(0.25)
-					end
-				end)
-			end
-
-			writefile(placename, totalstr)
-			if Loading then
-				task.cancel(Loading)
-			end
 			-- local SegmentLength = 250 * SaveCacheInterval
 			-- local Length = math.ceil(totalsize / SegmentLength)
 			-- print(Length)
@@ -2513,7 +2521,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		globalenv._statustext = StatusGui
 
 		StatusGui.DisplayOrder = 2_000_000_000
-		pcall(function() -- Compat with level 2
+		pcall(function() -- ? Compatibility with level 2
 			StatusGui.OnTopOfCoreBlur = true
 		end)
 
