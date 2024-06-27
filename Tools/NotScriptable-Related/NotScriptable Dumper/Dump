@@ -68,8 +68,6 @@ HumanoidDescription.EquippedEmotesDataInternal
 
 InsertService.AllowClientInsertModels 
 
-Lighting.Technology 
-
 LocalizationTable.Contents 
 
 LuaSourceContainer.ScriptGuid 
@@ -198,8 +196,6 @@ PartOperationAsset.MeshData {BinaryString}
 Player.RawJoinData {BinaryString}
 
 Players.UseStrafingAnimations 
-
-ColorCorrectionEffect.TonemapperPreset 
 
 RotationCurve.ValuesAndTimes {BinaryString}
 
