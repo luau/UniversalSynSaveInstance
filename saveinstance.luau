@@ -1602,9 +1602,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Size
 	end
 
-	local function run_with_loading(text, taskFunction, ...)
-		local Loading
+	local function run_with_loading(text, keepStatus, taskFunction, ...)
+		local Loading, PreviousStatus
+
 		if StatusText then
+			if keepStatus then
+				PreviousStatus = StatusText.Text
+			end
 			Loading = task.spawn(function(Text)
 				local SpinnerCount = 0
 				local Chars = { "|", "/", "—", "\\" }
@@ -1630,6 +1634,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		if Loading then
 			task.cancel(Loading)
+			if PreviousStatus then
+				StatusText.Text = PreviousStatus
+			end
 		end
 
 		return unpack(result)
@@ -1722,7 +1729,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					task.wait() -- TODO Maybe remove?
 				end
 
-				local ok, result = run_with_loading("Decompiling " .. Script.Name, DecompileHandler, Script)
+				local ok, result = run_with_loading("Decompiling " .. Script.Name, true, DecompileHandler, Script)
 
 				if not result then
 					ok, result = false, "Empty Output"
@@ -2441,7 +2448,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		savebuffer_count += 1
 		savecache()
 		do
-			run_with_loading("Writing " .. getsizeformat() .. " to File", writefile, placename, totalstr)
+			run_with_loading("Writing " .. getsizeformat() .. " to File", nil, writefile, placename, totalstr)
 
 			-- local SegmentLength = 250 * SaveCacheInterval
 			-- local Length = math.ceil(totalsize / SegmentLength)
