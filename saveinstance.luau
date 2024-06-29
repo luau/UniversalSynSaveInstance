@@ -44,7 +44,7 @@ do
 	finder, globalcontainer = loadstring(game:HttpGet(Params.RepoURL .. Params.UMF .. ".luau", true), Params.UMF)()
 
 	finder({
-		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff
+		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff (getbinaryindex)
 		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
 		decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
@@ -911,8 +911,8 @@ local globalenv = getgenv and getgenv() or _G or shared
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
---- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference. ___Default:___ {Chat, TextChatService}
---- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore**. ___Default:___ {CoreGui, CorePackages}
+--- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {Chat, TextChatService}
+--- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore** except `= false` meaning if you ignore one instance it will automatically ignore it's descendants. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
@@ -1437,7 +1437,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local NotScriptableFixes = OPTIONS.NotScriptableFixes
 
 	local SaveBytecode
-	if OPTIONS.SaveBytecode then
+	if OPTIONS.SaveBytecode and getscriptbytecode then
 		SaveBytecode = function(Script)
 			local s, bytecode = pcall(getscriptbytecode, Script)
 
@@ -1761,7 +1761,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function ReadProperty(Property, instance, PropertyName, Special)
-		local raw
+		local raw = "__BREAK"
 
 		local InstanceOverride = InstancePropertyOverrides[instance]
 		if InstanceOverride then
@@ -1787,7 +1787,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					))
 		end
 
-		if Special then
+		if Special and gethiddenproperty then
 			local ok, result = pcall(gethiddenproperty, instance, PropertyName)
 
 			if ok then
@@ -1812,7 +1812,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if ok then
 					raw = result
-				elseif notIgnoreSpecialProperties then
+				elseif notIgnoreSpecialProperties and gethiddenproperty then
 					ok, result = pcall(gethiddenproperty, instance, PropertyName)
 
 					if ok then
@@ -1960,6 +1960,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if DecompileIgnoring then
 					DecompileIgnoring = instance
+				elseif DecompileIgnoring == false then
+					DecompileIgnoring = 1 -- Ignore one instance
 				end
 			end
 			local InstanceOverride
@@ -2147,6 +2149,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 								if PropertyName == "Source" then
 									if DecompileIgnoring then -- ? Should this really prevent extraction of the original source if present ?
+										if DecompileIgnoring == 1 then
+											DecompileIgnoring = nil
+										end
 										value = "-- Ignored"
 									else
 										local should_decompile = true
@@ -2575,7 +2580,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				StatusGui.Parent = service.CoreGui
 			end
 		end
-		-- end
 	end
 
 	do
