@@ -63,9 +63,8 @@ local gethiddenproperty = globalcontainer.gethiddenproperty
 local writefile = globalcontainer.writefile
 -- local appendfile = globalcontainer.appendfile
 
-local getscriptbytecode = globalcontainer.getscriptbytecode
+local getscriptbytecode = globalcontainer.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = globalcontainer.base64encode
-local hash = globalcontainer.hash
 local sha384
 
 if not base64encode then
@@ -113,17 +112,21 @@ if not base64encode then
 	end
 end
 
-if hash then
-	sha384 = function(data)
-		return hash(data, "sha384")
-	end
-else
-	local FileName = "RequireOnlineModule"
+do
+	local hash = globalcontainer.hash
 
-	sha384 = loadstring(
-		game:HttpGet("https://raw.githubusercontent.com/luau/SomeHub/main/" .. FileName .. ".luau", true),
-		FileName
-	)()(4544052033).sha384
+	if hash then
+		sha384 = function(data)
+			return hash(data, "sha384")
+		end
+	else
+		local FileName = "RequireOnlineModule"
+
+		sha384 = loadstring(
+			game:HttpGet("https://raw.githubusercontent.com/luau/SomeHub/main/" .. FileName .. ".luau", true),
+			FileName
+		)()(4544052033).sha384
+	end
 end
 
 local custom_decompiler, load_decompiler -- TODO Temporary
@@ -1428,7 +1431,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local SaveNonCreatable = OPTIONS.SaveNonCreatable
 
 	local DecompileJobless = OPTIONS.DecompileJobless
-	local ScriptCache = OPTIONS.scriptcache
+	local ScriptCache = OPTIONS.scriptcache and getscriptbytecode
 
 	local Timeout = OPTIONS.timeout
 
@@ -1708,7 +1711,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			ldecompile = function(Script)
 				-- local name = scr.ClassName .. scr.Name
 				local hashed_bytecode
-				if ScriptCache and getscriptbytecode then
+				if ScriptCache then
 					local s, bytecode = pcall(getscriptbytecode, Script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
 					local Cached
 
@@ -1787,22 +1790,24 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					))
 		end
 
-		if Special and gethiddenproperty then
-			local ok, result = pcall(gethiddenproperty, instance, PropertyName)
+		if Special then
+			if gethiddenproperty then
+				local ok, result = pcall(gethiddenproperty, instance, PropertyName)
 
-			if ok then
-				raw = result
-			end
-
-			if FilterResult(raw) then
-				-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
-				if __DEBUG_MODE then
-					warn("Filtered", PropertyName)
+				if ok then
+					raw = result
 				end
-				-- Property.Special = false
-				Property.CanRead = false
 
-				return "__BREAK" -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
+				if FilterResult(raw) then
+					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
+					if __DEBUG_MODE then
+						warn("Filtered", PropertyName)
+					end
+					-- Property.Special = false
+					Property.CanRead = false
+
+					return "__BREAK" -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
+				end
 			end
 		else
 			if CanRead then
@@ -1812,7 +1817,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if ok then
 					raw = result
-				elseif notIgnoreSpecialProperties and gethiddenproperty then
+				elseif notIgnoreSpecialProperties and gethiddenproperty then -- ! Be careful with this 'and gethiddenproperty' logic
 					ok, result = pcall(gethiddenproperty, instance, PropertyName)
 
 					if ok then
@@ -1885,7 +1890,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local function savecache()
 		local savestr = table.concat(savebuffer)
-		totalstr ..= savestr
+		totalstr ..= savestr -- TODO: Causes "not enough memory" error on some exec
 
 		-- writefile(placename, totalstr)
 		-- appendfile(placename, savestr) -- * supposedly causes uneven amount of Tags (e.g. <Item> must be closed with </Item> but sometimes there's more of one than the other). While being under load, the function produces unexpected output?
