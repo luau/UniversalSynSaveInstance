@@ -14,7 +14,7 @@ local function Find(String, Pattern)
 	return string.find(String, Pattern, nil, true)
 end
 
-local EscapesPattern = "[&<>\"'\1-\9\11-\12\14-\31\127-\255]" -- * The safe way is to escape all five characters in text. However, the three characters " ' and > needn't be escaped in text
+local EscapesPattern = "[&<>\"'\0\1-\9\11-\12\14-\31\127-\255]" -- * The safe way is to escape all five characters in text. However, the three characters " ' and > needn't be escaped in text
 -- %z (\0 aka NULL) might not be needed as Roblox automatically converts it to space everywhere it seems like
 -- Characters from: https://create.roblox.com/docs/en-us/ui/rich-text#escape-forms
 -- * EscapesPattern should be ordered from most common to least common characters for sake of speed
@@ -26,6 +26,7 @@ local Escapes = {
 	[">"] = "&gt;", -- 62
 	['"'] = "&#34;", --  quot
 	["'"] = "&#39;", -- apos
+	["\0"] = "",
 }
 
 for rangeStart, rangeEnd in string.gmatch(EscapesPattern, "(.)%-(.)") do
@@ -1902,8 +1903,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if StatusText then
 			StatusText.Text = "Saving.. Size: " .. getsizeformat()
 		end
-
-		task.wait() -- ? Needed for at least 1fps (status text)
+		-- ? Needed for at least 1fps (status text)
+		-- TODO Maybe use Runservice.RenderStepped instead
+		task.wait()
 	end
 
 	local function savespecific(ClassName, Properties)
