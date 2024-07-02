@@ -446,6 +446,10 @@ RotationCurve.Length {CanSave Only}
 
 SafetyService is NotCreatable but SafetyService.IsCaptureModeForReport has a default value: false
 
+ScreenshotHud.ExperienceNameOverlayEnabled {Deprecated}  {CanSave}
+ScreenshotHud.OverlayFont {Deprecated}  {CanSave}
+ScreenshotHud.UsernameOverlayEnabled {Deprecated}  {CanSave}
+
 SyncScriptBuilder.RawBytecode {Deprecated}  {CanSave}
 SyncScriptBuilder is NotCreatable but SyncScriptBuilder.CompileTarget has a default value: CoreScript
 
@@ -455,6 +459,9 @@ ScriptDebugger is NotCreatable but ScriptDebugger.CoreScriptIdentifier has a def
 
 Selection.SelectionBoxThickness {CanSave Only}
 Selection.SelectionLineThickness {CanSave Only}
+
+AtmosphereSensor.AirDensity {CanSave Only}
+AtmosphereSensor.RelativeWindVelocity {CanSave Only}
 
 ServerScriptService is NotCreatable but ServerScriptService.LoadStringEnabled has a default value: false
 
