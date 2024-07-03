@@ -470,7 +470,6 @@ XML_Descriptors = {
 
 		return string.format("%." .. precision .. "f", raw)
 	end,
-	__BINARYSTRING = base64encode,
 	__BIT = function(...) -- * Credits to Friend (you know yourself)
 		local Value = 0
 
@@ -508,7 +507,7 @@ XML_Descriptors = {
 		return "<min>" .. descriptor(min) .. "</min><max>" .. descriptor(max) .. "</max>"
 	end,
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
-		return Find(raw, "]]>") and XML_Descriptors.string(raw, true) or XML_Descriptors.__CDATA(raw)
+		return Find(raw, "]]>") and string.gsub(raw, EscapesPattern, Escapes) or XML_Descriptors.__CDATA(raw)
 	end,
 	__SEQUENCE = function(raw, ValueFormat) --The value is the text content, formatted as a space-separated list of floating point numbers.
 		-- tostring(raw) also works (but way slower rn)
@@ -543,7 +542,11 @@ XML_Descriptors = {
 
 		return "<axes>" .. XML_Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
-	-- BinaryString = function(raw) end,
+
+	-- ? Roblox uses CDATA only for these (try to prove this wrong): CollisionGroupData, SmoothGrid, MaterialColors, PhysicsGrid
+	-- ! Assuming all base64 encoded strings won't have newlines
+	BinaryString = base64encode,
+
 	BrickColor = function(raw)
 		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
 	end,
@@ -767,7 +770,9 @@ The value of each component is represented by the text content formatted as a 32
 	end,
 	int64 = nil,
 	string = function(raw, skipcheck)
-		return not skipcheck and raw == "" and raw or string.gsub(raw, EscapesPattern, Escapes)
+		return not skipcheck and raw == "" and raw
+			or Find(raw, "]]>") and string.gsub(raw, EscapesPattern, Escapes)
+			or XML_Descriptors.__CDATA(string.gsub(raw, "\0", ""))
 	end,
 }
 
@@ -906,7 +911,7 @@ local globalenv = getgenv and getgenv() or _G or shared
 --- @within SynSaveInstance
 --- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
---- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in certain games. ___Default:___ true
+--- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in certain games. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
 --- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
@@ -1119,7 +1124,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					return table.concat(tags, "\0")
 				end,
 				_Inheritors = {
-					Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
 					-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
 					BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
 					BasePart = {
@@ -1263,6 +1267,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						},
 					},
 					PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
+					Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
 
 					StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
 					Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
@@ -1553,7 +1558,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- "InsertService",
 					"JointsService",
 
-					-- "LocalizationService",
+					"LocalizationService", -- For LocalizationTables
 					-- "TestService",
 					-- "VoiceChatService",
 				}
@@ -2139,18 +2144,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 							if Descriptor then
 								value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
-							elseif "BinaryString" == ValueType then -- TODO: Try fitting this inside Descriptors
-								tag = ValueType
-								value = XML_Descriptors.__BINARYSTRING(raw)
-
-								-- ! Assuming all base64 encoded strings won't have newlines
-								-- if -- ? Roblox doesn't CDATA anything else other than these as far as we know (try to prove this wrong) (CollisionGroupData too)
-								-- 	PropertyName == "SmoothGrid"
-								-- 	or PropertyName == "MaterialColors"
-								-- 	or PropertyName == "PhysicsGrid"
-								-- then
-								-- 	value = Descriptors.__CDATA(value)
-								-- end
 							elseif "ProtectedString" == ValueType then -- TODO: Try fitting this inside Descriptors
 								tag = ValueType
 
