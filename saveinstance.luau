@@ -1202,6 +1202,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					Fire = { heat_xml = "Heat", size_xml = "Size" },
 
 					Humanoid = { Health_XML = "Health" },
+					LocalizationTable = {
+						Contents = function(instance)
+							return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
+						end,
+					},
 					MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
 
 					Model = {
