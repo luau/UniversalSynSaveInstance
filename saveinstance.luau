@@ -854,30 +854,30 @@ do
 						--]]
 						local PropertyName = Member.Name
 						if Serialization.CanSave or ClassExceptions and ClassExceptions[PropertyName] then
-						local MemberTags = Member.Tags
+							local MemberTags = Member.Tags
 
-						local ValueType = Member.ValueType
+							local ValueType = Member.ValueType
 
-						local Special
+							local Special
 
-						if MemberTags then
-							MemberTags = ArrayToDictionary(MemberTags)
+							if MemberTags then
+								MemberTags = ArrayToDictionary(MemberTags)
 
-							Special = MemberTags.NotScriptable
-						end
-						-- if not Special then
-						ClassProperties[PropertyName] = {
-							Name = PropertyName,
-							Category = ValueType.Category,
-							-- Default = Member.Default,
-							-- Tags = MemberTags,
-							ValueType = ValueType.Name,
+								Special = MemberTags.NotScriptable
+							end
+							-- if not Special then
+							ClassProperties[PropertyName] = {
+								Name = PropertyName,
+								Category = ValueType.Category,
+								-- Default = Member.Default,
+								-- Tags = MemberTags,
+								ValueType = ValueType.Name,
 
-							Special = Special,
+								Special = Special,
 
-							CanRead = nil,
-						}
-						-- end
+								CanRead = nil,
+							}
+							-- end
 						end
 					end
 				end
@@ -1138,6 +1138,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						size = "Size",
 						_Inheritors = {
 							Terrain = {
+								AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
 								MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
 									local TERRAIN_MATERIAL_COLORS =
 										{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
