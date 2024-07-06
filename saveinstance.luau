@@ -814,6 +814,8 @@ end
 local ClassList
 
 do
+	local ClassPropertyExceptions = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) }
+
 	local function FetchAPI()
 		local API_Dump_Url =
 			"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
@@ -829,6 +831,7 @@ do
 			}
 
 			local ClassTags = API_Class.Tags
+			local ClassName = API_Class.Name
 
 			if ClassTags then
 				Class.Tags = ArrayToDictionary(ClassTags) -- or {}
@@ -836,11 +839,13 @@ do
 
 			-- ? Check 96ea8b2a755e55a78aedb55a7de7e83980e11077 commit - If a NotScriptableFix is needed that relies on another NotScriptable Property (which doesn't really make sense in the first place)
 
+			local ClassExceptions = ClassPropertyExceptions[ClassName]
+
 			for _, Member in API_Class.Members do
 				if Member.MemberType == "Property" then
 					local Serialization = Member.Serialization
 
-					if Serialization.CanSave and Serialization.CanLoad then -- If Roblox doesn't save it why should we; If Roblox doesn't load it we don't need to save it
+					if Serialization.CanLoad then -- If Roblox doesn't save it why should we; If Roblox doesn't load it we don't need to save it
 						--[[  -- ! CanSave replaces "Tags.Deprecated" check because there are some old properties which are deprecated yet have CanSave. 
 						 Example: Humanoid.Health is CanSave false due to Humanoid.Health_XML being CanSave true (obsolete properties basically) - in this case both of them will Load. (aka PropertyPatches)
 						 CanSave being on same level as CanLoad also fixes potential issues with overlapping properties like Color, Color3 & Color3uint8 of BasePart, out of which only Color3uint8 should save
@@ -848,7 +853,7 @@ do
 						 A very simple fix for many problems that saveinstance scripts encounter!
 						--]]
 						local PropertyName = Member.Name
-
+						if Serialization.CanSave or ClassExceptions and ClassExceptions[PropertyName] then
 						local MemberTags = Member.Tags
 
 						local ValueType = Member.ValueType
@@ -873,11 +878,12 @@ do
 							CanRead = nil,
 						}
 						-- end
+						end
 					end
 				end
 			end
 
-			classList[API_Class.Name] = Class
+			classList[ClassName] = Class
 		end
 
 		-- classList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering through properties to remove this
