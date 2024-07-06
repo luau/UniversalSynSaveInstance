@@ -125,8 +125,12 @@ BasePart.MaterialVariantSerialized
 BasePart.size 
 
 FormFactorPart.formFactorRaw 
+formFactorRaw -> FormFactor
+formFactorRaw -> formFactor
 
 Part.shape 
+shape -> Shape
+shape -> shap
 
 Terrain.AcquisitionMethod 
 Terrain.Decoration 
@@ -134,10 +138,12 @@ Terrain.GrassLength
 Terrain.MaterialColors {BinaryString}
 Terrain.PhysicsGrid {BinaryString}
 Terrain.SmoothGrid {BinaryString}
+AcquisitionMethod -> LastUsedModificationMethod
 
 TriangleMeshPart.AeroMeshData 
 TriangleMeshPart.FluidFidelityInternal 
 TriangleMeshPart.PhysicalConfigData 
+FluidFidelityInternal -> FluidFidelity
 
 MeshPart.InitialSize 
 MeshPart.PhysicsData {BinaryString}
@@ -153,6 +159,7 @@ PartOperation.MeshData2
 PartOperation.PhysicsData {BinaryString}
 
 TrussPart.style 
+style -> Style
 
 Model.ModelMeshCFrame 
 Model.ModelMeshData 
@@ -184,6 +191,7 @@ Workspace.StreamingMinRadius
 Workspace.StreamingTargetRadius 
 Workspace.TerrainWeldsFixed 
 Workspace.TouchesUseCollisionGroups 
+SignalBehavior2 -> SignalBehavior
 
 PackageLink.AutoUpdate 
 PackageLink.ModifiedState 
@@ -208,13 +216,15 @@ Smoke.opacity_xml
 Smoke.riseVelocity_xml 
 Smoke.size_xml 
 
-Sound.xmlRead_MaxDistance_3 {RollOffMaxDistance}
+Sound.xmlRead_MaxDistance_3 {PreferredDescriptorName: RollOffMaxDistance}
 
 SoundService.VolumetricAudio 
 
 StarterPlayer.AvatarJointUpgrade_Serialized 
 StarterPlayer.EnableDynamicHeads 
 StarterPlayer.LoadCharacterLayeredClothing 
+AvatarJointUpgrade_Serialized -> AvatarJointUpgrade
+LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing 
 
 StyleRule.Index 
 StyleRule.PropertiesSerialize {BinaryString}

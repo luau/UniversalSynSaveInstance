@@ -20,7 +20,6 @@ def array_to_dictionary(table, hybrid_mode=None):
 
 
 def find_first_table(array):
-
     for item in array:
         if isinstance(item, dict):
             return item
@@ -41,6 +40,8 @@ def fetch_api():
         class_members = api_class["Members"]
 
         prev_len = len(s)
+        enum_members = {}
+
         for member in class_members:
             member_name = member["Name"]
             member_type = member["MemberType"]
@@ -55,18 +56,32 @@ def fetch_api():
 
                 if serialization["CanLoad"] and serialization["CanSave"] and special:
                     value_type = member["ValueType"]["Name"]
+                    value_category = member["ValueType"]["Category"]
+                    if value_category == "Enum":
+                        enum_members[value_type] = member_name
                     s += f"{class_name}.{member_name} {'{BinaryString}' if value_type == 'BinaryString' else ''}"
                     table_found = find_first_table(original_tags)
                     if table_found:
-                        s += f"{'{'+table_found.get('PreferredDescriptorName')+'}'}"
+                        s += f"{'{PreferredDescriptorName: '+table_found.get('PreferredDescriptorName')+'}'}"
                     s += "\n"
+        for enum_type, real_member_name in enum_members.items():
+            for member in class_members:
+                member_name = member["Name"]
+                member_type = member["MemberType"]
+                if member_name != real_member_name and member_type == "Property":
+                    value_category = member["ValueType"]["Category"]
+                    if value_category == "Enum":
+                        value_type = member["ValueType"]["Name"]
+                        if value_type == enum_type:
+                            s += f"{real_member_name} -> {member_name}\n"
+
         if len(s) != prev_len:
             s += "\n"
 
 
 try:
     fetch_api()
-    print(s)
+    # print(s)
     script_dir = os.path.dirname(os.path.realpath(__file__))
     output_file_path = os.path.join(script_dir, "Dump")
     with open(output_file_path, "w") as file:
