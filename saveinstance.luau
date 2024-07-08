@@ -60,6 +60,7 @@ do
 	}, true, 10)
 end
 
+local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 local gethiddenproperty = globalcontainer.gethiddenproperty
 local writefile = globalcontainer.writefile
 -- local appendfile = globalcontainer.appendfile
@@ -183,6 +184,8 @@ if getscriptbytecode then
 		end
 	end
 end
+
+local isElectron = type(identify_executor) == 'function' and (identify_executor()) == 'Electron'
 
 local SharedStrings = {}
 local sharedstrings = setmetatable({
@@ -545,7 +548,14 @@ XML_Descriptors = {
 
 	-- ? Roblox uses CDATA only for these (try to prove this wrong): CollisionGroupData, SmoothGrid, MaterialColors, PhysicsGrid
 	-- ! Assuming all base64 encoded strings won't have newlines
-	BinaryString = base64encode,
+
+	-- ! 7/7/24 
+	-- ! Fix for Electron v3
+	-- ! Electron v3 'gethiddenproperty' automatically base64 encodes BinaryString values
+
+	BinaryString = if isElectron then (function(raw) 
+		return raw
+	end) else base64encode,
 
 	BrickColor = function(raw)
 		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
@@ -2398,8 +2408,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if OPTIONS.ReadMe then
-			local exec_name = identifyexecutor or getexecutorname or whatexecutor
-
 			saveextra(
 				"README",
 				nil,
@@ -2444,7 +2452,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					.. " PlaceId: "
 					.. game.PlaceId
 					.. " Executor: "
-					.. (exec_name and table.concat({ exec_name() }, " ") or "Unknown")
+					.. (identify_executor and table.concat({ identify_executor() }, " ") or "Unknown")
 					.. "\n]]"
 			)
 		end
