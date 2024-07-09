@@ -75,7 +75,7 @@ do
 		decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
-		getnilinstances = 'string.find(...,"nil",nil,true)', -- ! Could match some unwanted stuff
+		getnilinstances = 'string.find(...,"nil",nil,true) and string.find(...,"get",nil,true) and string.sub(...,#...) == "s"', -- ! Could match some unwanted stuff
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true) or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true)',
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
@@ -1470,6 +1470,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
 	local NotScriptableFixes = OPTIONS.NotScriptableFixes
+	local NilInstances = OPTIONS.NilInstances
+
+	if NilInstances and enablenilinstances then -- ? Solara fix
+		enablenilinstances()
+	end
 
 	local SaveBytecode
 	if OPTIONS.SaveBytecode and getscriptbytecode then
@@ -2344,7 +2349,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		SaveNonCreatableWillBeEnabled = SaveNonCreatable
 			or (IsolateLocalPlayer or IsolateLocalPlayerCharacter) and IsolateLocalPlayer
 			or IsolatePlayers
-			or OPTIONS.NilInstances and global_container.getnilinstances -- ! Make sure this accurately reflects everything below
+			or NilInstances and global_container.getnilinstances -- ! Make sure this accurately reflects everything below
 		if ToSaveInstance then
 			save_hierarchy({ ToSaveInstance }, ToSaveList)
 		else
@@ -2376,7 +2381,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			save_extra("Players", service.Players:GetChildren())
 		end
 
-		if OPTIONS.NilInstances and global_container.getnilinstances then
+		if NilInstances and global_container.getnilinstances then
 			local nilinstances = {}
 
 			local NilInstancesFixes = OPTIONS.NilInstancesFixes
