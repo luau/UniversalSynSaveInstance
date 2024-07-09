@@ -929,7 +929,8 @@ local globalEnv = getgenv and getgenv() or _G or shared
 --- @within SynSaveInstance
 --- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
---- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in certain games. ___Default:___ false
+--- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
+--- @field Anonymous boolean -- Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
 --- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
@@ -1035,6 +1036,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		SaveCacheInterval = 0x1600 * 10,
 		ShowStatus = true,
 		SafeMode = false,
+		Anonymous = false,
 		ReadMe = true,
 		FilePath = false,
 		Object = false,
@@ -2477,6 +2479,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		savebuffer_count += 1
 		save_cache()
 		do
+			-- ! Assuming we only write to file once hence why we only filter once
+			if OPTIONS.Anonymous then
+				local LocalPlayer = service.Players.LocalPlayer
+
+				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
+			end
 			run_with_loading("Writing " .. get_size_format() .. " to File", nil, writefile, placename, totalstr)
 
 			-- local SegmentLength = 250 * SaveCacheInterval
