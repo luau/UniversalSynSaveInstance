@@ -1332,8 +1332,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	do
-		local function nilInstanceFixGeneral(Name, ClassName)
+	do -- * Load Settings
+		local function Construct_NilinstanceFix(Name, ClassName)
 			return function(instance, instancePropertyOverrides)
 				local Exists = OPTIONS.NilInstancesFixes[Name]
 
@@ -1358,21 +1358,20 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		OPTIONS.NilInstancesFixes.Animator = nilInstanceFixGeneral(
-			"Animator has to be placed under Humanoid or AnimationController",
-			"AnimationController"
-		)
-
 		-- TODO: Merge BaseWrap & Attachment & AdPortal fix (put all under MeshPart container)
 		-- TODO?:
 		-- DebuggerWatch DebuggerWatch must be a child of ScriptDebugger
 		-- PluginAction Parent of PluginAction must be Plugin or PluginMenu that created it!
-
-		OPTIONS.NilInstancesFixes.AdPortal = nilInstanceFixGeneral("AdPortal must be parented to a Part", "Part")
-		OPTIONS.NilInstancesFixes.BaseWrap =
-			nilInstanceFixGeneral("BaseWrap must be parented to a MeshPart", "MeshPart")
+		OPTIONS.NilInstancesFixes.Animator = Construct_NilinstanceFix(
+			"Animator has to be placed under Humanoid or AnimationController",
+			"AnimationController"
+		)
+		OPTIONS.NilInstancesFixes.AdPortal = Construct_NilinstanceFix("AdPortal must be parented to a Part", "Part")
 		OPTIONS.NilInstancesFixes.Attachment =
-			nilInstanceFixGeneral("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
+			Construct_NilinstanceFix("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
+		OPTIONS.NilInstancesFixes.BaseWrap =
+			Construct_NilinstanceFix("BaseWrap must be parented to a MeshPart", "MeshPart")
+		OPTIONS.NilInstancesFixes.PackageLink = Construct_NilinstanceFix("Package already has a PackageLink", "Folder")
 
 		if CustomOptions2 and type(CustomOptions2) == "table" then
 			local tmp = CustomOptions
