@@ -1333,16 +1333,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do -- * Load Settings
-		local function construct_NilinstanceFix(Name, ClassName)
+		local function construct_NilinstanceFix(Name, ClassName, Separate)
 			return function(instance, instancePropertyOverrides)
-				local Exists = OPTIONS.NilInstancesFixes[Name]
+				local Exists = if Separate then nil else OPTIONS.NilInstancesFixes[Name]
 
 				local Fix
 
 				local DoesntExist = not Exists
 				if DoesntExist then
 					Fix = Instance.new(ClassName)
-					OPTIONS.NilInstancesFixes[Name] = Fix
+					if not Separate then
+						OPTIONS.NilInstancesFixes[Name] = Fix
+					end
 					-- Fix.Name = Name
 
 					instancePropertyOverrides[Fix] = { __Children = { instance }, Properties = { Name = Name } }
@@ -1371,7 +1373,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			construct_NilinstanceFix("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
 		OPTIONS.NilInstancesFixes.BaseWrap =
 			construct_NilinstanceFix("BaseWrap must be parented to a MeshPart", "MeshPart")
-		OPTIONS.NilInstancesFixes.PackageLink = construct_NilinstanceFix("Package already has a PackageLink", "Folder")
+		OPTIONS.NilInstancesFixes.PackageLink =
+			construct_NilinstanceFix("Package already has a PackageLink", "Folder", true)
 
 		if CustomOptions2 and type(CustomOptions2) == "table" then
 			local tmp = CustomOptions
