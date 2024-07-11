@@ -1054,7 +1054,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		RemovePlayerCharacters = true,
 
 		SaveNonCreatable = false,
-		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui" },
+		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui", "TouchTransmitter" },
 
 		-- ! Risky
 
