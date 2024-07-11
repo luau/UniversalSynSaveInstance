@@ -930,7 +930,7 @@ local globalEnv = getgenv and getgenv() or _G or shared
 --- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
---- @field Anonymous boolean -- Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. ___Default:___ true
+--- @field Anonymous boolean -- Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
 --- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
@@ -1036,7 +1036,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		SaveCacheInterval = 0x1600 * 10,
 		ShowStatus = true,
 		SafeMode = false,
-		Anonymous = true,
+		Anonymous = false,
 		ReadMe = true,
 		FilePath = false,
 		Object = false,
@@ -1333,7 +1333,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do -- * Load Settings
-		local function Construct_NilinstanceFix(Name, ClassName)
+		local function construct_NilinstanceFix(Name, ClassName)
 			return function(instance, instancePropertyOverrides)
 				local Exists = OPTIONS.NilInstancesFixes[Name]
 
@@ -1362,16 +1362,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- TODO?:
 		-- DebuggerWatch DebuggerWatch must be a child of ScriptDebugger
 		-- PluginAction Parent of PluginAction must be Plugin or PluginMenu that created it!
-		OPTIONS.NilInstancesFixes.Animator = Construct_NilinstanceFix(
+		OPTIONS.NilInstancesFixes.Animator = construct_NilinstanceFix(
 			"Animator has to be placed under Humanoid or AnimationController",
 			"AnimationController"
 		)
-		OPTIONS.NilInstancesFixes.AdPortal = Construct_NilinstanceFix("AdPortal must be parented to a Part", "Part")
+		OPTIONS.NilInstancesFixes.AdPortal = construct_NilinstanceFix("AdPortal must be parented to a Part", "Part")
 		OPTIONS.NilInstancesFixes.Attachment =
-			Construct_NilinstanceFix("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
+			construct_NilinstanceFix("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
 		OPTIONS.NilInstancesFixes.BaseWrap =
-			Construct_NilinstanceFix("BaseWrap must be parented to a MeshPart", "MeshPart")
-		OPTIONS.NilInstancesFixes.PackageLink = Construct_NilinstanceFix("Package already has a PackageLink", "Folder")
+			construct_NilinstanceFix("BaseWrap must be parented to a MeshPart", "MeshPart")
+		OPTIONS.NilInstancesFixes.PackageLink = construct_NilinstanceFix("Package already has a PackageLink", "Folder")
 
 		if CustomOptions2 and type(CustomOptions2) == "table" then
 			local tmp = CustomOptions
@@ -2484,6 +2484,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		save_cache()
 		do
 			-- ! Assuming we only write to file once hence why we only filter once
+			-- TODO This might cause issues on non-unique Usernames (ex. "Cake" if game is about cakes then everything supposedly related to your name will be replaced with "Roblox"); Certain UserIds might also affect numbers, like if your UserId is 2481848 and there is some number that goes like "1.248184818837" then that the matched part will be replaced with 1, potentially making the number incorrect.
+			-- TODO The only logical solution to that is to instead filter only certain properties like Player.UserId and such, but this would leave Instances under workspace unfiltered even if they have your UserId for example.
+			-- TODO So for now it's best to keep this disabled by default
 			if OPTIONS.Anonymous then
 				local LocalPlayer = service.Players.LocalPlayer
 

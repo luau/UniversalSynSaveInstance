@@ -81,7 +81,7 @@ def fetch_api():
 
 try:
     fetch_api()
-    # print(s)
+    print(s)
     script_dir = os.path.dirname(os.path.realpath(__file__))
     output_file_path = os.path.join(script_dir, "Dump")
     with open(output_file_path, "w") as file:
