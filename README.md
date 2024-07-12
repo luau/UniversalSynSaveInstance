@@ -20,13 +20,14 @@ synsaveinstance(Options)
 Or shortly USSI, a project aimed at resurrecting saveinstance function from [Synapse X Source 2019] & Other Executor Source leaks :trollface:.<br />
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
-Important part about this saveinstance is that it doesn't modify anything, therefore reduces the amount of detection vectors by a lot.
-You can also enable the `SafeMode` option to completely bypass any detections and save **ANY** game!
-# Notes
+> [!TIP]
+> Important part about this saveinstance is that it doesn't modify anything, therefore reduces the amount of detection vectors by a lot.
+> You can also enable the `SafeMode` option to completely bypass any detections and save **ANY** game!
 
-- Credits are appreciated 💖
-- Do NOT claim you wrote this :accessibility:
-- Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) :finnadie:
+> [!NOTE]
+> - Credits are appreciated 💖
+> - Do NOT claim you wrote this :accessibility:
+> - Do NOT forget to include the [License](https://github.com/luau/SynSaveInstance/blob/main/LICENSE) :finnadie:
 
 # 💖 Support Us & Our Work
 
@@ -156,15 +157,15 @@ You can also enable the `SafeMode` option to completely bypass any detections an
 - [ ] Be able to specify which special properties you want saved (to avoid saving all)
 
 # Acknowledgments
-
-This document is based largely on the efforts of [@Anaminus] & [@Dekkonot], authors of the [Roblox Format Specifications]. Additional
+> [!IMPORTANT]
+> This document is based largely on the efforts of [@Anaminus] & [@Dekkonot], authors of the [Roblox Format Specifications]. Additional
 resources include:
-
-- [Syngp Synapse X Source code 2019][Synapse X Source 2019] for base saveinstance code (extended by [@mblouka] & [@Acrillis])
-- [Moon/LorekeeperZinnia][@LorekeeperZinnia] for being the original creator of saveinstance that was used in Synapse X, Elysian and many others. As well as being an inspiration for this project.
-- [Rojo Rbx Dom Xml] for being a fallback documentation in case something wasn't clear in the [Roblox Format Specifications]
-- [Roblox File Format] for a list of redirects of old/deprecated xml properties that still use the old tag values
-- [Roblox Client Tracker] for an extended & close to full JSON Api Dump (with hidden properties & default values)
+> 
+> - [Syngp Synapse X Source code 2019][Synapse X Source 2019] for base saveinstance code (extended by [@mblouka] & [@Acrillis])
+> - [Moon/LorekeeperZinnia][@LorekeeperZinnia] for being the original creator of saveinstance that was used in Synapse X, Elysian and many others. As well as being an inspiration for this project.
+> - [Rojo Rbx Dom Xml] for being a fallback documentation in case something wasn't clear in the [Roblox Format Specifications]
+> - [Roblox File Format] for a list of redirects of old/deprecated xml properties that still use the old tag values
+> - [Roblox Client Tracker] for an extended & close to full JSON Api Dump (with hidden properties & default values)
 
 \*\*\* View source code of this file for more credits
 
