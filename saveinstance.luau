@@ -1944,8 +1944,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			StatusText.Text = "Saving.. Size: " .. get_size_format()
 		end
 		-- ? Needed for at least 1fps (status text)
-		-- TODO Maybe use Runservice.RenderStepped instead
-		task.wait()
+		-- task.wait()
+		service.RunService.RenderStepped:Wait()
 	end
 
 	local function save_specific(className, properties)
