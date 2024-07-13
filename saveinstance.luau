@@ -2630,6 +2630,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	do
 		if OPTIONS.SafeMode then
 			service.Players.LocalPlayer:Kick("\nSaving in Progress..\nPlease do NOT leave")
+			service.RunService:Set3dRenderingEnabled(false)
+			service.RunService.RenderStepped:Wait()
 			task.delay(10, service.GuiService.ClearError, service.GuiService)
 		end
 
