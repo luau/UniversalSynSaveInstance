@@ -1014,7 +1014,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
 		--Callback = nil, -- Description: If set, the serialized data will be sent to the callback instead of to file.
-		--Clipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
+		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
 		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
 		-- DisableCompression = false, --Description: Disables compression in the binary output
 
@@ -1648,7 +1648,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if keepStatus then
 				PreviousStatus = StatusText.Text
 			end
-			Loading = task.spawn(function(_text)
+			Loading = task.spawn(function()
 				local SpinnerCount = 0
 				local Chars = { "|", "/", "—", "\\" }
 
@@ -1662,13 +1662,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					return Chars[SpinnerCount]
 				end
 
-				_text ..= " "
+				text ..= " "
 
 				while true do
-					StatusText.Text = _text .. getLoadingText()
+					StatusText.Text = text .. getLoadingText()
 					task.wait(0.25)
 				end
-			end, text)
+			end)
 		end
 
 		local result = { taskFunction(...) }
@@ -1715,8 +1715,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local thread = coroutine.running()
 				local timeoutThread, isCancelled
 
-				task.spawn(function(_thread, _script)
-					local ok, result = pcall(Decompiler, _script)
+				task.spawn(function()
+					local ok, result = pcall(Decompiler, script)
 
 					if isCancelled then
 						return
@@ -1724,24 +1724,24 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 					if timeoutThread then
 						task.cancel(timeoutThread)
-					else
+					else -- * If Decompiler doesn't yield
 						task.defer(function()
 							task.cancel(timeoutThread)
 						end)
 					end
 
-					while coroutine.status(_thread) ~= "suspended" do
+					while coroutine.status(thread) ~= "suspended" do
 						task.wait()
 					end
 
-					coroutine.resume(_thread, ok, result)
-				end, thread, script)
+					coroutine.resume(thread, ok, result)
+				end)
 
-				timeoutThread = task.delay(Timeout, function(_thread)
+				timeoutThread = task.delay(Timeout, function()
 					isCancelled = true -- TODO task.cancel
 
-					coroutine.resume(_thread, nil, "Decompiler timed out")
-				end, thread)
+					coroutine.resume(thread, nil, "Decompiler timed out")
+				end)
 
 				return coroutine.yield()
 			end
@@ -2042,18 +2042,20 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				savebuffer[savebuffer_count] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
 				savebuffer_count += 1
 				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not isLuaSourceContainer(instance)) then
-					local def_instance, new_def_inst
+					local default_instance, new_def_inst
 
 					if IgnoreDefaultProperties then
-						def_instance = default_instances[ClassName]
-						if not def_instance then
+						default_instance = default_instances[ClassName]
+						if not default_instance then
 							local ClassTags = ClassList[ClassName].Tags
 							if not (ClassTags and ClassTags.NotCreatable) then -- __api_dump_class_not_creatable__ also indicates this
-								new_def_inst = Instance.new(ClassName)
+								new_def_inst = Instance.new(ClassName) -- ! Assuming anything that doesn't have NotCreatable is possible to create (therefore no pcall)
 
-								def_instance = {}
+								default_instance = {}
 
-								default_instances[ClassName] = def_instance
+								default_instances[ClassName] = default_instance
+							elseif __DEBUG_MODE then
+								warn("Unable to create default Instance", ClassName)
 							end
 						end
 					end
@@ -2115,6 +2117,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								if ok then
 									raw = result
 								else
+									if __DEBUG_MODE then
+										-- TODO Maybe remove the fix during runtime if it fails to avoid re-trying
+										warn("Fix Failed", PropertyName)
+									end
 									continue
 								end
 							else
@@ -2127,14 +2133,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 
 						if
-							def_instance
+							default_instance
 							and not Property.Special -- TODO: .Special is checked more than once
 							and not (PropertyName == "Source" and isLuaSourceContainer(instance))
 						then -- ? Could be not just "Source" in the future
 							if new_def_inst then
-								def_instance[PropertyName] = getsafeproperty(new_def_inst, PropertyName)
+								default_instance[PropertyName] = getsafeproperty(new_def_inst, PropertyName)
 							end
-							if def_instance[PropertyName] == raw then
+							if default_instance[PropertyName] == raw then
 								continue
 							end
 							-- local ok, IsModified = pcall(IsPropertyModified, instance, PropertyName) -- ? Not yet enabled lol (580)
@@ -2291,7 +2297,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if tag then
 							savebuffer[savebuffer_count] = ReturnProperty(tag, PropertyName, value)
 							savebuffer_count += 1
-						elseif __DEBUG_MODE then
+						else --if __DEBUG_MODE then -- * We print this anyway because very important
 							warn("UNSUPPORTED TYPE (OPEN A GITHUB ISSUE): ", ValueType, ClassName, PropertyName)
 						end
 					end
