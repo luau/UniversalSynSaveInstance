@@ -973,7 +973,7 @@ local globalEnv = getgenv and getgenv() or _G or shared
 --- @field IsolatePlayers string -- SavePlayers
 --- @field scriptcache string -- DecompileJobless
 --- @field timeout string -- DecompileTimeout
---- @field IgnoreNotArchivable string -- INVERSE IgnoreArchivable
+--- @field IgnoreNotArchivable string -- IgnoreArchivable
 --- @field RemovePlayerCharacters string -- INVERSE SavePlayerCharacters
 
 --[=[
@@ -1068,6 +1068,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			IsolatePlayers = "SavePlayers",
 			scriptcache = "DecompileJobless",
 			timeout = "DecompileTimeout",
+			IgnoreNotArchivable = "IgnoreArchivable",
 		},
 
 		NotScriptableFixes = {
@@ -1412,10 +1413,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if Decompile ~= nil then
 					OPTIONS.noscripts = not Decompile
 				end
-				local IgnoreArchivable = CustomOptions.IgnoreArchivable
-				if IgnoreArchivable ~= nil then
-					OPTIONS.IgnoreNotArchivable = not IgnoreArchivable
-				end
 				local SavePlayerCharacters = CustomOptions.SavePlayerCharacters
 				if SavePlayerCharacters ~= nil then
 					OPTIONS.RemovePlayerCharacters = not SavePlayerCharacters
@@ -1452,7 +1449,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IsModel = true
 	end
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
-	local IgnoreNotArchivable = OPTIONS.IgnoreNotArchivable
+	local IgnoreNotArchivable = not OPTIONS.IgnoreNotArchivable
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
 	local IgnoreSpecialProperties = OPTIONS.IgnoreSpecialProperties
 	local notIgnoreSpecialProperties = not IgnoreSpecialProperties
