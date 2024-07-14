@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v2.3.1">
 <title data-rh="true">SynSaveInstance | Universal Syn SaveInstance</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="SynSaveInstance | Universal Syn SaveInstance"><meta data-rh="true" name="description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><meta data-rh="true" property="og:description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><link data-rh="true" rel="icon" href="https://github.com/luau/UniversalSynSaveInstance/assets/95628489/5e2fa14f-c70f-40a6-b747-9ba7fd99037b"><link data-rh="true" rel="canonical" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="en"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="x-default"><link rel="stylesheet" href="/UniversalSynSaveInstance/assets/css/styles.e1adec2f.css">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.69ec61fd.js" as="script">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.a54338b1.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.af40b24c.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.20602234.js" as="script">
 </head>
 <body class="navigation-with-keyboard">
 <script>!function(){function e(e){document.documentElement.setAttribute("data-theme",e)}var t=function(){var e=null;try{e=localStorage.getItem("theme")}catch(e){}return e}();null!==t?e(t):window.matchMedia("(prefers-color-scheme: dark)").matches?e("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,e("light"))}()</script><div id="__docusaurus">
@@ -18,7 +18,7 @@
 </span></span></div><div><code>SafeMode<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p>Kicks you before Saving, which prevents you from being detected in any game. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>Anonymous<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
-<p>Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. <strong><em>Default:</em></strong> true</p>
+<p>Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>ShowStatus<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p><strong><em>Default:</em></strong> true</p>
 </span></span></div><div><code>mode<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
@@ -121,7 +121,7 @@
 </span></span></div><div><code>timeout<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p>DecompileTimeout</p>
 </span></span></div><div><code>IgnoreNotArchivable<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
-<p>INVERSE IgnoreArchivable</p>
+<p>IgnoreArchivable</p>
 </span></span></div><div><code>RemovePlayerCharacters<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p>INVERSE SavePlayerCharacters</p>
 </span></span></div></div><code>}</code></div><div>
@@ -193,7 +193,7 @@
                 {
                     &quot;name&quot;: &quot;Anonymous&quot;,
                     &quot;lua_type&quot;: &quot;boolean&quot;,
-                    &quot;desc&quot;: &quot;Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. ___Default:___ true&quot;
+                    &quot;desc&quot;: &quot;Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. ___Default:___ false&quot;
                 },
                 {
                     &quot;name&quot;: &quot;ShowStatus&quot;,
@@ -398,7 +398,7 @@
                 {
                     &quot;name&quot;: &quot;IgnoreNotArchivable&quot;,
                     &quot;lua_type&quot;: &quot;string&quot;,
-                    &quot;desc&quot;: &quot;INVERSE IgnoreArchivable&quot;
+                    &quot;desc&quot;: &quot;IgnoreArchivable&quot;
                 },
                 {
                     &quot;name&quot;: &quot;RemovePlayerCharacters&quot;,
@@ -419,7 +419,7 @@
         &quot;path&quot;: &quot;saveinstance.luau&quot;
     }
 }</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#types" class="table-of-contents__link toc-highlight">Types</a><ul><li><a href="#CustomOptions table" class="table-of-contents__link toc-highlight">CustomOptions table</a></li><li><a href="#OptionsAliases" class="table-of-contents__link toc-highlight">OptionsAliases</a></li></ul></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#saveinstance" class="table-of-contents__link toc-highlight">.saveinstance</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="footer__links text--center"><div class="footer__links"><a href="https://discord.gg/wx4ThpAsmw" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><span class="footer__link-separator">·</span><a href="https://ko-fi.com/M4M1JNH5G" target="_blank" rel="noopener noreferrer" class="footer__link-item">Support<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2024 luau. Built with Moonwave and Docusaurus.</div></div></div></footer></div>
-<script src="/UniversalSynSaveInstance/assets/js/runtime~main.69ec61fd.js"></script>
-<script src="/UniversalSynSaveInstance/assets/js/main.a54338b1.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/runtime~main.af40b24c.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/main.20602234.js"></script>
 </body>
 </html>
