@@ -835,7 +835,7 @@ do
 		local classList = {}
 
 		for _, API_Class in service.HttpService:JSONDecode(API_Dump).Classes do
-			local ClassProperties = {}
+			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
 				Properties = ClassProperties,
 				Superclass = API_Class.Superclass,
@@ -877,7 +877,7 @@ do
 								Special = MemberTags.NotScriptable
 							end
 							-- if not Special then
-							ClassProperties[PropertyName] = {
+							ClassProperties[ClassProperties_size] = {
 								Name = PropertyName,
 								Category = ValueType.Category,
 								-- Default = Member.Default,
@@ -888,6 +888,7 @@ do
 
 								CanRead = nil,
 							}
+							ClassProperties_size += 1
 							-- end
 						end
 					end
@@ -1913,20 +1914,21 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function GetInheritedProps(className)
-		local proplist, propcount = {}, 1
+		local prop_list = {}
 		local layer = ClassList[className]
 		while layer do
-			-- local _list_0 = layer.Properties
-			-- table.move(_list_0, 1, #_list_0, #proplist + 1, proplist)
-			for _, prop in layer.Properties do
-				proplist[propcount] = prop -- ? table.clone is needed for case where .Default is modified
-				propcount += 1
-			end
+			local layer_props = layer.Properties
+			table.move(layer_props, 1, #layer_props, #prop_list + 1, prop_list)
+
+			-- for _, prop in layer.Properties do
+			-- 	prop_list[prop_count] = prop -- ? table.clone is needed for case where .Default is modified
+			-- 	prop_count += 1
+			-- end
 
 			layer = ClassList[layer.Superclass]
 		end
-		inherited_properties[className] = proplist
-		return proplist
+		inherited_properties[className] = prop_list
+		return prop_list
 	end
 
 	local function save_cache()
@@ -1962,8 +1964,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				Class = "Script"
 			elseif "Name" == propertyName then
 				Class = "Instance"
-				local ValueType = ClassList[Class].Properties[propertyName].ValueType
-				value, tag = ReturnValueAndTag(val, ValueType)
+				value, tag = ReturnValueAndTag(val, "string") -- * Doubt ValueType will change
 			end
 
 			if Class then
@@ -2402,7 +2403,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if NilInstances and global_container.getnilinstances then
-			local nilinstances = {}
+			local nil_instances, nil_instances_size = {}, 1
 
 			local NilInstancesFixes = OPTIONS.NilInstancesFixes
 
@@ -2431,11 +2432,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 				end
 				if instance then
-					table.insert(nilinstances, instance)
+					nil_instances[nil_instances_size] = instance
+					nil_instances_size += 1
 				end
 			end
 			SaveNonCreatable = true
-			save_extra("Nil Instances", nilinstances)
+			save_extra("Nil Instances", nil_instances)
 		end
 
 		if OPTIONS.ReadMe then
