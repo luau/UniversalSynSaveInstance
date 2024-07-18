@@ -210,7 +210,7 @@ if getscriptbytecode then
 	end
 end
 
-local isElectron = type(identify_executor) == "function" and identify_executor() == "Electron"
+local EXECUTOR_NAME = identify_executor()
 
 local SharedStrings = {}
 local SharedString_identifiers = setmetatable({
@@ -579,7 +579,7 @@ XML_Descriptors = {
 	-- ! Fix for Electron v3
 	-- ! Electron v3 'gethiddenproperty' automatically base64 encodes BinaryString values
 
-	BinaryString = isElectron and function(raw)
+	BinaryString = EXECUTOR_NAME == "Electron" and function(raw)
 		return raw
 	end or base64encode,
 
@@ -963,6 +963,7 @@ local globalEnv = getgenv and getgenv() or _G or shared
 --- @field IsolatePlayers boolean -- * This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2. ___Default:___ false
 --- @field IgnoreSharedStrings boolean -- * **RISKY: FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY). FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU**. ___Default:___ true
 --- @field SharedStringOverwrite boolean -- * **RISKY:** if the process is not finished aka crashed then none of the affected values will be available. SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far). Reason: Allows for potential smaller file size (can also be bigger in some cases). ___Default:___ false
+--- @field TreatUnionsAsParts boolean -- * **RISKY:** Converts all UnionOperations to Parts. Useful if your Executor isn't able to save (read) Unions, because otherwise they will be invisible. ___Default:___ false (except Solara)
 
 --- @interface OptionsAliases
 --- @within SynSaveInstance
@@ -1060,6 +1061,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		IgnoreSharedStrings = true,
 		SharedStringOverwrite = false,
+		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true for Solara (once removed, remove Note from docs too)
 
 		OptionsAliases = { -- You can't really modify these as a user
 			FilePath = "FileName",
@@ -1460,6 +1462,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IsolatePlayers = OPTIONS.IsolatePlayers
 
 	local SaveNonCreatable = OPTIONS.SaveNonCreatable
+	local TreatUnionsAsParts = OPTIONS.TreatUnionsAsParts
 
 	local DecompileJobless = OPTIONS.DecompileJobless
 	local ScriptCache = OPTIONS.scriptcache and getscriptbytecode
@@ -2008,7 +2011,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					DecompileIgnoring = 1 -- Ignore one instance
 				end
 			end
-			local InstanceOverride
+			local InstanceOverride, ClassNameOverride
 
 			do
 				local Fix = NotCreatableFixes[ClassName]
@@ -2017,14 +2020,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if InstanceName ~= ClassName then
 							InstanceOverride = InstancePropertyOverrides[instance]
 							if not InstanceOverride then
-								InstanceOverride = { Properties = {} }
+								InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
 								InstancePropertyOverrides[instance] = InstanceOverride
 							end
-							InstanceOverride.Properties.Name = "[" .. ClassName .. "] " .. InstanceName -- ! Assuming anything that has __Children will have .Properties
 						end
 						ClassName = Fix
 					else
 						continue -- They won't show up in Studio anyway (Enable IsolatePlayers if you wish to bypass this)
+					end
+				else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
+					if TreatUnionsAsParts and instance:IsA("PartOperation") then
+						if InstanceName ~= ClassName then
+							-- TODO Remove duplicate code below and above
+							InstanceOverride = InstancePropertyOverrides[instance]
+							if not InstanceOverride then
+								InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
+								InstancePropertyOverrides[instance] = InstanceOverride
+							end
+						end
+						ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
+						ClassName = "Part"
 					end
 				end
 			end
@@ -2059,10 +2074,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							end
 						end
 					end
-					local proplist = inherited_properties[ClassName]
+					local proplist = inherited_properties[ClassNameOverride or ClassName]
 					if not proplist then
-						proplist = GetInheritedProps(ClassName)
-						inherited_properties[ClassName] = proplist
+						proplist = GetInheritedProps(ClassNameOverride or ClassName)
+						inherited_properties[ClassNameOverride or ClassName] = proplist
 					end
 					for _, Property in proplist do
 						local PropertyName = Property.Name
