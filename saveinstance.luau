@@ -1834,7 +1834,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if special then
-			if gethiddenproperty and (not EXECUTOR_NAME == "Celery 0") then -- Celery gethiddenproperty is incredibly slow, and doesn't even work. No reason to use it. Bandaid fix until they fix it.
+			if gethiddenproperty and (not EXECUTOR_NAME == "Celery") then -- Celery gethiddenproperty is incredibly slow, and doesn't even work. No reason to use it. Bandaid fix until they fix it.
 				local ok, result = pcall(gethiddenproperty, instance, propertyName)
 
 				if ok then
@@ -2520,7 +2520,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
 
-            if (not EXECUTOR_NAME == "Celery 0") then
+            if (not EXECUTOR_NAME == "Celery") then
                 run_with_loading(
 					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
 					nil,
