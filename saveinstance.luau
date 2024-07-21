@@ -1834,7 +1834,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if special then
-			if gethiddenproperty then
+			if gethiddenproperty and (not EXECUTOR_NAME == "Celery 0") then -- Celery gethiddenproperty is incredibly slow, and doesn't even work. No reason to use it. Bandaid fix until they fix it.
 				local ok, result = pcall(gethiddenproperty, instance, propertyName)
 
 				if ok then
@@ -2519,24 +2519,28 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
-			run_with_loading(
-				"Writing " .. get_size_format() .. " to File (Depends on Exec)",
-				nil,
-				writefile,
-				placename,
-				totalstr
-			)
 
-			-- local SegmentLength = 250 * SaveCacheInterval
-			-- local Length = math.ceil(totalsize / SegmentLength)
-			-- print(Length)
-			-- for i = 1, Length do
-			-- 	local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
-			-- 	print(#savestr)
-			-- 	appendfile(placename, savestr)
-			-- 	print("saved")
-			-- 	task.wait(1)
-			-- end
+            if (not EXECUTOR_NAME == "Celery 0") then
+                run_with_loading(
+					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
+					nil,
+					writefile,
+					placename,
+					totalstr
+			    )
+            else
+                local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
+
+                local Length = math.ceil(totalsize / SegmentLength)
+
+                for i = 1, Length do
+                	local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
+                    StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
+                	appendfile(placename, savestr)
+                	task.wait(1)
+                end
+
+            end
 		end
 		table.clear(SharedStrings)
 	end
