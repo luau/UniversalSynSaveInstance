@@ -943,7 +943,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
---- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {Chat, TextChatService}
+--- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {Chat, TextChatService, ModuleScript = { "PlayerModule" }}
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore** except `= false` meaning if you ignore one instance it will automatically ignore it's descendants. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
@@ -1027,6 +1027,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			service.Chat,
 			service.TextChatService,
+			ModuleScript = { "PlayerModule" }, -- ? Fixes crashes on Mobile Devices
 		},
 		SaveBytecode = false,
 
@@ -1758,18 +1759,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local hashed_bytecode
 				if ScriptCache then
 					local s, bytecode = pcall(getscriptbytecode, script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
-					local Cached
+					local cached
 
 					if s then
 						if not bytecode or bytecode == "" then
 							return "-- The Script is Empty"
 						end
 						hashed_bytecode = sha384(bytecode)
-						Cached = ldeccache[hashed_bytecode]
+						cached = ldeccache[hashed_bytecode]
 					end
 
-					if Cached then
-						return Cached
+					if cached then
+						return cached
 					elseif DecompileJobless then
 						return "-- Not found in already decompiled ScriptCache"
 					end
@@ -2005,8 +2006,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if DecompileIgnoring == nil then
 					local DecompileIgnored = DecompileIgnore[ClassName]
-					DecompileIgnoring = DecompileIgnored
-						and (DecompileIgnored == true or DecompileIgnored[InstanceName])
+					if DecompileIgnored then
+						DecompileIgnoring = DecompileIgnored == true or DecompileIgnored[InstanceName]
+					end
 				end
 
 				if DecompileIgnoring then
