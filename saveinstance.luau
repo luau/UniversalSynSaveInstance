@@ -1648,8 +1648,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Size
 	end
 
+	local Loading
 	local function run_with_loading(text, keepStatus, taskFunction, ...)
-		local Loading, previousStatus
+		local previousStatus
 
 		if StatusText then
 			if keepStatus then
@@ -1682,6 +1683,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		if Loading then
 			task.cancel(Loading)
+			Loading = nil
 			if previousStatus then
 				StatusText.Text = previousStatus
 			end
@@ -2269,11 +2271,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 												end
 
 												if not ok then
-													ok = pcall(function()
-														source = game:HttpGet(
-															"https://linkedsource.glitch.me/asset/" .. asset
-														)
-													end)
+													ok = run_with_loading(
+														"Getting " .. instance.Name .. " LinkedSource",
+														true,
+														pcall,
+														function()
+															source = game:HttpGet(
+																"https://linkedsource.glitch.me/asset/" .. asset
+															)
+														end
+													)
 												end
 
 												if ok then
@@ -2714,6 +2721,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					StatusText.TextColor3 = Color3.new(0, 1)
 					task.wait(Log10 * 2 + ExtraTime)
 				else
+					if Loading then
+						task.cancel(Loading)
+						Loading = nil
+					end
 					StatusText.Text = "Failed! Check F9 console for more info"
 					StatusText.TextColor3 = Color3.new(1)
 					warn("Error found while saving:")
