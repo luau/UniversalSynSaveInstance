@@ -214,7 +214,6 @@ if getscriptbytecode then
 	end
 end
 
-local EXECUTOR_NAME = identify_executor()
 
 local SharedStrings = {}
 local SharedString_identifiers = setmetatable({
