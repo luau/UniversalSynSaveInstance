@@ -82,14 +82,17 @@ do
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
-		-- appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
+		appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
 	}, true, 10)
 end
 
 local identify_executor = identifyexecutor or getexecutorname or whatexecutor
-local gethiddenproperty = global_container.gethiddenproperty
+
+local EXECUTOR_NAME = identify_executor()
+
+local gethiddenproperty = EXECUTOR_NAME ~= "Celery" and global_container.gethiddenproperty
 local writefile = global_container.writefile
--- local appendfile = global_container.appendfile
+local appendfile = global_container.appendfile
 
 local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = global_container.base64encode
@@ -1834,7 +1837,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if special then
-			if gethiddenproperty and (not EXECUTOR_NAME == "Celery") then -- Celery gethiddenproperty is incredibly slow, and doesn't even work. No reason to use it. Bandaid fix until they fix it.
+			if gethiddenproperty then
 				local ok, result = pcall(gethiddenproperty, instance, propertyName)
 
 				if ok then
@@ -2520,27 +2523,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
 
-            if (not EXECUTOR_NAME == "Celery") then
-                run_with_loading(
+			if EXECUTOR_NAME ~= "Celery" then
+				run_with_loading(
 					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
 					nil,
 					writefile,
 					placename,
 					totalstr
-			    )
-            else
-                local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
+				)
+			else
+				local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 
-                local Length = math.ceil(totalsize / SegmentLength)
+				local Length = math.ceil(totalsize / SegmentLength)
 
-                for i = 1, Length do
-                	local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
-                    StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
-                	appendfile(placename, savestr)
-                	task.wait(1)
-                end
-
-            end
+				for i = 1, Length do
+					local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
+					StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
+					appendfile(placename, savestr)
+					task.wait(1)
+				end
+			end
 		end
 		table.clear(SharedStrings)
 	end
