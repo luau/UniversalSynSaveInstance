@@ -214,7 +214,6 @@ if getscriptbytecode then
 	end
 end
 
-
 local SharedStrings = {}
 local SharedString_identifiers = setmetatable({
 	identifier = 1e15, -- 1 quadrillion, up to 9.(9) quadrillion, in theory this shouldn't ever run out and be enough for all sharedstrings ever imaginable
@@ -2219,8 +2218,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										local should_decompile = true
 										local LinkedSource
 										local LinkedSource_Url = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
-										local LinkedSource_notEmpty = LinkedSource_Url ~= ""
-										if LinkedSource_notEmpty then
+										local hasLinkedSource = LinkedSource_Url ~= ""
+										if hasLinkedSource then
 											local Path = instance:GetFullName()
 											if RecoveredScripts then
 												table.insert(RecoveredScripts, Path)
@@ -2235,30 +2234,56 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 											LinkedSource = string.match(LinkedSource_Url, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 											if LinkedSource then
-												local Cached = ldeccache[LinkedSource]
+												local cached = ldeccache[LinkedSource]
 
-												if Cached then
-													value = Cached
+												if cached then
+													value = cached
 													should_decompile = nil
 												elseif DecompileJobless then
 													value = "-- Not found in already decompiled ScriptCache"
 													should_decompile = nil
 												end
 
-												local Source
+												local function filterResults(str)
+													local o, r =
+														pcall(service.HttpService.JSONDecode, service.HttpService, str)
+													if o and r.errors then
+														return false
+													end
+													return true
+												end
+
+												local asset = (string.find(LinkedSource, "%a") and "hash" or "id")
+													.. "="
+													.. LinkedSource
+
+												local source
 												local ok = pcall(function()
-													Source = game:HttpGet(
-														"https://assetdelivery.roproxy.com/v1/asset/?"
-															.. (string.find(LinkedSource, "%a") and "hash" or "id")
-															.. "="
-															.. LinkedSource
+													source = game:HttpGet(
+														"https://assetdelivery.roproxy.com/v1/asset/?" .. asset
 													)
 												end)
 
 												if ok then
-													ldeccache[LinkedSource] = Source
+													ok = filterResults(source)
+												end
 
-													value = Source
+												if not ok then
+													ok = pcall(function()
+														source = game:HttpGet(
+															"https://linkedsource.glitch.me/asset/" .. asset
+														)
+													end)
+												end
+
+												if ok then
+													ok = filterResults(source)
+												end
+
+												if ok then
+													ldeccache[LinkedSource] = source
+
+													value = source
 
 													-- should_decompile = nil
 												end
@@ -2272,10 +2297,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										end
 
 										if should_decompile then
-											local IsLocalScript = instance:IsA("LocalScript")
+											local isLocalScript = instance:IsA("LocalScript")
 											if
-												IsLocalScript and instance.RunContext == Enum.RunContext.Server
-												or not IsLocalScript
+												isLocalScript and instance.RunContext == Enum.RunContext.Server
+												or not isLocalScript
 													and instance:IsA("Script")
 													and instance.RunContext ~= Enum.RunContext.Client
 											then
@@ -2292,7 +2317,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										end
 
 										value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
-											.. (LinkedSource_notEmpty and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?id=" .. (LinkedSource or LinkedSource_Url) .. "\n\n" or "")
+											.. (hasLinkedSource and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?id=" .. (LinkedSource or LinkedSource_Url) .. "\n\n" or "")
 											.. value
 									end
 								end
