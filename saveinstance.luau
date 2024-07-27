@@ -11,7 +11,7 @@ local service = setmetatable({}, {
 	end,
 })
 
-local function Find(s, pattern)
+local function string_find(s, pattern)
 	return string.find(s, pattern, nil, true)
 end
 
@@ -538,7 +538,7 @@ XML_Descriptors = {
 		return "<min>" .. descriptor(min) .. "</min><max>" .. descriptor(max) .. "</max>"
 	end,
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
-		return Find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES) or XML_Descriptors.__CDATA(raw)
+		return string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES) or XML_Descriptors.__CDATA(raw)
 	end,
 	__SEQUENCE = function(raw, valueFormatter) --The value is the text content, formatted as a space-separated list of floating point numbers.
 		-- tostring(raw) also works (but way slower rn)
@@ -660,8 +660,8 @@ XML_Descriptors = {
 	Font = function(raw)
 		local FontString = tostring(raw) -- TODO: Temporary fix
 
-		local EmptyWeight = Find(FontString, "Weight = ,")
-		local EmptyStyle = Find(FontString, "Style =  }")
+		local EmptyWeight = string_find(FontString, "Weight = ,")
+		local EmptyStyle = string_find(FontString, "Style =  }")
 
 		return "<Family>"
 			.. XML_Descriptors.Content(raw.Family)
@@ -809,7 +809,7 @@ The value of each component is represented by the text content formatted as a 32
 	int64 = nil,
 	string = function(raw, skipEmptyCheck)
 		return not skipEmptyCheck and raw == "" and raw
-			or Find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
+			or string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
 			or XML_Descriptors.__CDATA(string.gsub(raw, "\0", ""))
 	end,
 }
@@ -1663,8 +1663,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Size
 	end
 
+	local function wait_for_render()
+		service.RunService.RenderStepped:Wait()
+	end
+
 	local Loading
-	local function run_with_loading(text, keepStatus, taskFunction, ...)
+	local function run_with_loading(text, keepStatus, waitForRender, taskFunction, ...)
 		local previousStatus
 
 		if StatusText then
@@ -1692,6 +1696,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					task.wait(0.25)
 				end
 			end)
+			if waitForRender then
+				wait_for_render()
+			end
 		end
 
 		local result = { taskFunction(...) }
@@ -1794,7 +1801,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					task.wait() -- TODO Maybe remove?
 				end
 
-				local ok, result = run_with_loading("Decompiling " .. script.Name, true, DecompileHandler, script)
+				local ok, result = run_with_loading("Decompiling " .. script.Name, true, nil, DecompileHandler, script)
 
 				if not result then
 					ok, result = false, "Empty Output"
@@ -1846,7 +1853,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return result == nil
 				or result == "can't get value"
 				or type(result) == "string"
-					and (Find(result, "Unable to get property " .. propertyName) or property.Category == "Enum" and Find(
+					and (string_find(result, "Unable to get property " .. propertyName) or property.Category == "Enum" and string_find(
 						result,
 						"Invalid value for enum "
 					))
@@ -1967,7 +1974,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 		-- ? Needed for at least 1fps (status text)
 		-- task.wait()
-		service.RunService.RenderStepped:Wait()
+		wait_for_render()
 	end
 
 	local function save_specific(className, properties)
@@ -2289,6 +2296,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													ok = run_with_loading(
 														"Getting " .. instance.Name .. " LinkedSource",
 														true,
+														nil,
 														pcall,
 														function()
 															source = game:HttpGet(
@@ -2531,7 +2539,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		If you can't move the Camera, run the scripts in the Studio Command Bar:
 			
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
-				
+		
+		Or Destroy the Camera.
+
 		This file was generated with the following settings:
 				]]
 					.. service.HttpService:JSONEncode(OPTIONS)
@@ -2575,6 +2585,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				run_with_loading(
 					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
 					nil,
+					true,
 					writefile,
 					placename,
 					totalstr
@@ -2712,7 +2723,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if OPTIONS.SafeMode then
 			service.Players.LocalPlayer:Kick("\nSaving in Progress..\nPlease do NOT leave")
 			service.RunService:Set3dRenderingEnabled(false)
-			service.RunService.RenderStepped:Wait()
+			wait_for_render()
 			task.delay(10, service.GuiService.ClearError, service.GuiService)
 		end
 
