@@ -72,6 +72,7 @@ do
 
 	finder({
 		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff (getbinaryindex)
+		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
 		decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s") or string.find(...,"assembl",nil,true)',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
@@ -80,9 +81,9 @@ do
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)', --  or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true) due to Fluxus (dumpstring returns a function)
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
-		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
-		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 		appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
+		readfile = 'string.find(...,"file",nil,true) and string.find(...,"read",nil,true)',
+		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 	}, true, 10)
 end
 
@@ -91,8 +92,9 @@ local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 local EXECUTOR_NAME = identify_executor()
 
 local gethiddenproperty = EXECUTOR_NAME ~= "Celery" and global_container.gethiddenproperty
-local writefile = global_container.writefile
 local appendfile = global_container.appendfile
+local readfile = global_container.readfile
+local writefile = global_container.writefile
 
 local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = global_container.base64encode
@@ -830,9 +832,44 @@ do
 	local ClassPropertyExceptions = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) }
 
 	local function FetchAPI()
-		local API_Dump_Url =
-			"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
-		local API_Dump = game:HttpGet(API_Dump_Url, true)
+		-- * You can also use: https://setup.rbxcdn.com/{https://setup.rbxcdn.com/versionQTStudio}-Full-API-Dump.json
+		-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
+		local API_Dump
+		if
+			not pcall(function()
+				local VERSIONS = version()
+
+				local o, r = pcall(readfile, VERSIONS)
+				if o then
+					API_Dump = r
+					return
+				end
+
+				local latest_commit = service.HttpService:JSONDecode(
+					game:HttpGet(
+						"https://api.github.com/search/commits?sort=committer-date&order=desc&q=repo:MaximumADHD/Roblox-Client-Tracker+0."
+							.. string.split(VERSIONS, ".")[2],
+						true
+					)
+				).items[1]
+				-- print(VERSIONS)
+				-- print(latest_commit.commit.message)
+				API_Dump = game:HttpGet(
+					"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/"
+						.. latest_commit.sha
+						.. "/Mini-API-Dump.json",
+					true
+				)
+
+				writefile(VERSIONS, API_Dump) -- ? To avoid 60 requests / 1 h limit on GitHub Api
+			end)
+		then
+			warn("Failed to get " .. version() .. " API Dump, trying latest..")
+			API_Dump = game:HttpGet(
+				"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json",
+				true
+			)
+		end
 
 		local classList = {}
 
@@ -1793,6 +1830,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 
 					if cached then
+						if __DEBUG_MODE then
+							warn("Found in Cache", script:GetFullName())
+						end
 						return cached
 					elseif DecompileJobless then
 						return "-- Not found in already decompiled ScriptCache"
@@ -1817,6 +1857,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if ScriptCache and hashed_bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
 					ldeccache[hashed_bytecode] = output -- ? Should we cache even if it timed out?
+					if __DEBUG_MODE then
+						warn("Cached", script:GetFullName())
+					end
 				end
 
 				return output
@@ -2007,21 +2050,21 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if IgnoreNotArchivable and not instance.Archivable then
 				continue
 			end
+
 			local SkipEntirely = IgnoreList[instance]
 			if SkipEntirely then
 				continue
 			end
 
 			local ClassName = instance.ClassName
-			local Class = ClassList[ClassName]
-			if not Class then
-				continue
-			end
 
 			local InstanceName = instance.Name
-			local OnIgnoredList = IgnoreList[ClassName]
-			if OnIgnoredList and (OnIgnoredList == true or OnIgnoredList[InstanceName]) then
-				continue
+
+			do
+				local OnIgnoredList = IgnoreList[ClassName]
+				if OnIgnoredList and (OnIgnoredList == true or OnIgnoredList[InstanceName]) then
+					continue
+				end
 			end
 
 			if not DecompileIgnoring then
@@ -2040,35 +2083,39 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					DecompileIgnoring = 1 -- Ignore one instance
 				end
 			end
+
 			local InstanceOverride, ClassNameOverride
 
 			do
+				local function replaceClassName(newClassName)
+					if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
+						InstanceOverride = InstancePropertyOverrides[instance]
+						if not InstanceOverride then
+							InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
+							InstancePropertyOverrides[instance] = InstanceOverride
+						end
+					end
+					ClassName = newClassName
+				end
+
 				local Fix = NotCreatableFixes[ClassName]
+
 				if Fix then
 					if SaveNonCreatable then
-						if InstanceName ~= ClassName then
-							InstanceOverride = InstancePropertyOverrides[instance]
-							if not InstanceOverride then
-								InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
-								InstancePropertyOverrides[instance] = InstanceOverride
-							end
-						end
-						ClassName = Fix
+						replaceClassName(Fix)
 					else
 						continue -- They won't show up in Studio anyway (Enable IsolatePlayers if you wish to bypass this)
 					end
 				else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 					if TreatUnionsAsParts and instance:IsA("PartOperation") then
-						if InstanceName ~= ClassName then
-							-- TODO Remove duplicate code below and above
-							InstanceOverride = InstancePropertyOverrides[instance]
-							if not InstanceOverride then
-								InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
-								InstancePropertyOverrides[instance] = InstanceOverride
-							end
-						end
+						replaceClassName("Part")
 						ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
-						ClassName = "Part"
+					elseif not ClassList[ClassName] then -- ? API Dump is outdated then
+						if __DEBUG_MODE then
+							warn("Class not Found", ClassName)
+						end
+
+						ClassNameOverride = "Folder"
 					end
 				end
 			end
