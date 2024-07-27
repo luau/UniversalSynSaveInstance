@@ -1,6 +1,5 @@
 
 Instance.AttributesSerialize {BinaryString}
-Instance.Capabilities 
 Instance.DefinesCapabilities 
 Instance.HistoryId 
 Instance.Tags {BinaryString}

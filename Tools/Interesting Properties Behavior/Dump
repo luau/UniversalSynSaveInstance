@@ -10,6 +10,8 @@ AnalyticsService is NotCreatable but AnalyticsService.ApiKey has a default value
 
 AnimationTrack.TimePosition {CanLoad Only}
 
+AnnotationsService is NotCreatable but AnnotationsService.Hovered has a default value: __api_dump_no_string_value__
+
 AssetDeliveryProxy is NotCreatable but AssetDeliveryProxy.Interface has a default value: 
 
 AssetPatchSettings is NotCreatable but AssetPatchSettings.ContentId has a default value: 
@@ -26,6 +28,10 @@ AudioAnalyzer.PeakLevel {CanSave Only}
 AudioAnalyzer.RmsLevel {CanSave Only}
 
 AudioDeviceInput.IsReady {CanSave Only}
+
+AudioEqualizer.Editor {CanLoad Only}
+
+AudioFilter.Editor {CanLoad Only}
 
 AudioPlayer.Asset {CanLoad Only}
 AudioPlayer.IsReady {CanSave Only}
@@ -530,6 +536,8 @@ TestService.TestCount {CanSave Only}
 TestService.WarnCount {CanSave Only}
 
 BubbleChatConfiguration is NotCreatable but BubbleChatConfiguration.AdorneeName has a default value: HumanoidRootPart
+
+ChannelTabsConfiguration is NotCreatable but ChannelTabsConfiguration.AbsolutePosition has a default value: 0, 0
 
 ChatInputBarConfiguration is NotCreatable but ChatInputBarConfiguration.AbsolutePosition has a default value: 0, 0
 
