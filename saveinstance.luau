@@ -81,7 +81,7 @@ do
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)', --  or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true) due to Fluxus (dumpstring returns a function)
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
-		appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
+		-- appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
 		readfile = 'string.find(...,"file",nil,true) and string.find(...,"read",nil,true)',
 		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 	}, true, 10)
@@ -91,8 +91,8 @@ local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 
 local EXECUTOR_NAME = identify_executor()
 
-local gethiddenproperty = EXECUTOR_NAME ~= "Celery" and global_container.gethiddenproperty
-local appendfile = global_container.appendfile
+local gethiddenproperty = global_container.gethiddenproperty
+-- local appendfile = global_container.appendfile
 local readfile = global_container.readfile
 local writefile = global_container.writefile
 
@@ -2628,27 +2628,27 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
 
-			if EXECUTOR_NAME ~= "Celery" then
-				run_with_loading(
-					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
-					nil,
-					true,
-					writefile,
-					placename,
-					totalstr
-				)
-			else
-				local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
+			-- if EXECUTOR_NAME ~= "Celery" then
+			run_with_loading(
+				"Writing " .. get_size_format() .. " to File (Depends on Exec)",
+				nil,
+				true,
+				writefile,
+				placename,
+				totalstr
+			)
+			-- else
+			-- 	local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 
-				local Length = math.ceil(totalsize / SegmentLength)
+			-- 	local Length = math.ceil(totalsize / SegmentLength)
 
-				for i = 1, Length do
-					local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
-					StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
-					appendfile(placename, savestr)
-					task.wait(1)
-				end
-			end
+			-- 	for i = 1, Length do
+			-- 		local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
+			-- 		StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
+			-- 		appendfile(placename, savestr)
+			-- 		task.wait(1)
+			-- 	end
+			-- end
 		end
 		table.clear(SharedStrings)
 	end
