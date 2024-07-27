@@ -1002,6 +1002,12 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
+	-- if GLOBAL_ENV.__USSI then
+	-- 	warn("UniversalSynSaveInstance is already running")
+	-- 	return
+	-- end
+	-- GLOBAL_ENV.__USSI = true
+
 	local totalstr, totalsize = "", 0
 	local savebuffer, savebuffer_size = { '<roblox version="4">' }, 2
 
@@ -1026,7 +1032,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			service.Chat,
 			service.TextChatService,
-			ModuleScript = { "PlayerModule" }, -- ? Fixes crashes on Mobile Devices
+			ModuleScript = nil,
 		},
 		SaveBytecode = false,
 
@@ -1437,6 +1443,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
+	do -- ? Fixes crashes on Mobile Devices
+		local DecompileIgnore = OPTIONS.DecompileIgnore
+		local ModuleScript = DecompileIgnore.ModuleScript
+		if type(DecompileIgnore.ModuleScript) == "table" then
+			table.insert(DecompileIgnore, "PlayerModule")
+		elseif ModuleScript == nil then
+			DecompileIgnore.ModuleScript = { "PlayerModule" }
+		end
+	end
 	local InstancePropertyOverrides = {}
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
@@ -2710,7 +2725,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				connection:Disconnect()
 			end
 		end
-
+		-- GLOBAL_ENV.__USSI = nil
 		if StatusText then
 			task.spawn(function()
 				elapse_t = os.clock() - elapse_t
