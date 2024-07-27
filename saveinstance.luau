@@ -840,7 +840,7 @@ do
 				local VERSIONS = version()
 
 				local o, r = pcall(readfile, VERSIONS)
-				if o then
+				if o and r and r ~= "" then
 					API_Dump = r
 					return
 				end
