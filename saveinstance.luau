@@ -84,6 +84,7 @@ do
 		-- appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
 		readfile = 'string.find(...,"file",nil,true) and string.find(...,"read",nil,true)',
 		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
+		setthreadidentity = 'string.find(...,"identity",nil,true) and string.find(...,"set",nil,true)',
 	}, true, 10)
 end
 
@@ -1044,6 +1045,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	-- 	return
 	-- end
 	-- GLOBAL_ENV.__USSI = true
+
+	do
+		local setthreadidentity = global_container.setthreadidentity
+		if setthreadidentity then
+			pcall(setthreadidentity, 8) -- ? Arceus X Fix
+		end
+	end
 
 	local totalstr, totalsize = "", 0
 	local savebuffer, savebuffer_size = { '<roblox version="4">' }, 2
