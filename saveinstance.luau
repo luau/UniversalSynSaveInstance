@@ -2062,10 +2062,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			local ClassName = instance.ClassName
 
-			if ClassName == "" then -- * FilteredSelection
-				continue
-			end
-
 			local InstanceName = instance.Name
 
 			do
@@ -2389,7 +2385,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													and instance:IsA("Script")
 													and instance.RunContext ~= Enum.RunContext.Client
 											then
-												value = "-- Server Scripts can NOT be saved" --TODO: Could be not just server scripts in the future
+												value = "-- Server Scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
 											else
 												value = ldecompile(instance)
 												if SaveBytecode then
