@@ -2025,7 +2025,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function save_specific(className, properties)
-		local Ref = Instance.new(className)
+		local Ref = Instance.new(className) -- ! Assuming anything passed here is Creatable
 		local Item = ReturnItem(Ref.ClassName, Ref)
 
 		for propertyName, val in properties do
@@ -2062,6 +2062,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			local ClassName = instance.ClassName
 
+			if ClassName == "" then -- * FilteredSelection
+				ClassName = "Folder"
+			end
+
 			local InstanceName = instance.Name
 
 			do
@@ -2088,7 +2092,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 
-			local InstanceOverride, ClassNameOverride
+			local InstanceOverride, ClassNameOverride, ClassTagOverride
 
 			do
 				local function replaceClassName(newClassName)
@@ -2119,7 +2123,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							warn("Class not Found", ClassName)
 						end
 
-						ClassNameOverride = "Folder"
+						ClassTagOverride = ClassName -- ? To at least retain .ClassName unlike the rest of the class-specific properties
+						ClassName = "Folder" -- ? replaceClassName is not needed because of the ClassTagOverride
 					end
 				end
 			end
@@ -2137,7 +2142,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				savebuffer_size += 1
 			else
 				-- local Properties =
-				savebuffer[savebuffer_size] = ReturnItem(ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
+				savebuffer[savebuffer_size] = ReturnItem(ClassTagOverride or ClassName, instance) -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is ENABLED
 				savebuffer_size += 1
 				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not isLuaSourceContainer(instance)) then
 					local default_instance, new_def_inst
@@ -2385,7 +2390,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													and instance:IsA("Script")
 													and instance.RunContext ~= Enum.RunContext.Client
 											then
-												value = "-- Server Scripts can NOT be decompiled" --TODO: Could be not just server scripts in the future
+												value = "-- Server Scripts can NOT be saved" --TODO: Could be not just server scripts in the future
 											else
 												value = ldecompile(instance)
 												if SaveBytecode then
