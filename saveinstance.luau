@@ -1759,6 +1759,40 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return unpack(result)
 	end
 
+	local function construct_TimeoutHandler(timeout, f, timeout_ret)
+		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
+			if timeout < 0 then
+				return pcall(f, script)
+			end
+
+			local thread = coroutine.running()
+			local timeoutThread, isCancelled
+
+			timeoutThread = task.delay(timeout, function()
+				isCancelled = true -- TODO task.cancel
+				coroutine.resume(thread, nil, timeout_ret)
+			end)
+
+			task.spawn(function()
+				local ok, result = pcall(f, script)
+
+				if isCancelled then
+					return
+				end
+
+				task.cancel(timeoutThread)
+
+				while coroutine.status(thread) ~= "suspended" do
+					task.wait()
+				end
+
+				coroutine.resume(thread, ok, result)
+			end)
+
+			return coroutine.yield()
+		end
+	end
+
 	do
 		if load_decompiler then
 			load_decompiler(Timeout)
@@ -1783,50 +1817,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				return "-- Decompiling is disabled"
 			end
 		elseif Decompiler then
-			local function DecompileHandler(script)
-				if Timeout == -1 then
-					return pcall(Decompiler, script)
-				end
-
-				local thread = coroutine.running()
-				local timeoutThread, isCancelled
-
-				task.spawn(function()
-					local ok, result = pcall(Decompiler, script)
-
-					if isCancelled then
-						return
-					end
-
-					if timeoutThread then
-						task.cancel(timeoutThread)
-					else -- * If Decompiler doesn't yield
-						task.defer(function()
-							task.cancel(timeoutThread)
-						end)
-					end
-
-					while coroutine.status(thread) ~= "suspended" do
-						task.wait()
-					end
-
-					coroutine.resume(thread, ok, result)
-				end)
-
-				timeoutThread = task.delay(Timeout, function()
-					isCancelled = true -- TODO task.cancel
-
-					coroutine.resume(thread, nil, "Decompiler timed out")
-				end)
-
-				return coroutine.yield()
-			end
+			local decomp = construct_TimeoutHandler(Timeout, Decompiler, "Decompiler timed out")
+			local getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
 
 			ldecompile = function(script)
 				-- local name = scr.ClassName .. scr.Name
 				local hashed_bytecode
 				if ScriptCache then
-					local s, bytecode = pcall(getscriptbytecode, script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
+					local s, bytecode = getbytecode(script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
 					local cached
 
 					if s then
@@ -1848,9 +1846,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				else
 					task.wait() -- TODO Maybe remove?
 				end
-
-				local ok, result = run_with_loading("Decompiling " .. script.Name, true, nil, DecompileHandler, script)
-
+				local ok, result = run_with_loading("Decompiling " .. script.Name, true, nil, decomp, script)
 				if not result then
 					ok, result = false, "Empty Output"
 				end
@@ -2573,10 +2569,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		If you didn't save in Binary - we recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
 		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
 
-		If your player cannot spawn into the game, please move the scripts in StarterPlayer elsewhere & Set CharacterAutoLoads to true on Players service.
+		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else. Then run `game:GetService("Players").CharacterAutoLoads = true`.
+		And use "Play Here" to start game instead of "Play" to spawn your Character where your Camera currently is.
 
 		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 
-
 		Or run `game:GetService("Chat"):ClearAllChildren()`
 				
 		If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
@@ -2591,7 +2587,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 				
-		If you can't move the Camera, run the scripts in the Studio Command Bar:
+		If you can't move the Camera, run this script in the Studio Command Bar:
 			
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
 		
