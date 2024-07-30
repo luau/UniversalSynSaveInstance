@@ -1488,13 +1488,30 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	do -- ? Fixes crashes on Mobile Devices
+	do
+		-- ? Fixes crashes on Mobile Devices
+		-- TODO This is a bad workaround, find a better automatic way
 		local DecompileIgnore = OPTIONS.DecompileIgnore
-		local ModuleScript = DecompileIgnore.ModuleScript
-		if type(DecompileIgnore.ModuleScript) == "table" then
-			table.insert(DecompileIgnore, "PlayerModule")
-		elseif ModuleScript == nil then
-			DecompileIgnore.ModuleScript = { "PlayerModule" }
+
+		local Path = service.StarterPlayer:FindFirstChild("StarterPlayerScripts")
+		local Exclude = { ModuleScript = { "PlayerModule" }, LocalScript = { "RbxCharacterSounds" } }
+		if Path then
+			for _, className in Exclude do
+				for _, name in className do
+					table.insert(DecompileIgnore, Path:FindFirstChild(name))
+				end
+			end
+		else
+			for _, className in Exclude do
+				local dest = DecompileIgnore[className]
+				if dest == nil then
+					DecompileIgnore[className] = Exclude
+				elseif type(dest) == "table" then
+					for _, name in Exclude[className] do
+						table.insert(dest, name)
+					end
+				end
+			end
 		end
 	end
 	local InstancePropertyOverrides = {}
