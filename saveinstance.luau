@@ -81,9 +81,6 @@ do
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)', --  or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true) due to Fluxus (dumpstring returns a function)
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
-		appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
-		readfile = 'string.find(...,"file",nil,true) and string.find(...,"read",nil,true)',
-		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 		setthreadidentity = 'string.find(...,"identity",nil,true) and string.find(...,"set",nil,true)',
 	}, true, 10)
 end
@@ -94,9 +91,10 @@ local EXECUTOR_NAME = identify_executor()
 
 local gethiddenproperty = global_container.gethiddenproperty
 
-local appendfile = global_container.appendfile
-local readfile = global_container.readfile
-local writefile = global_container.writefile
+-- These should be universal enough
+local appendfile = appendfile
+local readfile = readfile
+local writefile = writefile
 
 local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = global_container.base64encode
