@@ -81,7 +81,7 @@ do
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)', --  or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true) due to Fluxus (dumpstring returns a function)
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
-		-- appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
+		appendfile = 'string.find(...,"file",nil,true) and string.find(...,"append",nil,true)',
 		readfile = 'string.find(...,"file",nil,true) and string.find(...,"read",nil,true)',
 		writefile = 'string.find(...,"file",nil,true) and string.find(...,"write",nil,true)',
 		setthreadidentity = 'string.find(...,"identity",nil,true) and string.find(...,"set",nil,true)',
@@ -94,7 +94,7 @@ local EXECUTOR_NAME = identify_executor()
 
 local gethiddenproperty = global_container.gethiddenproperty
 
--- local appendfile = global_container.appendfile
+local appendfile = global_container.appendfile
 local readfile = global_container.readfile
 local writefile = global_container.writefile
 
@@ -102,7 +102,7 @@ local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assum
 local base64encode = global_container.base64encode
 local sha384
 
-if not gethiddenproperty or EXECUTOR_NAME == "Celery" then -- TODO Celery Fix
+if not gethiddenproperty or EXECUTOR_NAME == "Celery" then -- ? Celery Fix
 	local UGCValidationService = service.UGCValidationService
 
 	gethiddenproperty = function(instance, property_name)
@@ -980,7 +980,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
---- @field Anonymous boolean -- Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. ___Default:___ false
+--- @field Anonymous boolean -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
 --- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
@@ -1391,12 +1391,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		},
 	}
 
-	local function CheckAlias(searchAlias)
+	local function GetAlias(searchAlias)
 		for option, alias in OPTIONS.OptionsAliases do
 			if searchAlias == alias then
 				return option
 			end
 		end
+
+		return ""
 	end
 
 	do -- * Load Settings
@@ -1466,7 +1468,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			else
 				for key, value in CustomOptions do
 					if OPTIONS[key] == nil then
-						local Option = CheckAlias(key)
+						local Option = GetAlias(key)
 
 						if Option then
 							OPTIONS[Option] = value
@@ -1568,6 +1570,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		enablenilinstances()
 	end
 
+	if
+		#service.StarterGui:GetChildren() == 0
+		and CustomOptions.IsolateLocalPlayer == nil
+		and CustomOptions[GetAlias("IsolateLocalPlayer")] == nil
+	then
+		OPTIONS.IsolateLocalPlayer = true -- * QoL
+	end
+
 	local SaveBytecode
 	if OPTIONS.SaveBytecode and getscriptbytecode then
 		SaveBytecode = function(script)
@@ -1628,11 +1638,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"NilInstances",
 				}
 			do
-				if CustomOptions[key] == nil then
-					local Option = CheckAlias(key)
-					if CustomOptions[Option] == nil then
-						OPTIONS[key] = false
-					end
+				if CustomOptions[key] == nil and CustomOptions[GetAlias(key)] == nil then
+					OPTIONS[key] = false
 				end
 			end
 
@@ -1749,11 +1756,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			Loading = task.spawn(function()
 				local spinner_count = 0
 				local chars = { "|", "/", "—", "\\" }
+				local chars_size = #chars
 
 				local function getLoadingText()
 					spinner_count += 1
 
-					if #chars < spinner_count then
+					if chars_size < spinner_count then
 						spinner_count = 1
 					end
 
@@ -1830,7 +1838,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- if Decompiler == custom_decompiler then -- Cope
 		-- 	local key = "DecompileTimeout"
 		-- 	if CustomOptions[key] == nil then
-		-- 		local Option = CheckAlias(key)
+		-- 		local Option = GetAlias(key)
 		-- 		if CustomOptions[Option] == nil then
 		-- 			Timeout = 1
 		-- 		end
@@ -2088,10 +2096,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			local ClassName = instance.ClassName
 
-			if ClassName == "" then -- * FilteredSelection
-				ClassName = "Folder"
-			end
-
 			local InstanceName = instance.Name
 
 			do
@@ -2159,6 +2163,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				InstanceOverride = InstancePropertyOverrides[instance]
 			end
 			local ChildrenOverride = InstanceOverride and InstanceOverride.__Children
+
+			if ClassName == "" then -- * FilteredSelection
+				ClassName = "Folder"
+			end
 
 			-- ? The reason we only save .Name (and few other props in save_specific) is because
 			-- ? we can be sure this is a custom container (ex. NilInstancesFixes)
@@ -2677,9 +2685,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local Length = math.ceil(totalsize / SegmentLength)
 
 				for i = 1, Length do
-					local savestr = string.sub(totalstr, (i - 1) * SegmentLength + 1, i * SegmentLength) -- Fixed improper segmenting
-					StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
-					appendfile(placename, savestr)
+					local savestr = string.sub(totalstr, (i - 1) * SegmentLength + 1, i * SegmentLength)
+
+					run_with_loading(
+						"Writing to File " .. math.round(i / Length * 100) .. "% (Depends on Exec)",
+						nil,
+						true,
+						appendfile,
+						placename,
+						savestr
+					)
+
 					task.wait(0.1)
 				end
 			end

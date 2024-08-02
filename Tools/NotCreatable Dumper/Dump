@@ -247,6 +247,8 @@ TextChatConfigurations
 
 BubbleChatConfiguration
 
+ChannelTabsConfiguration
+
 ChatInputBarConfiguration
 
 ChatWindowConfiguration
