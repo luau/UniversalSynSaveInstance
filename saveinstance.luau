@@ -94,20 +94,6 @@ local EXECUTOR_NAME = identify_executor()
 
 local gethiddenproperty = global_container.gethiddenproperty
 
-if EXECUTOR_NAME == "Celery" or not gethiddenproperty then
-	local UGCValidationService = game:GetService("UGCValidationService")
-
-	gethiddenproperty = function(instance, property)
-		if property == "Color3uint8" then
-			if instance["Color"] then
-				return instance["Color"]
-			end
-		end
-
-		return UGCValidationService:GetPropertyValue(instance, property) -- :)
-	end
-end
-
 -- local appendfile = global_container.appendfile
 local readfile = global_container.readfile
 local writefile = global_container.writefile
@@ -115,6 +101,14 @@ local writefile = global_container.writefile
 local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = global_container.base64encode
 local sha384
+
+if not gethiddenproperty or EXECUTOR_NAME == "Celery" then -- TODO Celery Fix
+	local UGCValidationService = service.UGCValidationService
+
+	gethiddenproperty = function(instance, property_name)
+		return UGCValidationService:GetPropertyValue(instance, property_name) -- :)
+	end
+end
 
 if not base64encode then
 	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
@@ -634,7 +628,6 @@ XML_Descriptors = {
 		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
 	Color3uint8 = function(raw)
-
 		-- https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md#color3uint8
 
 		return 0xFF000000
