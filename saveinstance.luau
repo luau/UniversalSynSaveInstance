@@ -98,8 +98,7 @@ if EXECUTOR_NAME == "Celery" or not gethiddenproperty then
 	local UGCValidationService = game:GetService("UGCValidationService")
 
 	gethiddenproperty = function(instance, property)
-		if property == "Color3uint8" then -- i have no idea why you require being able to read this nonscriptable and hidden property with no fallback
-			-- when .Color literally returns the same thing
+		if property == "Color3uint8" then
 			if instance["Color"] then
 				return instance["Color"]
 			end
@@ -634,8 +633,7 @@ XML_Descriptors = {
 	Color3 = function(raw) -- Each element is a <float>
 		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
-	Color3uint8 = function(raw: Color3) -- Please type inference your code. I was just debugging why converting Color3 to Color3uint8 was not working.
-		-- It was because this expects a Color3 and I had no reason to convert it.
+	Color3uint8 = function(raw)
 
 		-- https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md#color3uint8
 
