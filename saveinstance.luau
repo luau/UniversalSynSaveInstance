@@ -93,6 +93,23 @@ local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 local EXECUTOR_NAME = identify_executor()
 
 local gethiddenproperty = global_container.gethiddenproperty
+
+if EXECUTOR_NAME == "Celery" or (not gethiddenproperty) then
+	local UGCValidationService = game:GetService("UGCValidationService")
+
+	gethiddenproperty = function(instance, property)
+
+        if property == "Color3uint8" then -- i have no idea why you require being able to read this nonscriptable and hidden property with no fallback
+                                          -- when .Color literally returns the same thing
+            if instance["Color"] then
+                return instance["Color"]
+            end
+        end
+
+		return UGCValidationService:GetPropertyValue(instance, property) -- :)
+    end
+end
+
 -- local appendfile = global_container.appendfile
 local readfile = global_container.readfile
 local writefile = global_container.writefile
@@ -618,7 +635,9 @@ XML_Descriptors = {
 	Color3 = function(raw) -- Each element is a <float>
 		return "<R>" .. raw.R .. "</R><G>" .. raw.G .. "</G><B>" .. raw.B .. "</B>" -- ? It is recommended that Color3 is encoded with elements instead of text.
 	end,
-	Color3uint8 = function(raw)
+	Color3uint8 = function(raw : Color3) -- Please type inference your code. I was just debugging why converting Color3 to Color3uint8 was not working.
+                                         -- It was because this expects a Color3 and I had no reason to convert it.
+
 		-- https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md#color3uint8
 
 		return 0xFF000000
@@ -2654,27 +2673,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
 
-			-- if EXECUTOR_NAME ~= "Celery" then
-			run_with_loading(
-				"Writing " .. get_size_format() .. " to File (Depends on Exec)",
-				nil,
-				true,
-				writefile,
-				placename,
-				totalstr
-			)
-			-- else
-			-- 	local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
+			if EXECUTOR_NAME ~= "Celery" then
+				run_with_loading(
+					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
+					nil,
+					true,
+					writefile,
+					placename,
+					totalstr
+				)
+			else
+				local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
+				local Length = math.ceil(totalsize / SegmentLength)
 
-			-- 	local Length = math.ceil(totalsize / SegmentLength)
-
-			-- 	for i = 1, Length do
-			-- 		local savestr = string.sub(totalstr, (i - 1) * SegmentLength, i * SegmentLength)
-			-- 		StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
-			-- 		appendfile(placename, savestr)
-			-- 		task.wait(1)
-			-- 	end
-			-- end
+                for i = 1, Length do
+                    local savestr = string.sub(totalstr, (i - 1) * SegmentLength + 1, i * SegmentLength) -- Fixed improper segmenting
+                    StatusText.Text = "Writing to file... " .. math.round(i / Length * 100) .. "%"
+                    appendfile(placename, savestr)
+                    task.wait(.1)
+                end
+			end
 		end
 		table.clear(SharedStrings)
 	end
