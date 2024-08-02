@@ -843,8 +843,8 @@ do
 		-- * You can also use: https://setup.rbxcdn.com/{https://setup.rbxcdn.com/versionQTStudio}-Full-API-Dump.json
 		-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
 		local API_Dump
-		if
-			not pcall(function()
+
+		local ok, err = pcall(function()
 				local VERSIONS = version()
 
 				local o, r = pcall(readfile, VERSIONS)
@@ -871,8 +871,10 @@ do
 
 				writefile(VERSIONS, API_Dump) -- ? To avoid 60 requests / 1 h limit on GitHub Api
 			end)
-		then
+
+		if not ok then
 			warn("Failed to get " .. version() .. " API Dump, trying latest..")
+			warn(err)
 			API_Dump = game:HttpGet(
 				"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json",
 				true
