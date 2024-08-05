@@ -177,11 +177,30 @@ do
 			end
 		end
 		local prevsiz = #s
+
+		local gethiddenproperty_fallback
+		do
+			local UGCValidationService = service.UGCValidationService
+
+			gethiddenproperty_fallback = function(instance, propertyName)
+				return UGCValidationService:GetPropertyValue(instance, propertyName) -- :)
+			end
+		end
+
 		for _, PropertyInfo in ClassInfo.Properties do
 			local PropertyName = PropertyInfo.Name
 			local o, r = true, true
 			if instance then
 				o, r = pcall(gethiddenproperty, instance, PropertyName)
+				if not o then
+					local oo, rr = pcall(gethiddenproperty_fallback, instance, PropertyName)
+					if rr == nil then
+						o = false
+					elseif oo then
+						o = oo
+						r = rr
+					end
+				end
 			else
 				o = nil
 			end
@@ -198,5 +217,5 @@ do
 		end
 	end
 	warn("Finished")
-	writefile("!missing", s)
+	writefile("!missing.txt", s)
 end
