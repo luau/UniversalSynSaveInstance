@@ -100,11 +100,19 @@ local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assum
 local base64encode = global_container.base64encode
 local sha384
 
-if not gethiddenproperty or EXECUTOR_NAME == "Celery" then -- ? Celery Fix
+local gethiddenproperty_fallback
+do
 	local UGCValidationService = service.UGCValidationService
 
-	gethiddenproperty = function(instance, property_name)
-		return UGCValidationService:GetPropertyValue(instance, property_name) -- :)
+	gethiddenproperty_fallback = function(instance, propertyName)
+		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
+	end
+end
+
+do
+	local o, r = pcall(gethiddenproperty, workspace.Terrain, "Decoration")
+	if not o or type(r) ~= "boolean" then -- * Tests if gethiddenproperty is fake
+		gethiddenproperty = nil
 	end
 end
 
@@ -845,32 +853,32 @@ do
 		local API_Dump
 
 		local ok, err = pcall(function()
-				local VERSIONS = version()
+			local VERSIONS = version()
 
-				local o, r = pcall(readfile, VERSIONS)
-				if o and r and r ~= "" then
-					API_Dump = r
-					return
-				end
+			local o, r = pcall(readfile, VERSIONS)
+			if o and r and r ~= "" then
+				API_Dump = r
+				return
+			end
 
-				local latest_commit = service.HttpService:JSONDecode(
-					game:HttpGet(
-						"https://api.github.com/search/commits?sort=committer-date&order=desc&q=repo:MaximumADHD/Roblox-Client-Tracker+0."
-							.. string.split(VERSIONS, ".")[2],
-						true
-					)
-				).items[1]
-				-- print(VERSIONS)
-				-- print(latest_commit.commit.message)
-				API_Dump = game:HttpGet(
-					"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/"
-						.. latest_commit.sha
-						.. "/Mini-API-Dump.json",
+			local latest_commit = service.HttpService:JSONDecode(
+				game:HttpGet(
+					"https://api.github.com/search/commits?sort=committer-date&order=desc&q=repo:MaximumADHD/Roblox-Client-Tracker+0."
+						.. string.split(VERSIONS, ".")[2],
 					true
 				)
+			).items[1]
+			-- print(VERSIONS)
+			-- print(latest_commit.commit.message)
+			API_Dump = game:HttpGet(
+				"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/"
+					.. latest_commit.sha
+					.. "/Mini-API-Dump.json",
+				true
+			)
 
-				writefile(VERSIONS, API_Dump) -- ? To avoid 60 requests / 1 h limit on GitHub Api
-			end)
+			writefile(VERSIONS, API_Dump) -- ? To avoid 60 requests / 1 h limit on GitHub Api
+		end)
 
 		if not ok then
 			warn("Failed to get " .. version() .. " API Dump, trying latest..")
@@ -917,6 +925,7 @@ do
 							local MemberTags = Member.Tags
 
 							local ValueType = Member.ValueType
+							local ValueType_Name = ValueType.Name
 
 							local Special
 
@@ -925,19 +934,28 @@ do
 
 								Special = MemberTags.NotScriptable
 							end
+
 							-- if not Special then
-							ClassProperties[ClassProperties_size] = {
+							local Property = {
 								Name = PropertyName,
 								Category = ValueType.Category,
 								-- Default = Member.Default,
 								-- Tags = MemberTags,
-								ValueType = ValueType.Name,
+								ValueType = ValueType_Name,
 
 								Special = Special,
 
 								CanRead = nil,
 							}
+
+							if string.sub(ValueType_Name, 1, 8) == "Optional" then
+								-- Extract the string after "Optional"
+								Property.Optional = string.sub(ValueType_Name, 9)
+							end
+
+							ClassProperties[ClassProperties_size] = Property
 							ClassProperties_size += 1
+
 							-- end
 						end
 					end
@@ -1014,6 +1032,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IgnoreSharedStrings boolean -- * **RISKY: FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY). FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU**. ___Default:___ true
 --- @field SharedStringOverwrite boolean -- * **RISKY:** if the process is not finished aka crashed then none of the affected values will be available. SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far). Reason: Allows for potential smaller file size (can also be bigger in some cases). ___Default:___ false
 --- @field TreatUnionsAsParts boolean -- * **RISKY:** Converts all UnionOperations to Parts. Useful if your Executor isn't able to save (read) Unions, because otherwise they will be invisible. ___Default:___ false (except Solara)
+--- @field AlternativeWritefile boolean -- * **RISKY:** Uses breaks down file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. ___Default:___ false (except Celery)
 
 --- @interface OptionsAliases
 --- @within SynSaveInstance
@@ -1112,7 +1131,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
 		IgnoreSpecialProperties = false,
 
-		IsolateLocalPlayer = false,
+		IsolateLocalPlayer = #service.StarterGui:GetChildren() == 0,
 		IsolateLocalPlayerCharacter = false,
 		IsolatePlayers = false,
 		IsolateStarterPlayer = false,
@@ -1125,7 +1144,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		IgnoreSharedStrings = true,
 		SharedStringOverwrite = false,
-		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true for Solara (once removed, remove Note from docs too)
+		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
+		AlternativeWritefile = EXECUTOR_NAME == "Celery", -- TODO Temporary true (once removed, remove Note from docs too)
 
 		OptionsAliases = { -- You can't really modify these as a user
 			FilePath = "FileName",
@@ -1281,7 +1301,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- 	if Receiver then
 					-- 		return Receiver:GetCurrentValue()
 					-- 	else
-					-- 		error("No Receiver")
+					-- 		error("No Receiver", 2)
 					-- 	end
 					-- end},
 
@@ -1301,7 +1321,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						ScaleFactor = function(instance)
 							return instance:GetScale()
 						end,
-						WorldPivotData = "WorldPivot",
+						WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
 						-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
 						_Inheritors = {
 							Workspace = {
@@ -1373,7 +1393,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- 		if CurrentCamera then
 					-- 			return CurrentCamera.CFrame
 					-- 		else
-					-- 			error("No CurrentCamera")
+					-- 			error("No CurrentCamera", 2)
 					-- 		end
 					-- 	end,
 					-- 	-- CameraFieldOfView =
@@ -1535,13 +1555,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
+	if __DEBUG_MODE and type(__DEBUG_MODE) ~= "function" then
+		__DEBUG_MODE = warn
+	end
+
 	local FilePath = OPTIONS.FilePath
 	local SaveCacheInterval = OPTIONS.SaveCacheInterval
 	local ToSaveInstance = OPTIONS.Object
 	local IsModel = OPTIONS.IsModel
+
 	if ToSaveInstance and CustomOptions.IsModel == nil then
 		IsModel = true
 	end
+
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
 	local IgnoreNotArchivable = not OPTIONS.IgnoreNotArchivable
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
@@ -1568,14 +1594,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	if NilInstances and enablenilinstances then -- ? Solara fix
 		enablenilinstances()
-	end
-
-	if
-		#service.StarterGui:GetChildren() == 0
-		and CustomOptions.IsolateLocalPlayer == nil
-		and CustomOptions[GetAlias("IsolateLocalPlayer")] == nil
-	then
-		OPTIONS.IsolateLocalPlayer = true -- * QoL
 	end
 
 	local SaveBytecode
@@ -1871,7 +1889,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 					if cached then
 						if __DEBUG_MODE then
-							warn("Found in Cache", script:GetFullName())
+							__DEBUG_MODE("Found in Cache", script:GetFullName())
 						end
 						return cached
 					elseif DecompileJobless then
@@ -1880,6 +1898,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				else
 					task.wait() -- TODO Maybe remove?
 				end
+
 				local ok, result = run_with_loading("Decompiling " .. script.Name, true, nil, decomp, script)
 				if not result then
 					ok, result = false, "Empty Output"
@@ -1896,7 +1915,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if ScriptCache and hashed_bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
 					ldeccache[hashed_bytecode] = output -- ? Should we cache even if it timed out?
 					if __DEBUG_MODE then
-						warn("Cached", script:GetFullName())
+						__DEBUG_MODE("Cached", script:GetFullName())
 					end
 				end
 
@@ -1913,7 +1932,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return instance[propertyName]
 	end
 
-	local function ReadProperty(instance, property, propertyName, special)
+	local function unfilterResult(category, optional)
+		return category ~= "Class" and not optional
+	end
+
+	local function ReadProperty(instance, property, propertyName, special, category, optional)
 		local raw = "__BREAK"
 
 		local InstanceOverride = InstancePropertyOverrides[instance]
@@ -1934,7 +1957,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return result == nil
 				or result == "can't get value"
 				or type(result) == "string"
-					and (string_find(result, "Unable to get property " .. propertyName) or property.Category == "Enum" and string_find(
+					and (string_find(result, "Unable to get property " .. propertyName) or category == "Enum" and string_find(
 						result,
 						"Invalid value for enum "
 					))
@@ -1950,11 +1973,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if filterResult(raw) then
 					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
-					if __DEBUG_MODE then
-						warn("Filtered", propertyName)
+
+					if result ~= nil or unfilterResult(category, optional) then
+						if __DEBUG_MODE then
+							__DEBUG_MODE("Filtered", propertyName)
+						end
+						-- Property.Special = false
+						property.CanRead = false
 					end
-					-- Property.Special = false
-					property.CanRead = false
 
 					return "__BREAK" -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
 				end
@@ -1962,7 +1988,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		else
 			if CanRead then
 				raw = instance[propertyName]
-			else -- Assuming CanRead == nil
+			else -- Assuming CanRead == nil (untested)
 				local ok, result = pcall(getsafeproperty, instance, propertyName)
 
 				if ok then
@@ -1978,6 +2004,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				property.CanRead = ok
+
 				if not ok or filterResult(raw) then
 					return "__BREAK"
 				end
@@ -2150,7 +2177,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
 					elseif not ClassList[ClassName] then -- ? API Dump is outdated then
 						if __DEBUG_MODE then
-							warn("Class not Found", ClassName)
+							__DEBUG_MODE("Class not Found", ClassName)
 						end
 
 						ClassTagOverride = ClassName -- ? To at least retain .ClassName unlike the rest of the class-specific properties
@@ -2192,7 +2219,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 								default_instances[ClassName] = default_instance
 							elseif __DEBUG_MODE then
-								warn("Unable to create default Instance", ClassName)
+								__DEBUG_MODE("Unable to create default Instance", ClassName)
 							end
 						end
 					end
@@ -2219,49 +2246,62 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							continue
 						end
 
-						local raw = ReadProperty(instance, Property, PropertyName, Special)
+						local Category, Optional = Property.Category, Property.Optional
+
+						local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
+
 						if raw == "__BREAK" then -- ! Assuming __BREAK is always returned when there's a failure to read a property
-							local PropertyFix
-							do
-								local Inheritors = NotScriptableFixes
-								while Inheritors do
-									local fix
-									for superclass, fixes in Inheritors do
-										if instance:IsA(superclass) then
-											fix = fixes
-											break
-										end
-									end
-									if fix then
-										PropertyFix = fix[PropertyName]
-										if PropertyFix then
-											break
-										end
-									else
-										break
-									end
-									Inheritors = fix._Inheritors
-								end
+							local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
+
+							if result == nil and unfilterResult(Category, Optional) then
+								ok = nil
 							end
 
-							if PropertyFix then
-								local ok, result = pcall(
-									type(PropertyFix) == "string" and getsafeproperty or PropertyFix,
-									instance,
-									PropertyFix
-								)
+							if ok then
+								raw = result
+							else
+								local PropertyFix
+								do
+									local Inheritors = NotScriptableFixes -- ! Assuming NotScriptableFixes is defined
+									repeat
+										local fix
+										for superclass, fixes in next, Inheritors do -- ? Celery fix (temp)
+											if instance:IsA(superclass) then
+												fix = fixes
+												break
+											end
+										end
+										if fix then
+											PropertyFix = fix[PropertyName]
+											if PropertyFix then
+												break
+											end
+										else
+											break
+										end
+										Inheritors = fix._Inheritors
+									until not Inheritors
+								end
 
-								if ok then
-									raw = result
-								else
-									if __DEBUG_MODE then
-										-- TODO Maybe remove the fix during runtime if it fails to avoid re-trying
-										warn("Fix Failed", PropertyName)
+								if PropertyFix then
+									ok, result = pcall(
+										type(PropertyFix) == "string" and getsafeproperty or PropertyFix,
+										instance,
+										PropertyFix
+									)
+
+									if ok then
+										raw = result
+									else
+										if __DEBUG_MODE then
+											-- TODO Maybe remove the fix during runtime if it fails to avoid re-trying
+											__DEBUG_MODE("Fix Failed", PropertyName)
+										end
+										continue
 									end
+								else
 									continue
 								end
-							else
-								continue
 							end
 						end
 
@@ -2269,9 +2309,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							ValueType = "SharedString"
 						end
 
+						-- Special = Property.Special -- ? Read TODO below (must be updated if it's used frequently afterwards)
+
 						if
 							default_instance
-							and not Property.Special -- TODO: .Special is checked more than once
+							and not Property.Special -- TODO: .Special is checked more than once (because it might be updated during ReadProperty)
 							and not (PropertyName == "Source" and isLuaSourceContainer(instance))
 						then -- ? Could be not just "Source" in the future
 							if new_def_inst then
@@ -2284,7 +2326,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 
 						-- Serialization start
-						local Category = Property.Category
 
 						local tag, value
 						if Category == "Class" then
@@ -2299,6 +2340,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 											or ValueType ~= "Instance" and ValueType ~= Fix
 										)
 									then
+										-- * To avoid errors
 										continue
 									end
 								end
@@ -2447,16 +2489,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							else
 								--OptionalCoordinateFrame and so on, we make it dynamic
 
-								if string.sub(ValueType, 1, 8) == "Optional" then
-									-- Extract the string after "Optional"
-
-									Descriptor = XML_Descriptors[string.sub(ValueType, 9)]
+								if Optional then
+									Descriptor = XML_Descriptors[Optional]
 
 									if Descriptor then
+										-- value, tag = "", ValueType
+										-- * It can be empty, because it's optional
+										-- ? Though why even save it if it's empty considering it's optional
 										if raw ~= nil then
 											value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
-										else
-											value, tag = "", ValueType -- ? It can be empty supposedly, because it's optional
 										end
 									end
 								end
@@ -2671,16 +2712,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
 
-			if EXECUTOR_NAME ~= "Celery" then
-				run_with_loading(
-					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
-					nil,
-					true,
-					writefile,
-					placename,
-					totalstr
-				)
-			else
+			if OPTIONS.AlternativeWritefile then
 				local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 				local Length = math.ceil(totalsize / SegmentLength)
 
@@ -2695,9 +2727,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						placename,
 						savestr
 					)
-
-					task.wait(0.1)
+					if i ~= Length then
+						task.wait()
+					end
 				end
+			else
+				run_with_loading(
+					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
+					nil,
+					true,
+					writefile,
+					placename,
+					totalstr
+				)
 			end
 		end
 		table.clear(SharedStrings)
