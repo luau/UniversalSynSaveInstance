@@ -2493,10 +2493,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									Descriptor = XML_Descriptors[Optional]
 
 									if Descriptor then
+										if raw == nil then
+											-- * It can be empty, because it's optional
+											-- ? Though why even save it if it's empty considering it's optional
+											continue
 										-- value, tag = "", ValueType
-										-- * It can be empty, because it's optional
-										-- ? Though why even save it if it's empty considering it's optional
-										if raw ~= nil then
+										else
 											value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
 										end
 									end
