@@ -998,6 +998,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
+--- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
 --- @field Anonymous boolean -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
 --- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
@@ -1120,6 +1121,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		SaveCacheInterval = 0x1600 * 10,
 		ShowStatus = true,
 		SafeMode = false,
+		AntiIdle = true,
 		Anonymous = false,
 		ReadMe = true,
 		FilePath = false,
@@ -2862,16 +2864,28 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	do
 		if OPTIONS.SafeMode then
-			service.Players.LocalPlayer:Kick("\nSaving in Progress..\nPlease do NOT leave")
+			service.Players.LocalPlayer:Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
 			service.RunService:Set3dRenderingEnabled(false)
 			wait_for_render()
 			task.delay(10, service.GuiService.ClearError, service.GuiService)
+		end
+
+		local anti_idle
+		if OPTIONS.AntiIdle then
+			anti_idle = service.Players.LocalPlayer.Idled:Connect(function()
+				service.VirtualUser:CaptureController()
+				service.VirtualUser:ClickButton2(Vector2.zero)
+			end)
 		end
 
 		elapse_t = os.clock()
 		local ok, err = xpcall(save_game, function(err)
 			return debug.traceback(err)
 		end)
+
+		if anti_idle then
+			anti_idle:Disconnect()
+		end
 		if Connections then
 			for _, connection in Connections do
 				connection:Disconnect()
