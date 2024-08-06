@@ -2262,8 +2262,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							else
 								local PropertyFix
 								do
-									local Inheritors = NotScriptableFixes -- ! Assuming NotScriptableFixes is defined
-									repeat
+									local Inheritors = NotScriptableFixes
+									while Inheritors do -- ? Celery fix "while do" instead of "repeat until". Repeat Until is preferred otherwise
 										local fix
 										for superclass, fixes in next, Inheritors do -- ? Celery fix (temp)
 											if instance:IsA(superclass) then
@@ -2280,7 +2280,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 											break
 										end
 										Inheritors = fix._Inheritors
-									until not Inheritors
+									end
 								end
 
 								if PropertyFix then
