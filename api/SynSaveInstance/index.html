@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v2.3.1">
 <title data-rh="true">SynSaveInstance | Universal Syn SaveInstance</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="SynSaveInstance | Universal Syn SaveInstance"><meta data-rh="true" name="description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><meta data-rh="true" property="og:description" content="Represents the options for saving instances with custom settings using the synsaveinstance function."><link data-rh="true" rel="icon" href="https://github.com/luau/UniversalSynSaveInstance/assets/95628489/5e2fa14f-c70f-40a6-b747-9ba7fd99037b"><link data-rh="true" rel="canonical" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="en"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance" hreflang="x-default"><link rel="stylesheet" href="/UniversalSynSaveInstance/assets/css/styles.e1adec2f.css">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.2bb71b19.js" as="script">
-<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.c15db6d3.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/runtime~main.5a6b83fb.js" as="script">
+<link rel="preload" href="/UniversalSynSaveInstance/assets/js/main.8bfe1922.js" as="script">
 </head>
 <body class="navigation-with-keyboard">
 <script>!function(){function e(e){document.documentElement.setAttribute("data-theme",e)}var t=function(){var e=null;try{e=localStorage.getItem("theme")}catch(e){}return e}();null!==t?e(t):window.matchMedia("(prefers-color-scheme: dark)").matches?e("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,e("light"))}()</script><div id="__docusaurus">
@@ -78,7 +78,7 @@
 </span></span></div><div><code>IgnorePropertiesOfNotScriptsOnScriptsMode<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p>Ignores property of every instance that is not a script in "scripts" mode. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>IgnoreSpecialProperties<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
-<p>Ignores hidden/secret properties that are only accessible through <code>gethiddenproperty</code>. If your file is corrupted after saving, you can try turning this on. <strong><em>Default:</em></strong> false</p>
+<p>Prevents calls to <code>gethiddenproperty</code> and uses fallback methods instead. This also helps with crashes. If your file is corrupted after saving, you can try turning this on. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>IsolateLocalPlayer<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p>Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. <strong><em>Default:</em></strong> false</p>
 </span></span></div><div><code>IsolateStarterPlayer<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
@@ -325,7 +325,7 @@
                 {
                     &quot;name&quot;: &quot;IgnoreSpecialProperties&quot;,
                     &quot;lua_type&quot;: &quot;boolean&quot;,
-                    &quot;desc&quot;: &quot;Ignores hidden/secret properties that are only accessible through `gethiddenproperty`. If your file is corrupted after saving, you can try turning this on. ___Default:___ false&quot;
+                    &quot;desc&quot;: &quot;Prevents calls to `gethiddenproperty` and uses fallback methods instead. This also helps with crashes. If your file is corrupted after saving, you can try turning this on. ___Default:___ false&quot;
                 },
                 {
                     &quot;name&quot;: &quot;IsolateLocalPlayer&quot;,
@@ -446,7 +446,7 @@
         &quot;path&quot;: &quot;saveinstance.luau&quot;
     }
 }</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#types" class="table-of-contents__link toc-highlight">Types</a><ul><li><a href="#CustomOptions table" class="table-of-contents__link toc-highlight">CustomOptions table</a></li><li><a href="#OptionsAliases" class="table-of-contents__link toc-highlight">OptionsAliases</a></li></ul></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#saveinstance" class="table-of-contents__link toc-highlight">.saveinstance</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="footer__links text--center"><div class="footer__links"><a href="https://discord.gg/wx4ThpAsmw" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><span class="footer__link-separator">·</span><a href="https://ko-fi.com/M4M1JNH5G" target="_blank" rel="noopener noreferrer" class="footer__link-item">Support<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2024 luau. Built with Moonwave and Docusaurus.</div></div></div></footer></div>
-<script src="/UniversalSynSaveInstance/assets/js/runtime~main.2bb71b19.js"></script>
-<script src="/UniversalSynSaveInstance/assets/js/main.c15db6d3.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/runtime~main.5a6b83fb.js"></script>
+<script src="/UniversalSynSaveInstance/assets/js/main.8bfe1922.js"></script>
 </body>
 </html>
