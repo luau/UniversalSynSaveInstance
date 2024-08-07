@@ -1022,7 +1022,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IgnoreDefaultProperties boolean -- Ignores default properties during saving.  ___Default:___ true
 --- @field IgnoreNotArchivable boolean -- Ignores the Archivable property and saves Non-Archivable instances. ___Default:___ true
 --- @field IgnorePropertiesOfNotScriptsOnScriptsMode boolean -- Ignores property of every instance that is not a script in "scripts" mode. ___Default:___ false
---- @field IgnoreSpecialProperties boolean -- Ignores hidden/secret properties that are only accessible through `gethiddenproperty`. If your file is corrupted after saving, you can try turning this on. ___Default:___ false
+--- @field IgnoreSpecialProperties boolean -- Prevents calls to `gethiddenproperty` and uses fallback methods instead. This also helps with crashes. If your file is corrupted after saving, you can try turning this on. ___Default:___ false
 --- @field IsolateLocalPlayer boolean -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
 --- @field IsolateStarterPlayer boolean -- If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders. ___Default:___ false
 --- @field IsolateLocalPlayerCharacter boolean -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
@@ -1131,7 +1131,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreDefaultProperties = true,
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
-		IgnoreSpecialProperties = false,
+		IgnoreSpecialProperties = EXECUTOR_NAME == "Fluxus" or EXECUTOR_NAME == "Delta", -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
 
 		IsolateLocalPlayer = #service.StarterGui:GetChildren() == 0,
 		IsolateLocalPlayerCharacter = false,
@@ -1611,8 +1611,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
 	local IgnoreNotArchivable = not OPTIONS.IgnoreNotArchivable
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
-	local IgnoreSpecialProperties = OPTIONS.IgnoreSpecialProperties
-	local notIgnoreSpecialProperties = not IgnoreSpecialProperties
+
+	local old_gethiddenproperty
+	if OPTIONS.IgnoreSpecialProperties and gethiddenproperty then
+		old_gethiddenproperty = gethiddenproperty
+		gethiddenproperty = nil
+	end
 
 	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
 	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
@@ -2003,7 +2007,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if ok then
 					raw = result
-				elseif notIgnoreSpecialProperties and gethiddenproperty then -- ! Be careful with this 'and gethiddenproperty' logic
+				elseif gethiddenproperty then -- ! Be careful with this 'and gethiddenproperty' logic
 					ok, result = pcall(gethiddenproperty, instance, propertyName)
 
 					if ok then
@@ -2245,18 +2249,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							continue
 						end
 
-						local Special = Property.Special
-						if IgnoreSpecialProperties and Special then
-							continue
-						end
-
 						local ValueType = Property.ValueType
 
 						if IgnoreSharedStrings and ValueType == "SharedString" then -- ? More info in Options
 							continue
 						end
 
-						local Category, Optional = Property.Category, Property.Optional
+						local Category, Optional, Special = Property.Category, Property.Optional, Property.Special
 
 						local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
 
@@ -2887,9 +2886,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		elapse_t = os.clock()
+
 		local ok, err = xpcall(save_game, function(err)
 			return debug.traceback(err)
 		end)
+
+		if old_gethiddenproperty then
+			gethiddenproperty = old_gethiddenproperty
+		end
 
 		if anti_idle then
 			anti_idle:Disconnect()
