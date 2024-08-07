@@ -1133,7 +1133,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
 		IgnoreSpecialProperties = EXECUTOR_NAME == "Fluxus" or EXECUTOR_NAME == "Delta", -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
 
-		IsolateLocalPlayer = #service.StarterGui:GetChildren() == 0,
+		IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
 		IsolateLocalPlayerCharacter = false,
 		IsolatePlayers = false,
 		IsolateStarterPlayer = false,
