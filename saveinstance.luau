@@ -87,7 +87,7 @@ end
 
 local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 
-local EXECUTOR_NAME = identify_executor()
+local EXECUTOR_NAME = identify_executor and identify_executor() or ""
 
 local gethiddenproperty = global_container.gethiddenproperty
 
@@ -1547,6 +1547,41 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 	end
+
+	local function construct_TimeoutHandler(timeout, f, timeout_ret)
+		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
+			if timeout < 0 then
+				return pcall(f, script)
+			end
+
+			local thread = coroutine.running()
+			local timeoutThread, isCancelled
+
+			timeoutThread = task.delay(timeout, function()
+				isCancelled = true -- TODO task.cancel
+				coroutine.resume(thread, nil, timeout_ret)
+			end)
+
+			task.spawn(function()
+				local ok, result = pcall(f, script)
+
+				if isCancelled then
+					return
+				end
+
+				task.cancel(timeoutThread)
+
+				while coroutine.status(thread) ~= "suspended" do
+					task.wait()
+				end
+
+				coroutine.resume(thread, ok, result)
+			end)
+
+			return coroutine.yield()
+		end
+	end
+
 	local InstancePropertyOverrides = {}
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
@@ -1598,10 +1633,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		enablenilinstances()
 	end
 
+	local getbytecode
+	if getscriptbytecode then
+		getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
+	end
+
 	local SaveBytecode
 	if OPTIONS.SaveBytecode and getscriptbytecode then
 		SaveBytecode = function(script)
-			local s, bytecode = pcall(getscriptbytecode, script)
+			local s, bytecode = getbytecode(script)
 
 			if s then
 				if bytecode and bytecode ~= "" then
@@ -1813,40 +1853,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return unpack(result)
 	end
 
-	local function construct_TimeoutHandler(timeout, f, timeout_ret)
-		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
-			if timeout < 0 then
-				return pcall(f, script)
-			end
-
-			local thread = coroutine.running()
-			local timeoutThread, isCancelled
-
-			timeoutThread = task.delay(timeout, function()
-				isCancelled = true -- TODO task.cancel
-				coroutine.resume(thread, nil, timeout_ret)
-			end)
-
-			task.spawn(function()
-				local ok, result = pcall(f, script)
-
-				if isCancelled then
-					return
-				end
-
-				task.cancel(timeoutThread)
-
-				while coroutine.status(thread) ~= "suspended" do
-					task.wait()
-				end
-
-				coroutine.resume(thread, ok, result)
-			end)
-
-			return coroutine.yield()
-		end
-	end
-
 	do
 		if load_decompiler then
 			load_decompiler(Timeout)
@@ -1872,7 +1878,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		elseif Decompiler then
 			local decomp = construct_TimeoutHandler(Timeout, Decompiler, "Decompiler timed out")
-			local getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
 
 			ldecompile = function(script)
 				-- local name = scr.ClassName .. scr.Name
@@ -2716,7 +2721,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
 
-			if OPTIONS.AlternativeWritefile then
+			if OPTIONS.AlternativeWritefile and appendfile then
 				local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 				local Length = math.ceil(totalsize / SegmentLength)
 
