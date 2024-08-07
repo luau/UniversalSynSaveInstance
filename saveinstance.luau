@@ -1531,7 +1531,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if Path then
 			for _, className in Exclude do
 				for _, name in className do
-					table.insert(DecompileIgnore, Path:FindFirstChild(name))
+					local Found = Path:FindFirstChild(name)
+					if Found then
+						table.insert(DecompileIgnore, Found)
+					end
 				end
 			end
 		else
