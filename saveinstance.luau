@@ -116,7 +116,7 @@ do
 	end
 end
 
-if not base64encode then
+if not base64encode or base64encode("\1\0\0\0\1") ~= "AQAAAAE=" then -- * Tests if base64encode exists and works properly
 	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
 		bit32 = table.clone(bit32)
 
