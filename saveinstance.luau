@@ -1022,7 +1022,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IgnoreDefaultProperties boolean -- Ignores default properties during saving.  ___Default:___ true
 --- @field IgnoreNotArchivable boolean -- Ignores the Archivable property and saves Non-Archivable instances. ___Default:___ true
 --- @field IgnorePropertiesOfNotScriptsOnScriptsMode boolean -- Ignores property of every instance that is not a script in "scripts" mode. ___Default:___ false
---- @field IgnoreSpecialProperties boolean -- Prevents calls to `gethiddenproperty` and uses fallback methods instead. This also helps with crashes. If your file is corrupted after saving, you can try turning this on. ___Default:___ false
+--- @field IgnoreSpecialProperties boolean -- Ignores hidden/secret properties that are only accessible through `gethiddenproperty`. If your file is corrupted after saving, you can try turning this on. ___Default:___ false
 --- @field IsolateLocalPlayer boolean -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
 --- @field IsolateStarterPlayer boolean -- If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders. ___Default:___ false
 --- @field IsolateLocalPlayerCharacter boolean -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
@@ -1131,7 +1131,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreDefaultProperties = true,
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
-		IgnoreSpecialProperties = EXECUTOR_NAME == "Fluxus" or EXECUTOR_NAME == "Delta", -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
+		IgnoreSpecialProperties = false,
 
 		IsolateLocalPlayer = #service.StarterGui:GetChildren() == 0,
 		IsolateLocalPlayerCharacter = false,
@@ -1192,7 +1192,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
 					if attrs_n == 0 then
-						return
+						return ""
 					end
 					table.sort(attrs_sorted)
 
@@ -1227,7 +1227,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					local tags = instance:GetTags()
 
 					if #tags == 0 then
-						return
+						return ""
 					end
 
 					return table.concat(tags, "\0")
@@ -1611,12 +1611,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
 	local IgnoreNotArchivable = not OPTIONS.IgnoreNotArchivable
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
-
-	local old_gethiddenproperty
-	if OPTIONS.IgnoreSpecialProperties and gethiddenproperty then
-		old_gethiddenproperty = gethiddenproperty
-		gethiddenproperty = nil
-	end
+	local IgnoreSpecialProperties = OPTIONS.IgnoreSpecialProperties
+	local notIgnoreSpecialProperties = not IgnoreSpecialProperties
 
 	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
 	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
@@ -1946,7 +1942,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return instance[propertyName]
 	end
 
-	local function ReadProperty(instance, property, propertyName, special, category)
+	local function unfilterResult(category, optional)
+		return category ~= "Class" and not optional
+	end
+
+	local function ReadProperty(instance, property, propertyName, special, category, optional)
 		local raw = "__BREAK"
 
 		local InstanceOverride = InstancePropertyOverrides[instance]
@@ -1983,11 +1983,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if filterResult(raw) then
 					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
-					if __DEBUG_MODE then
-						__DEBUG_MODE("Filtered", propertyName)
+
+					if result ~= nil or unfilterResult(category, optional) then
+						if __DEBUG_MODE then
+							__DEBUG_MODE("Filtered", propertyName)
+						end
+						-- Property.Special = false
+						property.CanRead = false
 					end
-					-- Property.Special = false
-					property.CanRead = false
 
 					return "__BREAK" -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
 				end
@@ -2000,7 +2003,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if ok then
 					raw = result
-				elseif gethiddenproperty then -- ! Be careful with this 'and gethiddenproperty' logic
+				elseif notIgnoreSpecialProperties and gethiddenproperty then -- ! Be careful with this 'and gethiddenproperty' logic
 					ok, result = pcall(gethiddenproperty, instance, propertyName)
 
 					if ok then
@@ -2242,57 +2245,73 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							continue
 						end
 
+						local Special = Property.Special
+						if IgnoreSpecialProperties and Special then
+							continue
+						end
+
 						local ValueType = Property.ValueType
 
 						if IgnoreSharedStrings and ValueType == "SharedString" then -- ? More info in Options
 							continue
 						end
 
-						local Category, Optional, Special = Property.Category, Property.Optional, Property.Special
+						local Category, Optional = Property.Category, Property.Optional
 
-						local raw = ReadProperty(instance, Property, PropertyName, Special, Category)
+						local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
+
 						if raw == "__BREAK" then -- ! Assuming __BREAK is always returned when there's a failure to read a property
-							local PropertyFix
-							do
-								local Inheritors = NotScriptableFixes -- ! Assuming NotScriptableFixes is defined
-								repeat
-									local fix
-									for superclass, fixes in next, Inheritors do -- ? Celery fix (temp)
-										if instance:IsA(superclass) then
-											fix = fixes
-											break
-										end
-									end
-									if fix then
-										PropertyFix = fix[PropertyName]
-										if PropertyFix then
-											break
-										end
-									else
-										break
-									end
-									Inheritors = fix._Inheritors
-								until not Inheritors
+							local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
+
+							if result == nil and unfilterResult(Category, Optional) then
+								ok = nil
 							end
 
-							if PropertyFix then
-								local ok, result = pcall(
-									type(PropertyFix) == "string" and getsafeproperty or PropertyFix,
-									instance,
-									PropertyFix
-								)
+							if ok then
+								raw = result
+							else
+								local PropertyFix
+								do
+									local Inheritors = NotScriptableFixes -- ! Assuming NotScriptableFixes is defined
+									repeat
+										local fix
+										for superclass, fixes in next, Inheritors do -- ? Celery fix (temp)
+											if instance:IsA(superclass) then
+												fix = fixes
+												break
+											end
+										end
+										if fix then
+											PropertyFix = fix[PropertyName]
+											if PropertyFix then
+												break
+											end
+										else
+											break
+										end
+										Inheritors = fix._Inheritors
+									until not Inheritors
+								end
 
-								if ok then
-									raw = result
-								else
-									if __DEBUG_MODE then
-										-- TODO Maybe remove the fix during runtime if it fails to avoid re-trying
-										__DEBUG_MODE("Fix Failed", PropertyName)
+								if PropertyFix then
+									ok, result = pcall(
+										type(PropertyFix) == "string" and getsafeproperty or PropertyFix,
+										instance,
+										PropertyFix
+									)
+
+									if ok then
+										raw = result
+									else
+										if __DEBUG_MODE then
+											-- TODO Maybe remove the fix during runtime if it fails to avoid re-trying
+											__DEBUG_MODE("Fix Failed", PropertyName)
+										end
+										continue
 									end
+								else
 									continue
 								end
-							else
-								continue
 							end
 						end
 
@@ -2868,14 +2887,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		elapse_t = os.clock()
-
 		local ok, err = xpcall(save_game, function(err)
 			return debug.traceback(err)
 		end)
-
-		if old_gethiddenproperty then
-			gethiddenproperty = old_gethiddenproperty
-		end
 
 		if anti_idle then
 			anti_idle:Disconnect()
