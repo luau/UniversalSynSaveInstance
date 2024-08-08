@@ -601,7 +601,7 @@ XML_Descriptors = {
 
 	BinaryString = EXECUTOR_NAME == "Electron" and function(raw)
 		return raw
-	end or base64encode,
+	end or base64encode, -- TODO Issues may arise if NotScriptableFix or gethiddenproperty_fallback are able to read BinaryString where gethiddenproperty can't on Electron
 
 	BrickColor = function(raw)
 		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
@@ -847,6 +847,251 @@ local ClassList
 do
 	local ClassPropertyExceptions = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) }
 
+	local NotScriptableFixes =
+		{ -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
+			Instance = {
+				AttributesSerialize = function(instance)
+					-- * There are certain restrictions for names of attributes
+					-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
+					-- But it seems like even if those are present, Studio still opens the file just fine
+					-- So there is no need to check for them currently
+
+					-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
+					-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
+
+					local attrs = instance:GetAttributes()
+
+					local attrs_n = 0
+					local buffer_size = 4
+					local attrs_sorted = {}
+					local attrs_formatted = table.clone(attrs)
+					-- warn(instance)
+					for attr, val in attrs do
+						attrs_n += 1
+						attrs_sorted[attrs_n] = attr
+
+						local Type = typeof(val)
+
+						local Descriptor = Binary_Descriptors[Type]
+						local attr_size
+
+						attrs_formatted[attr], attr_size = Descriptor(val)
+
+						buffer_size += 5 + #attr + attr_size
+					end
+					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
+					if attrs_n == 0 then
+						return ""
+					end
+					table.sort(attrs_sorted)
+
+					local b = buffer.create(buffer_size)
+
+					local offset = 0
+
+					buffer.writeu32(b, offset, attrs_n)
+					offset += 4
+
+					local Descriptors_string = Binary_Descriptors.string
+					for _, attr in attrs_sorted do
+						local b_Name, Name_size = Descriptors_string(attr)
+
+						buffer.copy(b, offset, b_Name)
+						offset += Name_size
+
+						buffer.writeu8(b, offset, Type_IDs[typeof(attrs[attr])])
+						offset += 1
+
+						local bb = attrs_formatted[attr]
+
+						buffer.copy(b, offset, bb)
+						offset += buffer.len(bb)
+					end
+
+					return buffer.tostring(b)
+				end,
+				Tags = function(instance)
+					-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
+
+					local tags = instance:GetTags()
+
+					if #tags == 0 then
+						return ""
+					end
+
+					return table.concat(tags, "\0")
+				end,
+			},
+
+			-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
+			BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
+			BasePart = {
+				Color3uint8 = "Color",
+				MaterialVariantSerialized = "MaterialVariant",
+				size = "Size",
+			},
+			-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
+			-- 	local Receiver  = instance:GetAttachedReceivers()[1]
+			-- 	if Receiver then
+			-- 		return Receiver:GetCurrentValue()
+			-- 	else
+			-- 		error("No Receiver", 2)
+			-- 	end
+			-- end},
+			Terrain = {
+				AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
+				MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
+					local TERRAIN_MATERIAL_COLORS =
+						{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
+							Enum.Material.Grass,
+							Enum.Material.Slate,
+							Enum.Material.Concrete,
+							Enum.Material.Brick,
+							Enum.Material.Sand,
+							Enum.Material.WoodPlanks,
+							Enum.Material.Rock,
+							Enum.Material.Glacier,
+							Enum.Material.Snow,
+							Enum.Material.Sandstone,
+							Enum.Material.Mud,
+							Enum.Material.Basalt,
+							Enum.Material.Ground,
+							Enum.Material.CrackedLava,
+							Enum.Material.Asphalt,
+							Enum.Material.Cobblestone,
+							Enum.Material.Ice,
+							Enum.Material.LeafyGrass,
+							Enum.Material.Salt,
+							Enum.Material.Limestone,
+							Enum.Material.Pavement,
+						}
+
+					local b = buffer.create(69) -- 69 bytes: 6 reserved + 63 for colors (21 materials * 3 components)
+					local offset = 6 -- 6 reserved bytes
+
+					local RGB_components = { "R", "G", "B" }
+
+					for _, material in TERRAIN_MATERIAL_COLORS do
+						local color = instance:GetMaterialColor(material)
+						for _, component in RGB_components do
+							buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
+							offset += 1
+						end
+					end
+
+					return buffer.tostring(b)
+				end,
+			},
+			TriangleMeshPart = {
+				FluidFidelityInternal = "FluidFidelity",
+			},
+			MeshPart = { InitialSize = "MeshSize" },
+			PartOperation = { InitialSize = "MeshSize" },
+			Part = { shape = "Shape" },
+			TrussPart = { style = "Style" },
+			FormFactorPart = {
+				formFactorRaw = "FormFactor",
+			},
+			DoubleConstrainedValue = { value = "Value" },
+			IntConstrainedValue = { value = "Value" },
+			Fire = { heat_xml = "Heat", size_xml = "Size" },
+
+			Humanoid = { Health_XML = "Health" },
+			LocalizationTable = {
+				Contents = function(instance)
+					return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
+				end,
+			},
+			MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
+
+			Model = {
+				ScaleFactor = function(instance)
+					return instance:GetScale()
+				end,
+				WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
+				-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
+			},
+			PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
+			Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
+
+			StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
+			Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
+			Sound = {
+				xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
+			},
+			-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
+			-- 	CameraCFrame = function(instance) -- *
+			-- 		local CurrentCamera = instance.CurrentCamera
+			-- 		if CurrentCamera then
+			-- 			return CurrentCamera.CFrame
+			-- 		else
+			-- 			error("No CurrentCamera", 2)
+			-- 		end
+			-- 	end,
+			-- 	-- CameraFieldOfView =
+			-- },
+			WeldConstraint = {
+				Part0Internal = "Part0",
+				Part1Internal = "Part1",
+				-- State = function(instance)
+				-- 	-- If untouched then default state is 3 (default true)
+				-- 	return instance.Enabled and 1 or 0
+				-- end,
+			},
+			Workspace = {
+				-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
+				CollisionGroupData = function()
+					local collision_groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
+
+					local col_groups_n = #collision_groups
+
+					if col_groups_n == 0 then
+						return "\1\0"
+					end
+
+					local buffer_size = 3 -- Initial size
+
+					for _, group in collision_groups do
+						buffer_size += 7 + #group.name
+					end
+
+					buffer_size -= 1 -- Except Default group
+
+					local b = buffer.create(buffer_size)
+
+					local offset = 0
+
+					buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
+					offset += 1
+					buffer.writeu16(b, offset, col_groups_n * 10) -- Group count (not sure about u16)
+					offset += 2
+
+					for i, group in collision_groups do
+						local name, id, mask = group.name, i - 1, group.mask
+						local name_len = #name
+
+						if id ~= 0 then
+							buffer.writeu8(b, offset, id) -- ID
+							offset += 1
+						end
+
+						buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
+						offset += 1
+
+						buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
+						offset += 4
+
+						buffer.writeu8(b, offset, name_len) -- Name length
+						offset += 1
+						buffer.writestring(b, offset, name) -- Name
+						offset += name_len
+					end
+
+					return buffer.tostring(b)
+				end,
+			},
+		}
+
 	local function FetchAPI()
 		-- * You can also use: https://setup.rbxcdn.com/{https://setup.rbxcdn.com/versionQTStudio}-Full-API-Dump.json
 		-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
@@ -905,6 +1150,8 @@ do
 				Class.Tags = ArrayToDictionary(ClassTags) -- or {}
 			end
 
+			local NotScriptableFixClass = NotScriptableFixes[ClassName]
+
 			-- ? Check 96ea8b2a755e55a78aedb55a7de7e83980e11077 commit - If a NotScriptableFix is needed that relies on another NotScriptable Property (which doesn't really make sense in the first place)
 
 			local ClassExceptions = ClassPropertyExceptions[ClassName]
@@ -953,6 +1200,15 @@ do
 								Property.Optional = string.sub(ValueType_Name, 9)
 							end
 
+							if NotScriptableFixClass then
+								local NotScriptableFix = NotScriptableFixClass[PropertyName]
+								if NotScriptableFix then
+									Property.Fallback = type(NotScriptableFix) == "function" and NotScriptableFix
+										or function(instance)
+											return instance[NotScriptableFix]
+										end
+								end
+							end
 							ClassProperties[ClassProperties_size] = Property
 							ClassProperties_size += 1
 
@@ -1018,7 +1274,6 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
 --- @field NilInstances boolean -- Save instances that aren't Parented (Parented to nil). ___Default:___ false
 --- .NilInstancesFixes {[Instance.ClassName] = function} -- * This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though). For example, Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways. **TO AVOID THIS BEHAVIOR USE THIS EXAMPLE:** {ClassName_That_Doesnt_Need_Fix = false}. ___Default:___ {Animator = function, AdPortal = function, BaseWrap = function, Attachment = function}
---- .NotScriptableFixes {[Instance.ClassName] = {<string>PropertyToFix = <string>PropertyFix, _Inheritors = {[Instance.ClassName] = {<string>PropertyToFix_Name = <string>PropertyFix_Name}}}} -- * Structure is similar to **@NilInstancesFixes**. This is useful for execs that lack gethiddenproperty. ___Default:___ *too much to list*
 --- @field IgnoreDefaultProperties boolean -- Ignores default properties during saving.  ___Default:___ true
 --- @field IgnoreNotArchivable boolean -- Ignores the Archivable property and saves Non-Archivable instances. ___Default:___ true
 --- @field IgnorePropertiesOfNotScriptsOnScriptsMode boolean -- Ignores property of every instance that is not a script in "scripts" mode. ___Default:___ false
@@ -1157,259 +1412,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			scriptcache = "DecompileJobless",
 			timeout = "DecompileTimeout",
 			IgnoreNotArchivable = "IgnoreArchivable",
-		},
-
-		NotScriptableFixes = {
-			Instance = {
-				AttributesSerialize = function(instance)
-					-- * There are certain restrictions for names of attributes
-					-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
-					-- But it seems like even if those are present, Studio still opens the file just fine
-					-- So there is no need to check for them currently
-
-					-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
-					-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
-
-					local attrs = instance:GetAttributes()
-
-					local attrs_n = 0
-					local buffer_size = 4
-					local attrs_sorted = {}
-					local attrs_formatted = table.clone(attrs)
-					-- warn(instance)
-					for attr, val in attrs do
-						attrs_n += 1
-						attrs_sorted[attrs_n] = attr
-
-						local Type = typeof(val)
-
-						local Descriptor = Binary_Descriptors[Type]
-						local attr_size
-
-						attrs_formatted[attr], attr_size = Descriptor(val)
-
-						buffer_size += 5 + #attr + attr_size
-					end
-					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
-					if attrs_n == 0 then
-						return ""
-					end
-					table.sort(attrs_sorted)
-
-					local b = buffer.create(buffer_size)
-
-					local offset = 0
-
-					buffer.writeu32(b, offset, attrs_n)
-					offset += 4
-
-					local Descriptors_string = Binary_Descriptors.string
-					for _, attr in attrs_sorted do
-						local b_Name, Name_size = Descriptors_string(attr)
-
-						buffer.copy(b, offset, b_Name)
-						offset += Name_size
-
-						buffer.writeu8(b, offset, Type_IDs[typeof(attrs[attr])])
-						offset += 1
-
-						local bb = attrs_formatted[attr]
-
-						buffer.copy(b, offset, bb)
-						offset += buffer.len(bb)
-					end
-
-					return buffer.tostring(b)
-				end,
-				Tags = function(instance)
-					-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
-
-					local tags = instance:GetTags()
-
-					if #tags == 0 then
-						return ""
-					end
-
-					return table.concat(tags, "\0")
-				end,
-				_Inheritors = {
-					-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
-					BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
-					BasePart = {
-						Color3uint8 = "Color",
-						MaterialVariantSerialized = "MaterialVariant",
-						size = "Size",
-						_Inheritors = {
-							Terrain = {
-								AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
-								MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
-									local TERRAIN_MATERIAL_COLORS =
-										{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
-											Enum.Material.Grass,
-											Enum.Material.Slate,
-											Enum.Material.Concrete,
-											Enum.Material.Brick,
-											Enum.Material.Sand,
-											Enum.Material.WoodPlanks,
-											Enum.Material.Rock,
-											Enum.Material.Glacier,
-											Enum.Material.Snow,
-											Enum.Material.Sandstone,
-											Enum.Material.Mud,
-											Enum.Material.Basalt,
-											Enum.Material.Ground,
-											Enum.Material.CrackedLava,
-											Enum.Material.Asphalt,
-											Enum.Material.Cobblestone,
-											Enum.Material.Ice,
-											Enum.Material.LeafyGrass,
-											Enum.Material.Salt,
-											Enum.Material.Limestone,
-											Enum.Material.Pavement,
-										}
-
-									local b = buffer.create(69) -- 69 bytes: 6 reserved + 63 for colors (21 materials * 3 components)
-									local offset = 6 -- 6 reserved bytes
-
-									local RGB_components = { "R", "G", "B" }
-
-									for _, material in TERRAIN_MATERIAL_COLORS do
-										local color = instance:GetMaterialColor(material)
-										for _, component in RGB_components do
-											buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
-											offset += 1
-										end
-									end
-
-									return buffer.tostring(b)
-								end,
-							},
-							TriangleMeshPart = {
-								FluidFidelityInternal = "FluidFidelity",
-								_Inheritors = {
-									MeshPart = { InitialSize = "MeshSize" },
-									PartOperation = { InitialSize = "MeshSize" },
-								},
-							},
-							TrussPart = { style = "Style" },
-							FormFactorPart = {
-								formFactorRaw = "FormFactor",
-								_Inheritors = { Part = { shape = "Shape" } },
-							},
-						},
-					},
-					-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
-					-- 	local Receiver  = instance:GetAttachedReceivers()[1]
-					-- 	if Receiver then
-					-- 		return Receiver:GetCurrentValue()
-					-- 	else
-					-- 		error("No Receiver", 2)
-					-- 	end
-					-- end},
-
-					DoubleConstrainedValue = { value = "Value" },
-					IntConstrainedValue = { value = "Value" },
-					Fire = { heat_xml = "Heat", size_xml = "Size" },
-
-					Humanoid = { Health_XML = "Health" },
-					LocalizationTable = {
-						Contents = function(instance)
-							return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
-						end,
-					},
-					MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
-
-					Model = {
-						ScaleFactor = function(instance)
-							return instance:GetScale()
-						end,
-						WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
-						-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
-						_Inheritors = {
-							Workspace = {
-								-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
-								CollisionGroupData = function()
-									local collision_groups = game:GetService("PhysicsService")
-										:GetRegisteredCollisionGroups()
-
-									local col_groups_n = #collision_groups
-
-									if col_groups_n == 0 then
-										return "\1\0"
-									end
-
-									local buffer_size = 3 -- Initial size
-
-									for _, group in collision_groups do
-										buffer_size += 7 + #group.name
-									end
-
-									buffer_size -= 1 -- Except Default group
-
-									local b = buffer.create(buffer_size)
-
-									local offset = 0
-
-									buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
-									offset += 1
-									buffer.writeu16(b, offset, col_groups_n * 10) -- Group count (not sure about u16)
-									offset += 2
-
-									for i, group in collision_groups do
-										local name, id, mask = group.name, i - 1, group.mask
-										local name_len = #name
-
-										if id ~= 0 then
-											buffer.writeu8(b, offset, id) -- ID
-											offset += 1
-										end
-
-										buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
-										offset += 1
-
-										buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
-										offset += 4
-
-										buffer.writeu8(b, offset, name_len) -- Name length
-										offset += 1
-										buffer.writestring(b, offset, name) -- Name
-										offset += name_len
-									end
-
-									return buffer.tostring(b)
-								end,
-							},
-						},
-					},
-					PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
-					Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
-
-					StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
-					Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
-					Sound = {
-						xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
-					},
-					-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
-					-- 	CameraCFrame = function(instance) -- *
-					-- 		local CurrentCamera = instance.CurrentCamera
-					-- 		if CurrentCamera then
-					-- 			return CurrentCamera.CFrame
-					-- 		else
-					-- 			error("No CurrentCamera", 2)
-					-- 		end
-					-- 	end,
-					-- 	-- CameraFieldOfView =
-					-- },
-					WeldConstraint = {
-						Part0Internal = "Part0",
-						Part1Internal = "Part1",
-						-- State = function(instance)
-						-- 	-- If untouched then default state is 3 (default true)
-						-- 	return instance.Enabled and 1 or 0
-						-- end,
-					},
-				}, -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
-			},
 		},
 	}
 
@@ -1633,7 +1635,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
-	local NotScriptableFixes = OPTIONS.NotScriptableFixes
 	local NilInstances = OPTIONS.NilInstances
 
 	if NilInstances and enablenilinstances then -- ? Solara fix
@@ -2269,35 +2270,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							if ok then
 								raw = result
 							else
-								local PropertyFix
-								do
-									local Inheritors = NotScriptableFixes -- ! Assuming NotScriptableFixes is defined
-									repeat
-										local fix
-										for superclass, fixes in next, Inheritors do -- ? Celery fix (temp)
-											if instance:IsA(superclass) then
-												fix = fixes
-												break
-											end
-										end
-										if fix then
-											PropertyFix = fix[PropertyName]
-											if PropertyFix then
-												break
-											end
-										else
-											break
-										end
-										Inheritors = fix._Inheritors
-									until not Inheritors
-								end
+								local Fallback = Property.Fallback
 
-								if PropertyFix then
-									ok, result = pcall(
-										type(PropertyFix) == "string" and getsafeproperty or PropertyFix,
-										instance,
-										PropertyFix
-									)
+								if Fallback then
+									ok, result = pcall(Fallback, instance)
 
 									if ok then
 										raw = result
