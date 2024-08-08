@@ -826,7 +826,7 @@ The value of each component is represented by the text content formatted as a 32
 	end,
 	int64 = nil,
 	string = function(raw, skipEmptyCheck)
-		return not skipEmptyCheck and raw == "" and raw
+		return not skipEmptyCheck and (raw == "" and raw or raw == nil and "")
 			or string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
 			or XML_Descriptors.__CDATA(string.gsub(raw, "\0", ""))
 	end,
