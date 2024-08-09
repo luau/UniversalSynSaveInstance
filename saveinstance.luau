@@ -753,6 +753,8 @@ The value of each component is represented by the text content formatted as a 32
 
 		return Identifier
 	end,
+	-- SecurityCapabilities = function(raw) return raw end,
+	-- SystemAddress = function(raw) return raw end,
 	UDim = function(raw)
 		--[[
     S: Represents the Scale component. Interpreted as a <float>.
@@ -1264,7 +1266,8 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
---- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {Chat, TextChatService, ModuleScript = { "PlayerModule" }}
+--- @field IgnoreDefaultPlayerScripts boolean -- Ignores Default PlayerScripts like PlayerModule & RbxCharacterSounds. Prevents crashes on certain Executors. ___Default:___ true
+--- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {Chat, TextChatService}
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore** except `= false` meaning if you ignore one instance it will automatically ignore it's descendants. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
@@ -1363,6 +1366,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			service.TextChatService,
 			ModuleScript = nil,
 		},
+		IgnoreDefaultPlayerScripts = true, -- ? Fixes crashes on Mobile Devices
 		SaveBytecode = false,
 
 		IgnoreProperties = { "ScriptGuid", "UniqueId", "HistoryId" },
@@ -1386,7 +1390,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreDefaultProperties = true,
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
-		IgnoreSpecialProperties = EXECUTOR_NAME == "Fluxus" or EXECUTOR_NAME == "Delta", -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
+		IgnoreSpecialProperties = ArrayToDictionary({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
 
 		IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
 		IsolateLocalPlayerCharacter = false,
@@ -1523,8 +1527,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	do
-		-- ? Fixes crashes on Mobile Devices
+	if OPTIONS.IgnoreDefaultPlayerScripts then
 		-- TODO This is a bad workaround, find a better automatic way
 		local DecompileIgnore = OPTIONS.DecompileIgnore
 
@@ -2469,8 +2472,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									end
 								end
 								value = XML_Descriptors.__PROTECTEDSTRING(value)
-							-- elseif "UniqueId" == ValueType or "SecurityCapabilities" == ValueType then -- ? Not sure yet
-							-- 	tag, value = ValueType, raw
 							else
 								--OptionalCoordinateFrame and so on, we make it dynamic
 
