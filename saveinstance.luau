@@ -101,80 +101,124 @@ local base64encode = global_container.base64encode
 local sha384
 
 local gethiddenproperty_fallback
-do
+do -- * Load Region of Déjà Vu
 	local UGCValidationService = service.UGCValidationService
 
 	gethiddenproperty_fallback = function(instance, propertyName)
 		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
 	end
-end
 
-do
 	local o, r = pcall(gethiddenproperty, workspace.Terrain, "Decoration")
 	if not o or type(r) ~= "boolean" then -- * Tests if gethiddenproperty is fake
 		gethiddenproperty = nil
 	end
-end
 
-if not base64encode or base64encode("\1\0\0\0\1") ~= "AQAAAAE=" then -- * Tests if base64encode exists and works properly
-	if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
-		bit32 = table.clone(bit32)
-
-		local function tobit(num)
-			num %= (bit32.bxor(num, 32))
-			if 0x80000000 < num then
-				num -= bit32.bxor(num, 32)
+	local function benchmark(f1, f2, ...)
+		local ranking = table.create(2)
+		for i, f in { f1, f2 } do
+			local start = os.clock()
+			for _ = 1, 50 do
+				f(...)
 			end
-			return num
+			ranking[i] = { t = os.clock() - start, f = f }
 		end
-
-		bit32.byteswap = function(num)
-			local BYTE_SIZE = 8
-			local MAX_BYTE_VALUE = 255
-
-			num %= bit32.bxor(2, 32)
-
-			local a = bit32.band(num, MAX_BYTE_VALUE)
-			num = bit32.rshift(num, BYTE_SIZE)
-
-			local b = bit32.band(num, MAX_BYTE_VALUE)
-			num = bit32.rshift(num, BYTE_SIZE)
-
-			local c = bit32.band(num, MAX_BYTE_VALUE)
-			num = bit32.rshift(num, BYTE_SIZE)
-
-			local d = bit32.band(num, MAX_BYTE_VALUE)
-			num = tobit(bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d)
-			return num
-		end
-
-		table.freeze(bit32)
+		table.sort(ranking, function(a, b)
+			return a.t < b.t
+		end)
+		return ranking[1].f
 	end
 
-	-- Credits @Reselim
-	local Base64_Encode_Buffer = loadstring(
-		game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
-		"Base64"
-	)().encode
-	base64encode = function(raw)
-		return raw == "" and raw or buffer.tostring(Base64_Encode_Buffer(buffer.fromstring(raw)))
-	end
-end
+	local test_str = string.rep("\1\0\0\0\1\2\3\4\5\6\7", 50)
 
-do
-	local hash = global_container.hash
+	do
+		if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
+			bit32 = table.clone(bit32)
 
-	if hash then
-		sha384 = function(data)
-			return hash(data, "sha384")
+			local function tobit(num)
+				num %= (bit32.bxor(num, 32))
+				if 0x80000000 < num then
+					num -= bit32.bxor(num, 32)
+				end
+				return num
+			end
+
+			bit32.byteswap = function(num)
+				local BYTE_SIZE = 8
+				local MAX_BYTE_VALUE = 255
+
+				num %= bit32.bxor(2, 32)
+
+				local a = bit32.band(num, MAX_BYTE_VALUE)
+				num = bit32.rshift(num, BYTE_SIZE)
+
+				local b = bit32.band(num, MAX_BYTE_VALUE)
+				num = bit32.rshift(num, BYTE_SIZE)
+
+				local c = bit32.band(num, MAX_BYTE_VALUE)
+				num = bit32.rshift(num, BYTE_SIZE)
+
+				local d = bit32.band(num, MAX_BYTE_VALUE)
+				num = tobit(bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d)
+				return num
+			end
+
+			table.freeze(bit32)
 		end
-	else
+
+		-- Credits @Reselim
+		local reselim_base64encode
+		pcall(function()
+			local b64_enc_buf = loadstring(
+				game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
+				"Base64"
+			)().encode
+			reselim_base64encode = function(raw)
+				return raw == "" and raw or buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
+			end
+		end)
+
+		-- * Tests if base64encode exists and works properly then benchmark it
+		if base64encode and base64encode("\1\0\0\0\1") == "AQAAAAE=" then
+			if reselim_base64encode then
+				base64encode = benchmark(base64encode, reselim_base64encode, test_str)
+			end
+		else
+			base64encode = reselim_base64encode
+		end
+
+		assert(base64encode, "base64encode not found")
+	end
+
+	do
+		local hash = global_container.hash
+
+		if hash then
+			sha384 = function(data)
+				return hash(data, "sha384")
+			end
+		end
+
 		local filename = "RequireOnlineModule"
 
-		sha384 = loadstring(
-			game:HttpGet("https://raw.githubusercontent.com/luau/SomeHub/main/" .. filename .. ".luau", true),
-			filename
-		)()(4544052033).sha384
+		-- Credits @boatbomber
+		local hashlib_sha384
+		pcall(function()
+			hashlib_sha384 = loadstring(
+				game:HttpGet("https://raw.githubusercontent.com/luau/SomeHub/main/" .. filename .. ".luau", true),
+				filename
+			)()(4544052033).sha384
+		end)
+
+		-- * Tests if sha384 exists then benchmark it
+		if hashlib_sha384 then
+			if sha384 then
+				sha384 = benchmark(sha384, hashlib_sha384, test_str)
+			else
+				sha384 = hashlib_sha384
+			end
+		end
+
+		assert(sha384, "sha384 not found")
 	end
 end
 
@@ -1097,6 +1141,9 @@ do
 	local function FetchAPI()
 		-- * You can also use: https://setup.rbxcdn.com/{https://setup.rbxcdn.com/versionQTStudio}-Full-API-Dump.json
 		-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
+
+		-- Credits @MaximumADHD
+
 		local API_Dump
 
 		local ok, err = pcall(function()
@@ -2403,6 +2450,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 												local source
 												local ok = pcall(function()
+													-- Credits @halffalse
 													source = game:HttpGet(
 														"https://assetdelivery.roproxy.com/v1/asset/?" .. asset
 													)
@@ -2694,6 +2742,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- TODO This might cause issues on non-unique Usernames (ex. "Cake" if game is about cakes then everything supposedly related to your name will be replaced with "Roblox"); Certain UserIds might also affect numbers, like if your UserId is 2481848 and there is some number that goes like "1.248184818837" then that the matched part will be replaced with 1, potentially making the number incorrect.
 			-- TODO The only logical solution to that is to instead filter only certain properties like Player.UserId and such, but this would leave Instances under workspace unfiltered even if they have your UserId for example.
 			-- TODO So for now it's best to keep this disabled by default
+			-- TODO It's also not smart to filter entire file string at the end as this might also affect decompiled scripts content, which has no way of containing any user-related information. It would be better to use gsub in string Descriptor and such
 			if OPTIONS.Anonymous then
 				local LocalPlayer = service.Players.LocalPlayer
 
