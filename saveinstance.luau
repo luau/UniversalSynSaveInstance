@@ -222,7 +222,7 @@ do -- * Load Region of Déjà Vu
 	end
 end
 
-local custom_decompiler, load_decompiler -- TODO Temporary
+local custom_decompiler
 
 if getscriptbytecode then
 	-- Credits @w-a-e
@@ -234,13 +234,12 @@ if getscriptbytecode then
 				game:HttpGet("https://raw.githubusercontent.com/w-a-e/Advanced-Decompiler-V3/main/init.lua", true)
 		end)
 	then
-		load_decompiler = function(decompTimeout)
-			local CONSTANTS = [[
+		local CONSTANTS = [[
 	local ENABLED_REMARKS = {
 		NATIVE_REMARK = true,
 		INLINE_REMARK = true
 	}
-	local DECOMPILER_TIMEOUT = ]] .. decompTimeout .. [[
+	local DECOMPILER_TIMEOUT = 3600
 		
 	local READER_FLOAT_PRECISION = 7 -- up to 99
 	local SHOW_INSTRUCTION_LINES = false
@@ -250,29 +249,28 @@ if getscriptbytecode then
 	local LIST_USED_GLOBALS = true
 	local RETURN_ELAPSED_TIME = false
 	]]
-			local _ENV = (getgenv or getrenv or getfenv)()
-			local old = _ENV.decompile
+		local _ENV = (getgenv or getrenv or getfenv)()
+		local old = _ENV.decompile
 
-			local f = loadstring(
+		local f = loadstring(
+			string.gsub(
 				string.gsub(
-					string.gsub(
-						decompiler_source,
-						"return %(x %% 2^32%) // %(2^disp%)",
-						"return math.floor((x %% 2^32) / (2^disp))",
-						1
-					), -- TODO Temporary fix for macsploit (// operator)
-					";;CONSTANTS HERE;;",
-					CONSTANTS
-				),
-				"Advanced-Decompiler-V3"
-			)
-			if not f then
-				return
-			end
-			f()
-			custom_decompiler = _ENV.decompile
-			_ENV.decompile = old
+					decompiler_source,
+					"return %(x %% 2^32%) // %(2^disp%)",
+					"return math.floor((x %% 2^32) / (2^disp))",
+					1
+				), -- TODO Temporary fix for macsploit (// operator)
+				";;CONSTANTS HERE;;",
+				CONSTANTS
+			),
+			"Advanced-Decompiler-V3"
+		)
+		if not f then
+			return
 		end
+		f()
+		custom_decompiler = _ENV.decompile
+		_ENV.decompile = old
 	end
 end
 
@@ -1912,9 +1910,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do
-		if load_decompiler then
-			load_decompiler(Timeout)
-		end
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
 			or global_container.decompile
 			or custom_decompiler
