@@ -7,7 +7,6 @@ Instance.UniqueId
 
 AnimationClip.GuidBinaryString {BinaryString}
 
-AnimationRigData.articulatedJoint {BinaryString}
 AnimationRigData.label {BinaryString}
 AnimationRigData.name {BinaryString}
 AnimationRigData.parent {BinaryString}

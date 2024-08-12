@@ -569,6 +569,7 @@ UserInputService.AccelerometerEnabled {CanSave Only}
 UserInputService.GamepadEnabled {CanSave Only}
 UserInputService.GyroscopeEnabled {CanSave Only}
 UserInputService.KeyboardEnabled {CanSave Only}
+UserInputService.LegacyInputEventsEnabled {Deprecated}  {CanSave}
 UserInputService.MouseDeltaSensitivity {CanLoad Only}
 UserInputService.MouseEnabled {CanSave Only}
 UserInputService.TouchEnabled {CanSave Only}
