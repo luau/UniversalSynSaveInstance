@@ -877,8 +877,9 @@ do
 						buffer_size += 5 + #attr + attr_size
 					end
 					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
-					if attrs_n == 0 then
-						return ""
+					if attrs_n == 0 then -- ! Assuming this is the default amount for all instances
+						error("empty attributes", 2) -- * __BREAK is prefered
+						return
 					end
 					table.sort(attrs_sorted)
 
@@ -1949,8 +1950,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return category ~= "Class" and not optional
 	end
 
+	local __BREAK = "__BREAK" .. service.HttpService:GenerateGUID(false)
+
 	local function ReadProperty(instance, property, propertyName, special, category, optional)
-		local raw = "__BREAK"
+		local raw = __BREAK
 
 		local InstanceOverride = InstancePropertyOverrides[instance]
 		if InstanceOverride then
@@ -1963,10 +1966,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local CanRead = property.CanRead
 
 		if CanRead == false then -- * Skips because we've checked this property before
-			return "__BREAK"
+			return __BREAK
 		end
 
-		local function filterResult(result) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - "shap" Roexec;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+		local function filterResult(result) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
 			return result == nil
 				or result == "can't get value"
 				or type(result) == "string"
@@ -1995,7 +1998,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						property.CanRead = false
 					end
 
-					return "__BREAK" -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
+					return __BREAK -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
 				end
 			end
 		else
@@ -2019,7 +2022,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				property.CanRead = ok
 
 				if not ok or filterResult(raw) then
-					return "__BREAK"
+					return __BREAK
 				end
 			end
 		end
@@ -2258,7 +2261,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 						local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
 
-						if raw == "__BREAK" then -- ! Assuming __BREAK is always returned when there's a failure to read a property
+						if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 							local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
 
 							if result == nil and unfilterResult(Category, Optional) then
@@ -2688,7 +2691,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		do
 			-- ! Assuming we only write to file once hence why we only filter once
 			-- TODO This might cause issues on non-unique Usernames (ex. "Cake" if game is about cakes then everything supposedly related to your name will be replaced with "Roblox"); Certain UserIds might also affect numbers, like if your UserId is 2481848 and there is some number that goes like "1.248184818837" then that the matched part will be replaced with 1, potentially making the number incorrect.
-			-- TODO The only logical solution to that is to instead filter only certain properties like Player.UserId and such, but this would leave Instances under workspace unfiltered even if they have your UserId for example.
 			-- TODO So for now it's best to keep this disabled by default
 			-- TODO It's also not smart to filter entire file string at the end as this might also affect decompiled scripts content, which has no way of containing any user-related information. It would be better to use gsub in string Descriptor and such
 			if OPTIONS.Anonymous then
