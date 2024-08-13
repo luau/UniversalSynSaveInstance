@@ -877,9 +877,8 @@ do
 						buffer_size += 5 + #attr + attr_size
 					end
 					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
-					if attrs_n == 0 then -- ! Assuming this is the default amount for all instances
-						error("empty attributes", 2) -- * __BREAK is prefered
-						return
+					if attrs_n == 0 then
+						return ""
 					end
 					table.sort(attrs_sorted)
 
