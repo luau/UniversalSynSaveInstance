@@ -553,7 +553,8 @@ XML_Descriptors = {
 	__PROTECTEDSTRING = function(raw) -- ? its purpose is to "protect" data from being treated as ordinary character data during processing;
 		return string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES) or XML_Descriptors.__CDATA(raw)
 	end,
-	__SEQUENCE = function(raw, valueFormatter) --The value is the text content, formatted as a space-separated list of floating point numbers.
+	__SEQUENCE = function(raw, valueFormatter)
+		-- The value is the text content, formatted as a space-separated list of floating point numbers.
 		-- tostring(raw) also works (but way slower rn)
 		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
 
@@ -582,7 +583,7 @@ XML_Descriptors = {
 	--------------------------------------------------------------
 	--------------------------------------------------------------
 	Axes = function(raw)
-		--The text of this element is formatted as an integer between 0 and 7
+		-- The text of this element is formatted as an integer between 0 and 7
 
 		return "<axes>" .. XML_Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
@@ -644,7 +645,7 @@ XML_Descriptors = {
 		-- return tonumber(string.format("0xFF%02X%02X%02X",raw.R*255,raw.G*255,raw.B*255))
 	end,
 	ColorSequence = function(raw)
-		--The value is the text content, formatted as a space-separated list of FLOATing point numbers.
+		-- The value is the text content, formatted as a space-separated list of FLOATing point numbers.
 
 		return XML_Descriptors.__SEQUENCE(raw, function(color3)
 			local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
@@ -685,7 +686,7 @@ XML_Descriptors = {
 			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
-		--The value is the text content, formatted as a space-separated list of floating point numbers.
+		-- The value is the text content, formatted as a space-separated list of floating point numbers.
 		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
 
 		return __EXTREME_RANGE(raw.Min) .. " " .. __EXTREME_RANGE(raw.Max) --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually; __EXTREME_RANGE is not needed here but it fixes the issue where "nan 10" value would reset to "0 0"
@@ -693,15 +694,17 @@ XML_Descriptors = {
 	NumberSequence = nil,
 	-- NumberSequence = Descriptors.__SEQUENCE,
 	PhysicalProperties = function(raw)
-		--[[Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
+		--[[
+			Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
 
-    Density
-    Friction
-    Elasticity
-    FrictionWeight
-    ElasticityWeight
+			Density
+			Friction
+			Elasticity
+			FrictionWeight
+			ElasticityWeight
 
-The value of each component is represented by the text content formatted as a 32-bit floating point number (see float).]]
+			The value of each component is represented by the text content formatted as a 32-bit floating point number (see float)
+		]]
 
 		local CustomPhysics
 		if raw then
@@ -752,19 +755,19 @@ The value of each component is represented by the text content formatted as a 32
 	-- SystemAddress = function(raw) return raw end,
 	UDim = function(raw)
 		--[[
-    S: Represents the Scale component. Interpreted as a <float>.
-    O: Represents the Offset component. Interpreted as an <int>.
-	]]
+			S: Represents the Scale component. Interpreted as a <float>.
+			O: Represents the Offset component. Interpreted as an <int>.
+		]]
 
 		return "<S>" .. raw.Scale .. "</S><O>" .. raw.Offset .. "</O>"
 	end,
 	UDim2 = function(raw)
 		--[[
-    XS: Represents the X.Scale component. Interpreted as a <float>.
-    XO: Represents the X.Offset component. Interpreted as an <int>.
-    YS: Represents the Y.Scale component. Interpreted as a <float>.
-    YO: Represents the Y.Offset component. Interpreted as an <int>.
-	]]
+			XS: Represents the X.Scale component. Interpreted as a <float>.
+			XO: Represents the X.Offset component. Interpreted as an <int>.
+			YS: Represents the Y.Scale component. Interpreted as a <float>.
+			YO: Represents the Y.Offset component. Interpreted as an <int>.
+		]]
 
 		local X, Y = raw.X, raw.Y
 
@@ -780,31 +783,31 @@ The value of each component is represented by the text content formatted as a 32
 	end,
 
 	-- UniqueId = function(raw)
-	--[[
-		     UniqueId properties might be random everytime Studio saves a place file
-	 and don't have a use right now outside of packages, which SSI doesn't
-	 account for anyway. They generate diff noise, so we shouldn't serialize
-	 them until we have to.
-	]]
-	-- https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/roblox/LuaPackages/Packages/_Index/ApolloClientTesting/ApolloClientTesting/utilities/common/makeUniqueId.lua#L62
+	-- 	--[[
+	-- 		UniqueId properties might be random everytime Studio saves a place file
+	-- 		and don't have a use right now outside of packages, which SSI doesn't
+	-- 		account for anyway. They generate diff noise, so we shouldn't serialize
+	-- 		them until we have to.
+	-- 	]]
+	-- 	-- https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/roblox/LuaPackages/Packages/_Index/ApolloClientTesting/ApolloClientTesting/utilities/common/makeUniqueId.lua#L62
 	-- 	return "" -- ? No idea if this even needs a Descriptor
 	-- end,
 
 	Vector2 = function(raw)
 		--[[
-    X: Represents the X component. Interpreted as a <float>.
-    Y: Represents the Y component. Interpreted as a <float>.
-	]]
+			X: Represents the X component. Interpreted as a <float>.
+			Y: Represents the Y component. Interpreted as a <float>.
+		]]
 		return XML_Descriptors.__VECTOR(raw.X, raw.Y)
 	end,
 	Vector2int16 = nil,
 	-- Vector2int16 = Descriptors.Vector2, -- except as <int>
 	Vector3 = function(raw)
 		--[[
-    X: Represents the X component. Interpreted as a <float>.
-    Y: Represents the Y component. Interpreted as a <float>.
-    Z: Represents the Z component. Interpreted as a <float>.
-	]]
+			X: Represents the X component. Interpreted as a <float>.
+			Y: Represents the Y component. Interpreted as a <float>.
+			Z: Represents the Z component. Interpreted as a <float>.
+		]]
 		return XML_Descriptors.__VECTOR(raw.X, raw.Y, raw.Z)
 	end,
 	Vector3int16 = nil,
@@ -1161,11 +1164,12 @@ do
 					local Serialization = Member.Serialization
 
 					if Serialization.CanLoad then -- If Roblox doesn't save it why should we; If Roblox doesn't load it we don't need to save it
-						--[[  -- ! CanSave replaces "Tags.Deprecated" check because there are some old properties which are deprecated yet have CanSave. 
-						 Example: Humanoid.Health is CanSave false due to Humanoid.Health_XML being CanSave true (obsolete properties basically) - in this case both of them will Load. (aka PropertyPatches)
-						 CanSave being on same level as CanLoad also fixes potential issues with overlapping properties like Color, Color3 & Color3uint8 of BasePart, out of which only Color3uint8 should save
-						 This also fixes everything in IgnoreClassProperties automatically without need to hardcode :)
-						 A very simple fix for many problems that saveinstance scripts encounter!
+						--[[
+							-- ! CanSave replaces "Tags.Deprecated" check because there are some old properties which are deprecated yet have CanSave.
+							Example: Humanoid.Health is CanSave false due to Humanoid.Health_XML being CanSave true (obsolete properties basically) - in this case both of them will Load. (aka PropertyPatches)
+							CanSave being on same level as CanLoad also fixes potential issues with overlapping properties like Color, Color3 & Color3uint8 of BasePart, out of which only Color3uint8 should save
+							This also fixes everything in IgnoreClassProperties automatically without need to hardcode :)
+							A very simple fix for many problems that saveinstance scripts encounter!
 						--]]
 						local PropertyName = Member.Name
 						if Serialization.CanSave or ClassExceptions and ClassExceptions[PropertyName] then
@@ -1862,6 +1866,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return unpack(result)
 	end
 
+	local get_proxied_linkedsource = construct_TimeoutHandler(30, function(asset)
+		return game:HttpGet("https://linkedsource.glitch.me/asset/" .. asset)
+	end)
+
 	do
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
 			or global_container.decompile
@@ -1922,7 +1930,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					result = string.gsub(result, "\0", "\\0") -- ? Some decompilers sadly output \0 which prevents files from opening
 					output = result
 				else
-					output = "--[[ Failed to decompile\nReason:\n" .. (result or "") .. "\n]]"
+					output = "--[[ Failed to decompile. Reason:\n" .. (result or "") .. "\n]]"
 				end
 
 				if ScriptCache and hashed_bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
@@ -2411,16 +2419,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 												end
 
 												if not ok then
-													ok = run_with_loading(
+													ok, source = run_with_loading(
 														"Getting " .. instance.Name .. " LinkedSource",
 														true,
 														nil,
-														pcall,
-														function()
-															source = game:HttpGet(
-																"https://linkedsource.glitch.me/asset/" .. asset
-															)
-														end
+														get_proxied_linkedsource,
+														asset
 													)
 												end
 
@@ -2542,8 +2546,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 		--[[
 			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
-		Also http can be converted to https but not sure if Roblox would decide to detect that
-		-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
+			Also http can be converted to https but not sure if Roblox would decide to detect that
+			-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
 		]]
 
 		-- TODO Find a better solution for this
@@ -2652,6 +2656,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				v.CollisionFidelity = D
 			end
 		end
+		print("Done")
 				
 		If you can't move the Camera, run this script in the Studio Command Bar:
 			
