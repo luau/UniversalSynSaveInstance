@@ -1405,7 +1405,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- ! Risky
 
-		IgnoreSharedStrings = true,
+		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
 		SharedStringOverwrite = false,
 		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
 		AlternativeWritefile = EXECUTOR_NAME == "Celery", -- TODO Temporary true (once removed, remove Note from docs too)
