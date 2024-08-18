@@ -2684,8 +2684,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			if 1 < #tmp then -- TODO: This sucks so much because we try to iterate a table just to check this (check above)
 				savebuffer[savebuffer_size] = table.concat(tmp)
+				savebuffer_size += 1
 				savebuffer[savebuffer_size] = "</SharedStrings>"
-				savebuffer_size += 2 -- ? Is this fine
+				savebuffer_size += 1
 			end
 		end
 
