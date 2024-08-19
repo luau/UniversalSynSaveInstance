@@ -1544,17 +1544,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 				end
 			end
-		else
-			for _, className in Exclude do
-				local dest = DecompileIgnore[className]
-				if dest == nil then
-					DecompileIgnore[className] = Exclude
-				elseif type(dest) == "table" then
-					for _, name in Exclude[className] do
-						table.insert(dest, name)
-					end
-				end
-			end
 		end
 	end
 
