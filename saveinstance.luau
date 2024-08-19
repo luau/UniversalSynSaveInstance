@@ -1368,7 +1368,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			service.TextChatService,
 			ModuleScript = nil,
 		},
-		IgnoreDefaultPlayerScripts = true, -- ? Fixes crashes on Mobile Devices
+		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true, -- ? Fixes crashes on Mobile Devices
 		SaveBytecode = false,
 
 		IgnoreProperties = { "ScriptGuid", "UniqueId", "HistoryId" },
