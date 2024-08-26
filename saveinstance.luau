@@ -4,9 +4,13 @@
 -- https://discord.gg/wx4ThpAsmw
 
 local service = setmetatable({}, {
-	__index = function(self, index)
-		local Service = game:GetService(index) or settings():GetService(index) or UserSettings():GetService(index)
-		self[index] = Service
+	__index = function(self, serviceName)
+		local o, s = pcall(Instance.new, serviceName)
+		local Service = o and s
+			or game:GetService(serviceName)
+			or settings():GetService(serviceName)
+			or UserSettings():GetService(serviceName)
+		self[serviceName] = Service
 		return Service
 	end,
 })
@@ -1368,7 +1372,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			service.TextChatService,
 			ModuleScript = nil,
 		},
-		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true, -- ? Fixes crashes on Mobile Devices
+		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
 		SaveBytecode = false,
 
 		IgnoreProperties = { "ScriptGuid", "UniqueId", "HistoryId" },
@@ -2840,7 +2844,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do
-		if OPTIONS.SafeMode then
+		local SafeMode = OPTIONS.SafeMode
+		if SafeMode then
 			service.Players.LocalPlayer:Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
 			service.RunService:Set3dRenderingEnabled(false)
 			wait_for_render()
@@ -2849,9 +2854,23 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		local anti_idle
 		if OPTIONS.AntiIdle then
+			local function mouse_generalized(mouseButton, isDown)
+				return function(x, y, repeatCount)
+					service.VirtualInputManager:SendMouseButtonEvent(
+						x or service.UserInputService:GetMouseLocation().X,
+						y or service.UserInputService:GetMouseLocation().Y,
+						mouseButton,
+						isDown,
+						nil,
+						repeatCount or 0
+					)
+				end
+			end
+			local press, release = mouse_generalized(1, true), mouse_generalized(1, false)
+
 			anti_idle = service.Players.LocalPlayer.Idled:Connect(function()
-				service.VirtualUser:CaptureController()
-				service.VirtualUser:ClickButton2(Vector2.zero)
+				press()
+				release()
 			end)
 		end
 
@@ -2860,6 +2879,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local ok, err = xpcall(save_game, function(err)
 			return debug.traceback(err)
 		end)
+
+		if SafeMode then
+			service.RunService:Set3dRenderingEnabled(true)
+		end
 
 		if old_gethiddenproperty then
 			gethiddenproperty = old_gethiddenproperty
