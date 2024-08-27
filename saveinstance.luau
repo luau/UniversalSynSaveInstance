@@ -2854,23 +2854,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		local anti_idle
 		if OPTIONS.AntiIdle then
-			local function mouse_generalized(mouseButton, isDown)
-				return function(x, y, repeatCount)
-					service.VirtualInputManager:SendMouseButtonEvent(
-						x or service.UserInputService:GetMouseLocation().X,
-						y or service.UserInputService:GetMouseLocation().Y,
-						mouseButton,
-						isDown,
-						nil,
-						repeatCount or 0
-					)
-				end
-			end
-			local press, release = mouse_generalized(1, true), mouse_generalized(1, false)
-
 			anti_idle = service.Players.LocalPlayer.Idled:Connect(function()
-				press()
-				release()
+				service.VirtualInputManager:SendMouseWheelEvent(
+					service.UserInputService:GetMouseLocation().X,
+					service.UserInputService:GetMouseLocation().Y,
+					true,
+					nil
+				)
 			end)
 		end
 
