@@ -1937,7 +1937,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		else
 			ldecompile = function()
-				return "-- Decompiling is NOT supported on your executor"
+				return "-- Your Executor does NOT have a Decompiler"
 			end
 		end
 	end
