@@ -1262,6 +1262,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
+--- @field ShutdownWhenDone boolean -- Shuts the game down after saveinstance is finished. ___Default:___ false
 --- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
 --- @field Anonymous boolean -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
@@ -1386,6 +1387,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		SaveCacheInterval = 0x1600 * 10,
 		ShowStatus = true,
 		SafeMode = false,
+		ShutdownWhenDone = false,
 		AntiIdle = true,
 		Anonymous = false,
 		ReadMe = true,
@@ -2361,6 +2363,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										local LinkedSource
 										local LinkedSource_Url = instance.LinkedSource -- ! Assuming every Class that has ProtectedString Source property also has a LinkedSource property
 										local hasLinkedSource = LinkedSource_Url ~= ""
+										local LinkedSource_type
 										if hasLinkedSource then
 											local Path = instance:GetFullName()
 											if RecoveredScripts then
@@ -2395,9 +2398,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													return true
 												end
 
-												local asset = (string.find(LinkedSource, "%a") and "hash" or "id")
-													.. "="
-													.. LinkedSource
+												LinkedSource_type = string.find(LinkedSource, "%a") and "hash" or "id"
+
+												local asset = LinkedSource_type .. "=" .. LinkedSource
 
 												local source
 												local ok = pcall(function()
@@ -2462,7 +2465,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 										end
 
 										value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
-											.. (hasLinkedSource and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?id=" .. (LinkedSource or LinkedSource_Url) .. "\n\n" or "")
+											.. (hasLinkedSource and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?" .. (LinkedSource_type or "id") .. "=" .. (LinkedSource or LinkedSource_Url) .. "\n\n" or "")
 											.. value
 									end
 								end
@@ -2909,6 +2912,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 				StatusText:Destroy()
 			end)
+		end
+
+		if OPTIONS.ShutdownWhenDone then
+			game:Shutdown()
 		end
 	end
 end
