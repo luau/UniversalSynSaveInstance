@@ -41,6 +41,8 @@ SelectionPartLasso.Part {BasePart}
 
 GuiService.SelectedObject {GuiObject}
 
+HapticEffect.Waveform {FloatCurve}
+
 JointInstance.Part0 {BasePart}
 JointInstance.Part1 {BasePart}
 

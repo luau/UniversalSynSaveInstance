@@ -176,6 +176,7 @@ Workspace.IKControlConstraintSupport
 Workspace.MeshPartHeadsAndAccessories 
 Workspace.ModelStreamingBehavior 
 Workspace.MoverConstraintRootBehavior 
+Workspace.PathfindingUseImprovedSearch 
 Workspace.PhysicsSteppingMethod 
 Workspace.PlayerCharacterDestroyBehavior 
 Workspace.PrimalPhysicsSolver 
@@ -224,7 +225,6 @@ StarterPlayer.LoadCharacterLayeredClothing
 AvatarJointUpgrade_Serialized -> AvatarJointUpgrade
 LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing 
 
-StyleRule.Index 
 StyleRule.PropertiesSerialize {BinaryString}
 
 StyleDerive.Index 

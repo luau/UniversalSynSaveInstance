@@ -510,6 +510,8 @@ StudioPublishService is NotCreatable but StudioPublishService.PublishLocked has 
 StudioService.UseLocalSpace {CanLoad Only}
 StudioService is NotCreatable but StudioService.ActiveScript has a default value: __api_dump_skipped_class__
 
+StyleRule.Index {CanLoad Only}
+
 TaskScheduler.SchedulerDutyCycle {CanSave Only}
 TaskScheduler.SchedulerRate {CanSave Only}
 TaskScheduler.ThreadPoolSize {CanSave Only}
@@ -530,8 +532,6 @@ TeleportService.CustomizedTeleportUI {Deprecated}
 TerrainRegion.GridV3 {CanLoad Only}
 
 TestService.ErrorCount {CanSave Only}
-TestService.Is30FpsThrottleEnabled {CanLoad Only}
-TestService.IsPhysicsEnvironmentalThrottled {CanLoad Only}
 TestService.TestCount {CanSave Only}
 TestService.WarnCount {CanSave Only}
 

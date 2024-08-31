@@ -248,6 +248,7 @@ local SharedString_identifiers = setmetatable({
 local Type_IDs = {
 	string = 0x02,
 	boolean = 0x03,
+	-- int32 = 0x04,
 	-- float = 0x05,
 	number = 0x06,
 	UDim = 0x09,
