@@ -741,7 +741,7 @@ XML_Descriptors = {
 
 		return Identifier
 	end,
-	-- SecurityCapabilities = function(raw) return raw end,
+	SecurityCapabilities = tostring, -- TODO: Find a faster solution
 	-- SystemAddress = function(raw) return raw end,
 	UDim = function(raw)
 		--[[
