@@ -504,21 +504,7 @@ end
 
 local XML_Descriptors
 XML_Descriptors = {
-	__APIPRECISION = function(raw, precision)
-		if raw == 0 or raw % 1 == 0 then
-			return raw
-		end
 
-		local Extreme = XML_Descriptors.__EXTREME(raw)
-		if Extreme then
-			return Extreme
-		end
-
-		-- TODO: scientific notation formatting also takes place if value is a decimal (only counts if it starts with 0.) then values like 0.00008 will be formatted as 8.0000000000000006544e-05 ("%.19e"), it must have 5 or more consecutive (?) zeros for this, on other hand, if it doesn't start with 0. then e20+ format is applied in case it has 20 or more consecutive (?) zeros so 1e20 will be formatted as 1e+20 and upwards (1e+19 is not allowed, same as 1e-04 for decimals)
-		-- ? The good part is compression of value so less file size BUT at the potential cost of precision loss
-
-		return string.format("%." .. precision .. "f", raw)
-	end,
 	__BIT = function(...) -- * Credits to Friend (you know yourself)
 		local Value = 0
 
@@ -537,16 +523,15 @@ XML_Descriptors = {
 		return raw.Value, "token"
 	end,
 	__EXTREME = function(raw)
-		local Extreme
 		if raw ~= raw then
-			Extreme = "NAN"
+			return "NAN"
 		elseif raw == math.huge then
-			Extreme = "INF"
+			return "INF"
 		elseif raw == -math.huge then
-			Extreme = "-INF"
+			return "-INF"
 		end
 
-		return Extreme
+		return raw
 	end,
 	__EXTREME_RANGE = function(raw)
 		return raw ~= raw and "0" or raw -- Normally we should return "-nan(ind)" instead of "0" but this adds more compatibility
@@ -819,16 +804,10 @@ XML_Descriptors = {
 	bool = function(raw)
 		return raw and "true" or "false"
 	end,
-	double = function(raw) -- Float64
-		return XML_Descriptors.__APIPRECISION(raw, 17) --? A precision of at least 17 is required to properly represent a 64-bit floating point value, so this amount is recommended.
-	end, -- ? wouldn't float be better as an optimization
-	float = function(raw) -- Float32
-		return XML_Descriptors.__APIPRECISION(raw, 9) -- ? A precision of at least 9 is required to properly represent a 32-bit floating point value, so this amount is recommended.
-	end,
-	int = function(raw) -- Int32
-		return XML_Descriptors.__EXTREME(raw) or raw
-	end,
-	int64 = nil,
+	double = nil, -- Float64
+	float = nil, -- Float32
+	int = nil, -- Int32
+	int64 = nil, -- Int64 (long)
 	string = function(raw, skipEmptyCheck)
 		return not skipEmptyCheck and (raw == "" and raw or raw == nil and "")
 			or string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
@@ -840,7 +819,10 @@ for descriptorName, redirectName in
 		NumberSequence = "__SEQUENCE",
 		Vector2int16 = "Vector2",
 		Vector3int16 = "Vector3",
-		int64 = "int", -- Int64 (long)
+		double = "__EXTREME",
+		float = "__EXTREME",
+		int = "__EXTREME",
+		int64 = "__EXTREME",
 	}
 do
 	XML_Descriptors[descriptorName] = XML_Descriptors[redirectName]
