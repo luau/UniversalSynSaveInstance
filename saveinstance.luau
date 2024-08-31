@@ -1249,6 +1249,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
 --- @field Anonymous boolean -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
+--- @field Callback boolean -- If set, the serialized data will be sent to the callback function instead of to file. ___Default:___ nil
 --- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
 --- @field scriptcache boolean -- ___Default:___ true
@@ -1345,7 +1346,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		__DEBUG_MODE = false,
 
 		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
-		--Callback = nil, -- Description: If set, the serialized data will be sent to the callback instead of to file.
+		Callback = nil,
 		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
 		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
 		-- DisableCompression = false, --Description: Disables compression in the binary output
@@ -2683,7 +2684,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
 			end
 
-			if OPTIONS.AlternativeWritefile and appendfile then
+			local Callback = OPTIONS.Callback
+			if Callback then
+				Callback(totalstr)
+			elseif OPTIONS.AlternativeWritefile and appendfile then
 				local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 				local Length = math.ceil(totalsize / SegmentLength)
 
