@@ -505,7 +505,6 @@ end
 
 local XML_Descriptors
 XML_Descriptors = {
-
 	__BIT = function(...) -- * Credits to Friend (you know yourself)
 		local Value = 0
 
@@ -832,7 +831,13 @@ end
 local ClassList
 
 do
-	local ClassPropertyExceptions = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) }
+	local ClassPropertyExceptions = {
+		Whitelist = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) },
+		Blacklist = {
+			LuaSourceContainer = ArrayToDictionary({ "ScriptGuid" }),
+			Instance = ArrayToDictionary({ "UniqueId", "HistoryId", "Capabilities" }),
+		},
+	}
 
 	local NotScriptableFixes =
 		{ -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
@@ -1126,6 +1131,8 @@ do
 
 		local classList = {}
 
+		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
+
 		for _, API_Class in service.HttpService:JSONDecode(API_Dump).Classes do
 			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
@@ -1144,7 +1151,7 @@ do
 
 			-- ? Check 96ea8b2a755e55a78aedb55a7de7e83980e11077 commit - If a NotScriptableFix is needed that relies on another NotScriptable Property (which doesn't really make sense in the first place)
 
-			local ClassExceptions = ClassPropertyExceptions[ClassName]
+			local ClassWhitelist, ClassBlacklist = ClassesWhitelist[ClassName], ClassesBlacklist[ClassName]
 
 			for _, Member in API_Class.Members do
 				if Member.MemberType == "Property" then
@@ -1159,7 +1166,10 @@ do
 							A very simple fix for many problems that saveinstance scripts encounter!
 						--]]
 						local PropertyName = Member.Name
-						if Serialization.CanSave or ClassExceptions and ClassExceptions[PropertyName] then
+						if
+							(Serialization.CanSave or ClassWhitelist and ClassWhitelist[PropertyName])
+							and not (ClassBlacklist and ClassBlacklist[PropertyName])
+						then
 							local MemberTags = Member.Tags
 
 							local ValueType = Member.ValueType
@@ -1360,7 +1370,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
 		SaveBytecode = false,
 
-		IgnoreProperties = { "ScriptGuid", "UniqueId", "HistoryId" },
+		IgnoreProperties = {},
 
 		IgnoreList = { service.CoreGui, service.CorePackages },
 
