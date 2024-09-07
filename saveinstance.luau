@@ -2859,7 +2859,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					service.UserInputService:GetMouseLocation().X,
 					service.UserInputService:GetMouseLocation().Y,
 					true,
-					nil
+					game
 				)
 			end)
 		end
