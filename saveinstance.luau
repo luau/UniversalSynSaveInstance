@@ -1341,7 +1341,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local totalstr, totalsize = "", 0
+	local currentstr, currentsize, totalsize, chunks = "", 0, 0, table.create(1)
 	local savebuffer, savebuffer_size = { '<roblox version="4">' }, 2
 
 	local StatusText
@@ -2078,16 +2078,24 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return prop_list
 	end
 
-	local function save_cache()
+	local CHUNK_LIMIT = 200 * 1024 * 1024 -- string length overflow prevention
+	local function save_cache(final)
 		local savestr = table.concat(savebuffer)
-		totalstr ..= savestr -- TODO: Causes "not enough memory" error on some exec
+		currentstr ..= savestr -- TODO: Causes "not enough memory" error on some exec
 
 		-- writefile(placename, totalstr)
 		-- appendfile(placename, savestr) -- * supposedly causes uneven amount of Tags (e.g. <Item> must be closed with </Item> but sometimes there's more of one than the other). While being under load, the function produces unexpected output?
-		totalsize += #savestr
+		local savestr_len = #savestr
+		totalsize += savestr_len
+		currentsize += savestr_len
 
 		table.clear(savebuffer)
 		savebuffer_size = 1
+
+		if CHUNK_LIMIT < currentsize or final then
+			table.insert(chunks, { size = currentsize, str = currentstr })
+			currentstr, currentsize = "", 0
+		end
 
 		if StatusText then
 			StatusText.Text = "Saving.. Size: " .. get_size_format()
@@ -2682,7 +2690,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		savebuffer[savebuffer_size] = "</roblox>"
 		savebuffer_size += 1
-		save_cache()
+		save_cache(true)
 		do
 			-- ! Assuming we only write to file once hence why we only filter once
 			-- TODO This might cause issues on non-unique Usernames (ex. "Cake" if game is about cakes then everything supposedly related to your name will be replaced with "Roblox"); Certain UserIds might also affect numbers, like if your UserId is 2481848 and there is some number that goes like "1.248184818837" then that the matched part will be replaced with 1, potentially making the number incorrect.
@@ -2691,32 +2699,48 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if OPTIONS.Anonymous then
 				local LocalPlayer = service.Players.LocalPlayer
 
-				totalstr = string.gsub(string.gsub(totalstr, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
+				for _, chunk in chunks do
+					chunk.str = string.gsub(string.gsub(chunk.str, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
+				end
 			end
 
 			local Callback = OPTIONS.Callback
 			if Callback then
+				local totalstr = ""
+				for _, chunk in chunks do
+					totalstr ..= chunk.str
+				end
 				Callback(totalstr)
 			elseif OPTIONS.AlternativeWritefile and appendfile then
-				local SegmentLength = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
-				local Length = math.ceil(totalsize / SegmentLength)
+				local SEGMENT_SIZE = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 
-				for i = 1, Length do
-					local savestr = string.sub(totalstr, (i - 1) * SegmentLength + 1, i * SegmentLength)
+				local totallen, currentlen = math.ceil(totalsize / SEGMENT_SIZE) * 100, 1
 
-					run_with_loading(
-						"Writing to File " .. math.round(i / Length * 100) .. "% (Depends on Exec)",
-						nil,
-						true,
-						appendfile,
-						placename,
-						savestr
-					)
-					if i ~= Length then
-						task.wait()
+				for _, chunk in chunks do
+					local length = math.ceil(chunk.size / SEGMENT_SIZE)
+					for i = 1, length do
+						local savestr = string.sub(chunk.str, (i - 1) * SEGMENT_SIZE + 1, i * SEGMENT_SIZE)
+
+						run_with_loading(
+							"Writing to File " .. math.round(currentlen / totallen) .. "% (Depends on Exec)",
+							nil,
+							true,
+							appendfile,
+							placename,
+							savestr
+						)
+						currentlen += 1
+
+						if i ~= length then
+							task.wait()
+						end
 					end
 				end
 			else
+				local totalstr = ""
+				for _, chunk in chunks do
+					totalstr ..= chunk.str
+				end
 				run_with_loading(
 					"Writing " .. get_size_format() .. " to File (Depends on Exec)",
 					nil,
