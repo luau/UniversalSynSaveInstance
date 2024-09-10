@@ -2714,7 +2714,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			elseif OPTIONS.AlternativeWritefile and appendfile then
 				local SEGMENT_SIZE = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 
-				local totallen, currentlen = math.ceil(totalsize / SEGMENT_SIZE) * 100, 1
+				local totallen, currentlen = math.ceil(totalsize / SEGMENT_SIZE), 1
 
 				for _, chunk in chunks do
 					local length = math.ceil(chunk.size / SEGMENT_SIZE)
@@ -2722,7 +2722,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						local savestr = string.sub(chunk.str, (i - 1) * SEGMENT_SIZE + 1, i * SEGMENT_SIZE)
 
 						run_with_loading(
-							"Writing to File " .. math.round(currentlen / totallen) .. "% (Depends on Exec)",
+							"Writing to File " .. math.round(currentlen / totallen * 100) .. "% (Depends on Exec)",
 							nil,
 							true,
 							appendfile,
