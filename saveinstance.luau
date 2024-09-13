@@ -1085,47 +1085,69 @@ do
 		}
 
 	local function FetchAPI()
-		-- * You can also use: https://setup.rbxcdn.com/{https://setup.rbxcdn.com/versionQTStudio}-Full-API-Dump.json
-		-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
-
 		-- Credits @MaximumADHD
 
 		local API_Dump
 
 		local ok, err = pcall(function()
-			local VERSIONS = version()
+			local CLIENT_VERSION = string.split(version(), ".")[2]
 
-			local o, r = pcall(readfile, VERSIONS)
+			local o, r = pcall(readfile, CLIENT_VERSION)
 			if o and r and r ~= "" then
 				API_Dump = r
 				return
 			end
 
-			local latest_commit = service.HttpService:JSONDecode(
-				game:HttpGet(
-					"https://api.github.com/search/commits?sort=committer-date&order=desc&q=repo:MaximumADHD/Roblox-Client-Tracker+0."
-						.. string.split(VERSIONS, ".")[2],
+			local DeployHistory = game:HttpGet("https://setup.rbxcdn.com/DeployHistory.txt", true)
+			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
+
+			local matching_versions = {}
+
+			local lines = string.split(DeployHistory, "\n")
+			for i = #lines, 1, -1 do
+				local line = lines[i]
+
+				local file_version = string.match(line, "file version: ([%d, ]+)")
+				if file_version then
+					if string.split(file_version, ", ")[2] == CLIENT_VERSION then
+						local version_hash = string.match(line, "(version%-[^%s]+)")
+						if version_hash then
+							matching_versions[version_hash] = true
+						end
+					else
+						break
+					end
+				end
+			end
+
+			for version_hash in matching_versions do
+				o, r = pcall(
+					game.HttpGet,
+					game,
+					"https://setup.rbxcdn.com/" .. version_hash .. "-Full-API-Dump.json",
 					true
 				)
-			).items[1]
-			-- print(VERSIONS)
-			-- print(latest_commit.commit.message)
-			API_Dump = game:HttpGet(
-				"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/"
-					.. latest_commit.sha
-					.. "/Mini-API-Dump.json",
-				true
-			)
+				if o then
+					API_Dump = service.HttpService:JSONEncode(service.HttpService:JSONDecode(r).Classes) -- minify it
+					break
+					-- else
+					-- 	warn(r)
+				end
+			end
 
-			writefile(VERSIONS, API_Dump) -- ? To avoid 60 requests / 1 h limit on GitHub Api
+			writefile(CLIENT_VERSION, API_Dump)
 		end)
 
 		if not ok then
-			warn("Failed to get " .. version() .. " API Dump, trying latest..")
-			warn(err)
-			API_Dump = game:HttpGet(
-				"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json",
-				true
+			warn("[DEBUG] Failed to get " .. version() .. " API Dump, trying latest..")
+			warn("[DEBUG]", err)
+			API_Dump = service.HttpService:JSONEncode(
+				service.HttpService:JSONDecode(
+					game:HttpGet(
+						"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json",
+						true
+					)
+				).Classes
 			)
 		end
 
@@ -1133,7 +1155,7 @@ do
 
 		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
 
-		for _, API_Class in service.HttpService:JSONDecode(API_Dump).Classes do
+		for _, API_Class in service.HttpService:JSONDecode(API_Dump) do
 			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
 				Properties = ClassProperties,
