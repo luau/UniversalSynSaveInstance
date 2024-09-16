@@ -1138,7 +1138,7 @@ do
 			writefile(CLIENT_VERSION, API_Dump)
 		end)
 
-		if not ok then
+		if not ok or not API_Dump then
 			warn("[DEBUG] Failed to get " .. version() .. " API Dump, trying latest..")
 			warn("[DEBUG]", err)
 			API_Dump = service.HttpService:JSONEncode(
