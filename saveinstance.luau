@@ -1101,7 +1101,7 @@ do
 			local DeployHistory = game:HttpGet("https://setup.rbxcdn.com/DeployHistory.txt", true)
 			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
 
-			local matching_versions = {}
+			local matching_versions, is_matched = {}
 
 			local lines = string.split(DeployHistory, "\n")
 			for i = #lines, 1, -1 do
@@ -1110,11 +1110,13 @@ do
 				local file_version = string.match(line, "file version: ([%d, ]+)")
 				if file_version then
 					if string.split(file_version, ", ")[2] == CLIENT_VERSION then
+						is_matched = true
+
 						local version_hash = string.match(line, "(version%-[^%s]+)")
 						if version_hash then
 							matching_versions[version_hash] = true
 						end
-					else
+					elseif is_matched then
 						break
 					end
 				end
