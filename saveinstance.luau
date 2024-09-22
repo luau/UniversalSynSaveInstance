@@ -1885,7 +1885,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	do
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
-			or global_container.decompile
+			or decompile
 			or custom_decompiler
 
 		-- if Decompiler == custom_decompiler then -- Cope
