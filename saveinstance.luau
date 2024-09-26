@@ -1092,9 +1092,9 @@ do
 		local ok, err = pcall(function()
 			local CLIENT_VERSION = string.split(version(), ".")[2]
 
-			local o, r = pcall(readfile, CLIENT_VERSION)
-			if o and r and r ~= "" then
-				API_Dump = r
+			local ok, result = pcall(readfile, CLIENT_VERSION)
+			if ok and result and result ~= "" then
+				API_Dump = result
 				return
 			end
 
@@ -1123,15 +1123,18 @@ do
 			end
 
 			for version_hash in matching_versions do
-				o, r = pcall(
+				ok, result = pcall(
 					game.HttpGet,
 					game,
 					"https://setup.rbxcdn.com/" .. version_hash .. "-Full-API-Dump.json",
 					true
 				)
-				if o then
-					API_Dump = service.HttpService:JSONEncode(service.HttpService:JSONDecode(r).Classes) -- minify it
-					break
+				if ok then
+					local o, r = pcall(service.HttpService.JSONDecode, service.HttpService, result)
+					if o then
+						API_Dump = service.HttpService:JSONEncode(r.Classes) -- minify it
+						break
+					end
 					-- else
 					-- 	warn(r)
 				end
