@@ -7,5 +7,6 @@ Bone: Bones must be parented to a BasePart or another Bone.
 DebuggerWatch: DebuggerWatch must be a child of ScriptDebugger
 Player: Parent of Player can not be changed
 PluginAction: Parent of PluginAction must be Plugin or PluginMenu that created it!
+WrapDeformer: BaseWrap must be parented to a MeshPart.
 WrapLayer: BaseWrap must be parented to a MeshPart.
 WrapTarget: BaseWrap must be parented to a MeshPart.

@@ -75,6 +75,7 @@ StyleLink.StyleSheet {StyleSheet}
 ChatInputBarConfiguration.TargetTextChannel {TextChannel}
 
 TextChatMessage.BubbleChatMessageProperties {BubbleChatMessageProperties}
+TextChatMessage.ChatWindowMessageProperties {ChatWindowMessageProperties}
 TextChatMessage.TextChannel {TextChannel}
 TextChatMessage.TextSource {TextSource}
 

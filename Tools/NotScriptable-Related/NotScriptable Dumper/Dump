@@ -59,12 +59,14 @@ Humanoid.Health_XML
 Humanoid.InternalBodyScale 
 Humanoid.InternalHeadScale 
 
-HumanoidDescription.AccessoryBlob 
 HumanoidDescription.AccessoryRigidAndLayeredBlob 
 HumanoidDescription.EmotesDataInternal 
 HumanoidDescription.EquippedEmotesDataInternal 
 
 InsertService.AllowClientInsertModels 
+
+Lighting.Intent 
+Lighting.Quality 
 
 LocalizationTable.Contents 
 

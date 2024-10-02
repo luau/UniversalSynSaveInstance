@@ -9,14 +9,6 @@ AnimationTrack
 
 AssetImportSession
 
-AvatarGenerationJob
-
-Avatar2DGenerationJob
-
-Avatar3DGenerationJob
-
-AvatarGenerationSession
-
 AnimationImportData
 
 FacsImportData
@@ -72,6 +64,8 @@ LocalDebuggerConnection
 DebuggerLuaResponse
 
 DebuggerVariable
+
+ExplorerFilterAutocompleterInstance
 
 FaceInstance
 
@@ -254,6 +248,8 @@ ChatInputBarConfiguration
 ChatWindowConfiguration
 
 TextChatMessage
+
+ChatWindowMessageProperties
 
 TextFilterResult
 

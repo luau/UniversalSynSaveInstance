@@ -162,4 +162,4 @@ for Class, ClassInfo in ClassList do
 	end
 end
 warn("Finished")
-writefile("!missing2", s)
+writefile("!missing2.txt", s)

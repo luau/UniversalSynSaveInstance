@@ -1,7 +1,4 @@
-Varies per executor; Tested on Wave
-
-TriangleMeshPart.AeroMeshData  Unable to get property AeroMeshData, type SharedString
-TriangleMeshPart.PhysicalConfigData  Unable to get property PhysicalConfigData, type SharedString
+Varies per executor; Tested on Codex
 
 DebuggerBreakpoint.line {NotCreatable Class} 
 
@@ -10,19 +7,11 @@ BasePart.Color3uint8  Unable to get property Color3uint8, type Color3uint8
 Instance.UniqueId  Unable to get property UniqueId, type UniqueId
 Instance.HistoryId  Unable to get property HistoryId, type UniqueId
 
-BaseWrap.HSRMeshIdData  Unable to get property HSRMeshIdData, type SharedString
-BaseWrap.HSRData  Unable to get property HSRData, type SharedString
-
 MetaBreakpointContext.ContextDataInternal {NotCreatable Class} 
 
 ScriptDebugger.ScriptGuid {NotCreatable Class} 
 ScriptDebugger.CoreScriptIdentifier {NotCreatable Class} 
 
 Model.WorldPivotData  Unable to get property WorldPivotData, type OptionalCoordinateFrame
-Model.ModelMeshData  Unable to get property ModelMeshData, type SharedString
 
 GoogleAnalyticsConfiguration.gaID {NotCreatable Class} 
-
-PartOperation.ChildData2  Unable to get property ChildData2, type SharedString
-PartOperation.MeshData2  Unable to get property MeshData2, type SharedString
-

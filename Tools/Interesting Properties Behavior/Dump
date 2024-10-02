@@ -42,10 +42,6 @@ AudioSearchParams.AudioSubtype {Deprecated}
 
 AvatarChatService is NotCreatable but AvatarChatService.ClientFeatures has a default value: 0
 
-Avatar2DGenerationJob is NotCreatable but Avatar2DGenerationJob.Result has a default value: 
-
-Avatar3DGenerationJob is NotCreatable but Avatar3DGenerationJob.Result has a default value: 
-
 BaseImportData.Id {CanSave Only}
 
 MaterialImportData.IsPbr {CanSave Only}
@@ -185,7 +181,12 @@ DebuggerManager.DebuggingEnabled {CanSave Only}
 
 DraggerService is NotCreatable but DraggerService.AlignDraggedObjects has a default value: __api_dump_skipped_class__
 
+EditableService is NotCreatable but EditableService.EditableStatus has a default value: Unknown
+
 ExperienceStateCaptureService is NotCreatable but ExperienceStateCaptureService.HiddenSelectionEnabled has a default value: false
+
+ExplorerFilterAutocompleterInstance.ReplaceRange {CanSave Only}
+ExplorerFilterAutocompleterInstance.RequiresOutsideContext {CanSave Only}
 
 FaceAnimatorService is NotCreatable but FaceAnimatorService.AudioAnimationEnabled has a default value: true
 
@@ -292,6 +293,28 @@ Humanoid.Torso {CanLoad Only}
 Humanoid.Torso {Deprecated} 
 Humanoid.maxHealth {CanLoad Only}
 Humanoid.maxHealth {Deprecated} 
+
+HumanoidDescription.AccessoryBlob {CanLoad Only}
+HumanoidDescription.BackAccessory {CanLoad Only}
+HumanoidDescription.FaceAccessory {CanLoad Only}
+HumanoidDescription.FrontAccessory {CanLoad Only}
+HumanoidDescription.HairAccessory {CanLoad Only}
+HumanoidDescription.HatAccessory {CanLoad Only}
+HumanoidDescription.Head {CanLoad Only}
+HumanoidDescription.HeadColor {CanLoad Only}
+HumanoidDescription.LeftArm {CanLoad Only}
+HumanoidDescription.LeftArmColor {CanLoad Only}
+HumanoidDescription.LeftLeg {CanLoad Only}
+HumanoidDescription.LeftLegColor {CanLoad Only}
+HumanoidDescription.NeckAccessory {CanLoad Only}
+HumanoidDescription.RightArm {CanLoad Only}
+HumanoidDescription.RightArmColor {CanLoad Only}
+HumanoidDescription.RightLeg {CanLoad Only}
+HumanoidDescription.RightLegColor {CanLoad Only}
+HumanoidDescription.ShouldersAccessory {CanLoad Only}
+HumanoidDescription.Torso {CanLoad Only}
+HumanoidDescription.TorsoColor {CanLoad Only}
+HumanoidDescription.WaistAccessory {CanLoad Only}
 
 IncrementalPatchBuilder is NotCreatable but IncrementalPatchBuilder.AddPathsToBundle has a default value: false
 
@@ -471,6 +494,10 @@ Selection.SelectionLineThickness {CanSave Only}
 AtmosphereSensor.AirDensity {CanSave Only}
 AtmosphereSensor.RelativeWindVelocity {CanSave Only}
 
+FluidForceSensor.CenterOfPressure {CanSave Only}
+FluidForceSensor.Force {CanSave Only}
+FluidForceSensor.Torque {CanSave Only}
+
 ServerScriptService is NotCreatable but ServerScriptService.LoadStringEnabled has a default value: false
 
 DataModel.PrivateServerId {CanSave Only}
@@ -548,6 +575,8 @@ ChatInputBarConfiguration is NotCreatable but ChatInputBarConfiguration.Absolute
 ChatWindowConfiguration is NotCreatable but ChatWindowConfiguration.AbsolutePosition has a default value: 0, 0
 
 TextChatMessage is NotCreatable but TextChatMessage.BubbleChatMessageProperties has a default value: __api_dump_no_string_value__
+
+ChatWindowMessageProperties is NotCreatable but ChatWindowMessageProperties.FontFace has a default value: __api_dump_no_string_value__
 
 TextChatService is NotCreatable but TextChatService.ChatTranslationEnabled has a default value: true
 

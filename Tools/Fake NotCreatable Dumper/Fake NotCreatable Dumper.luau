@@ -95,7 +95,7 @@ do
 	warn("Finished")
 	-- warn(s)
 	task.wait(0.5)
-	print(s)
-	setclipboard(s)
+	-- print(s)
+	writefile("fakenot.txt", s)
 	-- writefile("!missing.txt", game:GetService("HttpService"):JSONEncode(t))
 end

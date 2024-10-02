@@ -1,6 +1,10 @@
 Varies per executor; Tested on Codex
 
+Annotation {Fake Creatable}
+
 Breakpoint {Fake Creatable}
+
+ExplorerFilterInstance {Fake Creatable}
 
 InternalSyncItem {Fake Creatable}
 
@@ -31,4 +35,6 @@ ReflectionMetadataYieldFunctions {Fake Creatable}
 StudioAttachment {Fake Creatable}
 
 StudioCallout {Fake Creatable}
+
+WorkspaceAnnotation {Fake Creatable}
 

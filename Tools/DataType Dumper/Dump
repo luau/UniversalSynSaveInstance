@@ -6,7 +6,7 @@ Class
 Color3
 Color3uint8
 ColorSequence
-Content
+ContentId
 Enum
 Faces
 Font

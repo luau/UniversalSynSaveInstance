@@ -6,7 +6,7 @@ BasePart.MaterialVariantSerialized - MaterialVariant
 BasePart.MaterialVariantSerialized - CurrentPhysicalProperties
 BasePart.MaterialVariantSerialized - PropertyStatusStudio
 
-DoubleConstrainedValue.value - 1.53736
+DoubleConstrainedValue.value - Value
 
 Fire.size_xml - Size
 Fire.heat_xml - Heat
@@ -15,7 +15,9 @@ FormFactorPart.formFactorRaw - FormFactor
 
 Humanoid.Health_XML - Health
 
-IntConstrainedValue.value - 2
+IntConstrainedValue.value - Value
+
+LuaSourceContainer.ScriptGuid - OriginalScriptGuid
 
 MaterialService.Use2022MaterialsXml - Use2022Materials
 
@@ -32,7 +34,7 @@ Smoke.riseVelocity_xml - RiseVelocity
 Sound.xmlRead_MaxDistance_3 - MaxDistance
 Sound.xmlRead_MaxDistance_3 - RollOffMaxDistance
 
-WeldConstraint.State - Enabled
+WeldConstraint.CFrame0 - State
 WeldConstraint.Part0Internal - Part0
 WeldConstraint.Part1Internal - Part1
 
