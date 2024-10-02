@@ -1,0 +1,36 @@
+title = "Universal Syn SaveInstance"
+
+[home]
+enabled = true
+bannerImage = "https://github.com/luau/UniversalSynSaveInstance/assets/95628489/4944cc94-f7c3-43b2-8c2b-7065f2e3dae9"
+
+[docusaurus]
+favicon = "https://github.com/luau/UniversalSynSaveInstance/assets/95628489/5e2fa14f-c70f-40a6-b747-9ba7fd99037b"
+tagline = "A universal saveinstance revival. This can also be edited and used as a Roblox-Format-File writer."
+
+
+[[navbar.items]]
+href = "https://discord.gg/wx4ThpAsmw"
+label = "Discord"
+position = "right"
+
+[[navbar.items]]
+href = "https://ko-fi.com/M4M1JNH5G"
+label = "Support"
+position = "right"
+
+[navbar.logo]
+src = "https://github.com/luau/UniversalSynSaveInstance/assets/95628489/5e2fa14f-c70f-40a6-b747-9ba7fd99037b"
+
+[[footer.links]]
+href = "https://discord.gg/wx4ThpAsmw"
+label = "Discord"
+[[footer.links]]
+href = "https://ko-fi.com/M4M1JNH5G"
+label = "Support"
+
+[footer.logo]
+src = "https://github.com/luau/UniversalSynSaveInstance/assets/95628489/5e2fa14f-c70f-40a6-b747-9ba7fd99037b"
+width = 50
+height = 50
+
