@@ -2851,7 +2851,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		GLOBAL_ENV._statustext = StatusGui
 
-		StatusGui.DisplayOrder = 2_000_000_000
+		StatusGui.DisplayOrder = 2e9
 		pcall(function() -- ? Compatibility with level 2
 			StatusGui.OnTopOfCoreBlur = true
 		end)
