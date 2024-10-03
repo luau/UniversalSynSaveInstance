@@ -1398,8 +1398,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		DecompileJobless = false,
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
-			service.Chat,
-			service.TextChatService,
+			"Chat",
+			"TextChatService",
 			ModuleScript = nil,
 		},
 		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
@@ -1407,7 +1407,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		IgnoreProperties = {},
 
-		IgnoreList = { service.CoreGui, service.CorePackages },
+		IgnoreList = { "CoreGui", "CorePackages" },
 
 		ExtraInstances = {},
 		NilInstances = false,
