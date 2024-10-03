@@ -654,8 +654,8 @@ XML_Descriptors = {
 				.. " 0 "
 		end)
 	end,
-	Content = function(raw)
-		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw, true) .. "</url>"
+	ContentId = function(raw)
+		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw, true) .. "</url>", "Content"
 	end,
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. XML_Descriptors.CFrame(raw) .. "</CFrame>"
@@ -815,8 +815,8 @@ XML_Descriptors = {
 	float = nil, -- Float32
 	int = nil, -- Int32
 	int64 = nil, -- Int64 (long)
-	string = function(raw, skipEmptyCheck)
-		return not skipEmptyCheck and (raw == "" and raw or raw == nil and "")
+	string = function(raw)
+		return (raw == nil or raw == "") and ""
 			or string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
 			or XML_Descriptors.__CDATA(string.gsub(raw, "\0", ""))
 	end,
@@ -1644,7 +1644,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
 
 	local old_gethiddenproperty
-	if OPTIONS.IgnoreSpecialProperties and gethiddenproperty then
+	if OPTIONS and gethiddenproperty then
 		old_gethiddenproperty = gethiddenproperty
 		gethiddenproperty = nil
 	end

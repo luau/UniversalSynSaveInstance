@@ -434,6 +434,8 @@ Player.FollowUserId {CanSave Only}
 
 PlayerEmulatorService is NotCreatable but PlayerEmulatorService.CustomPoliciesEnabled has a default value: false
 
+PluginAction.Text {CanLoad Only}
+
 PluginMenu.Icon {CanLoad Only}
 PluginMenu.Title {CanLoad Only}
 
@@ -534,6 +536,8 @@ TerrainRegion.GridV3 {CanLoad Only}
 TestService.ErrorCount {CanSave Only}
 TestService.TestCount {CanSave Only}
 TestService.WarnCount {CanSave Only}
+
+TextChannel.DirectChatRequester {CanSave Only}
 
 BubbleChatConfiguration is NotCreatable but BubbleChatConfiguration.AdorneeName has a default value: HumanoidRootPart
 
