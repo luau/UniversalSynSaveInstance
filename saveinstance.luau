@@ -66,7 +66,7 @@ do
 		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff (getbinaryindex)
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
-		cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
+		-- cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
 		decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s")',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
@@ -82,7 +82,7 @@ local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 
 local EXECUTOR_NAME = identify_executor and identify_executor() or ""
 
-local cloneref = global_container.cloneref
+-- local cloneref = global_container.cloneref
 local gethiddenproperty = global_container.gethiddenproperty
 
 -- These should be universal enough
@@ -102,9 +102,9 @@ local service = setmetatable({}, {
 			or settings():GetService(serviceName)
 			or UserSettings():GetService(serviceName)
 
-		if cloneref then
-			Service = cloneref(Service)
-		end
+		-- if cloneref then
+		-- 	Service = cloneref(Service)
+		-- end
 
 		self[serviceName] = Service
 		return Service
@@ -2671,6 +2671,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		If you didn't save in Binary (rbxl) - it's recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
 		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
+
+		ServerStorage, ServerScriptService and Server Scripts are impossible to save because of FilteringEnabled.
 
 		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else. Then run `game:GetService("Players").CharacterAutoLoads = true`.
 		And use "Play Here" to start game instead of "Play" to spawn your Character where your Camera currently is.
