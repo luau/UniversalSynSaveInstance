@@ -1721,7 +1721,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return string.sub(string.gsub(string.gsub(string.gsub(str, "[^%w _]", ""), " +", " "), " +$", ""), 1, 240)
 		end
 
-		if IsModel then
+		if ToSaveInstance then
 			if mode == "optimized" then -- ! NOT supported with Model file mode
 				mode = "full"
 			end
@@ -1739,7 +1739,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					OPTIONS[key] = false
 				end
 			end
+		end
 
+		if IsModel then
 			placename = (
 				FilePath or sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1]):GetFullName())
 			) .. ".rbxmx"
@@ -1812,7 +1814,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				table.insert(tmp, instance)
 			end
 		end
+
 		ToSaveList = tmp
+
+		if ToSaveInstance then
+			table.insert(ToSaveList, 1, ToSaveInstance)
+		end
 	end
 
 	local function get_size_format()
@@ -2165,7 +2172,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Item
 	end
 
-	local function save_hierarchy(hierarchy, queuedHierarchy)
+	local function save_hierarchy(hierarchy)
 		for _, instance in hierarchy do
 			if IgnoreNotArchivable and not instance.Archivable then
 				continue
@@ -2544,7 +2551,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 
 			if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
-				local Children = ChildrenOverride or queuedHierarchy or instance:GetChildren()
+				local Children = ChildrenOverride or instance:GetChildren()
 
 				if #Children ~= 0 then
 					save_hierarchy(Children)
@@ -2588,11 +2595,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			or (IsolateLocalPlayer or IsolateLocalPlayerCharacter) and IsolateLocalPlayer
 			or IsolatePlayers
 			or NilInstances and global_container.getnilinstances -- ! Make sure this accurately reflects everything below
-		if ToSaveInstance then
-			save_hierarchy({ ToSaveInstance }, ToSaveList)
-		else
-			save_hierarchy(ToSaveList)
-		end
+
+		save_hierarchy(ToSaveList)
 
 		if IsolateLocalPlayer or IsolateLocalPlayerCharacter then
 			local Players = service.Players
