@@ -1756,9 +1756,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local TempRoot = ToSaveInstance or game
 
 		if mode == "full" then
-			local Children = TempRoot:GetChildren()
-			if 0 < #Children then
-				table.move(Children, 1, #Children, #tmp + 1, tmp)
+			if not ToSaveInstance then
+				local Children = TempRoot:GetChildren()
+				if 0 < #Children then
+					table.move(Children, 1, #Children, #tmp + 1, tmp)
+				end
 			end
 		elseif mode == "optimized" then -- ! Incompatible with .rbxmx (Model file) mode
 			-- if IsolatePlayers then
