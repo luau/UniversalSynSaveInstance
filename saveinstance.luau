@@ -119,8 +119,8 @@ do -- * Load Region of Déjà Vu
 		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
 	end
 
-	local o, r = pcall(gethiddenproperty, workspace.Terrain, "Decoration")
-	if not o or type(r) ~= "boolean" then -- * Tests if gethiddenproperty is fake
+	local o, r = pcall(gethiddenproperty, workspace, "RejectCharacterDeletions")
+	if not o or typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is fake
 		gethiddenproperty = nil
 	end
 
@@ -1743,7 +1743,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		if IsModel then
 			placename = (
-				FilePath or sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1] or game):GetFullName())
+				FilePath
+				or sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1] or game):GetFullName())
 			) .. ".rbxmx"
 		else
 			placename = (FilePath or sanitizeFileName("place " .. PlaceName)) .. ".rbxlx"
