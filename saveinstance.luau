@@ -1767,6 +1767,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- if IsolatePlayers then
 			-- 	table.insert(_list_0, "Players")
 			-- end
+			local tmp_dict = ArrayToDictionary(tmp)
+
 			for _, serviceName in
 				{
 					"Workspace",
@@ -1795,7 +1797,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- "VoiceChatService",
 				}
 			do
-				table.insert(tmp, service[serviceName])
+				local _service = service[serviceName]
+				if not tmp_dict[_service] then
+					table.insert(tmp, _service)
+				end
 			end
 		elseif mode == "scripts" then
 			-- TODO: Only save paths that lead to scripts (nothing else)
