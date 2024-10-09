@@ -7,7 +7,7 @@ local function string_find(s, pattern)
 	return string.find(s, pattern, nil, true)
 end
 
-local function ArrayToDictionary(t, hydridMode, valueOverride)
+local function ArrayToDictionary(t, hydridMode, valueOverride, typeStrict)
 	local tmp = {}
 
 	if hydridMode then
@@ -22,7 +22,7 @@ local function ArrayToDictionary(t, hydridMode, valueOverride)
 		end
 	else
 		for _, key in t do
-			if type(key) == "string" then
+			if not typeStrict or typeStrict and type(key) == typeStrict then
 				tmp[key] = true
 			end
 		end
@@ -1179,7 +1179,7 @@ do
 			local ClassName = API_Class.Name
 
 			if ClassTags then
-				Class.Tags = ArrayToDictionary(ClassTags) -- or {}
+				Class.Tags = ArrayToDictionary(ClassTags, nil, nil, "string") -- or {}
 			end
 
 			local NotScriptableFixClass = NotScriptableFixes[ClassName]
@@ -1213,7 +1213,7 @@ do
 							local Special
 
 							if MemberTags then
-								MemberTags = ArrayToDictionary(MemberTags)
+								MemberTags = ArrayToDictionary(MemberTags, nil, nil, "string")
 
 								Special = MemberTags.NotScriptable
 							end
@@ -2502,7 +2502,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													and instance:IsA("Script")
 													and instance.RunContext ~= Enum.RunContext.Client
 											then
-												value = "-- Server Scripts are IMPOSSIBLE to save because of FilteringEnabled" --TODO: Could be not just server scripts in the future
+												value =
+													"-- Server Scripts are IMPOSSIBLE to save because of FilteringEnabled" --TODO: Could be not just server scripts in the future
 											else
 												value = ldecompile(instance)
 												if SaveBytecode then
