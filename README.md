@@ -22,7 +22,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 
 > [!WARNING]
 > - You **MUST** always include the following Credit string: "UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw"
-> - You are **NOT** allowed to claim authorship of the software
+> - You are **NOT** allowed to claim authorship of the source code provided in this repository
 > - You **MUST** always include the following [License](https://github.com/luau/UniversalSynSaveInstance/blob/main/LICENSE)
 
 > [!TIP]
