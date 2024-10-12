@@ -21,7 +21,8 @@ Or shortly USSI, a project aimed at resurrecting saveinstance function from [Syn
 Reason: Many Executors fail miserably at providing good user experience when it comes to tinkering with saving instances.
 
 > [!WARNING]
-> - You **MUST** always include the following Credit string: "UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw"
+> As stated under the Section 7 (b) in the LICENSE:
+> - You **MUST** always include the following Credit string: `UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw`
 > - You are **NOT** allowed to claim authorship of the source code provided in this repository
 > - You **MUST** always include the following [License](https://github.com/luau/UniversalSynSaveInstance/blob/main/LICENSE)
 
