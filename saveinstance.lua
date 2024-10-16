@@ -829,6 +829,7 @@ XML_Descriptors = {
 for descriptorName, redirectName in
 	next,
 	{
+		ContentId = "Content",
 		NumberSequence = "__SEQUENCE",
 		Vector2int16 = "Vector2",
 		Vector3int16 = "Vector3",
