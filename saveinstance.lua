@@ -7,7 +7,7 @@ local function string_find(s, pattern)
 	return string.find(s, pattern, nil, true)
 end
 
-local function ArrayToDictionary(t, hydridMode, valueOverride)
+local function ArrayToDictionary(t, hydridMode, valueOverride, typeStrict)
 	local tmp = {}
 
 	if hydridMode then
@@ -22,7 +22,7 @@ local function ArrayToDictionary(t, hydridMode, valueOverride)
 		end
 	else
 		for _, key in next, t do
-			if type(key) == "string" then
+			if not typeStrict or typeStrict and type(key) == typeStrict then
 				tmp[key] = true
 			end
 		end
@@ -66,8 +66,8 @@ do
 		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff (getbinaryindex)
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
-		cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
-		decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s")',
+		-- cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
+		-- decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s")',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
 		getnilinstances = 'string.find(...,"nil",nil,true) and string.find(...,"get",nil,true) and string.sub(...,#...) == "s"', -- ! Could match some unwanted stuff
@@ -82,7 +82,7 @@ local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 
 local EXECUTOR_NAME = identify_executor and identify_executor() or ""
 
-local cloneref = global_container.cloneref
+-- local cloneref = global_container.cloneref
 local gethiddenproperty = global_container.gethiddenproperty
 
 -- These should be universal enough
@@ -102,9 +102,9 @@ local service = setmetatable({}, {
 			or settings():GetService(serviceName)
 			or UserSettings():GetService(serviceName)
 
-		if cloneref then
-			Service = cloneref(Service)
-		end
+		-- if cloneref then
+		-- 	Service = cloneref(Service)
+		-- end
 
 		self[serviceName] = Service
 		return Service
@@ -119,8 +119,8 @@ do -- * Load Region of Déjà Vu
 		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
 	end
 
-	local o, r = pcall(gethiddenproperty, workspace.Terrain, "Decoration")
-	if not o or type(r) ~= "boolean" then -- * Tests if gethiddenproperty is fake
+	local o, r = pcall(gethiddenproperty, workspace, "RejectCharacterDeletions")
+	if not o or typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is fake
 		gethiddenproperty = nil
 	end
 
@@ -1184,7 +1184,7 @@ do
 			local ClassName = API_Class.Name
 
 			if ClassTags then
-				Class.Tags = ArrayToDictionary(ClassTags) -- or {}
+				Class.Tags = ArrayToDictionary(ClassTags, nil, nil, "string") -- or {}
 			end
 
 			local NotScriptableFixClass = NotScriptableFixes[ClassName]
@@ -1218,7 +1218,7 @@ do
 							local Special
 
 							if MemberTags then
-								MemberTags = ArrayToDictionary(MemberTags)
+								MemberTags = ArrayToDictionary(MemberTags, nil, nil, "string")
 
 								Special = MemberTags.NotScriptable
 							end
@@ -1307,7 +1307,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
---- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {Chat, TextChatService}
+--- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {TextChatService}
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore** except `= false` meaning if you ignore one instance it will automatically ignore it's descendants. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
@@ -1328,7 +1328,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field SaveNonCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). ___Default:___ false
 --- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "Player", "PlayerScripts", "PlayerGui" }
 --- @field IsolatePlayers boolean -- * This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2. ___Default:___ false
---- @field AlternativeWritefile boolean -- * Uses breaks down file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. ___Default:___ true
+--- @field AlternativeWritefile boolean -- * Splits file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. Though there is a risk of appendfile working incorrectly on some executors. ___Default:___ true
 --- @field IgnoreDefaultPlayerScripts boolean -- * **RISKY: Ignores Default PlayerScripts like PlayerModule & RbxCharacterSounds. Prevents crashes on certain Executors. ___Default:___ true
 --- @field IgnoreSharedStrings boolean -- * **RISKY: FIXES CRASHES (TEMPORARY, TESTED ON ROEXEC ONLY). FEEL FREE TO DISABLE THIS TO SEE IF IT WORKS FOR YOU**. ___Default:___ true
 --- @field SharedStringOverwrite boolean -- * **RISKY:** if the process is not finished aka crashed then none of the affected values will be available. SharedStrings can also be used for ValueTypes that aren't `SharedString`, this behavior is not documented anywhere but makes sense (Could create issues though, due to _potential_ ValueType mix-up, only works on certain types which are all base64 encoded so far). Reason: Allows for potential smaller file size (can also be bigger in some cases). ___Default:___ false
@@ -1403,8 +1403,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		DecompileJobless = false,
 		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
-			service.Chat,
-			service.TextChatService,
+			-- "Chat",
+			"TextChatService",
 			ModuleScript = nil,
 		},
 		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
@@ -1412,7 +1412,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		IgnoreProperties = {},
 
-		IgnoreList = { service.CoreGui, service.CorePackages },
+		IgnoreList = { "CoreGui", "CorePackages" },
 
 		ExtraInstances = {},
 		NilInstances = false,
@@ -1448,7 +1448,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
 		SharedStringOverwrite = false,
 		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
-		AlternativeWritefile = true,
+		AlternativeWritefile = not ArrayToDictionary({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
 
 		OptionsAliases = { -- You can't really modify these as a user
 			FilePath = "FileName",
@@ -1726,7 +1726,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return string.sub(string.gsub(string.gsub(string.gsub(str, "[^%w _]", ""), " +", " "), " +$", ""), 1, 240)
 		end
 
-		if IsModel then
+		if ToSaveInstance then
 			if mode == "optimized" then -- ! NOT supported with Model file mode
 				mode = "full"
 			end
@@ -1745,9 +1745,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					OPTIONS[key] = false
 				end
 			end
+		end
 
+		if IsModel then
 			placename = (
-				FilePath or sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1]):GetFullName())
+				FilePath
+				or sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1] or game):GetFullName())
 			) .. ".rbxmx"
 		else
 			placename = (FilePath or sanitizeFileName("place " .. PlaceName)) .. ".rbxlx"
@@ -1760,14 +1763,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local TempRoot = ToSaveInstance or game
 
 		if mode == "full" then
-			local Children = TempRoot:GetChildren()
-			if 0 < #Children then
-				table.move(Children, 1, #Children, #tmp + 1, tmp)
+			if not ToSaveInstance then
+				local Children = TempRoot:GetChildren()
+				if 0 < #Children then
+					table.move(Children, 1, #Children, #tmp + 1, tmp)
+				end
 			end
 		elseif mode == "optimized" then -- ! Incompatible with .rbxmx (Model file) mode
 			-- if IsolatePlayers then
 			-- 	table.insert(_list_0, "Players")
 			-- end
+			local tmp_dict = ArrayToDictionary(tmp)
+
 			for _, serviceName in
 				next,
 				{
@@ -1797,7 +1804,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- "VoiceChatService",
 				}
 			do
-				table.insert(tmp, service[serviceName])
+				local _service = service[serviceName]
+				if not tmp_dict[_service] then
+					table.insert(tmp, _service)
+				end
 			end
 		elseif mode == "scripts" then
 			-- TODO: Only save paths that lead to scripts (nothing else)
@@ -1819,7 +1829,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				table.insert(tmp, instance)
 			end
 		end
+
 		ToSaveList = tmp
+
+		if ToSaveInstance then
+			table.insert(ToSaveList, 1, ToSaveInstance)
+		end
 	end
 
 	local function get_size_format()
@@ -1903,9 +1918,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end)
 
 	do
-		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler
-			or global_container.decompile
-			or custom_decompiler
+		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
 
 		-- if Decompiler == custom_decompiler then -- Cope
 		-- 	local key = "DecompileTimeout"
@@ -2173,7 +2186,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Item
 	end
 
-	local function save_hierarchy(hierarchy, queuedHierarchy)
+	local function save_hierarchy(hierarchy)
 		for _, instance in next, hierarchy do
 			repeat
 				if IgnoreNotArchivable and not instance.Archivable then
@@ -2505,7 +2518,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 															and instance:IsA("Script")
 															and instance.RunContext ~= Enum.RunContext.Client
 													then
-														value = "-- Server Scripts are IMPOSSIBLE to save" --TODO: Could be not just server scripts in the future
+														value =
+															"-- Server Scripts are IMPOSSIBLE to save because of FilteringEnabled" --TODO: Could be not just server scripts in the future
 													else
 														value = ldecompile(instance)
 														if SaveBytecode then
@@ -2561,7 +2575,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
-					local Children = ChildrenOverride or queuedHierarchy or instance:GetChildren()
+					local Children = ChildrenOverride or instance:GetChildren()
 
 					if #Children ~= 0 then
 						save_hierarchy(Children)
@@ -2606,11 +2620,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			or (IsolateLocalPlayer or IsolateLocalPlayerCharacter) and IsolateLocalPlayer
 			or IsolatePlayers
 			or NilInstances and global_container.getnilinstances -- ! Make sure this accurately reflects everything below
-		if ToSaveInstance then
-			save_hierarchy({ ToSaveInstance }, ToSaveList)
-		else
-			save_hierarchy(ToSaveList)
-		end
+
+		save_hierarchy(ToSaveList)
 
 		if IsolateLocalPlayer or IsolateLocalPlayerCharacter then
 			local Players = service.Players
@@ -2688,11 +2699,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		If you didn't save in Binary (rbxl) - it's recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
 		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
 
+		ServerStorage, ServerScriptService and Server Scripts are IMPOSSIBLE to save because of FilteringEnabled.
+
 		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else. Then run `game:GetService("Players").CharacterAutoLoads = true`.
 		And use "Play Here" to start game instead of "Play" to spawn your Character where your Camera currently is.
 
 		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 
-		Or run `game:GetService("Chat"):ClearAllChildren()`
+		Or run `game:GetService("Chat"):ClearAllChildren() game:GetService("TextChatService"):ClearAllChildren()`
 				
 		If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
 				
