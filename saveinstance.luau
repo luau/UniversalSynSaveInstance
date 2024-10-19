@@ -1986,6 +1986,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
+	local function GetLocalPlayer()
+		return service.Players.LocalPlayer
+			or service.Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+			or service.Players.LocalPlayer
+	end
+
 	local function getsafeproperty(instance, propertyName)
 		return instance[propertyName]
 	end
@@ -2158,19 +2164,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local Item = ReturnItem(Ref.ClassName, Ref)
 
 		for propertyName, val in properties do
-			local Class, value, tag
+			local whitelisted, value, tag
 
 			-- TODO: Improve all sort of overrides & exceptions in the code (code below is awful)
 			if "Source" == propertyName then
 				tag = "ProtectedString"
 				value = XML_Descriptors.__PROTECTEDSTRING(val)
-				Class = "Script"
+				whitelisted = true
 			elseif "Name" == propertyName then
-				Class = "Instance"
+				whitelisted = true
 				value, tag = ReturnValueAndTag(val, "string") -- * Doubt ValueType will change
 			end
 
-			if Class then
+			if whitelisted then
 				Item ..= ReturnProperty(tag, propertyName, value)
 			end
 		end
@@ -2502,8 +2508,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													and instance:IsA("Script")
 													and instance.RunContext ~= Enum.RunContext.Client
 											then
-												value =
-													"-- Server Scripts are IMPOSSIBLE to save because of FilteringEnabled" --TODO: Could be not just server scripts in the future
+												value = "-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" --TODO: Could be not just server scripts in the future
 											else
 												value = ldecompile(instance)
 												if SaveBytecode then
@@ -2606,16 +2611,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		save_hierarchy(ToSaveList)
 
 		if IsolateLocalPlayer or IsolateLocalPlayerCharacter then
-			local Players = service.Players
-			local LocalPlayer = Players.LocalPlayer
-			if IsolateLocalPlayer then
-				SaveNonCreatable = true
-				save_extra("LocalPlayer", LocalPlayer:GetChildren())
-			end
-			if IsolateLocalPlayerCharacter then
-				local LocalPlayerCharacter = LocalPlayer.Character
-				if LocalPlayerCharacter then
-					save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren())
+			local LocalPlayer = service.Players.LocalPlayer
+			if LocalPlayer then
+				if IsolateLocalPlayer then
+					SaveNonCreatable = true
+					save_extra("LocalPlayer", LocalPlayer:GetChildren())
+				end
+				if IsolateLocalPlayerCharacter then
+					local LocalPlayerCharacter = LocalPlayer.Character
+					if LocalPlayerCharacter then
+						save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren())
+					end
 				end
 			end
 		end
@@ -2746,9 +2752,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- TODO It's also not smart to filter entire file string at the end as this might also affect decompiled scripts content, which has no way of containing any user-related information. It would be better to use gsub in string Descriptor and such
 			if OPTIONS.Anonymous then
 				local LocalPlayer = service.Players.LocalPlayer
-
-				for _, chunk in chunks do
-					chunk.str = string.gsub(string.gsub(chunk.str, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
+				if LocalPlayer then
+					for _, chunk in chunks do
+						chunk.str =
+							string.gsub(string.gsub(chunk.str, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
+					end
 				end
 			end
 
@@ -2805,7 +2813,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local Connections
 	do
 		local Players = service.Players
-		local LocalPlayer = Players.LocalPlayer
 
 		if IgnoreList.Model ~= true then
 			Connections = {}
@@ -2836,12 +2843,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			else
 				IgnoreNotArchivable = false -- TODO Bad solution (Characters are NotArchivable); Also make sure the next solution is compatible with IsolateLocalPlayerCharacter
 				if IsolateLocalPlayerCharacter then
-					ignoreCharacter(LocalPlayer)
+					task.spawn(function()
+						ignoreCharacter(GetLocalPlayer())
+					end)
 				end
 			end
 		end
 		if IsolateLocalPlayer and IgnoreList.Player ~= true then
-			IgnoreList[LocalPlayer] = true
+			task.spawn(function()
+				IgnoreList[GetLocalPlayer()] = true
+			end)
 		end
 	end
 
@@ -2918,21 +2929,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	do
 		local SafeMode = OPTIONS.SafeMode
 		if SafeMode then
-			service.Players.LocalPlayer:Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
+			task.spawn(function()
+				GetLocalPlayer():Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
+				wait_for_render()
+				task.delay(10, service.GuiService.ClearError, service.GuiService)
+			end)
+
 			service.RunService:Set3dRenderingEnabled(false)
-			wait_for_render()
-			task.delay(10, service.GuiService.ClearError, service.GuiService)
 		end
 
 		local anti_idle
 		if OPTIONS.AntiIdle then
-			anti_idle = service.Players.LocalPlayer.Idled:Connect(function()
-				service.VirtualInputManager:SendMouseWheelEvent(
-					service.UserInputService:GetMouseLocation().X,
-					service.UserInputService:GetMouseLocation().Y,
-					true,
-					game
-				)
+			task.spawn(function()
+				anti_idle = GetLocalPlayer().Idled:Connect(function()
+					service.VirtualInputManager:SendMouseWheelEvent(
+						service.UserInputService:GetMouseLocation().X,
+						service.UserInputService:GetMouseLocation().Y,
+						true,
+						game
+					)
+				end)
 			end)
 		end
 
