@@ -66,7 +66,7 @@ do
 		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff (getbinaryindex)
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
-		-- cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
+		cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
 		-- decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s")',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
@@ -118,12 +118,17 @@ do -- * Load Region of Déjà Vu
 	gethiddenproperty_fallback = function(instance, propertyName)
 		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
 	end
+	if gethiddenproperty then
+		local o, r = pcall(gethiddenproperty, workspace, "RejectCharacterDeletions")
+		if not o or r and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
+			gethiddenproperty = nil
+		end
+		o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
 
-	local o, r = pcall(gethiddenproperty, workspace, "RejectCharacterDeletions")
-	if not o or typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is fake
-		gethiddenproperty = nil
+		if not o or r and type(r) ~= "string" then
+			gethiddenproperty = nil
+		end
 	end
-
 	local function benchmark(f1, f2, ...)
 		local ranking = table.create(2)
 		for i, f in { f1, f2 } do
@@ -1778,8 +1783,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"ReplicatedFirst",
 					"ReplicatedStorage",
 
-					"ServerScriptService", -- ? Why
-					"ServerStorage", -- ? Why
+					"ServerScriptService", -- LoadStringEnabled property; Just in case
+					"ServerStorage", -- Just in case
 
 					"StarterGui",
 					"StarterPack",
@@ -1853,8 +1858,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Size
 	end
 
+	local RunService = service.RunService
 	local function wait_for_render()
-		service.RunService.RenderStepped:Wait()
+		RunService.RenderStepped:Wait()
 	end
 
 	local Loading
@@ -2911,17 +2917,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if global_container.gethui then
 			StatusGui.Name = randomString()
 			StatusGui.Parent = global_container.gethui()
-		elseif global_container.protectgui then
-			StatusGui.Name = randomString()
-			global_container.protectgui(StatusGui)
-			StatusGui.Parent = service.CoreGui
 		else
-			local RobloxGui = service.CoreGui:FindFirstChild("RobloxGui")
-			if RobloxGui then
-				StatusGui.Parent = RobloxGui
-			else
+			if global_container.protectgui then
 				StatusGui.Name = randomString()
-				StatusGui.Parent = service.CoreGui
+				global_container.protectgui(StatusGui)
+				StatusGui.Parent = game:GetService("CoreGui")
+			else
+				local RobloxGui = game:GetService("CoreGui"):FindFirstChild("RobloxGui")
+				if RobloxGui then
+					StatusGui.Parent = RobloxGui
+				else
+					StatusGui.Name = randomString()
+					StatusGui.Parent = game:GetService("CoreGui")
+				end
 			end
 		end
 	end
