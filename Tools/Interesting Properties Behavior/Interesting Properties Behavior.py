@@ -63,13 +63,27 @@ def fetch_api():
                         member_tags = array_to_dictionary(member_tags)
 
                     serialization = member["Serialization"]
-                    if serialization["CanLoad"]:
-                        if not serialization["CanSave"]:
-                            s += f"{class_name}.{property_name} {{CanLoad Only}}\n"
+                    if (
+                        serialization["CanLoad"] or serialization["CanSave"]
+                    ):  # Check if at least one is true
+                        tags = []
+
+                        # Add CanLoad/CanSave conditions
+                        if serialization["CanLoad"] and not serialization["CanSave"]:
+                            tags.append("{CanLoad Only}")
+                        elif serialization["CanSave"] and not serialization["CanLoad"]:
+                            tags.append("{CanSave Only}")
+
+                        # Add Deprecated tag if present
                         if member_tags and member_tags.get("Deprecated"):
-                            s += f"{class_name}.{property_name} {{Deprecated}} {  ' {CanSave}' if serialization['CanSave']  else ''}\n"
-                    elif serialization["CanSave"]:
-                        s += f"{class_name}.{property_name} {{CanSave Only}}\n"
+                            deprecated_tag = "{Deprecated}"
+                            if serialization["CanSave"]:
+                                deprecated_tag += " {CanSave}"
+                            tags.append(deprecated_tag)
+
+                        # Combine tags into one line, each tag in separate brackets
+                        if tags:
+                            s += f"{class_name}.{property_name} {' '.join(tags)}\n"
 
                     class_info["Properties"][property_name] = {
                         "Serialization": serialization,

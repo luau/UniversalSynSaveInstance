@@ -1,1 +1,4 @@
 
+Object does not inherit from Instance
+EditableImage does not inherit from Instance
+EditableMesh does not inherit from Instance

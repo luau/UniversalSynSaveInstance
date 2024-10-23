@@ -32,11 +32,7 @@ BevelMesh.Bevel
 BevelMesh.Bevel Roundness 
 BevelMesh.Bulge 
 
-RobloxEditableMesh.MeshDataSerialize {BinaryString}
-
 DebuggerBreakpoint.line 
-
-RobloxEditableImage.ImageDataSerialize {BinaryString}
 
 Fire.heat_xml 
 Fire.size_xml 
@@ -185,6 +181,7 @@ Workspace.PrimalPhysicsSolver
 Workspace.RejectCharacterDeletions 
 Workspace.RenderingCacheOptimizations 
 Workspace.ReplicateInstanceDestroySetting 
+Workspace.SandboxedInstanceMode 
 Workspace.SignalBehavior2 
 Workspace.StreamOutBehavior 
 Workspace.StreamingIntegrityMode 
@@ -217,8 +214,6 @@ ServerScriptService.LoadStringEnabled
 Smoke.opacity_xml 
 Smoke.riseVelocity_xml 
 Smoke.size_xml 
-
-Sound.xmlRead_MaxDistance_3 {PreferredDescriptorName: RollOffMaxDistance}
 
 SoundService.VolumetricAudio 
 

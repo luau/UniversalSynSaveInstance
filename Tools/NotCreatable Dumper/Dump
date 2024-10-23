@@ -1,4 +1,6 @@
 
+Object
+
 Instance
 
 AnimationClip
@@ -65,7 +67,7 @@ DebuggerLuaResponse
 
 DebuggerVariable
 
-ExplorerFilterAutocompleterInstance
+ExplorerFilterAutocompleter
 
 FaceInstance
 
@@ -188,6 +190,8 @@ PlayerScripts
 PostEffect
 
 ReflectionMetadataItem
+
+RobloxSerializableInstance
 
 ScreenshotHud
 
