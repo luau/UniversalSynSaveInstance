@@ -122,11 +122,12 @@ do -- * Load Region of Déjà Vu
 		local o, r = pcall(gethiddenproperty, workspace, "RejectCharacterDeletions")
 		if not o or r and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
 			gethiddenproperty = nil
-		end
-		o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
+		else
+			o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
 
-		if not o or r and type(r) ~= "string" then
-			gethiddenproperty = nil
+			if o and r and type(r) ~= "string" then
+				gethiddenproperty = nil
+			end
 		end
 	end
 	local function benchmark(f1, f2, ...)
