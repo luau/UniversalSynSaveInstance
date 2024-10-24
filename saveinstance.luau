@@ -867,6 +867,10 @@ do
 
 					local attrs = instance:GetAttributes()
 
+					if not next(attrs) then
+						return ""
+					end
+
 					local attrs_n = 0
 					local buffer_size = 4
 					local attrs_sorted = {}
@@ -886,9 +890,7 @@ do
 						buffer_size += 5 + #attr + attr_size
 					end
 					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
-					if attrs_n == 0 then
-						return ""
-					end
+
 					table.sort(attrs_sorted)
 
 					local b = buffer.create(buffer_size)
