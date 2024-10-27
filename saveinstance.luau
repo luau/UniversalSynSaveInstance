@@ -66,7 +66,7 @@ do
 		-- readbinarystring = 'string.find(...,"bin",nil,true)', -- ! Could match some unwanted stuff (getbinaryindex)
 		-- request = 'string.find(...,"request",nil,true) and not string.find(...,"internal",nil,true)',
 		base64encode = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"encode")and(c(b,"base64")or c(string.lower(tostring(a[2])),"base64"))',
-		cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
+		-- cloneref = 'string.find(...,"clone",nil,true) and string.find(...,"ref",nil,true)',
 		-- decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s")',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
@@ -119,13 +119,13 @@ do -- * Load Region of Déjà Vu
 		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
 	end
 	if gethiddenproperty then
-		local o, r = pcall(gethiddenproperty, workspace, "RejectCharacterDeletions")
-		if not o or r and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
+		local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
+		if not o or r ~= nil and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
 			gethiddenproperty = nil
 		else
 			o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
 
-			if o and r and type(r) ~= "string" then
+			if o and r ~= nil and type(r) ~= "string" then
 				gethiddenproperty = nil
 			end
 		end
