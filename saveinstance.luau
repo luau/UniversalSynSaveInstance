@@ -182,6 +182,11 @@ do -- * Load Region of Déjà Vu
 			table.freeze(bit32)
 		end
 
+		-- TODO Remove later
+		if EXECUTOR_NAME == "Delta" then
+			base64encode = nil
+		end
+
 		-- Credits @Reselim
 		local reselim_base64encode
 		pcall(function()
@@ -235,7 +240,7 @@ do -- * Load Region of Déjà Vu
 			end
 		end
 
-		assert(sha384, "sha384 not found")
+		assert(sha384, "sha384 hash function not found")
 	end
 end
 
