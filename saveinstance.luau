@@ -2442,11 +2442,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 												RecoveredScripts = { Path }
 											end
 
-											do -- TODO Temporary fix for crashes (getscriptbytecode calls on scripts with LinkedSource), originally was inside the "ok" block below
-												should_decompile = nil
-												value = ""
-											end
-
 											LinkedSource = string.match(LinkedSource_Url, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 											if LinkedSource then
 												local cached = ldeccache[LinkedSource]
@@ -2503,7 +2498,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 													value = source
 
-													-- should_decompile = nil
+													should_decompile = nil
 												end
 											else --if __DEBUG_MODE then -- * We print this anyway because very important
 												warn(
