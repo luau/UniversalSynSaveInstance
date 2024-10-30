@@ -118,12 +118,18 @@ do -- * Load Region of Déjà Vu
 	gethiddenproperty_fallback = function(instance, propertyName)
 		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
 	end
+	if gethiddenproperty then
+		local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
+		if not o or r ~= nil and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
+			gethiddenproperty = nil
+		else
+			o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
 
-	local o, r = pcall(gethiddenproperty, workspace, "RejectCharacterDeletions")
-	if not o or typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is fake
-		gethiddenproperty = nil
+			if o and r ~= nil and type(r) ~= "string" then
+				gethiddenproperty = nil
+			end
+		end
 	end
-
 	local function benchmark(f1, f2, ...)
 		local ranking = table.create(2)
 		for i, f in next, { f1, f2 } do
@@ -174,6 +180,11 @@ do -- * Load Region of Déjà Vu
 			end
 
 			table.freeze(bit32)
+		end
+
+		-- TODO Remove later
+		if EXECUTOR_NAME == "Delta" then
+			base64encode = nil
 		end
 
 		-- Credits @Reselim
@@ -229,7 +240,7 @@ do -- * Load Region of Déjà Vu
 			end
 		end
 
-		assert(sha384, "sha384 not found")
+		assert(sha384, "sha384 hash function not found")
 	end
 end
 
@@ -867,6 +878,10 @@ do
 
 					local attrs = instance:GetAttributes()
 
+					if not next(attrs) then
+						return ""
+					end
+
 					local attrs_n = 0
 					local buffer_size = 4
 					local attrs_sorted = {}
@@ -886,9 +901,7 @@ do
 						buffer_size = buffer_size + 5 + #attr + attr_size
 					end
 					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
-					if attrs_n == 0 then
-						return ""
-					end
+
 					table.sort(attrs_sorted)
 
 					local b = buffer.create(buffer_size)
@@ -1786,8 +1799,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"ReplicatedFirst",
 					"ReplicatedStorage",
 
-					"ServerScriptService", -- ? Why
-					"ServerStorage", -- ? Why
+					"ServerScriptService", -- LoadStringEnabled property; Just in case
+					"ServerStorage", -- Just in case
 
 					"StarterGui",
 					"StarterPack",
@@ -1862,8 +1875,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Size
 	end
 
+	local RunService = service.RunService
 	local function wait_for_render()
-		service.RunService.RenderStepped:Wait()
+		RunService.RenderStepped:Wait()
 	end
 
 	local Loading
@@ -1993,6 +2007,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				return "-- Your Executor does NOT have a Decompiler"
 			end
 		end
+	end
+
+	local function GetLocalPlayer()
+		return service.Players.LocalPlayer
+			or service.Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+			or service.Players.LocalPlayer
 	end
 
 	local function getsafeproperty(instance, propertyName)
@@ -2167,19 +2187,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local Item = ReturnItem(Ref.ClassName, Ref)
 
 		for propertyName, val in next, properties do
-			local Class, value, tag
+			local whitelisted, value, tag
 
 			-- TODO: Improve all sort of overrides & exceptions in the code (code below is awful)
 			if "Source" == propertyName then
 				tag = "ProtectedString"
 				value = XML_Descriptors.__PROTECTEDSTRING(val)
-				Class = "Script"
+				whitelisted = true
 			elseif "Name" == propertyName then
-				Class = "Instance"
+				whitelisted = true
 				value, tag = ReturnValueAndTag(val, "string") -- * Doubt ValueType will change
 			end
 
-			if Class then
+			if whitelisted then
 				Item = Item .. ReturnProperty(tag, propertyName, value)
 			end
 		end
@@ -2434,11 +2454,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 														RecoveredScripts = { Path }
 													end
 
-													do -- TODO Temporary fix for crashes (getscriptbytecode calls on scripts with LinkedSource), originally was inside the "ok" block below
-														should_decompile = nil
-														value = ""
-													end
-
 													LinkedSource = string.match(LinkedSource_Url, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 													if LinkedSource then
 														local cached = ldeccache[LinkedSource]
@@ -2499,7 +2514,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 															value = source
 
-															-- should_decompile = nil
+															should_decompile = nil
 														end
 													else --if __DEBUG_MODE then -- * We print this anyway because very important
 														warn(
@@ -2520,7 +2535,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 															and instance.RunContext ~= Enum.RunContext.Client
 													then
 														value =
-															"-- Server Scripts are IMPOSSIBLE to save because of FilteringEnabled" --TODO: Could be not just server scripts in the future
+															"-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" --TODO: Could be not just server scripts in the future
 													else
 														value = ldecompile(instance)
 														if SaveBytecode then
@@ -2625,16 +2640,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		save_hierarchy(ToSaveList)
 
 		if IsolateLocalPlayer or IsolateLocalPlayerCharacter then
-			local Players = service.Players
-			local LocalPlayer = Players.LocalPlayer
-			if IsolateLocalPlayer then
-				SaveNonCreatable = true
-				save_extra("LocalPlayer", LocalPlayer:GetChildren())
-			end
-			if IsolateLocalPlayerCharacter then
-				local LocalPlayerCharacter = LocalPlayer.Character
-				if LocalPlayerCharacter then
-					save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren())
+			local LocalPlayer = service.Players.LocalPlayer
+			if LocalPlayer then
+				if IsolateLocalPlayer then
+					SaveNonCreatable = true
+					save_extra("LocalPlayer", LocalPlayer:GetChildren())
+				end
+				if IsolateLocalPlayerCharacter then
+					local LocalPlayerCharacter = LocalPlayer.Character
+					if LocalPlayerCharacter then
+						save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren())
+					end
 				end
 			end
 		end
@@ -2822,7 +2838,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local Connections
 	do
 		local Players = service.Players
-		local LocalPlayer = Players.LocalPlayer
 
 		if IgnoreList.Model ~= true then
 			Connections = {}
@@ -2853,12 +2868,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			else
 				IgnoreNotArchivable = false -- TODO Bad solution (Characters are NotArchivable); Also make sure the next solution is compatible with IsolateLocalPlayerCharacter
 				if IsolateLocalPlayerCharacter then
-					ignoreCharacter(LocalPlayer)
+					task.spawn(function()
+						ignoreCharacter(GetLocalPlayer())
+					end)
 				end
 			end
 		end
 		if IsolateLocalPlayer and IgnoreList.Player ~= true then
-			IgnoreList[LocalPlayer] = true
+			task.spawn(function()
+				IgnoreList[GetLocalPlayer()] = true
+			end)
 		end
 	end
 
@@ -2917,17 +2936,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if global_container.gethui then
 			StatusGui.Name = randomString()
 			StatusGui.Parent = global_container.gethui()
-		elseif global_container.protectgui then
-			StatusGui.Name = randomString()
-			global_container.protectgui(StatusGui)
-			StatusGui.Parent = service.CoreGui
 		else
-			local RobloxGui = service.CoreGui:FindFirstChild("RobloxGui")
-			if RobloxGui then
-				StatusGui.Parent = RobloxGui
-			else
+			if global_container.protectgui then
 				StatusGui.Name = randomString()
-				StatusGui.Parent = service.CoreGui
+				global_container.protectgui(StatusGui)
+				StatusGui.Parent = game:GetService("CoreGui")
+			else
+				local RobloxGui = game:GetService("CoreGui"):FindFirstChild("RobloxGui")
+				if RobloxGui then
+					StatusGui.Parent = RobloxGui
+				else
+					StatusGui.Name = randomString()
+					StatusGui.Parent = game:GetService("CoreGui")
+				end
 			end
 		end
 	end
@@ -2935,21 +2956,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	do
 		local SafeMode = OPTIONS.SafeMode
 		if SafeMode then
-			service.Players.LocalPlayer:Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
+			task.spawn(function()
+				GetLocalPlayer():Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
+				wait_for_render()
+				task.delay(10, service.GuiService.ClearError, service.GuiService)
+			end)
+
 			service.RunService:Set3dRenderingEnabled(false)
-			wait_for_render()
-			task.delay(10, service.GuiService.ClearError, service.GuiService)
 		end
 
 		local anti_idle
 		if OPTIONS.AntiIdle then
-			anti_idle = service.Players.LocalPlayer.Idled:Connect(function()
-				service.VirtualInputManager:SendMouseWheelEvent(
-					service.UserInputService:GetMouseLocation().X,
-					service.UserInputService:GetMouseLocation().Y,
-					true,
-					game
-				)
+			task.spawn(function()
+				anti_idle = GetLocalPlayer().Idled:Connect(function()
+					service.VirtualInputManager:SendMouseWheelEvent(
+						service.UserInputService:GetMouseLocation().X,
+						service.UserInputService:GetMouseLocation().Y,
+						true,
+						game
+					)
+				end)
 			end)
 		end
 
