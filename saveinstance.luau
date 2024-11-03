@@ -1376,12 +1376,6 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
-	-- if GLOBAL_ENV.__USSI then
-	-- 	warn("UniversalSynSaveInstance is already running")
-	-- 	return
-	-- end
-	-- GLOBAL_ENV.__USSI = true
-
 	do
 		local setthreadidentity = global_container.setthreadidentity
 		if setthreadidentity then
@@ -1595,40 +1589,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local function construct_TimeoutHandler(timeout, f, timeout_ret)
-		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
-			if timeout < 0 then
-				return pcall(f, script)
-			end
-
-			local thread = coroutine.running()
-			local timeoutThread, isCancelled
-
-			timeoutThread = task.delay(timeout, function()
-				isCancelled = true -- TODO task.cancel
-				coroutine.resume(thread, nil, timeout_ret)
-			end)
-
-			task.spawn(function()
-				local ok, result = pcall(f, script)
-
-				if isCancelled then
-					return
-				end
-
-				task.cancel(timeoutThread)
-
-				while coroutine.status(thread) ~= "suspended" do
-					task.wait()
-				end
-
-				coroutine.resume(thread, ok, result)
-			end)
-
-			return coroutine.yield()
-		end
-	end
-
 	local InstancePropertyOverrides = {}
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
@@ -1662,11 +1622,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		gethiddenproperty = nil
 	end
 
-	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
-	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
-	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
-	local IsolatePlayers = OPTIONS.IsolatePlayers
-
 	local SaveNonCreatable = OPTIONS.SaveNonCreatable
 	local TreatUnionsAsParts = OPTIONS.TreatUnionsAsParts
 
@@ -1677,29 +1632,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
-	local NilInstances = OPTIONS.NilInstances
-
-	if NilInstances and enablenilinstances then -- ? Solara fix
-		enablenilinstances()
-	end
-
-	local getbytecode
-	if getscriptbytecode then
-		getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
-	end
-
-	local SaveBytecode
-	if OPTIONS.SaveBytecode and getscriptbytecode then
-		SaveBytecode = function(script)
-			local s, bytecode = getbytecode(script)
-
-			if s then
-				if bytecode and bytecode ~= "" then
-					return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
-				end
-			end
-		end
-	end
 
 	local ldeccache = GLOBAL_ENV.scriptcache
 
@@ -1762,6 +1694,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		else
 			placename = (FilePath or sanitizeFileName("place " .. PlaceName)) .. ".rbxlx"
 		end
+
+		if GLOBAL_ENV[placename] then
+			-- warn("UniversalSynSaveInstance is already saving to this file")
+			return
+		end
+
+		GLOBAL_ENV[placename] = true
 
 		if mode ~= "scripts" then
 			IgnorePropertiesOfNotScriptsOnScriptsMode = nil
@@ -1843,6 +1782,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
+	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
+	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
+	local IsolatePlayers = OPTIONS.IsolatePlayers
+	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
+	local NilInstances = OPTIONS.NilInstances
+
+	if NilInstances and enablenilinstances then -- ? Solara fix
+		enablenilinstances()
+	end
 	local function get_size_format()
 		local Size
 
@@ -1919,9 +1867,61 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return unpack(result)
 	end
 
+	local function construct_TimeoutHandler(timeout, f, timeout_ret)
+		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
+			if timeout < 0 then
+				return pcall(f, script)
+			end
+
+			local thread = coroutine.running()
+			local timeoutThread, isCancelled
+
+			timeoutThread = task.delay(timeout, function()
+				isCancelled = true -- TODO task.cancel
+				coroutine.resume(thread, nil, timeout_ret)
+			end)
+
+			task.spawn(function()
+				local ok, result = pcall(f, script)
+
+				if isCancelled then
+					return
+				end
+
+				task.cancel(timeoutThread)
+
+				while coroutine.status(thread) ~= "suspended" do
+					task.wait()
+				end
+
+				coroutine.resume(thread, ok, result)
+			end)
+
+			return coroutine.yield()
+		end
+	end
+
 	local get_proxied_linkedsource = construct_TimeoutHandler(30, function(asset)
 		return game:HttpGet("https://linkedsource.glitch.me/asset/" .. asset)
 	end)
+
+	local getbytecode
+	if getscriptbytecode then
+		getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
+	end
+
+	local SaveBytecode
+	if OPTIONS.SaveBytecode and getscriptbytecode then
+		SaveBytecode = function(script)
+			local s, bytecode = getbytecode(script)
+
+			if s then
+				if bytecode and bytecode ~= "" then
+					return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
+				end
+			end
+		end
+	end
 
 	do
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
@@ -2985,7 +2985,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				connection:Disconnect()
 			end
 		end
-		-- GLOBAL_ENV.__USSI = nil
+		GLOBAL_ENV[placename] = nil
 		if StatusText then
 			task.spawn(function()
 				elapse_t = os.clock() - elapse_t
