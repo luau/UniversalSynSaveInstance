@@ -685,12 +685,12 @@ XML_Descriptors = {
 		local EmptyStyle = string_find(FontString, "Style =  }")
 
 		return "<Family>"
-			.. XML_Descriptors.Content(raw.Family)
+			.. XML_Descriptors.ContentId(raw.Family)
 			.. "</Family><Weight>"
 			.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
 			.. "</Weight><Style>"
 			.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
-			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
@@ -3014,7 +3014,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end)
 		end
 
-		if OPTIONS.ShutdownWhenDone then
+		if OPTIONS.ShutdownWhenDone and ok then
 			game:Shutdown()
 		end
 	end
