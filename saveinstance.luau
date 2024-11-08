@@ -834,7 +834,7 @@ XML_Descriptors = {
 }
 for descriptorName, redirectName in
 	{
-		ContentId = "Content",
+		-- Content = "ContentId",
 		NumberSequence = "__SEQUENCE",
 		Vector2int16 = "Vector2",
 		Vector3int16 = "Vector3",
@@ -1222,6 +1222,10 @@ do
 
 							local ValueType = Member.ValueType
 							local ValueType_Name = ValueType.Name
+
+							if ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
+								continue
+							end
 
 							local Special
 
