@@ -1,4 +1,4 @@
-import requests, os
+import requests, os, re
 
 
 def array_to_dictionary(table, hybrid_mode=None):
@@ -14,33 +14,63 @@ def array_to_dictionary(table, hybrid_mode=None):
     else:
         for value in table:
             if isinstance(value, str):
-             tmp[value] = True
+                tmp[value] = True
     return tmp
+
 
 s = "\n"
 
+
+def api():
+
+    deploy_history_url = "https://setup.rbxcdn.com/DeployHistory.txt"
+    deploy_history = requests.get(deploy_history_url).text
+
+    lines = deploy_history.splitlines()
+
+    for line in reversed(lines):
+
+        match = re.search(r"(version-[^\s]+)", line)
+
+        if match:
+            version_hash = match.group(1)
+
+            api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
+
+            try:
+                response = requests.get(api_dump_url)
+                response.raise_for_status()
+                return response
+
+            except requests.RequestException as e:
+                print(f"Error fetching API dump for {version_hash}: {e}")
+
+
 def fetch_api():
-    api_dump_url = "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
-    response = requests.get(api_dump_url)
-    api_classes = response.json()['Classes']
+    response = api()
+    api_classes = response.json()["Classes"]
 
     global s
     for api_class in api_classes:
-        class_name = api_class['Name']
-        class_members = api_class['Members']
+        class_name = api_class["Name"]
+        class_members = api_class["Members"]
         prevlen = len(s)
         for member in class_members:
-            member_name = member['Name']
-            member_type = member['MemberType']
+            member_name = member["Name"]
+            member_type = member["MemberType"]
             if member_type == "Property":
-                serialization = member['Serialization']
+                serialization = member["Serialization"]
 
-                if serialization['CanLoad'] and serialization['CanSave']:
-                    value_type = member['ValueType']
-                    if value_type['Category'] == "Class" and value_type['Name'] != "Instance":
+                if serialization["CanLoad"] and serialization["CanSave"]:
+                    value_type = member["ValueType"]
+                    if (
+                        value_type["Category"] == "Class"
+                        and value_type["Name"] != "Instance"
+                    ):
                         s += f"{class_name}.{member_name} {{{value_type['Name']}}}\n"
         if prevlen != len(s):
-            s +="\n"
+            s += "\n"
+
 
 try:
     fetch_api()

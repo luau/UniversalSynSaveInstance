@@ -1,5 +1,6 @@
 import requests
 import os
+import re
 
 
 def array_to_dictionary(table, hybrid_mode=None):
@@ -22,9 +23,33 @@ def array_to_dictionary(table, hybrid_mode=None):
 s = "\n"
 
 
+def api():
+
+    deploy_history_url = "https://setup.rbxcdn.com/DeployHistory.txt"
+    deploy_history = requests.get(deploy_history_url).text
+
+    lines = deploy_history.splitlines()
+
+    for line in reversed(lines):
+
+        match = re.search(r"(version-[^\s]+)", line)
+
+        if match:
+            version_hash = match.group(1)
+
+            api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
+
+            try:
+                response = requests.get(api_dump_url)
+                response.raise_for_status()
+                return response
+
+            except requests.RequestException as e:
+                print(f"Error fetching API dump for {version_hash}: {e}")
+
+
 def fetch_api():
-    api_dump_url = "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json"
-    response = requests.get(api_dump_url)
+    response = api()
     api_classes = response.json()["Classes"]
 
     global s

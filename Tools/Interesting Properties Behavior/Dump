@@ -1,7 +1,9 @@
 
 EditableImage.Size {CanSave Only}
+EditableImage is NotCreatable but EditableImage.ImageData has a default value: __api_dump_failed_to_create_class__
 
 EditableMesh.FixedSize {CanSave Only}
+EditableMesh is NotCreatable but EditableMesh.FixedSize has a default value: __api_dump_failed_to_create_class__
 
 Instance.Parent {CanLoad Only}
 Instance.archivable {CanLoad Only} {Deprecated}
@@ -13,7 +15,7 @@ AnalyticsService is NotCreatable but AnalyticsService.ApiKey has a default value
 
 AnimationTrack.TimePosition {CanLoad Only}
 
-AnnotationsService is NotCreatable but AnnotationsService.Hovered has a default value: __api_dump_no_string_value__
+AnnotationsService is NotCreatable but AnnotationsService.AnnotationsVisible has a default value: true
 
 AssetDeliveryProxy is NotCreatable but AssetDeliveryProxy.Interface has a default value: 
 

@@ -1,4 +1,8 @@
 
+EditableImage.ImageData {BinaryString}
+
+EditableMesh.MeshData 
+
 Instance.AttributesSerialize {BinaryString}
 Instance.DefinesCapabilities 
 Instance.HistoryId 
@@ -55,7 +59,6 @@ Humanoid.Health_XML
 Humanoid.InternalBodyScale 
 Humanoid.InternalHeadScale 
 
-HumanoidDescription.AccessoryRigidAndLayeredBlob 
 HumanoidDescription.EmotesDataInternal 
 HumanoidDescription.EquippedEmotesDataInternal 
 
@@ -167,7 +170,6 @@ Model.WorldPivotData
 Workspace.AvatarUnificationMode 
 Workspace.CSGAsyncDynamicCollision 
 Workspace.CollisionGroupData {BinaryString}
-Workspace.DecreaseMinimumPartDensityMode 
 Workspace.ExplicitAutoJoints 
 Workspace.FluidForces 
 Workspace.IKControlConstraintSupport 
@@ -188,11 +190,10 @@ Workspace.StreamingIntegrityMode
 Workspace.StreamingMinRadius 
 Workspace.StreamingTargetRadius 
 Workspace.TerrainWeldsFixed 
+Workspace.TouchEventsUseCollisionGroups 
 Workspace.TouchesUseCollisionGroups 
 SignalBehavior2 -> SignalBehavior
 
-PackageLink.AutoUpdate 
-PackageLink.ModifiedState 
 PackageLink.PackageIdSerialize 
 PackageLink.VersionIdSerialize 
 
@@ -217,10 +218,10 @@ Smoke.size_xml
 
 SoundService.VolumetricAudio 
 
-StarterPlayer.AvatarJointUpgrade_Serialized 
+StarterPlayer.AvatarJointUpgrade_SerializedRollout 
 StarterPlayer.EnableDynamicHeads 
 StarterPlayer.LoadCharacterLayeredClothing 
-AvatarJointUpgrade_Serialized -> AvatarJointUpgrade
+AvatarJointUpgrade_SerializedRollout -> AvatarJointUpgrade
 LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing 
 
 StyleRule.PropertiesSerialize {BinaryString}

@@ -1,6 +1,10 @@
 
 Object
 
+EditableImage
+
+EditableMesh
+
 Instance
 
 AnimationClip
