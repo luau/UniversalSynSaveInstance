@@ -834,7 +834,7 @@ XML_Descriptors = {
 }
 for descriptorName, redirectName in
 	{
-		-- Content = "ContentId",
+		Content = "ContentId", -- For sake of compatibility with older clients
 		NumberSequence = "__SEQUENCE",
 		Vector2int16 = "Vector2",
 		Vector3int16 = "Vector3",
@@ -1110,9 +1110,9 @@ do
 
 		local API_Dump
 
-		local ok, err = pcall(function()
-			local CLIENT_VERSION = string.split(version(), ".")[2]
+		local CLIENT_VERSION = string.split(version(), ".")[2]
 
+		local ok, err = pcall(function()
 			local ok, result = pcall(readfile, CLIENT_VERSION)
 			if ok and result and result ~= "" then
 				API_Dump = result
@@ -1180,7 +1180,7 @@ do
 		local classList = {}
 
 		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
-
+		CLIENT_VERSION = tonumber(CLIENT_VERSION)
 		for _, API_Class in service.HttpService:JSONDecode(API_Dump) do
 			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
@@ -1223,7 +1223,7 @@ do
 							local ValueType = Member.ValueType
 							local ValueType_Name = ValueType.Name
 
-							if ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
+							if 649 <= CLIENT_VERSION and ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
 								continue
 							end
 
@@ -1388,7 +1388,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local currentstr, currentsize, totalsize, chunks = "", 0, 0, table.create(1)
-	local savebuffer, savebuffer_size = { '<roblox version="4">' }, 2
+	local savebuffer, savebuffer_size =
+		{
+			'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4">',
+		}, 2
 
 	local StatusText
 
@@ -1492,13 +1495,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 					-- Fix.Name = Name
 
-					instancePropertyOverrides[Fix] = { __Children = { instance }, Properties = { Name = Name } }
+					instancePropertyOverrides[Fix] =
+						{ __SaveSpecific = true, __Children = { instance }, Properties = { Name = Name } }
 				else
 					Fix = Exists
 				end
 
 				table.insert(instancePropertyOverrides[Fix].__Children, instance)
-				-- InstancePropertyOverrides[instance].Parent = AnimationController
+				-- InstancesOverrides[instance].Parent = AnimationController
 				if DoesntExist then
 					return Fix
 				end
@@ -1593,7 +1597,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local InstancePropertyOverrides = {}
+	local InstancesOverrides = {}
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
 		ArrayToDictionary(OPTIONS.DecompileIgnore, true),
@@ -2023,11 +2027,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local function ReadProperty(instance, property, propertyName, special, category, optional)
 		local raw = __BREAK
 
-		local InstanceOverride = InstancePropertyOverrides[instance]
+		local InstanceOverride = InstancesOverrides[instance]
 		if InstanceOverride then
-			local PropertyOverride = InstanceOverride.Properties[propertyName]
-			if PropertyOverride then
-				return PropertyOverride
+			local PropertiesOverride = InstanceOverride.Properties
+			if PropertiesOverride then
+				local PropertyOverride = PropertiesOverride[propertyName]
+				if PropertyOverride ~= nil then
+					return PropertyOverride
+				end
 			end
 		end
 
@@ -2246,10 +2253,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			do
 				local function replaceClassName(newClassName)
 					if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
-						InstanceOverride = InstancePropertyOverrides[instance]
+						InstanceOverride = InstancesOverrides[instance]
 						if not InstanceOverride then
 							InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
-							InstancePropertyOverrides[instance] = InstanceOverride
+							InstancesOverrides[instance] = InstanceOverride
 						end
 					end
 					ClassName = newClassName
@@ -2261,7 +2268,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					if SaveNonCreatable then
 						replaceClassName(Fix)
 					else
-						continue -- They won't show up in Studio anyway (Enable IsolatePlayers if you wish to bypass this)
+						continue -- They won't show up in Studio anyway (Enable SaveNonCreatable if you wish to bypass this)
 					end
 				else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 					if TreatUnionsAsParts and instance:IsA("PartOperation") then
@@ -2279,10 +2286,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 
 			if not InstanceOverride then
-				InstanceOverride = InstancePropertyOverrides[instance]
+				InstanceOverride = InstancesOverrides[instance]
 			end
-			local ChildrenOverride = InstanceOverride and InstanceOverride.__Children
-
 			if ClassName == "" then -- * FilteredSelection
 				ClassName = "Folder"
 			end
@@ -2290,8 +2295,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- ? The reason we only save .Name (and few other props in save_specific) is because
 			-- ? we can be sure this is a custom container (ex. NilInstancesFixes)
 			-- ? However, in case of NotCreatableFixes, the Instance might have Tags, Attributes etc. that can potentially be saved (even though it's a Folder)
-			if ChildrenOverride then
-				savebuffer[savebuffer_size] = save_specific(ClassName, InstanceOverride.Properties) -- ! Assuming anything that has __Children will have .Properties
+			if InstanceOverride and InstanceOverride.__SaveSpecific then
+				savebuffer[savebuffer_size] = save_specific(ClassName, InstanceOverride.Properties) -- ! Assuming anything that has __SaveSpecific will have .Properties
 				savebuffer_size += 1
 			else
 				-- local Properties =
@@ -2576,7 +2581,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 
 			if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
-				local Children = ChildrenOverride or instance:GetChildren()
+				local Children = InstanceOverride and InstanceOverride.__Children or instance:GetChildren()
 
 				if #Children ~= 0 then
 					save_hierarchy(Children)
@@ -2664,7 +2669,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					local Fix = InheritsFix(NilInstancesFixes, ClassName, instance)
 
 					if Fix then
-						instance = Fix(instance, InstancePropertyOverrides)
+						instance = Fix(instance, InstancesOverrides)
 						-- continue
 					end
 
@@ -2755,7 +2760,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		savebuffer[savebuffer_size] = "</roblox>"
+		savebuffer[savebuffer_size] =
+			"</roblox><!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw -->"
 		savebuffer_size += 1
 		save_cache(true)
 		do
@@ -2945,7 +2951,28 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local SafeMode = OPTIONS.SafeMode
 		if SafeMode then
 			task.spawn(function()
-				GetLocalPlayer():Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
+				local LocalPlayer = GetLocalPlayer()
+
+				local PlayerScripts = LocalPlayer:FindFirstChild("PlayerScripts")
+				if PlayerScripts then
+					local function construct_InstanceOverride(instance)
+						local children = instance:GetChildren()
+						InstancesOverrides[instance] = {
+							__Children = children,
+						}
+						for _, child in children do
+							construct_InstanceOverride(child)
+						end
+					end
+					construct_InstanceOverride(PlayerScripts)
+
+					InstancesOverrides[LocalPlayer] = {
+						__Children = LocalPlayer:GetChildren(),
+						Properties = { Name = "[" .. LocalPlayer.ClassName .. "] " .. LocalPlayer.Name },
+					}
+				end
+
+				LocalPlayer:Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
 				wait_for_render()
 				task.delay(10, service.GuiService.ClearError, service.GuiService)
 			end)
