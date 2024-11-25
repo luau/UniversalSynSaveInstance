@@ -670,8 +670,8 @@ XML_Descriptors = {
 				.. " 0 "
 		end)
 	end,
-	Content = function(raw)
-		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw, true) .. "</url>"
+	ContentId = function(raw)
+		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw) .. "</url>", "Content"
 	end,
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. XML_Descriptors.CFrame(raw) .. "</CFrame>"
@@ -690,12 +690,12 @@ XML_Descriptors = {
 		local EmptyStyle = string_find(FontString, "Style =  }")
 
 		return "<Family>"
-			.. XML_Descriptors.Content(raw.Family)
+			.. XML_Descriptors.ContentId(raw.Family)
 			.. "</Family><Weight>"
 			.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
 			.. "</Weight><Style>"
 			.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
-			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (Content) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
@@ -831,8 +831,8 @@ XML_Descriptors = {
 	float = nil, -- Float32
 	int = nil, -- Int32
 	int64 = nil, -- Int64 (long)
-	string = function(raw, skipEmptyCheck)
-		return not skipEmptyCheck and (raw == "" and raw or raw == nil and "")
+	string = function(raw)
+		return (raw == nil or raw == "") and ""
 			or string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
 			or XML_Descriptors.__CDATA(string.gsub(raw, "\0", ""))
 	end,
@@ -840,7 +840,7 @@ XML_Descriptors = {
 for descriptorName, redirectName in
 	next,
 	{
-		ContentId = "Content",
+		Content = "ContentId", -- For sake of compatibility with older clients
 		NumberSequence = "__SEQUENCE",
 		Vector2int16 = "Vector2",
 		Vector3int16 = "Vector3",
@@ -1116,9 +1116,9 @@ do
 
 		local API_Dump
 
-		local ok, err = pcall(function()
-			local CLIENT_VERSION = string.split(version(), ".")[2]
+		local CLIENT_VERSION = string.split(version(), ".")[2]
 
+		local ok, err = pcall(function()
 			local ok, result = pcall(readfile, CLIENT_VERSION)
 			if ok and result and result ~= "" then
 				API_Dump = result
@@ -1229,6 +1229,10 @@ do
 							local ValueType = Member.ValueType
 							local ValueType_Name = ValueType.Name
 
+							if 649 <= CLIENT_VERSION and ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
+								continue
+							end
+
 							local Special
 
 							if MemberTags then
@@ -1311,7 +1315,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
 --- @field ShutdownWhenDone boolean -- Shuts the game down after saveinstance is finished. ___Default:___ false
 --- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
---- @field Anonymous boolean -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. ___Default:___ false
+--- Anonymous {boolean|table{UserId = string, Name = string}} -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. Can also be a table with UserId & Name keys. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
 --- @field Callback boolean -- If set, the serialized data will be sent to the callback function instead of to file. ___Default:___ nil
 --- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
@@ -1382,12 +1386,6 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
-	-- if GLOBAL_ENV.__USSI then
-	-- 	warn("UniversalSynSaveInstance is already running")
-	-- 	return
-	-- end
-	-- GLOBAL_ENV.__USSI = true
-
 	do
 		local setthreadidentity = global_container.setthreadidentity
 		if setthreadidentity then
@@ -1396,7 +1394,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local currentstr, currentsize, totalsize, chunks = "", 0, 0, table.create(1)
-	local savebuffer, savebuffer_size = { '<roblox version="4">' }, 2
+	local savebuffer, savebuffer_size =
+		{
+			'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4">',
+		}, 2
 
 	local StatusText
 
@@ -1488,7 +1489,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	do -- * Load Settings
 		local function construct_NilinstanceFix(Name, ClassName, Separate)
 			return function(instance, instancePropertyOverrides)
-				local Exists = not Separate and OPTIONS.NilInstancesFixes[Name] or nil
+				local Exists
+
+				if not Separate then
+					Exists = OPTIONS.NilInstancesFixes[Name]
+				end
 
 				local Fix
 
@@ -1500,13 +1505,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 					-- Fix.Name = Name
 
-					instancePropertyOverrides[Fix] = { __Children = { instance }, Properties = { Name = Name } }
+					instancePropertyOverrides[Fix] =
+						{ __SaveSpecific = true, __Children = { instance }, Properties = { Name = Name } }
 				else
 					Fix = Exists
 				end
 
 				table.insert(instancePropertyOverrides[Fix].__Children, instance)
-				-- InstancePropertyOverrides[instance].Parent = AnimationController
+				-- InstancesOverrides[instance].Parent = AnimationController
 				if DoesntExist then
 					return Fix
 				end
@@ -1601,41 +1607,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local function construct_TimeoutHandler(timeout, f, timeout_ret)
-		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
-			if timeout < 0 then
-				return pcall(f, script)
-			end
-
-			local thread = coroutine.running()
-			local timeoutThread, isCancelled
-
-			timeoutThread = task.delay(timeout, function()
-				isCancelled = true -- TODO task.cancel
-				coroutine.resume(thread, nil, timeout_ret)
-			end)
-
-			task.spawn(function()
-				local ok, result = pcall(f, script)
-
-				if isCancelled then
-					return
-				end
-
-				task.cancel(timeoutThread)
-
-				while coroutine.status(thread) ~= "suspended" do
-					task.wait()
-				end
-
-				coroutine.resume(thread, ok, result)
-			end)
-
-			return coroutine.yield()
-		end
-	end
-
-	local InstancePropertyOverrides = {}
+	local InstancesOverrides = {}
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
 		ArrayToDictionary(OPTIONS.DecompileIgnore, true),
@@ -1663,15 +1635,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
 
 	local old_gethiddenproperty
-	if OPTIONS.IgnoreSpecialProperties and gethiddenproperty then
+	if OPTIONS and gethiddenproperty then
 		old_gethiddenproperty = gethiddenproperty
 		gethiddenproperty = nil
 	end
-
-	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
-	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
-	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
-	local IsolatePlayers = OPTIONS.IsolatePlayers
 
 	local SaveNonCreatable = OPTIONS.SaveNonCreatable
 	local TreatUnionsAsParts = OPTIONS.TreatUnionsAsParts
@@ -1683,29 +1650,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
-	local NilInstances = OPTIONS.NilInstances
-
-	if NilInstances and enablenilinstances then -- ? Solara fix
-		enablenilinstances()
-	end
-
-	local getbytecode
-	if getscriptbytecode then
-		getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
-	end
-
-	local SaveBytecode
-	if OPTIONS.SaveBytecode and getscriptbytecode then
-		SaveBytecode = function(script)
-			local s, bytecode = getbytecode(script)
-
-			if s then
-				if bytecode and bytecode ~= "" then
-					return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
-				end
-			end
-		end
-	end
 
 	local ldeccache = GLOBAL_ENV.scriptcache
 
@@ -1761,6 +1705,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
+		if FilePath then
+			FilePath = sanitizeFileName(FilePath)
+		end
+
 		if IsModel then
 			placename = (
 				FilePath
@@ -1769,6 +1717,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		else
 			placename = (FilePath or sanitizeFileName("place " .. PlaceName)) .. ".rbxlx"
 		end
+
+		if GLOBAL_ENV[placename] then
+			-- warn("UniversalSynSaveInstance is already saving to this file")
+			return
+		end
+
+		GLOBAL_ENV[placename] = true
 
 		if mode ~= "scripts" then
 			IgnorePropertiesOfNotScriptsOnScriptsMode = nil
@@ -1851,6 +1806,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
+	local IsolateLocalPlayer = OPTIONS.IsolateLocalPlayer
+	local IsolateLocalPlayerCharacter = OPTIONS.IsolateLocalPlayerCharacter
+	local IsolatePlayers = OPTIONS.IsolatePlayers
+	local IsolateStarterPlayer = OPTIONS.IsolateStarterPlayer
+	local NilInstances = OPTIONS.NilInstances
+
+	if NilInstances and enablenilinstances then -- ? Solara fix
+		enablenilinstances()
+	end
 	local function get_size_format()
 		local Size
 
@@ -1928,9 +1892,59 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return unpack(result)
 	end
 
+	local function construct_TimeoutHandler(timeout, f, timeout_ret)
+		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
+			if timeout < 0 then
+				return pcall(f, script)
+			end
+
+			local thread = coroutine.running()
+			local timeoutThread, isCancelled
+
+			timeoutThread = task.delay(timeout, function()
+				isCancelled = true -- TODO task.cancel
+				coroutine.resume(thread, nil, timeout_ret)
+			end)
+
+			task.spawn(function()
+				local ok, result = pcall(f, script)
+
+				if isCancelled then
+					return
+				end
+
+				task.cancel(timeoutThread)
+
+				while coroutine.status(thread) ~= "suspended" do
+					task.wait()
+				end
+
+				coroutine.resume(thread, ok, result)
+			end)
+
+			return coroutine.yield()
+		end
+	end
+
 	local get_proxied_linkedsource = construct_TimeoutHandler(30, function(asset)
 		return game:HttpGet("https://linkedsource.glitch.me/asset/" .. asset)
 	end)
+
+	local getbytecode
+	if getscriptbytecode then
+		getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
+	end
+
+	local SaveBytecode
+	if OPTIONS.SaveBytecode and getscriptbytecode then
+		SaveBytecode = function(script)
+			local s, bytecode = getbytecode(script)
+
+			if s and bytecode and bytecode ~= "" then
+					return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
+			end
+		end
+	end
 
 	do
 		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
@@ -2028,11 +2042,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local function ReadProperty(instance, property, propertyName, special, category, optional)
 		local raw = __BREAK
 
-		local InstanceOverride = InstancePropertyOverrides[instance]
+		local InstanceOverride = InstancesOverrides[instance]
 		if InstanceOverride then
-			local PropertyOverride = InstanceOverride.Properties[propertyName]
-			if PropertyOverride then
-				return PropertyOverride
+			local PropertiesOverride = InstanceOverride.Properties
+			if PropertiesOverride then
+				local PropertyOverride = PropertiesOverride[propertyName]
+				if PropertyOverride ~= nil then
+					return PropertyOverride
+				end
 			end
 		end
 
@@ -2121,7 +2138,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local function ReturnValueAndTag(raw, valueType, descriptor)
 		local value, tag = (descriptor or XML_Descriptors[valueType])(raw)
 
-		return value, tag == nil and valueType or tag
+		return value, tag or valueType
 	end
 
 	local function InheritsFix(fixes, className, instance)
@@ -2252,10 +2269,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				do
 					local function replaceClassName(newClassName)
 						if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
-							InstanceOverride = InstancePropertyOverrides[instance]
+							InstanceOverride = InstancesOverrides[instance]
 							if not InstanceOverride then
 								InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
-								InstancePropertyOverrides[instance] = InstanceOverride
+								InstancesOverrides[instance] = InstanceOverride
 							end
 						end
 						ClassName = newClassName
@@ -2267,7 +2284,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if SaveNonCreatable then
 							replaceClassName(Fix)
 						else
-							break -- They won't show up in Studio anyway (Enable IsolatePlayers if you wish to bypass this)
+							break -- They won't show up in Studio anyway (Enable SaveNonCreatable if you wish to bypass this)
 						end
 					else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 						if TreatUnionsAsParts and instance:IsA("PartOperation") then
@@ -2285,10 +2302,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				if not InstanceOverride then
-					InstanceOverride = InstancePropertyOverrides[instance]
+					InstanceOverride = InstancesOverrides[instance]
 				end
-				local ChildrenOverride = InstanceOverride and InstanceOverride.__Children
-
 				if ClassName == "" then -- * FilteredSelection
 					ClassName = "Folder"
 				end
@@ -2296,8 +2311,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				-- ? The reason we only save .Name (and few other props in save_specific) is because
 				-- ? we can be sure this is a custom container (ex. NilInstancesFixes)
 				-- ? However, in case of NotCreatableFixes, the Instance might have Tags, Attributes etc. that can potentially be saved (even though it's a Folder)
-				if ChildrenOverride then
-					savebuffer[savebuffer_size] = save_specific(ClassName, InstanceOverride.Properties) -- ! Assuming anything that has __Children will have .Properties
+				if InstanceOverride and InstanceOverride.__SaveSpecific then
+					savebuffer[savebuffer_size] = save_specific(ClassName, InstanceOverride.Properties) -- ! Assuming anything that has __SaveSpecific will have .Properties
 					savebuffer_size = savebuffer_size + 1
 				else
 					-- local Properties =
@@ -2547,7 +2562,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													end
 												end
 
-												value = "-- Saved by UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw\n\n"
+												value = "-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw\n\n"
 													.. (hasLinkedSource and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?" .. (LinkedSource_type or "id") .. "=" .. (LinkedSource or LinkedSource_Url) .. "\n\n" or "")
 													.. value
 											end
@@ -2591,7 +2606,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				if SkipEntirely ~= false then -- ? We save instance without it's descendants in this case (== false)
-					local Children = ChildrenOverride or instance:GetChildren()
+					local Children = InstanceOverride and InstanceOverride.__Children or instance:GetChildren()
 
 					if #Children ~= 0 then
 						save_hierarchy(Children)
@@ -2680,7 +2695,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					local Fix = InheritsFix(NilInstancesFixes, ClassName, instance)
 
 					if Fix then
-						instance = Fix(instance, InstancePropertyOverrides)
+						instance = Fix(instance, InstancesOverrides)
+						-- continue
 					end
 
 					local Class = ClassList[ClassName]
@@ -2689,6 +2705,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if ClassTags and ClassTags.Service then -- For CSGDictionaryService, NonReplicatedCSGDictionaryService, LogService, ProximityPromptService, TestService & more
 							-- instance.Parent = game
 							instance = nil
+							-- continue
 						end
 					end
 				end
@@ -2711,7 +2728,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						RecoveredScripts
 					) .. "\n" or "")
 					.. [[
-		Thank you for using UniversalSynSaveInstance https://discord.gg/wx4ThpAsmw.
+		Thank you for using UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw.
 
 		If you didn't save in Binary (rbxl) - it's recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
 		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
@@ -2769,7 +2786,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		savebuffer[savebuffer_size] = "</roblox>"
+		savebuffer[savebuffer_size] =
+			"</roblox><!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw -->"
 		savebuffer_size = savebuffer_size + 1
 		save_cache(true)
 		do
@@ -2779,9 +2797,49 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- TODO It's also not smart to filter entire file string at the end as this might also affect decompiled scripts content, which has no way of containing any user-related information. It would be better to use gsub in string Descriptor and such
 			if OPTIONS.Anonymous then
 				local LocalPlayer = service.Players.LocalPlayer
+				if LocalPlayer then
+					local function gsubCaseInsensitive(input, search, replacement) -- * Credits to friends
+						local inputLower = string.lower(input)
 
-				for _, chunk in next, chunks do
-					chunk.str = string.gsub(string.gsub(chunk.str, LocalPlayer.UserId, "1"), LocalPlayer.Name, "Roblox")
+						search = string.lower(search)
+
+						local lastFinish = 0
+						local subStrings = {}
+						local search_len = #search
+						local input_len = #input
+						while search_len <= input_len - lastFinish do
+							local init = lastFinish + 1
+
+							local start, finish = string.find(inputLower, search, init, true)
+
+							if start == nil then
+								break
+							end
+
+							table.insert(subStrings, string.sub(input, init, start - 1))
+
+							lastFinish = finish
+						end
+
+						if lastFinish == 0 then
+							return input
+						end
+
+						table.insert(subStrings, string.sub(input, lastFinish + 1))
+
+						return table.concat(subStrings, replacement)
+					end
+
+					local Anonymous = type(OPTIONS.Anonymous) == "table" and OPTIONS.Anonymous
+						or { UserId = "1", Name = "Roblox" }
+
+					for _, chunk in next, chunks do
+						chunk.str = gsubCaseInsensitive(
+							string.gsub(chunk.str, LocalPlayer.UserId, Anonymous.UserId),
+							LocalPlayer.Name,
+							Anonymous.Name
+						)
+					end
 				end
 			end
 
@@ -2791,7 +2849,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				for _, chunk in next, chunks do
 					totalstr = totalstr .. chunk.str
 				end
-				Callback(totalstr)
+				Callback(totalstr, chunks, totalsize)
 			elseif OPTIONS.AlternativeWritefile and appendfile then
 				local SEGMENT_SIZE = 4145728 -- Celery has an arbitrary savefile/appendfile size limit of ~4MB for reasons unknown. This is a workaround to save the file in segments.
 
@@ -2957,7 +3015,28 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local SafeMode = OPTIONS.SafeMode
 		if SafeMode then
 			task.spawn(function()
-				GetLocalPlayer():Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
+				local LocalPlayer = GetLocalPlayer()
+
+				local PlayerScripts = LocalPlayer:FindFirstChild("PlayerScripts")
+				if PlayerScripts then
+					local function construct_InstanceOverride(instance)
+						local children = instance:GetChildren()
+						InstancesOverrides[instance] = {
+							__Children = children,
+						}
+						for _, child in next, children do
+							construct_InstanceOverride(child)
+						end
+					end
+					construct_InstanceOverride(PlayerScripts)
+
+					InstancesOverrides[LocalPlayer] = {
+						__Children = LocalPlayer:GetChildren(),
+						Properties = { Name = "[" .. LocalPlayer.ClassName .. "] " .. LocalPlayer.Name },
+					}
+				end
+
+				LocalPlayer:Kick("\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave")
 				wait_for_render()
 				task.delay(10, service.GuiService.ClearError, service.GuiService)
 			end)
@@ -3001,7 +3080,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				connection:Disconnect()
 			end
 		end
-		-- GLOBAL_ENV.__USSI = nil
+		GLOBAL_ENV[placename] = nil
 		if StatusText then
 			task.spawn(function()
 				elapse_t = os.clock() - elapse_t
@@ -3026,7 +3105,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end)
 		end
 
-		if OPTIONS.ShutdownWhenDone then
+		if OPTIONS.ShutdownWhenDone and ok then
 			game:Shutdown()
 		end
 	end

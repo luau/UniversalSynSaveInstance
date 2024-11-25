@@ -666,7 +666,7 @@ XML_Descriptors = {
 		end)
 	end,
 	ContentId = function(raw)
-		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw, true) .. "</url>", "Content"
+		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw) .. "</url>", "Content"
 	end,
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. XML_Descriptors.CFrame(raw) .. "</CFrame>"
@@ -1483,7 +1483,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	do -- * Load Settings
 		local function construct_NilinstanceFix(Name, ClassName, Separate)
 			return function(instance, instancePropertyOverrides)
-				local Exists = if Separate then nil else OPTIONS.NilInstancesFixes[Name]
+				local Exists
+
+				if not Separate then
+					Exists = OPTIONS.NilInstancesFixes[Name]
+				end
 
 				local Fix
 
@@ -1927,10 +1931,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		SaveBytecode = function(script)
 			local s, bytecode = getbytecode(script)
 
-			if s then
-				if bytecode and bytecode ~= "" then
-					return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
-				end
+			if s and bytecode and bytecode ~= "" then
+				return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
 			end
 		end
 	end
@@ -2776,7 +2778,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if OPTIONS.Anonymous then
 				local LocalPlayer = service.Players.LocalPlayer
 				if LocalPlayer then
-					local function gsubCaseInsensitive(input, search, replacement)
+					local function gsubCaseInsensitive(input, search, replacement) -- * Credits to friends
 						local inputLower = string.lower(input)
 
 						search = string.lower(search)
