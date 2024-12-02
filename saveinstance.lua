@@ -1186,7 +1186,7 @@ do
 		local classList = {}
 
 		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
-
+		CLIENT_VERSION = tonumber(CLIENT_VERSION)
 		for _, API_Class in next, service.HttpService:JSONDecode(API_Dump) do
 			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
@@ -1941,7 +1941,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local s, bytecode = getbytecode(script)
 
 			if s and bytecode and bytecode ~= "" then
-					return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
+				return "-- Bytecode (Base64):\n-- " .. base64encode(bytecode) .. "\n\n"
 			end
 		end
 	end
