@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[45],{7676:e=>{e.exports=JSON.parse('[{"type":"link","href":"/api/SynSaveInstance","label":"\u200bSyn\u200bSave\u200bInstance"}]')}}]);
