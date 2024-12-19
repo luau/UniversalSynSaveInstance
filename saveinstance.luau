@@ -1503,9 +1503,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						{ __SaveSpecific = true, __Children = { instance }, Properties = { Name = Name } }
 				else
 					Fix = Exists
+					table.insert(instancePropertyOverrides[Fix].__Children, instance)
 				end
 
-				table.insert(instancePropertyOverrides[Fix].__Children, instance)
 				-- InstancesOverrides[instance].Parent = AnimationController
 				if DoesntExist then
 					return Fix
@@ -1728,7 +1728,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if not ToSaveInstance then
 				local Children = TempRoot:GetChildren()
 				if 0 < #Children then
-					table.move(Children, 1, #Children, #tmp + 1, tmp)
+					local tmp_dict = ArrayToDictionary(tmp)
+					for _, child in Children do
+						if not tmp_dict[child] then
+							table.insert(tmp, child)
+						end
+					end
 				end
 			end
 		elseif mode == "optimized" then -- ! Incompatible with .rbxmx (Model file) mode
@@ -3045,6 +3050,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end)
 
 		if SafeMode then
+			service.GuiService:ClearError()
 			service.RunService:Set3dRenderingEnabled(true)
 		end
 
