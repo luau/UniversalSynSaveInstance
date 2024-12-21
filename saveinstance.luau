@@ -1698,10 +1698,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		if FilePath then
-			FilePath = sanitizeFileName(FilePath)
-		end
-
 		if IsModel then
 			placename = (
 				FilePath
