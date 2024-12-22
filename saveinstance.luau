@@ -2021,11 +2021,38 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			or service.Players.LocalPlayer
 	end
 
+	local function filterLinkedSource(str)
+		local o, r = pcall(service.HttpService.JSONDecode, service.HttpService, str)
+		if o and r.errors then
+			return
+		end
+		return true
+	end
+
+	local function replaceClassName(instance, InstanceName, ClassName, newClassName)
+		local InstanceOverride
+		if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
+			InstanceOverride = InstancesOverrides[instance]
+			if not InstanceOverride then
+				InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
+				InstancesOverrides[instance] = InstanceOverride
+			end
+		end
+		return newClassName, InstanceOverride
+	end
+
 	local function getsafeproperty(instance, propertyName)
 		return instance[propertyName]
 	end
 
-	local function unfilterResult(category, optional)
+	local function filterPropVal(result, propertyName, category) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+		return result == nil
+			or result == "can't get value"
+			or type(result) == "string"
+				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
+	end
+
+	local function unfilterPropVal(category, optional)
 		return category ~= "Class" and not optional
 	end
 
@@ -2051,16 +2078,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return __BREAK
 		end
 
-		local function filterResult(result) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
-			return result == nil
-				or result == "can't get value"
-				or type(result) == "string"
-					and (string_find(result, "Unable to get property " .. propertyName) or category == "Enum" and string_find(
-						result,
-						"Invalid value for enum "
-					))
-		end
-
 		if special then
 			if gethiddenproperty then
 				local ok, result = pcall(gethiddenproperty, instance, propertyName)
@@ -2069,10 +2086,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					raw = result
 				end
 
-				if filterResult(raw) then
+				if filterPropVal(raw, propertyName, category) then
 					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
 
-					if result ~= nil or unfilterResult(category, optional) then
+					if result ~= nil or unfilterPropVal(category, optional) then
 						if __DEBUG_MODE then
 							__DEBUG_MODE("Filtered", propertyName)
 						end
@@ -2103,7 +2120,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				property.CanRead = ok
 
-				if not ok or filterResult(raw) then
+				if not ok or filterPropVal(raw, propertyName, category) then
 					return __BREAK
 				end
 			end
@@ -2258,28 +2275,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local InstanceOverride, ClassNameOverride, ClassTagOverride
 
 			do
-				local function replaceClassName(newClassName)
-					if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
-						InstanceOverride = InstancesOverrides[instance]
-						if not InstanceOverride then
-							InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
-							InstancesOverrides[instance] = InstanceOverride
-						end
-					end
-					ClassName = newClassName
-				end
-
 				local Fix = NotCreatableFixes[ClassName]
 
 				if Fix then
 					if SaveNonCreatable then
-						replaceClassName(Fix)
+						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, Fix)
 					else
 						continue -- They won't show up in Studio anyway (Enable SaveNonCreatable if you wish to bypass this)
 					end
 				else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 					if TreatUnionsAsParts and instance:IsA("PartOperation") then
-						replaceClassName("Part")
+						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, "Part")
 						ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
 					elseif not ClassList[ClassName] then -- ? API Dump is outdated then
 						if __DEBUG_MODE then
@@ -2352,7 +2358,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 							local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
 
-							if result == nil and unfilterResult(Category, Optional) then
+							if result == nil and unfilterPropVal(Category, Optional) then
 								ok = nil
 							end
 
@@ -2470,15 +2476,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													should_decompile = nil
 												end
 
-												local function filterResults(str)
-													local o, r =
-														pcall(service.HttpService.JSONDecode, service.HttpService, str)
-													if o and r.errors then
-														return false
-													end
-													return true
-												end
-
 												LinkedSource_type = string.find(LinkedSource, "%a") and "hash" or "id"
 
 												local asset = LinkedSource_type .. "=" .. LinkedSource
@@ -2492,7 +2489,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 												end)
 
 												if ok then
-													ok = filterResults(source)
+													ok = filterLinkedSource(source)
 												end
 
 												if not ok then
@@ -2506,7 +2503,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 												end
 
 												if ok then
-													ok = filterResults(source)
+													ok = filterLinkedSource(source)
 												end
 
 												if ok then
