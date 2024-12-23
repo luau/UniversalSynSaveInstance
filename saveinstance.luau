@@ -880,7 +880,6 @@ do
 					local buffer_size = 4
 					local attrs_sorted = {}
 					local attrs_formatted = table.clone(attrs)
-					-- warn(instance)
 					for attr, val in attrs do
 						attrs_n += 1
 						attrs_sorted[attrs_n] = attr
@@ -894,7 +893,6 @@ do
 
 						buffer_size += 5 + #attr + attr_size
 					end
-					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
 
 					table.sort(attrs_sorted)
 
@@ -1156,8 +1154,6 @@ do
 						API_Dump = service.HttpService:JSONEncode(r.Classes) -- minify it
 						break
 					end
-					-- else
-					-- 	warn(r)
 				end
 			end
 
@@ -1747,7 +1743,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"ReplicatedFirst",
 					"ReplicatedStorage",
 
-					"ServerScriptService", -- LoadStringEnabled property; Just in case
+					"ServerScriptService", -- LoadStringEnabled property (doesn't replicate); Just in case
 					"ServerStorage", -- Just in case
 
 					"StarterGui",
@@ -1766,8 +1762,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- "VoiceChatService",
 				}
 			do
-				local _service = service[serviceName]
-				if not tmp_dict[_service] then
+				local _service = game:FindService(serviceName)
+				if _service and not tmp_dict[_service] then
 					table.insert(tmp, _service)
 				end
 			end
