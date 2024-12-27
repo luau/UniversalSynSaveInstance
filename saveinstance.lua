@@ -886,7 +886,6 @@ do
 					local buffer_size = 4
 					local attrs_sorted = {}
 					local attrs_formatted = table.clone(attrs)
-					-- warn(instance)
 					for attr, val in next, attrs do
 						attrs_n = attrs_n + 1
 						attrs_sorted[attrs_n] = attr
@@ -900,7 +899,6 @@ do
 
 						buffer_size = buffer_size + 5 + #attr + attr_size
 					end
-					-- print(instance, attrs_n) -- ? Looks like multiple buffer calls cause the this part to be skipped sometimes ?
 
 					table.sort(attrs_sorted)
 
@@ -1162,8 +1160,6 @@ do
 						API_Dump = service.HttpService:JSONEncode(r.Classes) -- minify it
 						break
 					end
-					-- else
-					-- 	warn(r)
 				end
 			end
 
@@ -1386,6 +1382,10 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
+	if GLOBAL_ENV.USSI then
+		return
+	end
+	GLOBAL_ENV.USSI = true
 	do
 		local setthreadidentity = global_container.setthreadidentity
 		if setthreadidentity then
@@ -1394,10 +1394,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local currentstr, currentsize, totalsize, chunks = "", 0, 0, table.create(1)
-	local savebuffer, savebuffer_size =
-		{
-			'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4">',
-		}, 2
+	local savebuffer, savebuffer_size = {
+		'<roblox version="4">',
+	}, 2
 
 	local StatusText
 
@@ -1509,9 +1508,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						{ __SaveSpecific = true, __Children = { instance }, Properties = { Name = Name } }
 				else
 					Fix = Exists
+					table.insert(instancePropertyOverrides[Fix].__Children, instance)
 				end
 
-				table.insert(instancePropertyOverrides[Fix].__Children, instance)
 				-- InstancesOverrides[instance].Parent = AnimationController
 				if DoesntExist then
 					return Fix
@@ -1705,10 +1704,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		if FilePath then
-			FilePath = sanitizeFileName(FilePath)
-		end
-
 		if IsModel then
 			placename = (
 				FilePath
@@ -1724,7 +1719,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		GLOBAL_ENV[placename] = true
-
+		GLOBAL_ENV.USSI = nil
 		if mode ~= "scripts" then
 			IgnorePropertiesOfNotScriptsOnScriptsMode = nil
 		end
@@ -1735,7 +1730,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if not ToSaveInstance then
 				local Children = TempRoot:GetChildren()
 				if 0 < #Children then
-					table.move(Children, 1, #Children, #tmp + 1, tmp)
+					local tmp_dict = ArrayToDictionary(tmp)
+					for _, child in next, Children do
+						if not tmp_dict[child] then
+							table.insert(tmp, child)
+						end
+					end
 				end
 			end
 		elseif mode == "optimized" then -- ! Incompatible with .rbxmx (Model file) mode
@@ -1754,7 +1754,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"ReplicatedFirst",
 					"ReplicatedStorage",
 
-					"ServerScriptService", -- LoadStringEnabled property; Just in case
+					"ServerScriptService", -- LoadStringEnabled property (doesn't replicate); Just in case
 					"ServerStorage", -- Just in case
 
 					"StarterGui",
@@ -1773,8 +1773,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- "VoiceChatService",
 				}
 			do
-				local _service = service[serviceName]
-				if not tmp_dict[_service] then
+				local _service = game:FindService(serviceName)
+				if _service and not tmp_dict[_service] then
 					table.insert(tmp, _service)
 				end
 			end
@@ -1926,10 +1926,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local get_proxied_linkedsource = construct_TimeoutHandler(30, function(asset)
-		return game:HttpGet("https://linkedsource.glitch.me/asset/" .. asset)
-	end)
-
 	local getbytecode
 	if getscriptbytecode then
 		getbytecode = construct_TimeoutHandler(3, getscriptbytecode) -- ? Solara fix
@@ -2029,11 +2025,38 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			or service.Players.LocalPlayer
 	end
 
+	local function filterLinkedSource(str)
+		local o, r = pcall(service.HttpService.JSONDecode, service.HttpService, str)
+		if o and r.errors then
+			return
+		end
+		return true
+	end
+
+	local function replaceClassName(instance, InstanceName, ClassName, newClassName)
+		local InstanceOverride
+		if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
+			InstanceOverride = InstancesOverrides[instance]
+			if not InstanceOverride then
+				InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
+				InstancesOverrides[instance] = InstanceOverride
+			end
+		end
+		return newClassName, InstanceOverride
+	end
+
 	local function getsafeproperty(instance, propertyName)
 		return instance[propertyName]
 	end
 
-	local function unfilterResult(category, optional)
+	local function filterPropVal(result, propertyName, category) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+		return result == nil
+			or result == "can't get value"
+			or type(result) == "string"
+				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
+	end
+
+	local function unfilterPropVal(category, optional)
 		return category ~= "Class" and not optional
 	end
 
@@ -2059,16 +2082,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return __BREAK
 		end
 
-		local function filterResult(result) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
-			return result == nil
-				or result == "can't get value"
-				or type(result) == "string"
-					and (string_find(result, "Unable to get property " .. propertyName) or category == "Enum" and string_find(
-						result,
-						"Invalid value for enum "
-					))
-		end
-
 		if special then
 			if gethiddenproperty then
 				local ok, result = pcall(gethiddenproperty, instance, propertyName)
@@ -2077,10 +2090,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					raw = result
 				end
 
-				if filterResult(raw) then
+				if filterPropVal(raw, propertyName, category) then
 					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
 
-					if result ~= nil or unfilterResult(category, optional) then
+					if result ~= nil or unfilterPropVal(category, optional) then
 						if __DEBUG_MODE then
 							__DEBUG_MODE("Filtered", propertyName)
 						end
@@ -2111,7 +2124,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				property.CanRead = ok
 
-				if not ok or filterResult(raw) then
+				if not ok or filterPropVal(raw, propertyName, category) then
 					return __BREAK
 				end
 			end
@@ -2267,28 +2280,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local InstanceOverride, ClassNameOverride, ClassTagOverride
 
 				do
-					local function replaceClassName(newClassName)
-						if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
-							InstanceOverride = InstancesOverrides[instance]
-							if not InstanceOverride then
-								InstanceOverride = { Properties = { Name = "[" .. ClassName .. "] " .. InstanceName } }
-								InstancesOverrides[instance] = InstanceOverride
-							end
-						end
-						ClassName = newClassName
-					end
-
 					local Fix = NotCreatableFixes[ClassName]
 
 					if Fix then
 						if SaveNonCreatable then
-							replaceClassName(Fix)
+						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, Fix)
 						else
 							break -- They won't show up in Studio anyway (Enable SaveNonCreatable if you wish to bypass this)
 						end
 					else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 						if TreatUnionsAsParts and instance:IsA("PartOperation") then
-							replaceClassName("Part")
+						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, "Part")
 							ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
 						elseif not ClassList[ClassName] then -- ? API Dump is outdated then
 							if __DEBUG_MODE then
@@ -2363,7 +2365,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 									local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
 
-									if result == nil and unfilterResult(Category, Optional) then
+							if result == nil and unfilterPropVal(Category, Optional) then
 										ok = nil
 									end
 
@@ -2481,20 +2483,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 															should_decompile = nil
 														end
 
-														local function filterResults(str)
-															local o, r = pcall(
-																service.HttpService.JSONDecode,
-																service.HttpService,
-																str
-															)
-															if o and r.errors then
-																return false
-															end
-															return true
-														end
-
-														LinkedSource_type = string.find(LinkedSource, "%a") and "hash"
-															or "id"
+												LinkedSource_type = string.find(LinkedSource, "%a") and "hash" or "id"
 
 														local asset = LinkedSource_type .. "=" .. LinkedSource
 
@@ -2506,25 +2495,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 															)
 														end)
 
-														if ok then
-															ok = filterResults(source)
-														end
-
-														if not ok then
-															ok, source = run_with_loading(
-																"Getting " .. instance.Name .. " LinkedSource",
-																true,
-																nil,
-																get_proxied_linkedsource,
-																asset
-															)
-														end
-
-														if ok then
-															ok = filterResults(source)
-														end
-
-														if ok then
+												if ok and filterLinkedSource(source) then
 															ldeccache[LinkedSource] = source
 
 															value = source
@@ -3065,6 +3036,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end)
 
 		if SafeMode then
+			service.GuiService:ClearError()
 			service.RunService:Set3dRenderingEnabled(true)
 		end
 

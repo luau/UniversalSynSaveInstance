@@ -1376,6 +1376,10 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 ]=]
 
 local function synsaveinstance(CustomOptions, CustomOptions2)
+	if GLOBAL_ENV.USSI then
+		return
+	end
+	GLOBAL_ENV.USSI = true
 	do
 		local setthreadidentity = global_container.setthreadidentity
 		if setthreadidentity then
@@ -1387,7 +1391,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local savebuffer, savebuffer_size =
 		{
 			'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4">',
-		}, 2
+	}, 2
 
 	local StatusText
 
@@ -1709,7 +1713,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		GLOBAL_ENV[placename] = true
-
+		GLOBAL_ENV.USSI = nil
 		if mode ~= "scripts" then
 			IgnorePropertiesOfNotScriptsOnScriptsMode = nil
 		end
@@ -1913,10 +1917,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return coroutine.yield()
 		end
 	end
-
-	local get_proxied_linkedsource = construct_TimeoutHandler(30, function(asset)
-		return game:HttpGet("https://linkedsource.glitch.me/asset/" .. asset)
-	end)
 
 	local getbytecode
 	if getscriptbytecode then
@@ -2484,25 +2484,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													)
 												end)
 
-												if ok then
-													ok = filterLinkedSource(source)
-												end
-
-												if not ok then
-													ok, source = run_with_loading(
-														"Getting " .. instance.Name .. " LinkedSource",
-														true,
-														nil,
-														get_proxied_linkedsource,
-														asset
-													)
-												end
-
-												if ok then
-													ok = filterLinkedSource(source)
-												end
-
-												if ok then
+												if ok and filterLinkedSource(source) then
 													ldeccache[LinkedSource] = source
 
 													value = source
