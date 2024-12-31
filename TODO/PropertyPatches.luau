@@ -1,7 +1,7 @@
 -- TODO
+-- https://github.com/Dekkonot/rbx-instance-serializer/blob/master/src/API.lua#L19
 -- https://github.com/MaximumADHD/Roblox-File-Format/blob/main/Plugins/GenerateApiDump/PropertyPatches.lua
 -- https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua
--- https://github.com/rojo-rbx/rbx-dom/tree/master/patches
--- https://github.com/Dekkonot/rbx-instance-serializer/blob/master/src/API.lua#L19
+-- * https://github.com/rojo-rbx/rbx-dom/tree/master/patches
 -- Also search Full Dump for "XML", "Internal", "Serialize"
 -- PropertyPatchesDumper

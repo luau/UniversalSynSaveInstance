@@ -61,14 +61,14 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [x] Add custom timeout logic for decompiler instead of relying on executor to have one
   - Using threads & coroutines.
 - [x] Add `continue` where needed
-- [ ] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
+- [x] Add Documentation similar to [KRNL Docs] or [Synapse X Docs] / [Synapse X Docs Old]
 - [ ] Merge SharedStrings and sharedstrings tables
 - [x] ~~Add fallback function for appendfile (whether through storing current xml as string or with use of readfile)~~ Removed Appendfile entirely
 - [x] Add getproperties as fallback for specialinfo
 - [x] ~~Add Redirects to some special (in a bad way 😡) values, more info @ [PropertyPatches v1],[PropertyPatches v2]+[PropertyPatches v3], otherwise they will fallback to default when file is opened~~ Relying on CanSave instead
   - Not all though, test each & see if it carries over or not (when file is opened)..
   - All current redirects: [Here](https://github.com/luau/SynSaveInstance/blob/main/TODO/PropertyPatches)
-- [ ] Add more Fixes for Errors that **_can_** pop up during opening process
+- [x] Add more Fixes for Errors that **_can_** pop up during opening process
 - [x] Add Optional tags support
 - [ ] Add readbinarystring or readbinarystringpropertyvalue/readbspval/getbspval (elysian) as fallback for gethiddenproperty
 - [ ] Add table.clone instead {} in some cases if possible
@@ -76,7 +76,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 - [x] Add --!native tag just in case
 - [x] ~~Auto-Detect DataTypes/ValueType Categories of Properties (CFrame, UDim2 so on)~~ Full API Dump Solves this ?
 - [x] Bring said DataType serializer into an outside function
-- [-] ~~Bypass NotCreatable by hardcoding links/references/indexes to said Classes~~ Should be Solved by IsPropertyModified
+- [x] ~~Bypass NotCreatable by hardcoding links/references/indexes to said Classes~~ Should be Solved by IsPropertyModified
   - Example: Terrain class can be indexed by doing workspace.Terrain but is NotCreatable
 - [x] Check if table.concat is actually the fastest way as compared to other alternatives (IT'S NOT)
 - [x] Do ~~clean-up in inheritor &~~ (API Dumps solve this, illogical) automatically assume the top-most class that owns the property, while also cleaning up said property from classes that inherit from it
@@ -98,7 +98,7 @@ Reason: Many Executors fail miserably at providing good user experience when it 
 
   - [x] Compound Operators
   - [x] Avoid using `next`, `ipairs` & `pairs`
-  - [-] ~~Interpolated strings instead of concat~~ Slower
+  - [x] ~~Interpolated strings instead of concat~~ Slower
   - [ ] Type-checking (😩🙀)
   - [ ] `if-then-else` expressions
   - [ ] Floor division
@@ -122,17 +122,17 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   * [x] RemovePlayerCharacters
   * [x] SavePlayers
   * [x] ShowStatus
-    - [-] ~~Add Drawing Library support for ShowStatus~~ Can't reliably test if it's working on an executor
-  * [-] ~~IsolatePlayerGui~~ Use IsolateLocalPlayer instead
-  * [ ] Callback
-  * [ ] CopyToClipboard/Clipboard
+    - [x] ~~Add Drawing Library support for ShowStatus~~ Can't reliably test if it's working on an executor
+  * [x] ~~IsolatePlayerGui~~ Use IsolateLocalPlayer instead
+  * [x] Callback
+  * [x] ~~CopyToClipboard/Clipboard~~ Use Callback instead
   * [ ] Binary (rbxl/rbxm)
-- [ ] Support for as many Executors as possible (🤢🤮)
+- [x] Support for as many Executors as possible
 - [x] ~~Use getspecialinfo fallback function carefully as it's hardcoded~~ Useless because there's no way to tell if the Property Values of those instances are default or not
   - LOOK INTO Instance:IsPropertyModified & Instance:ResetPropertyToDefault
 - [x] Isolators must clear
-- [-] ~~Store all functions outside that are used during saveinstancing for sake of performance~~ Arguable
-- [ ] ~~Remove buffersize, savebuffer & so on for sake of performance by concatenating <Item> strings to total string then writing it to file (no extra steps like table.concat)~~ table.concat proved faster in the case of huge amount of concatenations
+- [x] ~~Store all functions outside that are used during saveinstancing for sake of performance~~ Arguable
+- [x] ~~Remove buffersize, savebuffer & so on for sake of performance by concatenating <Item> strings to total string then writing it to file (no extra steps like table.concat)~~ table.concat proved faster in the case of huge amount of concatenations
   - Test table.concat vs string ..= with a full buffer (this benchmark differs per usecase)
 - [ ] Make sure BinaryStrings are compared to Defaults properly (aka in same format)
   - Find default values of BinaryStrings properties (MaximumADHD might have a clue)
@@ -150,11 +150,11 @@ Reason: Many Executors fail miserably at providing good user experience when it 
   - LOOK INTO Instance:IsPropertyModified & Instance:ResetPropertyToDefault
 - [ ] Custom fallback Decompiler for ModuleScripts using require and then iterating through it, gathering all info about functions using [getupvals/getprotos/getconsts][debug], converting all DataTypes using tostring or Descriptors, and then perhaps converting to JSON. (Make use of op-codes from Dex?) !!!
 - [ ] Check out varios Leaked Executors (Especially their Init / Lua scripts) to expand knowledge on the whole subject of saveinstance
-- [ ] Fix Player's Characters not being visible (must Refresh MeshId)
+- [x] ~~Fix Player's Characters not being visible (must Refresh MeshId)~~ Fixed?
   - "<https://assetdelivery.roblox.com/v1/asset/?id=>" Could cause issues too (needs testing)
   - Perhaps add a possible FIX script to README
-- [ ] Be able to exclude / blacklist any mentions of certain string in other strings
-  - Example: You wish to blacklist your player's name from appearing in any property value
+- [x] ~~Be able to exclude / blacklist any mentions of certain string in other strings~~ Use Anonymous Option
+  - ~~Example: You wish to blacklist your player's name from appearing in any property value~~
   - Default options like IsolateSomething might also use / influence this
 - [ ] Force disable ParticleEmitters in case something like IgnorePropertiesOfNotScriptsOnScriptsMode is enabled (they stack in one place and create huge lag)
 - [ ] Be able to specify which special properties you want saved (to avoid saving all)
