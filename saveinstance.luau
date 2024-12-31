@@ -760,7 +760,7 @@ XML_Descriptors = {
 
 		return Identifier
 	end,
-	SecurityCapabilities = tostring, -- TODO: Find a faster solution
+	SecurityCapabilities = nil,
 	-- SystemAddress = function(raw) return raw end,
 	UDim = function(raw)
 		--[[
@@ -833,7 +833,79 @@ XML_Descriptors = {
 			or string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
 			or XML_Descriptors.__CDATA(string.gsub(raw, "\0", ""))
 	end,
+
+	--------------------------------------------------------------
+	-----------%localappdata%/Roblox/GlobalSettings_13.xml--------
+	--------------------------------------------------------------
+	-- QDir = function(raw)
+	-- 	return raw
+	-- end,
+	-- QFont = function(raw)
+	-- 	return raw
+	-- end,
 }
+
+do
+	local BASE_CAPABILITIES
+	pcall(function()
+		BASE_CAPABILITIES = SecurityCapabilities.new()
+	end)
+	if BASE_CAPABILITIES then
+		local CAPABILITY_BITS = {
+			Plugin = 2 ^ 0, ----------------  0
+			LocalUser = 2 ^ 1, -------------  1
+			WritePlayer = 2 ^ 2, -----------  2
+			RobloxScript = 2 ^ 3, ----------  3
+			RobloxEngine = 2 ^ 4, ----------  4
+			NotAccessible = 2 ^ 5, ---------  5
+			RunClientScript = 2 ^ 8, -------  8
+			RunServerScript = 2 ^ 9, -------  9
+			AccessOutsideWrite = 2 ^ 11, ---  11 (0xb)
+			Unassigned = 2 ^ 15, -----------  15 (0xf)
+			AssetRequire = 2 ^ 16, ---------  16 (0x10)
+			LoadString = 2 ^ 17, -----------  17 (0x11)
+			ScriptGlobals = 2 ^ 18, --------  18 (0x12)
+			CreateInstances = 2 ^ 19, ------  19 (0x13)
+			Basic = 2 ^ 20, ----------------  20 (0x14)
+			Audio = 2 ^ 21, ----------------  21 (0x15)
+			DataStore = 2 ^ 22, ------------  22 (0x16)
+			Network = 2 ^ 23, --------------  23 (0x17)
+			Physics = 2 ^ 24, --------------  24 (0x18)
+			UI = 2 ^ 25, -------------------  25 (0x19)
+			CSG = 2 ^ 26, ------------------  26 (0x1a)
+			Chat = 2 ^ 27, -----------------  27 (0x1b)
+			Animation = 2 ^ 28, ------------  28 (0x1c)
+			Avatar = 2 ^ 29, ---------------  29 (0x1d)
+			Input = 2 ^ 30, ----------------  30 (0x1e)
+			Environment = 2 ^ 31, ----------  31 (0x1f)
+			RemoteEvent = 2 ^ 32, ----------  32 (0x20)
+			LegacySound = 2 ^ 33, ----------  33 (0x21)
+			PluginOrOpenCloud = 2 ^ 61, ----  61 (0x3d)
+			Assistant = 2 ^ 62, ------------  62 (0x3e)
+			-- Restricted = 2 ^ 63, -----------  for negative (highest bit for signed integers)
+		}
+
+		XML_Descriptors.SecurityCapabilities = function(raw)
+			-- TODO tostring & string.split aren't ideal but this is the only way until the feature is out of the experimental phase
+
+			if raw == BASE_CAPABILITIES then
+				return 0
+			end
+
+			local result = 0
+
+			for _, flag in string.split(tostring(raw), " | ") do
+				local value = CAPABILITY_BITS[flag]
+				if value then
+					result += value
+				end
+			end
+
+			return result
+		end
+	end
+end
+
 for descriptorName, redirectName in
 	{
 		Content = "ContentId", -- For sake of compatibility with older clients
@@ -856,7 +928,7 @@ do
 		Whitelist = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) },
 		Blacklist = {
 			LuaSourceContainer = ArrayToDictionary({ "ScriptGuid" }),
-			Instance = ArrayToDictionary({ "UniqueId", "HistoryId", "Capabilities" }),
+			Instance = ArrayToDictionary({ "UniqueId", "HistoryId" }),
 		},
 	}
 
@@ -865,155 +937,155 @@ do
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/NotScriptable%20Dumper/NotScriptable%20Dumper.py
 		]]
-			Instance = {
-				AttributesSerialize = function(instance)
-					-- * There are certain restrictions for names of attributes
-					-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
-					-- But it seems like even if those are present, Studio still opens the file just fine
-					-- So there is no need to check for them currently
+		Instance = {
+			AttributesSerialize = function(instance)
+				-- * There are certain restrictions for names of attributes
+				-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
+				-- But it seems like even if those are present, Studio still opens the file just fine
+				-- So there is no need to check for them currently
 
-					-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
-					-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
+				-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
+				-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
 
-					local attrs = instance:GetAttributes()
+				local attrs = instance:GetAttributes()
 
-					if not next(attrs) then
-						return ""
-					end
+				if not next(attrs) then
+					return ""
+				end
 
-					local attrs_n = 0
-					local buffer_size = 4
-					local attrs_sorted = {}
-					local attrs_formatted = table.clone(attrs)
-					for attr, val in attrs do
-						attrs_n += 1
-						attrs_sorted[attrs_n] = attr
+				local attrs_n = 0
+				local buffer_size = 4
+				local attrs_sorted = {}
+				local attrs_formatted = table.clone(attrs)
+				for attr, val in attrs do
+					attrs_n += 1
+					attrs_sorted[attrs_n] = attr
 
-						local Type = typeof(val)
+					local Type = typeof(val)
 
-						local Descriptor = Binary_Descriptors[Type]
-						local attr_size
+					local Descriptor = Binary_Descriptors[Type]
+					local attr_size
 
-						attrs_formatted[attr], attr_size = Descriptor(val)
+					attrs_formatted[attr], attr_size = Descriptor(val)
 
-						buffer_size += 5 + #attr + attr_size
-					end
+					buffer_size += 5 + #attr + attr_size
+				end
 
-					table.sort(attrs_sorted)
+				table.sort(attrs_sorted)
 
-					local b = buffer.create(buffer_size)
+				local b = buffer.create(buffer_size)
 
-					local offset = 0
+				local offset = 0
 
-					buffer.writeu32(b, offset, attrs_n)
-					offset += 4
+				buffer.writeu32(b, offset, attrs_n)
+				offset += 4
 
-					local Descriptors_string = Binary_Descriptors.string
-					for _, attr in attrs_sorted do
-						local b_Name, Name_size = Descriptors_string(attr)
+				local Descriptors_string = Binary_Descriptors.string
+				for _, attr in attrs_sorted do
+					local b_Name, Name_size = Descriptors_string(attr)
 
-						buffer.copy(b, offset, b_Name)
-						offset += Name_size
+					buffer.copy(b, offset, b_Name)
+					offset += Name_size
 
-						buffer.writeu8(b, offset, Type_IDs[typeof(attrs[attr])])
-						offset += 1
+					buffer.writeu8(b, offset, Type_IDs[typeof(attrs[attr])])
+					offset += 1
 
-						local bb = attrs_formatted[attr]
+					local bb = attrs_formatted[attr]
 
-						buffer.copy(b, offset, bb)
-						offset += buffer.len(bb)
-					end
+					buffer.copy(b, offset, bb)
+					offset += buffer.len(bb)
+				end
 
-					return buffer.tostring(b)
-				end,
+				return buffer.tostring(b)
+			end,
 			DefinesCapabilities = "Sandboxed",
-				Tags = function(instance)
-					-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
+			Tags = function(instance)
+				-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
 
-					local tags = instance:GetTags()
+				local tags = instance:GetTags()
 
-					if #tags == 0 then
-						return ""
-					end
+				if #tags == 0 then
+					return ""
+				end
 
-					return table.concat(tags, "\0")
-				end,
-			},
+				return table.concat(tags, "\0")
+			end,
+		},
 
-			-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
-			BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
-			BasePart = {
-				Color3uint8 = "Color",
-				MaterialVariantSerialized = "MaterialVariant",
-				size = "Size",
-			},
+		-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
+		BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
+		BasePart = {
+			Color3uint8 = "Color",
+			MaterialVariantSerialized = "MaterialVariant",
+			size = "Size",
+		},
 		DoubleConstrainedValue = { value = "Value" },
 		IntConstrainedValue = { value = "Value" },
 
-			-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
-			-- 	local Receiver  = instance:GetAttachedReceivers()[1]
-			-- 	if Receiver then
-			-- 		return Receiver:GetCurrentValue()
-			-- 	else
-			-- 		error("No Receiver", 2)
-			-- 	end
-			-- end},
-			Terrain = {
-				AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
-				MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
-					local TERRAIN_MATERIAL_COLORS =
-						{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
-							Enum.Material.Grass,
-							Enum.Material.Slate,
-							Enum.Material.Concrete,
-							Enum.Material.Brick,
-							Enum.Material.Sand,
-							Enum.Material.WoodPlanks,
-							Enum.Material.Rock,
-							Enum.Material.Glacier,
-							Enum.Material.Snow,
-							Enum.Material.Sandstone,
-							Enum.Material.Mud,
-							Enum.Material.Basalt,
-							Enum.Material.Ground,
-							Enum.Material.CrackedLava,
-							Enum.Material.Asphalt,
-							Enum.Material.Cobblestone,
-							Enum.Material.Ice,
-							Enum.Material.LeafyGrass,
-							Enum.Material.Salt,
-							Enum.Material.Limestone,
-							Enum.Material.Pavement,
-						}
+		-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
+		-- 	local Receiver  = instance:GetAttachedReceivers()[1]
+		-- 	if Receiver then
+		-- 		return Receiver:GetCurrentValue()
+		-- 	else
+		-- 		error("No Receiver", 2)
+		-- 	end
+		-- end},
+		Terrain = {
+			AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
+			MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
+				local TERRAIN_MATERIAL_COLORS =
+					{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
+						Enum.Material.Grass,
+						Enum.Material.Slate,
+						Enum.Material.Concrete,
+						Enum.Material.Brick,
+						Enum.Material.Sand,
+						Enum.Material.WoodPlanks,
+						Enum.Material.Rock,
+						Enum.Material.Glacier,
+						Enum.Material.Snow,
+						Enum.Material.Sandstone,
+						Enum.Material.Mud,
+						Enum.Material.Basalt,
+						Enum.Material.Ground,
+						Enum.Material.CrackedLava,
+						Enum.Material.Asphalt,
+						Enum.Material.Cobblestone,
+						Enum.Material.Ice,
+						Enum.Material.LeafyGrass,
+						Enum.Material.Salt,
+						Enum.Material.Limestone,
+						Enum.Material.Pavement,
+					}
 
-					local b = buffer.create(69) -- 69 bytes: 6 reserved + 63 for colors (21 materials * 3 components)
-					local offset = 6 -- 6 reserved bytes
+				local b = buffer.create(69) -- 69 bytes: 6 reserved + 63 for colors (21 materials * 3 components)
+				local offset = 6 -- 6 reserved bytes
 
-					local RGB_components = { "R", "G", "B" }
+				local RGB_components = { "R", "G", "B" }
 
-					for _, material in TERRAIN_MATERIAL_COLORS do
-						local color = instance:GetMaterialColor(material)
-						for _, component in RGB_components do
-							buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
-							offset += 1
-						end
+				for _, material in TERRAIN_MATERIAL_COLORS do
+					local color = instance:GetMaterialColor(material)
+					for _, component in RGB_components do
+						buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
+						offset += 1
 					end
+				end
 
-					return buffer.tostring(b)
-				end,
-			},
-			TriangleMeshPart = {
-				FluidFidelityInternal = "FluidFidelity",
-			},
-			MeshPart = { InitialSize = "MeshSize" },
-			PartOperation = { InitialSize = "MeshSize" },
-			Part = { shape = "Shape" },
-			TrussPart = { style = "Style" },
-			FormFactorPart = {
-				formFactorRaw = "FormFactor",
-			},
-			Fire = { heat_xml = "Heat", size_xml = "Size" },
-			Humanoid = { Health_XML = "Health" },
+				return buffer.tostring(b)
+			end,
+		},
+		TriangleMeshPart = {
+			FluidFidelityInternal = "FluidFidelity",
+		},
+		MeshPart = { InitialSize = "MeshSize" },
+		PartOperation = { InitialSize = "MeshSize" },
+		Part = { shape = "Shape" },
+		TrussPart = { style = "Style" },
+		FormFactorPart = {
+			formFactorRaw = "FormFactor",
+		},
+		Fire = { heat_xml = "Heat", size_xml = "Size" },
+		Humanoid = { Health_XML = "Health" },
 		HumanoidDescription = {
 			EmotesDataInternal = function(instance)
 				local emotes_data = ""
@@ -1030,100 +1102,100 @@ do
 				return equipped_emotes_data
 			end,
 		},
-			LocalizationTable = {
-				Contents = function(instance)
-					return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
-				end,
-			},
-			MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
+		LocalizationTable = {
+			Contents = function(instance)
+				return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
+			end,
+		},
+		MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
 
-			Model = {
-				ScaleFactor = function(instance)
-					return instance:GetScale()
-				end,
-				WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
-				-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
-			},
-			PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
-			Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
+		Model = {
+			ScaleFactor = function(instance)
+				return instance:GetScale()
+			end,
+			WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
+			-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
+		},
+		PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
+		Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
 
-			StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
-			Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
-			Sound = {
-				xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
-			},
-			-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
-			-- 	CameraCFrame = function(instance) -- *
-			-- 		local CurrentCamera = instance.CurrentCamera
-			-- 		if CurrentCamera then
-			-- 			return CurrentCamera.CFrame
-			-- 		else
-			-- 			error("No CurrentCamera", 2)
-			-- 		end
-			-- 	end,
-			-- 	-- CameraFieldOfView =
-			-- },
-			WeldConstraint = {
-				Part0Internal = "Part0",
-				Part1Internal = "Part1",
-				-- State = function(instance)
-				-- 	-- If untouched then default state is 3 (default true)
-				-- 	return instance.Enabled and 1 or 0
-				-- end,
-			},
-			Workspace = {
-				-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
-				CollisionGroupData = function()
-					local collision_groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
+		StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
+		Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
+		Sound = {
+			xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
+		},
+		-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
+		-- 	CameraCFrame = function(instance) -- *
+		-- 		local CurrentCamera = instance.CurrentCamera
+		-- 		if CurrentCamera then
+		-- 			return CurrentCamera.CFrame
+		-- 		else
+		-- 			error("No CurrentCamera", 2)
+		-- 		end
+		-- 	end,
+		-- 	-- CameraFieldOfView =
+		-- },
+		WeldConstraint = {
+			Part0Internal = "Part0",
+			Part1Internal = "Part1",
+			-- State = function(instance)
+			-- 	-- If untouched then default state is 3 (default true)
+			-- 	return instance.Enabled and 1 or 0
+			-- end,
+		},
+		Workspace = {
+			-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
+			CollisionGroupData = function()
+				local collision_groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
 
-					local col_groups_n = #collision_groups
+				local col_groups_n = #collision_groups
 
-					if col_groups_n == 0 then
-						return "\1\0"
+				if col_groups_n == 0 then
+					return "\1\0"
+				end
+
+				local buffer_size = 3 -- Initial size
+
+				for _, group in collision_groups do
+					buffer_size += 7 + #group.name
+				end
+
+				buffer_size -= 1 -- Except Default group
+
+				local b = buffer.create(buffer_size)
+
+				local offset = 0
+
+				buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
+				offset += 1
+				buffer.writeu16(b, offset, col_groups_n * 10) -- Group count (not sure about u16)
+				offset += 2
+
+				for i, group in collision_groups do
+					local name, id, mask = group.name, i - 1, group.mask
+					local name_len = #name
+
+					if id ~= 0 then
+						buffer.writeu8(b, offset, id) -- ID
+						offset += 1
 					end
 
-					local buffer_size = 3 -- Initial size
-
-					for _, group in collision_groups do
-						buffer_size += 7 + #group.name
-					end
-
-					buffer_size -= 1 -- Except Default group
-
-					local b = buffer.create(buffer_size)
-
-					local offset = 0
-
-					buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
+					buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
 					offset += 1
-					buffer.writeu16(b, offset, col_groups_n * 10) -- Group count (not sure about u16)
-					offset += 2
 
-					for i, group in collision_groups do
-						local name, id, mask = group.name, i - 1, group.mask
-						local name_len = #name
+					buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
+					offset += 4
 
-						if id ~= 0 then
-							buffer.writeu8(b, offset, id) -- ID
-							offset += 1
-						end
+					buffer.writeu8(b, offset, name_len) -- Name length
+					offset += 1
+					buffer.writestring(b, offset, name) -- Name
+					offset += name_len
+				end
 
-						buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
-						offset += 1
-
-						buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
-						offset += 4
-
-						buffer.writeu8(b, offset, name_len) -- Name length
-						offset += 1
-						buffer.writestring(b, offset, name) -- Name
-						offset += name_len
-					end
-
-					return buffer.tostring(b)
-				end,
-			},
-		}
+				return buffer.tostring(b)
+			end,
+		},
+	}
 
 	local function FetchAPI()
 		-- Credits @MaximumADHD
@@ -1409,7 +1481,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local savebuffer, savebuffer_size =
 		{
 			'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4">',
-	}, 2
+		}, 2
 
 	local StatusText
 
