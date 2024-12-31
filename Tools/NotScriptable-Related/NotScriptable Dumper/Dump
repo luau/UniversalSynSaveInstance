@@ -64,8 +64,8 @@ HumanoidDescription.EquippedEmotesDataInternal
 
 InsertService.AllowClientInsertModels 
 
-Lighting.Intent 
-Lighting.Quality 
+Lighting.LightingStyle 
+Lighting.PrioritizeLightingQuality 
 
 LocalizationTable.Contents 
 
@@ -168,7 +168,6 @@ Model.ScaleFactor
 Model.WorldPivotData 
 
 Workspace.AvatarUnificationMode 
-Workspace.CSGAsyncDynamicCollision 
 Workspace.CollisionGroupData {BinaryString}
 Workspace.ExplicitAutoJoints 
 Workspace.FluidForces 
@@ -257,3 +256,43 @@ WeldConstraint.Part0Internal
 WeldConstraint.Part1Internal 
 WeldConstraint.State 
 
+
+Potential Proxy Properties:
+Instance.AttributesSerialize
+BallSocketConstraint.MaxFrictionTorqueXml
+Fire.heat_xml
+Fire.size_xml
+Path2D.PropertiesSerialize
+Humanoid.Health_XML
+Humanoid.InternalBodyScale
+Humanoid.InternalDisplayName {Scriptable} {Serialize: False}
+Humanoid.InternalHeadScale
+Humanoid.InternalOriginalHipHeight {Serialize: False}
+Humanoid.MoveDirectionInternal {Serialize: False}
+HumanoidDescription.EmotesDataInternal
+HumanoidDescription.EquippedEmotesDataInternal
+IncrementalPatchBuilder.SerializePatch {Scriptable}
+MaterialService.Use2022MaterialsXml
+MetaBreakpointContext.ContextDataInternal
+BasePart.MaterialVariantSerialized
+TriangleMeshPart.FluidFidelityInternal
+PartOperation.SerializedCSGTree {Serialize: False}
+PartOperation.SerializedOperationGraph {Serialize: False}
+PackageLink.PackageIdSerialize
+PackageLink.SerializedDefaultAttributes {Scriptable}
+PackageLink.VersionIdSerialize
+Player.InternalCharacterAppearanceLoaded {Serialize: False}
+PlayerEmulatorService.SerializedEmulatedPolicyInfo {Scriptable}
+Players.MaxPlayersInternal {Scriptable}
+Players.PreferredPlayersInternal {Scriptable}
+Smoke.opacity_xml
+Smoke.riseVelocity_xml
+Smoke.size_xml
+Sound.xmlRead_MaxDistance_3 {Serialize: False}
+Sound.xmlRead_MinDistance_3 {Serialize: False}
+StarterPlayer.AvatarJointUpgrade_SerializedRollout
+Studio.Enable Internal Beta Features {Scriptable}
+Studio.Enable Internal Features {Scriptable}
+StyleRule.PropertiesSerialize
+WeldConstraint.Part0Internal
+WeldConstraint.Part1Internal

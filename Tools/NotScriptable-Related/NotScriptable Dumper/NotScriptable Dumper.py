@@ -28,6 +28,7 @@ def find_first_table(array):
 
 
 s = "\n"
+filtered_properties = []
 
 
 def api():
@@ -59,7 +60,7 @@ def fetch_api():
     response = api()
     api_classes = response.json()["Classes"]
 
-    global s
+    global s, filtered_properties
     for api_class in api_classes:
         class_name = api_class["Name"]
         class_members = api_class["Members"]
@@ -89,6 +90,20 @@ def fetch_api():
                     if table_found:
                         s += f"{'{PreferredDescriptorName: '+table_found.get('PreferredDescriptorName')+'}'}"
                     s += "\n"
+
+                if re.search(r"xml|internal|serial", member_name, re.IGNORECASE):
+
+                    str = f"{class_name}.{member_name}"
+                    if not special:
+                        str += " {Scriptable}"
+                    if not (
+                        serialization.get("CanLoad", True)
+                        and serialization.get("CanSave", True)
+                    ):
+                        str += " {Serialize: False}"
+
+                    filtered_properties.append(str)
+
         for enum_type, real_member_name in enum_members.items():
             for member in class_members:
                 member_name = member["Name"]
@@ -102,6 +117,10 @@ def fetch_api():
 
         if len(s) != prev_len:
             s += "\n"
+
+    if filtered_properties:
+        s += "\nPotential Proxy Properties:\n"
+        s += "\n".join(filtered_properties) + "\n"
 
 
 try:

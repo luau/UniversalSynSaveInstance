@@ -47,7 +47,9 @@ do
 			local Class = {}
 
 			local ClassName = API_Class.Name
-
+			-- if ClassName == "GuiService" then
+			-- 	continue
+			-- end
 			local ClassTags = API_Class.Tags
 
 			if ClassTags then
@@ -74,7 +76,7 @@ do
 				if Member.MemberType == "Property" then
 					local PropertyName = Member.Name
 
-					local Ignored = false
+					local Ignored = { NextSelectionUp = true, CoreEffectFolder = true }
 					if not (Ignored and Ignored[PropertyName]) then
 						local MemberTags = Member.Tags
 
@@ -86,23 +88,22 @@ do
 							Special = MemberTags.NotScriptable
 						end
 						local Serialization = Member.Serialization
-						if Serialization.CanLoad and Serialization.CanSave and Special then
-							local ValueType = Member.ValueType
 
-							local Property = {
-								Name = PropertyName,
-								Category = ValueType.Category,
-								Default = Member.Default,
-								-- Tags = MemberTags,
-								ValueType = ValueType.Name,
-							}
+						local ValueType = Member.ValueType
 
-							if Special then
-								Property.Special = true
-							end
+						local Property = {
+							Name = PropertyName,
+							Category = ValueType.Category,
+							Default = Member.Default,
+							-- Tags = MemberTags,
+							ValueType = ValueType.Name,
+						}
 
-							ClassProperties[PropertyName] = Property
+						if Special then
+							Property.Special = true
 						end
+
+						ClassProperties[PropertyName] = Property
 					end
 				end
 			end
@@ -176,11 +177,6 @@ do
 				pcall(function()
 					instance = game:GetService(ClassName)
 				end)
-				if not instance then
-					pcall(function()
-						instance = game:GetService(ClassName)
-					end)
-				end
 			end
 			if not instance then
 				instance = game:FindFirstChild(ClassName, true)
@@ -204,6 +200,7 @@ do
 		-- print(ClassName)
 		for _, PropertyInfo in ClassInfo.Properties do
 			local PropertyName = PropertyInfo.Name
+			local not_Special = not PropertyInfo.Special
 
 			if instance then
 				writefile("crasher.txt", ClassName .. "." .. PropertyName)
@@ -222,7 +219,9 @@ do
 					if descriptor == PropertyName or alreadynoted[descriptor] then
 						return
 					end
-
+					if not_Special and  isscriptable(instance, descriptor) then
+						return
+					end
 					alreadynoted[descriptor] = true
 					local str = ClassName .. "." .. PropertyName .. " - " .. descriptor
 					s ..= str .. "\n"

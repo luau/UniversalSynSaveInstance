@@ -165,6 +165,7 @@ DebugSettings.InstanceCount {CanSave Only}
 DebugSettings.JobCount {CanSave Only}
 DebugSettings.PlayerCount {CanSave Only}
 DebugSettings.RobloxVersion {CanSave Only}
+DebugSettings is NotCreatable but DebugSettings.DataModel has a default value: __api_dump_skipped_class__
 
 DebuggerBreakpoint is NotCreatable but DebuggerBreakpoint.Condition has a default value: __api_dump_skipped_class__
 
@@ -200,6 +201,7 @@ FunctionalTest.PhysicsEnvironmentalThrottle {CanLoad Only}
 FunctionalTest.Timeout {CanLoad Only}
 
 GameSettings.VideoRecording {CanLoad Only}
+GameSettings is NotCreatable but GameSettings.VideoCaptureEnabled has a default value: __api_dump_skipped_class__
 
 GamepadService is NotCreatable but GamepadService.GamepadCursorEnabled has a default value: false
 
@@ -334,6 +336,8 @@ Mouse.ViewSizeY {CanSave Only}
 Mouse.X {CanSave Only}
 Mouse.Y {CanSave Only}
 
+NetworkSettings is NotCreatable but NetworkSettings.EmulatedTotalMemoryInMB has a default value: __api_dump_skipped_class__
+
 NotificationService.SelectedTheme {CanLoad Only}
 
 BasePart.AssemblyAngularVelocity {CanLoad Only}
@@ -411,6 +415,8 @@ Path.Status {CanSave Only}
 PathfindingService.EmptyCutoff {CanLoad Only} {Deprecated}
 PathfindingService is NotCreatable but PathfindingService.EmptyCutoff has a default value: 0
 
+PhysicsSettings is NotCreatable but PhysicsSettings.AllowSleep has a default value: __api_dump_skipped_class__
+
 Player.CharacterAppearance {Deprecated} {CanSave}
 Player.FollowUserId {CanSave Only}
 
@@ -430,6 +436,7 @@ PolicyService is NotCreatable but PolicyService.IsLuobuServer has a default valu
 Pose.MaskWeight {CanLoad Only} {Deprecated}
 
 RenderSettings.EnableFRM {CanLoad Only}
+RenderSettings is NotCreatable but RenderSettings.AutoFRMLevel has a default value: __api_dump_skipped_class__
 
 RobloxSerializableInstance is NotCreatable but RobloxSerializableInstance.Data has a default value: 
 
@@ -486,6 +493,7 @@ Sparkles.Color {CanLoad Only}
 StarterPlayer is NotCreatable but StarterPlayer.AllowCustomAnimations has a default value: true
 
 Studio.UI Theme {CanSave Only} {Deprecated} {CanSave}
+Studio is NotCreatable but Studio."TODO" Color has a default value: __api_dump_skipped_class__
 
 StudioData is NotCreatable but StudioData.EnableScriptCollabByDefaultOnLoad has a default value: false
 
@@ -504,6 +512,7 @@ StyleRule.Index {CanLoad Only}
 TaskScheduler.SchedulerDutyCycle {CanSave Only}
 TaskScheduler.SchedulerRate {CanSave Only}
 TaskScheduler.ThreadPoolSize {CanSave Only}
+TaskScheduler is NotCreatable but TaskScheduler.SchedulerDutyCycle has a default value: __api_dump_skipped_class__
 
 Team.AutoColorCharacters {CanLoad Only} {Deprecated}
 Team.Score {CanLoad Only} {Deprecated}
