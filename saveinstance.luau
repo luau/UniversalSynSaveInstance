@@ -195,7 +195,7 @@ do -- * Load Region of Déjà Vu
 				"Base64"
 			)().encode
 			reselim_base64encode = function(raw)
-				return raw == "" and raw or buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
+				return buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
 			end
 		end)
 
@@ -565,17 +565,17 @@ XML_Descriptors = {
 		-- tostring(raw) also works (but way slower rn)
 		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
 
-		local Converted = ""
+		local sequence = ""
 
 		for _, keypoint in raw.Keypoints do
 			local Value = keypoint.Value
 
-			Converted ..= keypoint.Time .. " " .. (valueFormatter and valueFormatter(Value) or __EXTREME_RANGE(Value) .. " " .. __EXTREME_RANGE(
+			sequence ..= keypoint.Time .. " " .. (valueFormatter and valueFormatter(Value) or __EXTREME_RANGE(Value) .. " " .. __EXTREME_RANGE(
 				keypoint.Envelope
 			) .. " ") -- ? Trailing whitespace is only needed for lune compatibility
 		end
 
-		return Converted
+		return sequence
 	end,
 	__VECTOR = function(X, Y, Z) -- Each element is a <float>
 		local Value = "<X>" .. X .. "</X><Y>" .. Y .. "</Y>" -- There is no Vector without at least two Coordinates.. (Vector1, at least on Roblox)
@@ -604,7 +604,9 @@ XML_Descriptors = {
 
 	BinaryString = EXECUTOR_NAME == "Electron" and function(raw)
 		return raw
-	end or base64encode, -- TODO Issues may arise if NotScriptableFix or gethiddenproperty_fallback are able to read BinaryString where gethiddenproperty can't on Electron
+	end or function(raw)
+		return raw == "" and "" or base64encode(raw)
+	end, -- TODO Issues may arise if NotScriptableFix or gethiddenproperty_fallback are able to read BinaryString where gethiddenproperty can't on Electron
 
 	BrickColor = function(raw)
 		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
@@ -734,21 +736,21 @@ XML_Descriptors = {
 	Rect = function(raw)
 		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector2), "Rect2D"
 	end,
-	Region3 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/Network/Replicator.cpp#L1306)
+	Region3 = function(raw) --? Not sure yet (/Network/Replicator.cpp#L1306)
 		local Translation = raw.CFrame.Position
 		local HalfSize = raw.Size * 0.5
 
 		return XML_Descriptors.__MINMAX(
-			Translation - HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L38
-			Translation + HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L42
+			Translation - HalfSize, -- /App/util/Region3.cpp#L38
+			Translation + HalfSize, -- /App/util/Region3.cpp#L42
 			XML_Descriptors.Vector3
 		)
 	end,
-	Region3int16 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/App/v8tree/EnumProperty.cpp#L346)
+	Region3int16 = function(raw) --? Not sure yet (/App/v8tree/EnumProperty.cpp#L346)
 		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector3int16)
 	end,
 	SharedString = function(raw)
-		raw = base64encode(raw)
+		raw = raw == "" and "" or base64encode(raw)
 
 		local Identifier = SharedString_identifiers[raw]
 
@@ -858,8 +860,11 @@ do
 		},
 	}
 
-	local NotScriptableFixes =
-		{ -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
+	local NotScriptableFixes = { --[[
+		For more info: 
+		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
+		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/NotScriptable%20Dumper/NotScriptable%20Dumper.py
+		]]
 			Instance = {
 				AttributesSerialize = function(instance)
 					-- * There are certain restrictions for names of attributes
@@ -1117,14 +1122,12 @@ do
 				return
 			end
 
-			local DeployHistory = game:HttpGet("https://setup.rbxcdn.com/DeployHistory.txt", true)
-			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
-
 			local matching_versions, is_matched = {}
 
-			local lines = string.split(DeployHistory, "\n")
-			for i = #lines, 1, -1 do
-				local line = lines[i]
+			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
+			local DeployHistory = string.split(game:HttpGet("https://setup.rbxcdn.com/DeployHistory.txt", true), "\n")
+			for i = #DeployHistory, 1, -1 do
+				local line = DeployHistory[i]
 
 				local file_version = string.match(line, "file version: ([%d, ]+)")
 				if file_version then
@@ -1226,9 +1229,7 @@ do
 							local Special
 
 							if MemberTags then
-								MemberTags = ArrayToDictionary(MemberTags, nil, nil, "string")
-
-								Special = MemberTags.NotScriptable
+								Special = table.find(MemberTags, "NotScriptable") and true
 							end
 
 							-- if not Special then
