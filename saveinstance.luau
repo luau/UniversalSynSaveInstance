@@ -926,6 +926,7 @@ do
 
 					return buffer.tostring(b)
 				end,
+			DefinesCapabilities = "Sandboxed",
 				Tags = function(instance)
 					-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
 
@@ -946,6 +947,9 @@ do
 				MaterialVariantSerialized = "MaterialVariant",
 				size = "Size",
 			},
+		DoubleConstrainedValue = { value = "Value" },
+		IntConstrainedValue = { value = "Value" },
+
 			-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
 			-- 	local Receiver  = instance:GetAttachedReceivers()[1]
 			-- 	if Receiver then
@@ -1008,11 +1012,24 @@ do
 			FormFactorPart = {
 				formFactorRaw = "FormFactor",
 			},
-			DoubleConstrainedValue = { value = "Value" },
-			IntConstrainedValue = { value = "Value" },
 			Fire = { heat_xml = "Heat", size_xml = "Size" },
-
 			Humanoid = { Health_XML = "Health" },
+		HumanoidDescription = {
+			EmotesDataInternal = function(instance)
+				local emotes_data = ""
+				for name, ids in instance:GetEmotes() do
+					emotes_data ..= name .. "^" .. table.concat(ids, "^") .. "^\\"
+				end
+				return emotes_data
+			end,
+			EquippedEmotesDataInternal = function(instance)
+				local equipped_emotes_data = ""
+				for _, emote in instance:GetEquippedEmotes() do
+					equipped_emotes_data ..= emote.Slot .. "^" .. emote.Name .. "\\"
+				end
+				return equipped_emotes_data
+			end,
+		},
 			LocalizationTable = {
 				Contents = function(instance)
 					return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
