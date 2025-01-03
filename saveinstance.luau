@@ -116,7 +116,8 @@ do -- * Load Region of Déjà Vu
 	local UGCValidationService = service.UGCValidationService
 
 	gethiddenproperty_fallback = function(instance, propertyName)
-		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
+		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
+		-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
 	end
 	if gethiddenproperty then
 		local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
@@ -696,14 +697,11 @@ XML_Descriptors = {
 	-- ! Assuming all base64 encoded strings won't have newlines
 
 	-- ! 7/7/24
-	-- ! Fix for Electron v3
 	-- ! Electron v3 'gethiddenproperty' automatically base64 encodes BinaryString values
 
-	BinaryString = EXECUTOR_NAME == "Electron" and function(raw)
-		return raw
-	end or function(raw)
+	BinaryString = function(raw)
 		return raw == "" and "" or base64encode(raw)
-	end, -- TODO Issues may arise if NotScriptableFix or gethiddenproperty_fallback are able to read BinaryString where gethiddenproperty can't on Electron
+	end,
 
 	BrickColor = function(raw)
 		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
@@ -2239,10 +2237,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
 	end
 
-	local function unfilterPropVal(category, optional)
-		return category ~= "Class" and not optional
-	end
-
 	local __BREAK = "__BREAK" .. service.HttpService:GenerateGUID(false)
 
 	local function ReadProperty(instance, property, propertyName, special, category, optional)
@@ -2276,7 +2270,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if filterPropVal(raw, propertyName, category) then
 					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
 
-					if result ~= nil or unfilterPropVal(category, optional) then
+					if result ~= nil or not optional then
 						if __DEBUG_MODE then
 							__DEBUG_MODE("Filtered", propertyName)
 						end
@@ -2542,7 +2536,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 							local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
 
-							if result == nil and unfilterPropVal(Category, Optional) then
+							if result == nil and not Optional then
 								ok = nil
 							end
 
