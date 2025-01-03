@@ -1836,6 +1836,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNonCreatableWillBeEnabled, RecoveredScripts
 
+	if OPTIONS.ReadMe then
+		RecoveredScripts = {}
+	end
+
 	if ScriptCache and not ldeccache then
 		ldeccache = {}
 		GLOBAL_ENV.scriptcache = ldeccache
@@ -2640,8 +2644,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 											local Path = instance:GetFullName()
 											if RecoveredScripts then
 												table.insert(RecoveredScripts, Path)
-											else
-												RecoveredScripts = { Path }
 											end
 
 											LinkedSource = string.match(LinkedSource_Url, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
@@ -2864,7 +2866,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				nil,
 				"Script",
 				"--[[\n"
-					.. (RecoveredScripts and "\t\tIMPORTANT: Original Source of these Scripts was Recovered: " .. service.HttpService:JSONEncode(
+					.. (#RecoveredScripts ~= 0 and "\t\tIMPORTANT: Original Source of these Scripts was Recovered: " .. service.HttpService:JSONEncode(
 						RecoveredScripts
 					) .. "\n" or "")
 					.. [[
