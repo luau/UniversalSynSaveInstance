@@ -263,24 +263,48 @@ local SharedString_identifiers = setmetatable({
 	end,
 })
 
+local function __BIT(...) -- * Credits to Friend (you know yourself)
+	local Value = 0
+
+	for i, bit in { ... } do
+		if bit then
+			Value += 2 ^ (i - 1)
+		end
+	end
+
+	return Value
+end
+
 local Type_IDs = {
 	string = 0x02,
 	boolean = 0x03,
 	-- int32 = 0x04,
 	-- float = 0x05,
 	number = 0x06,
+	-- Array = 0x07,
+	-- Dictionary = 0x08,
 	UDim = 0x09,
 	UDim2 = 0x0A,
+	Ray = 0x0B,
+	Faces = 0x0C,
+	Axes = 0x0D,
 	BrickColor = 0x0E,
 	Color3 = 0x0F,
 	Vector2 = 0x10,
 	Vector3 = 0x11,
+	Vector2int16 = 0x12,
+	Vector3int16 = 0x13,
 	CFrame = 0x14,
 	EnumItem = 0x15,
 	NumberSequence = 0x17,
+	NumberSequenceKeypoint = 0x18,
 	ColorSequence = 0x19,
+	ColorSequenceKeypoint = 0x1A,
 	NumberRange = 0x1B,
 	Rect = 0x1C,
+	PhysicalProperties = 0x1D,
+	Region3 = 0x1F,
+	Region3int16 = 0x20,
 	Font = 0x21,
 }
 local CFrame_Rotation_IDs = {
@@ -378,13 +402,38 @@ Binary_Descriptors = {
 	["UDim2"] = function(raw)
 		local b = buffer.create(16)
 
-		local Descriptors_UDim = Binary_Descriptors.UDim
-		local X = Descriptors_UDim(raw.X)
+		local UDim__descriptor = Binary_Descriptors.UDim
+		local X = UDim__descriptor(raw.X)
 		buffer.copy(b, 0, X)
-		local Y = Descriptors_UDim(raw.Y)
+		local Y = UDim__descriptor(raw.Y)
 		buffer.copy(b, 8, Y)
 
 		return b, 16
+	end,
+	["Ray"] = function(raw)
+		local b = buffer.create(24)
+
+		local Vector3__descriptor = Binary_Descriptors.Vector3
+		local Origin = Vector3__descriptor(raw.Origin)
+		buffer.copy(b, 0, Origin)
+		local Direction = Vector3__descriptor(raw.Direction)
+		buffer.copy(b, 12, Direction)
+
+		return b, 24
+	end,
+	["Faces"] = function(raw)
+		local b = buffer.create(4)
+
+		buffer.writeu32(b, 0, __BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front))
+
+		return b, 4
+	end,
+	["Axes"] = function(raw)
+		local b = buffer.create(4)
+
+		buffer.writeu32(b, 0, __BIT(raw.X, raw.Y, raw.Z))
+
+		return b, 4
 	end,
 	["BrickColor"] = function(raw)
 		local b = buffer.create(4)
@@ -418,6 +467,23 @@ Binary_Descriptors = {
 		buffer.writef32(b, 8, raw.Z)
 
 		return b, 12
+	end,
+	["Vector2int16"] = function(raw)
+		local b = buffer.create(4)
+
+		buffer.writei16(b, 0, raw.X)
+		buffer.writei16(b, 2, raw.Y)
+
+		return b, 4
+	end,
+	["Vector3int16"] = function(raw)
+		local b = buffer.create(6)
+
+		buffer.writei16(b, 0, raw.X)
+		buffer.writei16(b, 2, raw.Y)
+		buffer.writei16(b, 4, raw.Z)
+
+		return b, 6
 	end,
 	["CFrame"] = function(raw)
 		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
@@ -473,13 +539,14 @@ Binary_Descriptors = {
 		return b, len
 	end,
 	["NumberSequence"] = nil,
-
+	-- ["NumberSequenceKeypoint"] = nil, -- TODO Only impl. if necessary because NumberSequence will reference this therefore slowing down itself
 	["ColorSequence"] = function(raw)
 		return Binary_Descriptors.__SEQUENCE(raw, function(color3, b, offset)
 			buffer.copy(b, offset, Binary_Descriptors.Color3(color3))
 			return 12
 		end, 20, 0)
 	end,
+	-- ["ColorSequenceKeypoint"] = nil, -- TODO Only impl. if necessary because ColorSequence will reference this therefore slowing down itself
 	["NumberRange"] = function(raw)
 		local b = buffer.create(8)
 
@@ -491,19 +558,60 @@ Binary_Descriptors = {
 	["Rect"] = function(raw)
 		local b = buffer.create(16)
 
-		local Descriptors_Vector2 = Binary_Descriptors.Vector2
-		local Min = Descriptors_Vector2(raw.Min)
+		local Vector2__descriptor = Binary_Descriptors.Vector2
+		local Min = Vector2__descriptor(raw.Min)
 		buffer.copy(b, 0, Min)
-		local Max = Descriptors_Vector2(raw.Max)
+		local Max = Vector2__descriptor(raw.Max)
 		buffer.copy(b, 8, Max)
 
 		return b, 16
 	end,
-	["Font"] = function(raw)
-		local Descriptors_string = Binary_Descriptors.string
+	["PhysicalProperties"] = function(raw) -- ? Not sure yet (https://github.com/RobloxAPI/spec/blob/master/properties/drafts/AttributesSerializeFull.md#physicalproperties)
+		local len = 1
+		if raw then
+			len += 20
+		end
+		local b = buffer.create(len)
 
-		local b_Family, Family_size = Descriptors_string(raw.Family)
-		local b_CachedFaceId, CachedFaceId_size = Descriptors_string("")
+		buffer.writeu8(b, 0, raw and 1 or 0)
+
+		if raw then
+			buffer.writef32(b, 1, raw.Density)
+			buffer.writef32(b, 5, raw.Friction)
+			buffer.writef32(b, 9, raw.Elasticity)
+			buffer.writef32(b, 13, raw.FrictionWeight)
+			buffer.writef32(b, 17, raw.ElasticityWeight)
+		end
+
+		return b, len
+	end,
+	["Region3"] = function(raw)
+		local b = buffer.create(24)
+
+		local Vector3__descriptor = Binary_Descriptors.Vector3
+		local Min = Vector3__descriptor(raw.Min)
+		buffer.copy(b, 0, Min)
+		local Max = Vector3__descriptor(raw.Max)
+		buffer.copy(b, 12, Max)
+
+		return b, 24
+	end,
+	["Region3int16"] = function(raw)
+		local b = buffer.create(12)
+
+		local Vector3int16__descriptor = Binary_Descriptors.Vector3int16
+		local Min = Vector3int16__descriptor(raw.Min)
+		buffer.copy(b, 0, Min)
+		local Max = Vector3int16__descriptor(raw.Max)
+		buffer.copy(b, 6, Max)
+
+		return b, 12
+	end,
+	["Font"] = function(raw)
+		local string__descriptor = Binary_Descriptors.string
+
+		local b_Family, Family_size = string__descriptor(raw.Family)
+		local b_CachedFaceId, CachedFaceId_size = string__descriptor("")
 
 		local len = 3 + Family_size + CachedFaceId_size
 		local b = buffer.create(len)
@@ -523,17 +631,6 @@ end
 
 local XML_Descriptors
 XML_Descriptors = {
-	__BIT = function(...) -- * Credits to Friend (you know yourself)
-		local Value = 0
-
-		for i, bit in { ... } do
-			if bit then
-				Value += 2 ^ (i - 1)
-			end
-		end
-
-		return Value
-	end,
 	__CDATA = function(raw) -- ? Normally Roblox doesn't use CDATA unless the string has newline characters (\n); We rather CDATA everything for sake of speed
 		return "<![CDATA[" .. raw .. "]]>"
 	end,
@@ -592,7 +689,7 @@ XML_Descriptors = {
 	Axes = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 7
 
-		return "<axes>" .. XML_Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
+		return "<axes>" .. __BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
 
 	-- ? Roblox uses CDATA only for these (try to prove this wrong): CollisionGroupData, SmoothGrid, MaterialColors, PhysicsGrid
@@ -676,11 +773,15 @@ XML_Descriptors = {
 	-- DateTime = function(raw) return raw.UnixTimestampMillis end, -- TODO
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
-		return "<faces>"
-			.. XML_Descriptors.__BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front)
-			.. "</faces>"
+		return "<faces>" .. __BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front) .. "</faces>"
 	end,
 	Font = function(raw)
+		-- TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+		--[[
+		? game:GetService("TextService"):GetFontMemoryData()
+		? rbxasset://fonts/families/{Enum.Font.BuilderSans.Name}.json
+		]]
+
 		local FontString = tostring(raw) -- TODO: Temporary fix
 
 		local EmptyWeight = string_find(FontString, "Weight = ,")
@@ -692,7 +793,7 @@ XML_Descriptors = {
 			.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
 			.. "</Weight><Style>"
 			.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
-			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+			.. "</Style>"
 	end,
 	NumberRange = function(raw) -- tostring(raw) also works
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
@@ -715,13 +816,7 @@ XML_Descriptors = {
 			The value of each component is represented by the text content formatted as a 32-bit floating point number (see float)
 		]]
 
-		local CustomPhysics
-		if raw then
-			CustomPhysics = true
-		else
-			CustomPhysics = false
-		end
-		CustomPhysics = "<CustomPhysics>" .. XML_Descriptors.bool(CustomPhysics) .. "</CustomPhysics>"
+		local CustomPhysics = "<CustomPhysics>" .. XML_Descriptors.bool(raw and true or false) .. "</CustomPhysics>"
 
 		return raw
 				and CustomPhysics .. "<Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
@@ -736,7 +831,7 @@ XML_Descriptors = {
 	Rect = function(raw)
 		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector2), "Rect2D"
 	end,
-	Region3 = function(raw) --? Not sure yet (/Network/Replicator.cpp#L1306)
+	Region3 = function(raw) -- ? Not sure yet (/Network/Replicator.cpp#L1306)
 		local Translation = raw.CFrame.Position
 		local HalfSize = raw.Size * 0.5
 
@@ -746,7 +841,7 @@ XML_Descriptors = {
 			XML_Descriptors.Vector3
 		)
 	end,
-	Region3int16 = function(raw) --? Not sure yet (/App/v8tree/EnumProperty.cpp#L346)
+	Region3int16 = function(raw) -- ? Not sure yet (/App/v8tree/EnumProperty.cpp#L346)
 		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector3int16)
 	end,
 	SharedString = function(raw)
@@ -895,9 +990,9 @@ do
 			local result = 0
 
 			for _, flag in string.split(tostring(raw), " | ") do
-				local value = CAPABILITY_BITS[flag]
-				if value then
-					result += value
+				local bit = CAPABILITY_BITS[flag]
+				if bit then
+					result += bit
 				end
 			end
 
@@ -980,9 +1075,9 @@ do
 				buffer.writeu32(b, offset, attrs_n)
 				offset += 4
 
-				local Descriptors_string = Binary_Descriptors.string
+				local string__descriptor = Binary_Descriptors.string
 				for _, attr in attrs_sorted do
-					local b_Name, Name_size = Descriptors_string(attr)
+					local b_Name, Name_size = string__descriptor(attr)
 
 					buffer.copy(b, offset, b_Name)
 					offset += Name_size
@@ -1173,8 +1268,8 @@ do
 					local name, id, mask = group.name, i - 1, group.mask
 					local name_len = #name
 
-						buffer.writeu8(b, offset, id) -- ID
-						offset += 1
+					buffer.writeu8(b, offset, id) -- ID
+					offset += 1
 
 					buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
 					offset += 1
