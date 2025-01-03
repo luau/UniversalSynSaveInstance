@@ -1649,7 +1649,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			IgnoreDefaultProperties = "IgnoreDefaultProps",
 			SaveNonCreatable = "SaveNotCreatable",
 			IsolatePlayers = "SavePlayers",
-			scriptcache = "DecompileJobless",
 			timeout = "DecompileTimeout",
 			IgnoreNotArchivable = "IgnoreArchivable",
 		},
@@ -1823,6 +1822,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local TreatUnionsAsParts = OPTIONS.TreatUnionsAsParts
 
 	local DecompileJobless = OPTIONS.DecompileJobless
+	if DecompileJobless then
+		OPTIONS.scriptcache = true
+	end
 	local ScriptCache = OPTIONS.scriptcache and getscriptbytecode
 
 	local Timeout = OPTIONS.timeout
@@ -2148,7 +2150,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				-- local name = scr.ClassName .. scr.Name
 				local hashed_bytecode
 				if ScriptCache then
-					local s, bytecode = getbytecode(script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
+					local s, bytecode = getbytecode(script)
 					local cached
 
 					if s then
@@ -2164,10 +2166,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							__DEBUG_MODE("Found in Cache", script:GetFullName())
 						end
 						return cached
-					elseif DecompileJobless then
-						return "-- Not found in already decompiled ScriptCache"
 					end
 				else
+					if DecompileJobless then
+						return "-- Not found in already decompiled ScriptCache"
+					end
+
 					task.wait() -- TODO Maybe remove?
 				end
 
@@ -2642,34 +2646,42 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 											LinkedSource = string.match(LinkedSource_Url, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 											if LinkedSource then
-												local cached = ldeccache[LinkedSource]
+												if ScriptCache then
+													local cached = ldeccache[LinkedSource]
 
-												if cached then
-													value = cached
-													should_decompile = nil
-												elseif DecompileJobless then
-													value = "-- Not found in already decompiled ScriptCache"
-													should_decompile = nil
+													if cached then
+														value = cached
+														should_decompile = nil
+													end
 												end
+												if should_decompile then
+													if DecompileJobless then
+														value = "-- Not found in LinkedSource ScriptCache"
+														should_decompile = nil
+													end
 
-												LinkedSource_type = string.find(LinkedSource, "%a") and "hash" or "id"
+													LinkedSource_type = string.find(LinkedSource, "%a") and "hash"
+														or "id"
 
-												local asset = LinkedSource_type .. "=" .. LinkedSource
+													local asset = LinkedSource_type .. "=" .. LinkedSource
 
-												local source
-												local ok = pcall(function()
-													-- Credits @halffalse
-													source = game:HttpGet(
-														"https://assetdelivery.roproxy.com/v1/asset/?" .. asset
-													)
-												end)
+													local source
+													local ok = pcall(function()
+														-- Credits @halffalse
+														source = game:HttpGet(
+															"https://assetdelivery.roproxy.com/v1/asset/?" .. asset
+														)
+													end)
 
-												if ok and filterLinkedSource(source) then
-													ldeccache[LinkedSource] = source
+													if ok and filterLinkedSource(source) then
+														if ScriptCache then
+															ldeccache[LinkedSource] = source
+														end
 
-													value = source
+														value = source
 
-													should_decompile = nil
+														should_decompile = nil
+													end
 												end
 											else --if __DEBUG_MODE then -- * We print this anyway because very important
 												warn(
@@ -2903,6 +2915,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					.. os.clock() - elapse_t
 					.. " PlaceId: "
 					.. game.PlaceId
+					.. " PlaceVersion: "
+					.. game.PlaceVersion
 					.. " Executor: "
 					.. (identify_executor and table.concat({ identify_executor() }, " ") or "Unknown")
 					.. "\n]]"
