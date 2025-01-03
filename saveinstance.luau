@@ -1154,13 +1154,11 @@ do
 					return "\1\0"
 				end
 
-				local buffer_size = 3 -- Initial size
+				local buffer_size = 2 -- Initial size
 
 				for _, group in collision_groups do
 					buffer_size += 7 + #group.name
 				end
-
-				buffer_size -= 1 -- Except Default group
 
 				local b = buffer.create(buffer_size)
 
@@ -1168,17 +1166,15 @@ do
 
 				buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
 				offset += 1
-				buffer.writeu16(b, offset, col_groups_n * 10) -- Group count (not sure about u16)
-				offset += 2
+				buffer.writeu8(b, offset, col_groups_n) -- Group count
+				offset += 1
 
 				for i, group in collision_groups do
 					local name, id, mask = group.name, i - 1, group.mask
 					local name_len = #name
 
-					if id ~= 0 then
 						buffer.writeu8(b, offset, id) -- ID
 						offset += 1
-					end
 
 					buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
 					offset += 1
@@ -1491,7 +1487,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		scriptcache = true,
 		decomptype = "",
 		timeout = 10,
-		--* New:
+		-- * New:
 		__DEBUG_MODE = false,
 
 		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
@@ -2601,7 +2597,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													and instance:IsA("Script")
 													and instance.RunContext ~= Enum.RunContext.Client
 											then
-												value = "-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" --TODO: Could be not just server scripts in the future
+												value = "-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" -- TODO: Could be not just server scripts in the future
 											else
 												value = ldecompile(instance)
 												if SaveBytecode then
