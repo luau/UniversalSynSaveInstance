@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="400px" style="margin: 0; padding: 0" src="https://github.com/luau/UniversalSynSaveInstance/assets/95628489/b9075f89-892b-4275-90df-d3627494ce1b" />
+  <img height="400px" style="margin: 0; padding: 0" src=".moonwave\static\logo.png" />
 </p>
 
 

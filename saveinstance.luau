@@ -1630,10 +1630,20 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		SaveNonCreatable = false,
 		NotCreatableFixes = {
+			-- "CloudLocalizationTable",
+			-- "InputObject",
+			-- "LodDataEntity",
+			-- "Path",
+			-- "Translator",
 			"", -- * FilteredSelection
+			"AnimationTrack",
 			"Player",
-			"PlayerScripts",
 			"PlayerGui",
+			"PlayerScripts",
+			"PlayerMouse",
+			"ScreenshotHud",
+			"StudioData",
+			"TextSource",
 			"TouchTransmitter",
 		},
 
@@ -2218,7 +2228,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return true
 	end
 
-	local function replaceClassName(instance, InstanceName, ClassName, newClassName)
+	local function replaceClassName(instance, InstanceName, ClassName)
 		local InstanceOverride
 		if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
 			InstanceOverride = InstancesOverrides[instance]
@@ -2227,7 +2237,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				InstancesOverrides[instance] = InstanceOverride
 			end
 		end
-		return newClassName, InstanceOverride
+		return InstanceOverride
 	end
 
 	local function getsafeproperty(instance, propertyName)
@@ -2464,13 +2474,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if Fix then
 					if SaveNonCreatable then
-						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, Fix)
+						ClassName, InstanceOverride = Fix, replaceClassName(instance, InstanceName, ClassName)
 					else
 						continue -- They won't show up in Studio anyway (Enable SaveNonCreatable if you wish to bypass this)
 					end
 				else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 					if TreatUnionsAsParts and instance:IsA("PartOperation") then
-						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, "Part")
+						ClassName, InstanceOverride = "Part", replaceClassName(instance, InstanceName, ClassName)
 						ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
 					elseif not ClassList[ClassName] then -- ? API Dump is outdated then
 						if __DEBUG_MODE then
@@ -2515,10 +2525,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							end
 						end
 					end
-					local proplist = inherited_properties[ClassNameOverride or ClassName]
-					if not proplist then
-						proplist = GetInheritedProps(ClassNameOverride or ClassName)
-						inherited_properties[ClassNameOverride or ClassName] = proplist
+					local proplist
+					do
+						local class = ClassNameOverride or ClassName
+						proplist = inherited_properties[class]
+						if not proplist then
+							proplist = GetInheritedProps(class)
+							inherited_properties[class] = proplist
+						end
 					end
 					for _, Property in proplist do
 						local PropertyName = Property.Name

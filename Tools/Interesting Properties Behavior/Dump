@@ -32,11 +32,15 @@ Bone.Transform {CanLoad Only}
 AudioAnalyzer.PeakLevel {CanSave Only}
 AudioAnalyzer.RmsLevel {CanSave Only}
 
+AudioCompressor.Editor {CanLoad Only}
+
 AudioDeviceInput.IsReady {CanSave Only}
 
 AudioEqualizer.Editor {CanLoad Only}
 
 AudioFilter.Editor {CanLoad Only}
+
+AudioLimiter.Editor {CanLoad Only}
 
 AudioPlayer.Asset {CanLoad Only}
 AudioPlayer.IsReady {CanSave Only}
