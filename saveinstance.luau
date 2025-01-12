@@ -1553,8 +1553,8 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IsolateLocalPlayer boolean -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
 --- @field IsolateStarterPlayer boolean -- If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders. ___Default:___ false
 --- @field IsolateLocalPlayerCharacter boolean -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
---- @field RemovePlayerCharacters boolean -- Ignore player characters while saving. (Enables SaveNonCreatable automatically). ___Default:___ true
---- @field SaveNonCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). ___Default:___ false
+--- @field RemovePlayerCharacters boolean -- Ignore player characters while saving. (Enables SaveNotCreatable automatically). ___Default:___ true
+--- @field SaveNotCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). ___Default:___ false
 --- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "", "Player", "PlayerScripts", "PlayerGui", "TouchTransmitter" }
 --- @field IsolatePlayers boolean -- * This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2. ___Default:___ false
 --- @field AlternativeWritefile boolean -- * Splits file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. Though there is a risk of appendfile working incorrectly on some executors. ___Default:___ true
@@ -1568,7 +1568,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- Aliases for the [SynSaveInstance.CustomOptions table].
 --- @field FilePath string -- FileName
 --- @field IgnoreDefaultProperties string -- IgnoreDefaultProps
---- @field SaveNonCreatable string -- SaveNotCreatable
+--- @field SaveNotCreatable string -- SaveNonCreatable
 --- @field IsolatePlayers string -- SavePlayers
 --- @field scriptcache string -- DecompileJobless
 --- @field timeout string -- DecompileTimeout
@@ -1670,7 +1670,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IsolateStarterPlayer = false,
 		RemovePlayerCharacters = true,
 
-		SaveNonCreatable = false,
+		SaveNotCreatable = false,
 		NotCreatableFixes = {
 			-- "CloudLocalizationTable",
 			-- "InputObject",
@@ -1697,23 +1697,31 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		AlternativeWritefile = not ArrayToDictionary({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
 
 		OptionsAliases = { -- You can't really modify these as a user
-			FilePath = "FileName",
-			IgnoreDefaultProperties = "IgnoreDefaultProps",
+			DecompileTimeout = "timeout",
+			FileName = "FilePath",
+			IgnoreArchivable = "IgnoreNotArchivable",
+			IgnoreDefaultProps = "IgnoreDefaultProperties",
 			SaveNonCreatable = "SaveNotCreatable",
-			IsolatePlayers = "SavePlayers",
-			timeout = "DecompileTimeout",
-			IgnoreNotArchivable = "IgnoreArchivable",
+			SavePlayers = "IsolatePlayers",
 		},
 	}
 
-	local function GetAlias(searchAlias)
-		for option, alias in OPTIONS.OptionsAliases do
-			if searchAlias == alias then
-				return option
-			end
+	local OPTIONS_lowercase, CustomOptions_valid = {}, {}
+	for option_name in OPTIONS do
+		local option_name_lowercase = string.lower(option_name)
+		if OPTIONS_lowercase[option_name_lowercase] then
+			warn("DUPLICATE OPTION", option_name)
+		else
+			OPTIONS_lowercase[option_name_lowercase] = option_name
 		end
-
-		return ""
+	end
+	for option_alias, option_name in OPTIONS.OptionsAliases do
+		local option_name_lowercase = string.lower(option_alias)
+		if OPTIONS_lowercase[option_name_lowercase] then
+			warn("DUPLICATE ALIAS", option_alias)
+		else
+			OPTIONS_lowercase[option_name_lowercase] = option_name
+		end
 	end
 
 	do -- * Load Settings
@@ -1787,14 +1795,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				CustomOptions = {}
 			else
 				for key, value in CustomOptions do
-					if OPTIONS[key] == nil then
-						local Option = GetAlias(key)
+					local option = OPTIONS_lowercase[string.lower(key)]
 
-						if Option then
-							OPTIONS[Option] = value
-						end
-					else
-						OPTIONS[key] = value
+					if option then
+						OPTIONS[option] = value
+						CustomOptions_valid[option] = true
 					end
 				end
 				local Decompile = CustomOptions.Decompile
@@ -1870,7 +1875,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		gethiddenproperty = nil
 	end
 
-	local SaveNonCreatable = OPTIONS.SaveNonCreatable
+	local SaveNotCreatable = OPTIONS.SaveNotCreatable
 	local TreatUnionsAsParts = OPTIONS.TreatUnionsAsParts
 
 	local DecompileJobless = OPTIONS.DecompileJobless
@@ -1935,7 +1940,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"NilInstances",
 				}
 			do
-				if CustomOptions[key] == nil and CustomOptions[GetAlias(key)] == nil then
+				if CustomOptions_valid[key] == nil then
 					OPTIONS[key] = false
 				end
 			end
@@ -2511,10 +2516,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local Fix = NotCreatableFixes[ClassName]
 
 				if Fix then
-					if SaveNonCreatable then
+					if SaveNotCreatable then
 						ClassName, InstanceOverride = Fix, replaceClassName(instance, InstanceName, ClassName)
 					else
-						continue -- They won't show up in Studio anyway (Enable SaveNonCreatable if you wish to bypass this)
+						continue -- They won't show up in Studio anyway (Enable SaveNotCreatable if you wish to bypass this)
 					end
 				else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 					if TreatUnionsAsParts and instance:IsA("PartOperation") then
@@ -2846,7 +2851,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		]]
 
 		-- TODO Find a better solution for this
-		SaveNonCreatableWillBeEnabled = SaveNonCreatable
+		SaveNonCreatableWillBeEnabled = SaveNotCreatable
 			or (IsolateLocalPlayer or IsolateLocalPlayerCharacter) and IsolateLocalPlayer
 			or IsolatePlayers
 			or NilInstances and global_container.getnilinstances -- ! Make sure this accurately reflects everything below
@@ -2857,7 +2862,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local LocalPlayer = service.Players.LocalPlayer
 			if LocalPlayer then
 				if IsolateLocalPlayer then
-					SaveNonCreatable = true
+					SaveNotCreatable = true
 					save_extra("LocalPlayer", LocalPlayer:GetChildren())
 				end
 				if IsolateLocalPlayerCharacter then
@@ -2870,12 +2875,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if IsolateStarterPlayer then
-			-- SaveNonCreatable = true -- TODO: Enable if StarterPlayerScripts or StarterCharacterScripts stop showing up in isolated folder in Studio
+			-- SaveNotCreatable = true -- TODO: Enable if StarterPlayerScripts or StarterCharacterScripts stop showing up in isolated folder in Studio
 			save_extra("StarterPlayer", service.StarterPlayer:GetChildren())
 		end
 
 		if IsolatePlayers then
-			SaveNonCreatable = true
+			SaveNotCreatable = true
 			save_extra("Players", service.Players:GetChildren())
 		end
 
@@ -2913,7 +2918,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					nil_instances_size += 1
 				end
 			end
-			SaveNonCreatable = true
+			SaveNotCreatable = true
 			save_extra("Nil Instances", nil_instances)
 		end
 
