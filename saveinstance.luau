@@ -255,6 +255,12 @@ local function __BIT(...) -- * Credits to Friend (you know yourself)
 	return Value
 end
 
+local function index(self, index_name)
+	return self[index_name]
+end
+
+local CLIENT_VERSION = tonumber(string.split(version(), ".")[2])
+
 local Type_IDs = {
 	string = 0x02,
 	boolean = 0x03,
@@ -587,7 +593,7 @@ Binary_Descriptors = {
 
 		return b, 12
 	end,
-	["Font"] = function(raw)
+	["Font"] = 636 < CLIENT_VERSION and function(raw)
 		local string__descriptor = Binary_Descriptors.string
 
 		local b_Family, Family_size = string__descriptor(raw.Family)
@@ -596,8 +602,32 @@ Binary_Descriptors = {
 		local len = 3 + Family_size + CachedFaceId_size
 		local b = buffer.create(len)
 
-		buffer.writeu16(b, 0, raw.Weight.Value)
-		buffer.writeu8(b, 2, raw.Style.Value)
+		local ok_w, weight = pcall(index, raw, "Weight")
+		local ok_s, style = pcall(index, raw, "Style")
+
+		buffer.writeu16(b, 0, ok_w and weight.Value or 0)
+		buffer.writeu8(b, 2, ok_s and style.Value or 0)
+
+		buffer.copy(b, 3, b_Family)
+		buffer.copy(b, 3 + Family_size, b_CachedFaceId)
+
+		return b, len
+	end or function(raw)
+		local string__descriptor = Binary_Descriptors.string
+
+		local b_Family, Family_size = string__descriptor(raw.Family)
+		local b_CachedFaceId, CachedFaceId_size = string__descriptor("")
+
+		local len = 3 + Family_size + CachedFaceId_size
+		local b = buffer.create(len)
+
+		local FontString = tostring(raw)
+
+		local EmptyWeight = string_find(FontString, "Weight = ,")
+		local EmptyStyle = string_find(FontString, "Style =  }")
+
+		buffer.writeu16(b, 0, EmptyWeight and 0 or raw.Weight.Value)
+		buffer.writeu8(b, 2, EmptyStyle and 0 or raw.Style.Value)
 
 		buffer.copy(b, 3, b_Family)
 		buffer.copy(b, 3 + Family_size, b_CachedFaceId)
@@ -773,26 +803,39 @@ XML_Descriptors = {
 		-- The text of this element is formatted as an integer between 0 and 63
 		return "<faces>" .. __BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front) .. "</faces>"
 	end,
-	Font = function(raw)
-		-- TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
-		--[[
+	Font = 636 < CLIENT_VERSION
+			and function(raw)
+				-- TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+				--[[
 		? game:GetService("TextService"):GetFontMemoryData()
 		? rbxasset://fonts/families/{Enum.Font.BuilderSans.Name}.json
 		]]
 
-		local FontString = tostring(raw) -- TODO: Temporary fix
+				local ok_w, weight = pcall(index, raw, "Weight")
+				local ok_s, style = pcall(index, raw, "Style")
 
-		local EmptyWeight = string_find(FontString, "Weight = ,")
-		local EmptyStyle = string_find(FontString, "Style =  }")
+				return "<Family>"
+					.. XML_Descriptors.ContentId(raw.Family)
+					.. "</Family><Weight>"
+					.. (ok_w and XML_Descriptors.__ENUM(weight) or "")
+					.. "</Weight><Style>"
+					.. (ok_s and style.Name or "") -- Weird but this field accepts .Name of enum instead..
+					.. "</Style>"
+			end
+		or function(raw)
+			local FontString = tostring(raw) -- TODO: Temporary fix
 
-		return "<Family>"
-			.. XML_Descriptors.ContentId(raw.Family)
-			.. "</Family><Weight>"
-			.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
-			.. "</Weight><Style>"
-			.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
-			.. "</Style>"
-	end,
+			local EmptyWeight = string_find(FontString, "Weight = ,")
+			local EmptyStyle = string_find(FontString, "Style =  }")
+
+			return "<Family>"
+				.. XML_Descriptors.ContentId(raw.Family)
+				.. "</Family><Weight>"
+				.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
+				.. "</Weight><Style>"
+				.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
+				.. "</Style>"
+		end,
 	NumberRange = function(raw) -- tostring(raw) also works
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
 		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
@@ -1291,10 +1334,9 @@ do
 
 		local API_Dump
 
-		local CLIENT_VERSION = string.split(version(), ".")[2]
-
 		local ok, err = pcall(function()
-			local ok, result = pcall(readfile, CLIENT_VERSION)
+			local CLIENT_VERSION_str = tostring(CLIENT_VERSION)
+			local ok, result = pcall(readfile, CLIENT_VERSION_str)
 			if ok and result and result ~= "" then
 				API_Dump = result
 				return
@@ -1309,7 +1351,7 @@ do
 
 				local file_version = string.match(line, "file version: ([%d, ]+)")
 				if file_version then
-					if string.split(file_version, ", ")[2] == CLIENT_VERSION then
+					if string.split(file_version, ", ")[2] == CLIENT_VERSION_str then
 						is_matched = true
 
 						local version_hash = string.match(line, "(version%-[^%s]+)")
@@ -1338,7 +1380,7 @@ do
 				end
 			end
 
-			writefile(CLIENT_VERSION, API_Dump)
+			writefile(CLIENT_VERSION_str, API_Dump)
 		end)
 
 		if not ok or not API_Dump then
@@ -1357,7 +1399,7 @@ do
 		local classList = {}
 
 		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
-		CLIENT_VERSION = tonumber(CLIENT_VERSION)
+
 		for _, API_Class in service.HttpService:JSONDecode(API_Dump) do
 			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
@@ -1500,7 +1542,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
 --- @field FilePath string -- Must only contain the name of the file, no file extension. ___Default:___ false
---- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. Only saves the instance itself, not the descendants. If you wish to save descendants too then use @ExtraInstances={Object}. ___Default:___ false
+--- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
 --- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
 --- @field NilInstances boolean -- Save instances that aren't Parented (Parented to nil). ___Default:___ false
 --- .NilInstancesFixes {[Instance.ClassName] = function} -- * This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though). For example, Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways. **TO AVOID THIS BEHAVIOR USE THIS EXAMPLE:** {ClassName_That_Doesnt_Need_Fix = false}. ___Default:___ {Animator = function, AdPortal = function, BaseWrap = function, Attachment = function}
@@ -2240,10 +2282,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return InstanceOverride
 	end
 
-	local function getsafeproperty(instance, propertyName)
-		return instance[propertyName]
-	end
-
 	local function filterPropVal(result, propertyName, category) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
 		return result == nil
 			or result == "can't get value"
@@ -2299,7 +2337,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if CanRead then
 				raw = instance[propertyName]
 			else -- Assuming CanRead == nil (untested)
-				local ok, result = pcall(getsafeproperty, instance, propertyName)
+				local ok, result = pcall(index, instance, propertyName)
 
 				if ok then
 					raw = result
@@ -2593,7 +2631,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							and not (PropertyName == "Source" and isLuaSourceContainer(instance))
 						then -- ? Could be not just "Source" in the future
 							if new_def_inst then
-								default_instance[PropertyName] = getsafeproperty(new_def_inst, PropertyName)
+								default_instance[PropertyName] = index(new_def_inst, PropertyName)
 							end
 							if default_instance[PropertyName] == raw then
 								continue
@@ -2679,10 +2717,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 													local asset = LinkedSource_type .. "=" .. LinkedSource
 
-													local source
-													local ok = pcall(function()
+													local ok, source = pcall(function()
 														-- Credits @halffalse
-														source = game:HttpGet(
+														return game:HttpGet(
 															"https://assetdelivery.roproxy.com/v1/asset/?" .. asset
 														)
 													end)
