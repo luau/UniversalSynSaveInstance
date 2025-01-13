@@ -1446,10 +1446,22 @@ do
 								continue
 							end
 
-							local Special
+							local Special, PreferredDescriptorName
 
 							if MemberTags then
-								Special = table.find(MemberTags, "NotScriptable") and true
+								for _, tag in MemberTags do
+									if type(tag) == "table" then
+										PreferredDescriptorName = tag.PreferredDescriptorName
+										if PreferredDescriptorName and Special then
+											break
+										end
+									elseif tag == "NotScriptable" then
+										Special = true
+										if PreferredDescriptorName then
+											break
+										end
+									end
+								end
 							end
 
 							-- if not Special then
@@ -1474,9 +1486,20 @@ do
 								local NotScriptableFix = NotScriptableFixClass[PropertyName]
 								if NotScriptableFix then
 									Property.Fallback = type(NotScriptableFix) == "function" and NotScriptableFix
+										or PreferredDescriptorName and function(instance)
+											local o, r = pcall(index, instance, PreferredDescriptorName)
+											if o then
+												return r
+											end
+											return instance[NotScriptableFix]
+										end
 										or function(instance)
 											return instance[NotScriptableFix]
 										end
+								end
+							elseif PreferredDescriptorName then
+								Property.Fallback = function(instance)
+									return instance[PreferredDescriptorName]
 								end
 							end
 							ClassProperties[ClassProperties_size] = Property
@@ -1891,7 +1914,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local ldeccache = GLOBAL_ENV.scriptcache
 
-	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNonCreatableWillBeEnabled, RecoveredScripts
+	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNotCreatableWillBeEnabled, RecoveredScripts
 
 	if OPTIONS.ReadMe then
 		RecoveredScripts = {}
@@ -2650,7 +2673,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if Category == "Class" then
 							tag = "Ref"
 							if raw then
-								if SaveNonCreatableWillBeEnabled then
+								if SaveNotCreatableWillBeEnabled then
 									local Fix = NotCreatableFixes[raw.ClassName]
 									if
 										Fix
@@ -2851,7 +2874,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		]]
 
 		-- TODO Find a better solution for this
-		SaveNonCreatableWillBeEnabled = SaveNotCreatable
+		SaveNotCreatableWillBeEnabled = SaveNotCreatable
 			or (IsolateLocalPlayer or IsolateLocalPlayerCharacter) and IsolateLocalPlayer
 			or IsolatePlayers
 			or NilInstances and global_container.getnilinstances -- ! Make sure this accurately reflects everything below

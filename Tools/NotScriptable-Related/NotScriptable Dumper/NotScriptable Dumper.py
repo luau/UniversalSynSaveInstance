@@ -20,13 +20,6 @@ def array_to_dictionary(table, hybrid_mode=None):
     return tmp
 
 
-def find_first_table(array):
-    for item in array:
-        if isinstance(item, dict):
-            return item
-    return None
-
-
 s = "\n"
 filtered_properties = []
 
@@ -86,9 +79,10 @@ def fetch_api():
                     if value_category == "Enum":
                         enum_members[value_type] = member_name
                     s += f"{class_name}.{member_name} {'{BinaryString}' if value_type == 'BinaryString' else ''}"
-                    table_found = find_first_table(original_tags)
-                    if table_found:
-                        s += f"{'{PreferredDescriptorName: '+table_found.get('PreferredDescriptorName')+'}'}"
+                    for item in original_tags:
+                        if isinstance(item, dict):
+
+                            s += f"{'{PreferredDescriptorName: '+item.get('PreferredDescriptorName')+'}'}"
                     s += "\n"
 
                 if re.search(r"xml|internal|serial", member_name, re.IGNORECASE):
