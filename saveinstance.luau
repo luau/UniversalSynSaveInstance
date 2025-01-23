@@ -1447,7 +1447,7 @@ do
 							local ValueType = Member.ValueType
 							local ValueType_Name = ValueType.Name
 
-							if 649 <= CLIENT_VERSION and ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
+							if 645 <= CLIENT_VERSION and ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
 								continue
 							end
 
