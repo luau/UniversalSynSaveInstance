@@ -1337,7 +1337,12 @@ do
 		local ok, err = pcall(function()
 			local CLIENT_VERSION_str = tostring(CLIENT_VERSION)
 			local ok, result = pcall(readfile, CLIENT_VERSION_str)
-			if ok and result and result ~= "" then
+			if
+				ok
+				and result
+				and result ~= ""
+				and pcall(service.HttpService.JSONDecode, service.HttpService, result)
+			then
 				API_Dump = result
 				return
 			end
