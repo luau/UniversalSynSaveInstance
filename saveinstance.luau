@@ -7,7 +7,7 @@ local function string_find(s, pattern)
 	return string.find(s, pattern, nil, true)
 end
 
-local function ArrayToDictionary(t, hydridMode, valueOverride, typeStrict)
+local function ArrayToDict(t, hydridMode, valueOverride, typeStrict)
 	local tmp = {}
 
 	if hydridMode then
@@ -15,7 +15,7 @@ local function ArrayToDictionary(t, hydridMode, valueOverride, typeStrict)
 			if type(some1) == "number" then
 				tmp[some2] = valueOverride or true
 			elseif type(some2) == "table" then
-				tmp[some1] = ArrayToDictionary(some2, hydridMode) -- Some1 is Class, Some2 is Name
+				tmp[some1] = ArrayToDict(some2, hydridMode) -- Some1 is Class, Some2 is Name
 			else
 				tmp[some1] = some2
 			end
@@ -261,7 +261,7 @@ end
 
 local CLIENT_VERSION = tonumber(string.split(version(), ".")[2])
 
-local Type_IDs = {
+local attr_Type_IDs = {
 	string = 0x02,
 	boolean = 0x03,
 	-- int32 = 0x04,
@@ -765,12 +765,12 @@ XML_Descriptors = {
 	end,
 	Color3uint8 = function(raw)
 		-- https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md#color3uint8
+		-- ? It is recommended that Color3uint8 is encoded with text instead of elements.
 
 		return 0xFF000000
 			+ (math.floor(raw.R * 255) * 0x10000)
 			+ (math.floor(raw.G * 255) * 0x100)
-			+ math.floor(raw.B * 255) -- ? It is recommended that Color3uint8 is encoded with text instead of elements.
-
+			+ math.floor(raw.B * 255)
 		-- return bit32.bor(
 		-- 	bit32.bor(bit32.bor(bit32.lshift(0xFF, 24), bit32.lshift(0xFF * raw.R, 16)), bit32.lshift(0xFF * raw.G, 8)),
 		-- 	0xFF * raw.B
@@ -840,7 +840,7 @@ XML_Descriptors = {
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
 		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
 
-		return __EXTREME_RANGE(raw.Min) .. " " .. __EXTREME_RANGE(raw.Max) --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually; __EXTREME_RANGE is not needed here but it fixes the issue where "nan 10" value would reset to "0 0"
+		return __EXTREME_RANGE(raw.Min) .. " " .. __EXTREME_RANGE(raw.Max) --[[.. " "]] -- ! This might be required for compatibility; __EXTREME_RANGE is not needed here but it fixes the issue where "nan 10" value would reset to "0 0"
 	end,
 	NumberSequence = nil,
 	-- NumberSequence = Descriptors.__SEQUENCE,
@@ -1061,10 +1061,10 @@ local ClassList
 
 do
 	local ClassPropertyExceptions = {
-		Whitelist = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) },
+		Whitelist = { TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }) },
 		Blacklist = {
-			LuaSourceContainer = ArrayToDictionary({ "ScriptGuid" }),
-			Instance = ArrayToDictionary({ "UniqueId", "HistoryId" }),
+			LuaSourceContainer = ArrayToDict({ "ScriptGuid" }),
+			Instance = ArrayToDict({ "UniqueId", "HistoryId" }),
 		},
 	}
 
@@ -1123,7 +1123,7 @@ do
 					buffer.copy(b, offset, b_Name)
 					offset += Name_size
 
-					buffer.writeu8(b, offset, Type_IDs[typeof(attrs[attr])])
+					buffer.writeu8(b, offset, attr_Type_IDs[typeof(attrs[attr])])
 					offset += 1
 
 					local bb = attrs_formatted[attr]
@@ -1250,7 +1250,6 @@ do
 				return instance:GetScale()
 			end,
 			WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
-			-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
 		},
 		PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
 		Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
@@ -1416,7 +1415,7 @@ do
 			local ClassName = API_Class.Name
 
 			if ClassTags then
-				Class.Tags = ArrayToDictionary(ClassTags, nil, nil, "string") -- or {}
+				Class.Tags = ArrayToDict(ClassTags, nil, nil, "string") -- or {}
 			end
 
 			local NotScriptableFixClass = NotScriptableFixes[ClassName]
@@ -1547,7 +1546,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 
 --- @interface CustomOptions table
 --- * Structure of the main CustomOptions table.
---- * Note: Aliases take priority over parent option name.
+--- * Note: Options are case-insensitive, meaning you could type `NilInstances` option as `nilInStaNces` and it would still be valid.
 --- @within SynSaveInstance
 --- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
@@ -1687,7 +1686,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreDefaultProperties = true,
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
-		IgnoreSpecialProperties = ArrayToDictionary({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
+		IgnoreSpecialProperties = ArrayToDict({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
 
 		IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
 		IsolateLocalPlayerCharacter = false,
@@ -1719,7 +1718,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
 		SharedStringOverwrite = false,
 		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
-		AlternativeWritefile = not ArrayToDictionary({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
+		AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
 
 		OptionsAliases = { -- You can't really modify these as a user
 			DecompileTimeout = "timeout",
@@ -1870,10 +1869,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local InstancesOverrides = {}
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
-		ArrayToDictionary(OPTIONS.DecompileIgnore, true),
-		ArrayToDictionary(OPTIONS.IgnoreList, true),
-		ArrayToDictionary(OPTIONS.IgnoreProperties),
-		ArrayToDictionary(OPTIONS.NotCreatableFixes, true, "Folder")
+		ArrayToDict(OPTIONS.DecompileIgnore, true),
+		ArrayToDict(OPTIONS.IgnoreList, true),
+		ArrayToDict(OPTIONS.IgnoreProperties),
+		ArrayToDict(OPTIONS.NotCreatableFixes, true, "Folder")
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
@@ -1997,7 +1996,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if not ToSaveInstance then
 				local Children = TempRoot:GetChildren()
 				if 0 < #Children then
-					local tmp_dict = ArrayToDictionary(tmp)
+					local tmp_dict = ArrayToDict(tmp)
 					for _, child in Children do
 						if not tmp_dict[child] then
 							table.insert(tmp, child)
@@ -2009,7 +2008,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- if IsolatePlayers then
 			-- 	table.insert(_list_0, "Players")
 			-- end
-			local tmp_dict = ArrayToDictionary(tmp)
+			local tmp_dict = ArrayToDict(tmp)
 
 			for _, serviceName in
 				{
@@ -2028,13 +2027,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"StarterPlayer",
 					"Teams",
 					"SoundService",
-					"TextChatService",
 					"Chat",
+					"TextChatService",
 
+					"LocalizationService", -- For LocalizationTables
 					-- "InsertService",
 					"JointsService",
 
-					"LocalizationService", -- For LocalizationTables
 					-- "TestService",
 					-- "VoiceChatService",
 				}
@@ -2159,7 +2158,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local function construct_TimeoutHandler(timeout, f, timeout_ret)
 		return timeout < 0 and function(script)
-				return pcall(f, script)
+			return pcall(f, script)
 		end or function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
 			local thread = coroutine.running()
 			local timeoutThread, isCancelled
@@ -2865,8 +2864,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local header =
 				'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4">'
 
-		if IsModel then
-		--[[
+			if IsModel then
+				--[[ 
 			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
 			Also http can be converted to https but not sure if Roblox cares
 			-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
@@ -2992,7 +2991,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		Or Destroy the Camera.
 
 		This file was generated with the following settings:
-				]]
+		]]
 					.. service.HttpService:JSONEncode(OPTIONS)
 					.. "\n\n\t\tElapsed time: "
 					.. os.clock() - elapse_t
@@ -3000,6 +2999,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					.. game.PlaceId
 					.. " PlaceVersion: "
 					.. game.PlaceVersion
+					.. " Client Version: "
+					.. version()
 					.. " Executor: "
 					.. (identify_executor and table.concat({ identify_executor() }, " ") or "Unknown")
 					.. "\n]]"

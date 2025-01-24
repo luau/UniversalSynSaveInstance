@@ -119,7 +119,10 @@ def fetch_api():
         if class_tags and class_tags.get("NotCreatable"):
             for property_name, property_info in class_info["Properties"].items():
                 value = property_info.get("Default")
-                if value != "__api_dump_class_not_creatable__":
+                if (
+                    value != "__api_dump_class_not_creatable__"
+                    and "__api_dump_" not in value
+                ):
                     s += f"{class_name} is NotCreatable but {class_name}.{property_name} has a default value: {value}\n"
                     break
 

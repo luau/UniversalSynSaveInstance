@@ -1,9 +1,7 @@
 
 EditableImage.Size {CanSave Only}
-EditableImage is NotCreatable but EditableImage.ImageData has a default value: __api_dump_failed_to_create_class__
 
 EditableMesh.FixedSize {CanSave Only}
-EditableMesh is NotCreatable but EditableMesh.FixedSize has a default value: __api_dump_failed_to_create_class__
 
 Instance.Parent {CanLoad Only}
 Instance.archivable {CanLoad Only} {Deprecated}
@@ -112,7 +110,7 @@ DragDetector.SecondaryAxis {CanLoad Only}
 DragDetector.WorldAxis {CanLoad Only}
 DragDetector.WorldSecondaryAxis {CanLoad Only}
 
-Collaborator is NotCreatable but Collaborator.CFrame has a default value: __api_dump_no_string_value__
+Collaborator is NotCreatable but Collaborator.CollaboratorColor has a default value: 0
 
 CommandInstance.Checked {CanLoad Only}
 CommandInstance.DisplayName {CanLoad Only}
@@ -169,13 +167,8 @@ DebugSettings.InstanceCount {CanSave Only}
 DebugSettings.JobCount {CanSave Only}
 DebugSettings.PlayerCount {CanSave Only}
 DebugSettings.RobloxVersion {CanSave Only}
-DebugSettings is NotCreatable but DebugSettings.DataModel has a default value: __api_dump_skipped_class__
-
-DebuggerBreakpoint is NotCreatable but DebuggerBreakpoint.Condition has a default value: __api_dump_skipped_class__
 
 DebuggerManager.DebuggingEnabled {CanSave Only}
-
-DraggerService is NotCreatable but DraggerService.AlignDraggedObjects has a default value: __api_dump_skipped_class__
 
 EditableService is NotCreatable but EditableService.EditableStatus has a default value: Unknown
 
@@ -188,8 +181,6 @@ FaceAnimatorService is NotCreatable but FaceAnimatorService.AudioAnimationEnable
 
 Decal.Shiny {CanLoad Only} {Deprecated}
 Decal.Specular {CanLoad Only} {Deprecated}
-
-FacialAnimationRecordingService is NotCreatable but FacialAnimationRecordingService.BiometricDataConsent has a default value: __api_dump_skipped_class__
 
 FacialAnimationStreamingServiceV2 is NotCreatable but FacialAnimationStreamingServiceV2.ServiceState has a default value: 0
 
@@ -205,7 +196,6 @@ FunctionalTest.PhysicsEnvironmentalThrottle {CanLoad Only}
 FunctionalTest.Timeout {CanLoad Only}
 
 GameSettings.VideoRecording {CanLoad Only}
-GameSettings is NotCreatable but GameSettings.VideoCaptureEnabled has a default value: __api_dump_skipped_class__
 
 GamepadService is NotCreatable but GamepadService.GamepadCursorEnabled has a default value: false
 
@@ -309,11 +299,14 @@ Lighting is NotCreatable but Lighting.Ambient has a default value: 0.5, 0.5, 0.5
 
 LiveScriptingService is NotCreatable but LiveScriptingService.ServerLiveEditingMode has a default value: Uninitialized
 
+LiveSyncService.HasSyncedInstances {CanSave Only}
+LiveSyncService is NotCreatable but LiveSyncService.HasSyncedInstances has a default value: false
+
 LocalizationService is NotCreatable but LocalizationService.ForcePlayModeGameLocaleId has a default value: 
 
 LocalizationTable.DevelopmentLanguage {CanLoad Only} {Deprecated}
 
-LodDataEntity is NotCreatable but LodDataEntity.EntityData has a default value: __api_dump_no_string_value__
+LodDataEntity is NotCreatable but LodDataEntity.EntityLodEnabled has a default value: true
 
 BaseScript.LinkedSource {Deprecated} {CanSave}
 
@@ -339,8 +332,6 @@ Mouse.ViewSizeX {CanSave Only}
 Mouse.ViewSizeY {CanSave Only}
 Mouse.X {CanSave Only}
 Mouse.Y {CanSave Only}
-
-NetworkSettings is NotCreatable but NetworkSettings.EmulatedTotalMemoryInMB has a default value: __api_dump_skipped_class__
 
 NotificationService.SelectedTheme {CanLoad Only}
 
@@ -419,8 +410,6 @@ Path.Status {CanSave Only}
 PathfindingService.EmptyCutoff {CanLoad Only} {Deprecated}
 PathfindingService is NotCreatable but PathfindingService.EmptyCutoff has a default value: 0
 
-PhysicsSettings is NotCreatable but PhysicsSettings.AllowSleep has a default value: __api_dump_skipped_class__
-
 Player.CharacterAppearance {Deprecated} {CanSave}
 Player.FollowUserId {CanSave Only}
 
@@ -440,7 +429,6 @@ PolicyService is NotCreatable but PolicyService.IsLuobuServer has a default valu
 Pose.MaskWeight {CanLoad Only} {Deprecated}
 
 RenderSettings.EnableFRM {CanLoad Only}
-RenderSettings is NotCreatable but RenderSettings.AutoFRMLevel has a default value: __api_dump_skipped_class__
 
 RobloxSerializableInstance is NotCreatable but RobloxSerializableInstance.Data has a default value: 
 
@@ -497,16 +485,12 @@ Sparkles.Color {CanLoad Only}
 StarterPlayer is NotCreatable but StarterPlayer.AllowCustomAnimations has a default value: true
 
 Studio.UI Theme {CanSave Only} {Deprecated} {CanSave}
-Studio is NotCreatable but Studio."TODO" Color has a default value: __api_dump_skipped_class__
 
 StudioData is NotCreatable but StudioData.EnableScriptCollabByDefaultOnLoad has a default value: false
-
-StudioDeviceEmulatorService is NotCreatable but StudioDeviceEmulatorService.HasMultiTouchStarted has a default value: __api_dump_skipped_class__
 
 StudioPublishService is NotCreatable but StudioPublishService.PublishLocked has a default value: false
 
 StudioService.UseLocalSpace {CanLoad Only}
-StudioService is NotCreatable but StudioService.ActiveScript has a default value: __api_dump_skipped_class__
 
 StudioUserService.IsLoggedIn {CanSave Only}
 StudioUserService is NotCreatable but StudioUserService.IsLoggedIn has a default value: false
@@ -516,12 +500,9 @@ StyleRule.Index {CanLoad Only}
 TaskScheduler.SchedulerDutyCycle {CanSave Only}
 TaskScheduler.SchedulerRate {CanSave Only}
 TaskScheduler.ThreadPoolSize {CanSave Only}
-TaskScheduler is NotCreatable but TaskScheduler.SchedulerDutyCycle has a default value: __api_dump_skipped_class__
 
 Team.AutoColorCharacters {CanLoad Only} {Deprecated}
 Team.Score {CanLoad Only} {Deprecated}
-
-TeamCreateData is NotCreatable but TeamCreateData.InitialCameraCFrame has a default value: __api_dump_no_string_value__
 
 TeleportAsyncResult.PrivateServerId {CanSave Only}
 TeleportAsyncResult.ReservedServerAccessCode {CanSave Only}
@@ -544,9 +525,9 @@ ChatInputBarConfiguration is NotCreatable but ChatInputBarConfiguration.Absolute
 
 ChatWindowConfiguration is NotCreatable but ChatWindowConfiguration.AbsolutePosition has a default value: 0, 0
 
-TextChatMessage is NotCreatable but TextChatMessage.BubbleChatMessageProperties has a default value: __api_dump_no_string_value__
+TextChatMessage is NotCreatable but TextChatMessage.MessageId has a default value: 
 
-ChatWindowMessageProperties is NotCreatable but ChatWindowMessageProperties.FontFace has a default value: __api_dump_no_string_value__
+ChatWindowMessageProperties is NotCreatable but ChatWindowMessageProperties.TextColor3 has a default value: 1, 1, 1
 
 TextChatService is NotCreatable but TextChatService.ChatTranslationEnabled has a default value: true
 
@@ -577,7 +558,6 @@ UserInputService.MouseDeltaSensitivity {CanLoad Only}
 UserInputService.MouseEnabled {CanSave Only}
 UserInputService.TouchEnabled {CanSave Only}
 UserInputService.VREnabled {CanSave Only}
-UserInputService is NotCreatable but UserInputService.AccelerometerEnabled has a default value: __api_dump_skipped_class__
 
 VRService is NotCreatable but VRService.AutomaticScaling has a default value: World
 
