@@ -2,7 +2,11 @@ Varies per executor; Tested on Codex
 
 DebuggerBreakpoint.line {NotCreatable Class} 
 
+EditableMesh.MeshData {NotCreatable Class} 
+
 BasePart.Color3uint8  Unable to get property Color3uint8, type Color3uint8
+
+EditableImage.ImageData {NotCreatable Class} 
 
 Instance.UniqueId  Unable to get property UniqueId, type UniqueId
 Instance.HistoryId  Unable to get property HistoryId, type UniqueId

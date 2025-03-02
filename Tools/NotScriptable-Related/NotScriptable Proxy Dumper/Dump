@@ -2,41 +2,77 @@ Doesnt get everything; Also varies per executor; Tested on Codex
 
 BallSocketConstraint.MaxFrictionTorqueXml - MaxFrictionTorque
 
-BasePart.MaterialVariantSerialized - MaterialVariant
-BasePart.MaterialVariantSerialized - CurrentPhysicalProperties
-BasePart.MaterialVariantSerialized - PropertyStatusStudio
+BasePart.size - Size
+BasePart.size - AssemblyMass
+BasePart.size - Mass
+BasePart.CollisionGroup - CollisionGroupReplicate
+BasePart.MaterialVariant - MaterialVariantSerialized
+BasePart.MaterialVariant - PropertyStatusStudio
+BasePart.CollisionGroupReplicate - CollisionGroupId
+BasePart.CollisionGroupReplicate - CollisionGroup
+BasePart.CollisionGroupId - CollisionGroupReplicate
 
-DoubleConstrainedValue.value - Value
+DoubleConstrainedValue.ConstrainedValue - value
+DoubleConstrainedValue.Value - value
 
+Fire.Heat - heat_xml
 Fire.size_xml - Size
-Fire.heat_xml - Heat
+Fire.size - size_xml
 
-FormFactorPart.formFactorRaw - FormFactor
+HopperBin.TextureName - TextureId
 
-Humanoid.Health_XML - Health
+Humanoid.Jump - JumpReplicate
+Humanoid.Health - Health_XML
+Humanoid.InternalOriginalHipHeight - InternalBodyScale
+Humanoid.JumpReplicate - Jump
+Humanoid.MoveDirectionInternal - MoveDirection
 
-IntConstrainedValue.value - Value
+Instance.Sandboxed - DefinesCapabilities
 
-LuaSourceContainer.ScriptGuid - OriginalScriptGuid
+IntConstrainedValue.ConstrainedValue - value
 
 MaterialService.Use2022MaterialsXml - Use2022Materials
+MaterialService.Use2022Materials - Use2022MaterialsXml
 
 MeshPart.InitialSize - MeshSize
+
+Model.Scale - ScaleFactor
+
+PVInstance.Origin - WorldPivotData
+PVInstance.Origin - WorldPivot
 
 Part.shape - Shape
 Part.shape - AssemblyMass
 Part.shape - AssemblyCenterOfMass
 
+Player.AccountAgeReplicate - AccountAge
+
+Smoke.Opacity - opacity_xml
+Smoke.RiseVelocity - riseVelocity_xml
 Smoke.opacity_xml - Opacity
 Smoke.size_xml - Size
-Smoke.riseVelocity_xml - RiseVelocity
 
 Sound.xmlRead_MaxDistance_3 - MaxDistance
 Sound.xmlRead_MaxDistance_3 - RollOffMaxDistance
+Sound.PlayingReplicator - Playing
+Sound.TimePositionReplicator - TimePosition
 
+StyleRule.Index - Priority
+
+TextSource.UserIdReplicated - UserId
+
+VideoFrame.TimePositionReplicating - TimePosition
+VideoFrame.TimePosition - TimePositionReplicating
+VideoFrame.PlayingReplicating - Playing
+VideoFrame.Playing - PlayingReplicating
+
+WeldConstraint.Enabled - State
+WeldConstraint.Part1 - Part1Internal
 WeldConstraint.CFrame0 - State
-WeldConstraint.Part0Internal - Part0
-WeldConstraint.Part1Internal - Part1
+WeldConstraint.State - Enabled
+WeldConstraint.Part0 - Part0Internal
 
+Workspace.CollisionGroups - CollisionGroupData
+Workspace.TouchesUseCollisionGroups - TouchEventsUseCollisionGroups
 Workspace.SignalBehavior2 - SignalBehavior
 

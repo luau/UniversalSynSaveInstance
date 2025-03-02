@@ -84,8 +84,9 @@ local service = setmetatable({}, {
 		-- if cloneref then
 		-- 	Service = cloneref(Service)
 		-- end
-
+		if Service then
 		self[serviceName] = Service
+		end
 		return Service
 	end,
 })
@@ -224,7 +225,7 @@ do -- * Load Region of Déjà Vu
 	end
 end
 
-local custom_decompiler
+-- local custom_decompiler
 
 -- if getscriptbytecode then
 -- end
@@ -1425,6 +1426,7 @@ do
 			local ClassWhitelist, ClassBlacklist = ClassesWhitelist[ClassName], ClassesBlacklist[ClassName]
 
 			for _, Member in API_Class.Members do
+				-- ? print(game:GetService("ReflectionService"):GetPropertyNames("TextBox"))
 				if Member.MemberType == "Property" then
 					local Serialization = Member.Serialization
 
@@ -1559,7 +1561,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field mode string -- Valid modes: full, optimized, scripts. Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
 --- @field scriptcache boolean -- ___Default:___ true
---- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ Your executor's decompiler, if available. Otherwise uses "custom" if not.
+--- @field decomptype string -- * Deprecated. ___Default:___ Uses your executor's decompiler, if available.
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
@@ -1646,7 +1648,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		mode = "optimized",
 		noscripts = false,
 		scriptcache = true,
-		decomptype = "",
+		-- decomptype = "",
 		timeout = 10,
 		-- * New:
 		__DEBUG_MODE = false,
@@ -1852,6 +1854,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	if OPTIONS.IgnoreDefaultPlayerScripts then
 		-- TODO This is a bad workaround, find a better automatic way
+		-- TODO Look into https://robloxapi.github.io/ref/class/LuaSourceContainer.html#member-isPlayerScript
 		local DecompileIgnore = OPTIONS.DecompileIgnore
 
 		local Path = service.StarterPlayer:FindFirstChild("StarterPlayerScripts")
@@ -2207,7 +2210,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do
-		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
+		local Decompiler = decompile--OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
 
 		-- if Decompiler == custom_decompiler then -- Cope
 		-- 	local key = "DecompileTimeout"
@@ -2582,6 +2585,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						if not default_instance then
 							local ClassTags = ClassList[ClassName].Tags
 							if not (ClassTags and ClassTags.NotCreatable) then -- __api_dump_class_not_creatable__ also indicates this
+								-- ! TODO Player Class is an exception, due to thread identity lvl
 								new_def_inst = Instance.new(ClassName) -- ! Assuming anything that doesn't have NotCreatable is possible to create (therefore no pcall)
 
 								default_instance = {}
@@ -2614,9 +2618,21 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							continue
 						end
 
-						local Category, Optional, Special = Property.Category, Property.Optional, Property.Special
+						local Special = Property.Special
 
-						local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
+						-- if -- ! Not enabled yet (580), uncomment asap once enabled
+
+						-- 	not Special -- TODO: .Special is checked more than once (because it might be updated during ReadProperty)
+						-- 	and not (PropertyName == "Source" and isLuaSourceContainer(instance))
+						-- then -- ? Could be not just "Source" in the future
+						-- 	if not instance:IsPropertyModified(PropertyName) then
+						-- 		continue
+						-- 	end
+						-- end
+						local Category, Optional = Property.Category, Property.Optional
+
+						local raw = UNREADABLE_BINARY_STRINGS and ValueType == "BinaryString" and __BREAK -- TODO Improve this somehow, not ideal to check it every time
+							or ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
 
 						if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 							local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
@@ -2665,7 +2681,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							if default_instance[PropertyName] == raw then
 								continue
 							end
-							-- local ok, IsModified = pcall(IsPropertyModified, instance, PropertyName) -- ? Not yet enabled lol (580)
 						end
 
 						-- Serialization start

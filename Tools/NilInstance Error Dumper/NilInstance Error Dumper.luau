@@ -123,20 +123,25 @@ do
 end
 local F = Instance.new("Folder")
 local s = "\n"
-for Class, ClassInfo in ClassList do
-	local o, r = pcall(Instance.new, Class)
+local blacklist = ArrayToDictionary({ "RelativeGui" })
+for ClassName, ClassInfo in ClassList do
+	if blacklist[ClassName] then
+		continue
+	end
+	writefile("crasher.txt", ClassName)
+	local o, r = pcall(Instance.new, ClassName)
 	local x = r
 	if not o then
 		r = nil
 
 		if not r then
-			r = game:FindFirstChildWhichIsA(Class, true)
+			r = game:FindFirstChildWhichIsA(ClassName, true)
 			if not r then
-				r = game:FindFirstChild(Class, true)
+				r = game:FindFirstChild(ClassName, true)
 				if not r then
 					if ClassInfo.Tags and ClassInfo.Tags.Service then
 						pcall(function()
-							r = service[Class]
+							r = service[ClassName]
 						end)
 					end
 				end
@@ -151,14 +156,14 @@ for Class, ClassInfo in ClassList do
 			if Find(r, "locked") or Find(r, "Cannot change") or Find(r, "Invalid parent for Service") then
 				continue
 			end
-			s ..= Class .. ": " .. r .. "\n"
+			s ..= ClassName .. ": " .. r .. "\n"
 		end
 	elseif
 		not (
 			Find(x, "Unable to create an Instance") --[[or Find(x, "The current thread cannot create")]]
 		)
 	then
-		s ..= "! " .. Class .. ": " .. x .. "\n"
+		s ..= "! " .. ClassName .. ": " .. x .. "\n"
 	end
 end
 warn("Finished")

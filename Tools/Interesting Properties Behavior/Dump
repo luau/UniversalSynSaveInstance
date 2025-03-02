@@ -40,7 +40,7 @@ AudioFilter.Editor {CanLoad Only}
 
 AudioLimiter.Editor {CanLoad Only}
 
-AudioPlayer.Asset {CanLoad Only}
+AudioPlayer.AssetId {CanLoad Only} {Deprecated}
 AudioPlayer.IsReady {CanSave Only}
 AudioPlayer.TimeLength {CanSave Only}
 
@@ -413,6 +413,24 @@ PathfindingService is NotCreatable but PathfindingService.EmptyCutoff has a defa
 Player.CharacterAppearance {Deprecated} {CanSave}
 Player.FollowUserId {CanSave Only}
 
+PlayerDataRecord.CreatedTime {CanSave Only}
+PlayerDataRecord.DefaultRecordName {CanSave Only}
+PlayerDataRecord.Dirty {CanSave Only}
+PlayerDataRecord.Error {CanSave Only}
+PlayerDataRecord.FlushedTime {CanSave Only}
+PlayerDataRecord.LoadedTime {CanSave Only}
+PlayerDataRecord.ModifiedTime {CanSave Only}
+PlayerDataRecord.NewRecord {CanSave Only}
+PlayerDataRecord.Readable {CanSave Only}
+PlayerDataRecord.RecordName {CanSave Only}
+PlayerDataRecord.Writable {CanSave Only}
+PlayerDataRecord is NotCreatable but PlayerDataRecord.CreatedTime has a default value: 0
+
+PlayerDataRecordConfig.RecordName {CanSave Only}
+PlayerDataRecordConfig is NotCreatable but PlayerDataRecordConfig.RecordName has a default value: 
+
+PlayerDataService is NotCreatable but PlayerDataService.LoadFailureBehavior has a default value: Failure
+
 PlayerEmulatorService is NotCreatable but PlayerEmulatorService.CustomPoliciesEnabled has a default value: false
 
 PluginAction.Text {CanLoad Only}
@@ -459,6 +477,7 @@ FluidForceSensor.Torque {CanSave Only}
 
 ServerScriptService is NotCreatable but ServerScriptService.LoadStringEnabled has a default value: false
 
+DataModel.MatchmakingType {CanSave Only}
 DataModel.PrivateServerId {CanSave Only}
 DataModel.PrivateServerOwnerId {CanSave Only}
 DataModel.VIPServerId {CanSave Only} {Deprecated} {CanSave}
@@ -512,6 +531,7 @@ TeleportService.CustomizedTeleportUI {CanLoad Only} {Deprecated}
 TerrainRegion.GridV3 {CanLoad Only}
 
 TestService.ErrorCount {CanSave Only}
+TestService.Is30FpsThrottleEnabled {CanLoad Only} {Deprecated}
 TestService.TestCount {CanSave Only}
 TestService.WarnCount {CanSave Only}
 

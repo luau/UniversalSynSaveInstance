@@ -1,13 +1,13 @@
 
 EditableImage.ImageData {BinaryString}
 
-EditableMesh.MeshData 
+EditableMesh.MeshData {SharedString}
 
 Instance.AttributesSerialize {BinaryString}
-Instance.DefinesCapabilities 
-Instance.HistoryId 
+Instance.DefinesCapabilities {bool}
+Instance.HistoryId {UniqueId}
 Instance.Tags {BinaryString}
-Instance.UniqueId 
+Instance.UniqueId {UniqueId}
 
 AnimationClip.GuidBinaryString {BinaryString}
 
@@ -18,281 +18,310 @@ AnimationRigData.postTransform {BinaryString}
 AnimationRigData.preTransform {BinaryString}
 AnimationRigData.transform {BinaryString}
 
-StarterGui.RtlTextSupport 
-StarterGui.VirtualCursorMode 
+StarterGui.RtlTextSupport {RtlTextSupport}
+StarterGui.VirtualCursorMode {VirtualCursorMode}
 
-BaseWrap.HSRAssetId 
-BaseWrap.HSRData 
-BaseWrap.HSRMeshIdData 
-BaseWrap.TemporaryCageMeshId 
+BaseWrap.HSRAssetId {ContentId}
+BaseWrap.HSRData {SharedString}
+BaseWrap.HSRMeshIdData {SharedString}
+BaseWrap.TemporaryCageMeshId {ContentId}
 
-WrapLayer.TemporaryReferenceId 
+WrapLayer.TemporaryReferenceId {ContentId}
 
-BallSocketConstraint.MaxFrictionTorqueXml 
+BallSocketConstraint.MaxFrictionTorqueXml {float}
 
-CustomEvent.PersistedCurrentValue 
+CustomEvent.PersistedCurrentValue {float}
 
-BevelMesh.Bevel 
-BevelMesh.Bevel Roundness 
-BevelMesh.Bulge 
+BevelMesh.Bevel {float}
+BevelMesh.Bevel Roundness {float}
+BevelMesh.Bulge {float}
 
-DebuggerBreakpoint.line 
+DebuggerBreakpoint.line {int}
 
-Fire.heat_xml 
-Fire.size_xml 
+Fire.heat_xml {float}
+Fire.size_xml {float}
 
 FloatCurve.ValuesAndTimes {BinaryString}
 
-FunctionalTest.HasMigratedSettingsToTestService 
+FunctionalTest.HasMigratedSettingsToTestService {bool}
 
-GoogleAnalyticsConfiguration.gaID 
+GoogleAnalyticsConfiguration.gaID {string}
 
-ViewportFrame.CameraCFrame 
-ViewportFrame.CameraFieldOfView 
+ViewportFrame.CameraCFrame {CFrame}
+ViewportFrame.CameraFieldOfView {float}
 
 Path2D.PropertiesSerialize {BinaryString}
 
 HiddenSurfaceRemovalAsset.HSRData {BinaryString}
 HiddenSurfaceRemovalAsset.HSRMeshIdData {BinaryString}
 
-Humanoid.Health_XML 
-Humanoid.InternalBodyScale 
-Humanoid.InternalHeadScale 
+Humanoid.Health_XML {float}
+Humanoid.InternalBodyScale {Vector3}
+Humanoid.InternalHeadScale {float}
 
-HumanoidDescription.EmotesDataInternal 
-HumanoidDescription.EquippedEmotesDataInternal 
+HumanoidDescription.EmotesDataInternal {string}
+HumanoidDescription.EquippedEmotesDataInternal {string}
 
-InsertService.AllowClientInsertModels 
+InsertService.AllowClientInsertModels {bool}
 
-Lighting.LightingStyle 
-Lighting.PrioritizeLightingQuality 
+Lighting.LightingStyle {LightingStyle}
+Lighting.PrioritizeLightingQuality {bool}
 
-LocalizationTable.Contents 
+LocalizationTable.Contents {string}
 
-LuaSourceContainer.ScriptGuid 
+LuaSourceContainer.ScriptGuid {string}
 
 MarkerCurve.ValuesAndTimes {BinaryString}
 
-MaterialService.AsphaltName 
-MaterialService.BasaltName 
-MaterialService.BrickName 
-MaterialService.CardboardName 
-MaterialService.CarpetName 
-MaterialService.CeramicTilesName 
-MaterialService.ClayRoofTilesName 
-MaterialService.CobblestoneName 
-MaterialService.ConcreteName 
-MaterialService.CorrodedMetalName 
-MaterialService.CrackedLavaName 
-MaterialService.DiamondPlateName 
-MaterialService.FabricName 
-MaterialService.FoilName 
-MaterialService.GlacierName 
-MaterialService.GraniteName 
-MaterialService.GrassName 
-MaterialService.GroundName 
-MaterialService.IceName 
-MaterialService.LeafyGrassName 
-MaterialService.LeatherName 
-MaterialService.LimestoneName 
-MaterialService.MarbleName 
-MaterialService.MetalName 
-MaterialService.MudName 
-MaterialService.PavementName 
-MaterialService.PebbleName 
-MaterialService.PlasterName 
-MaterialService.PlasticName 
-MaterialService.RockName 
-MaterialService.RoofShinglesName 
-MaterialService.RubberName 
-MaterialService.SaltName 
-MaterialService.SandName 
-MaterialService.SandstoneName 
-MaterialService.SlateName 
-MaterialService.SmoothPlasticName 
-MaterialService.SnowName 
-MaterialService.Use2022MaterialsXml 
-MaterialService.WoodName 
-MaterialService.WoodPlanksName 
+MaterialService.AsphaltName {string}
+MaterialService.BasaltName {string}
+MaterialService.BrickName {string}
+MaterialService.CardboardName {string}
+MaterialService.CarpetName {string}
+MaterialService.CeramicTilesName {string}
+MaterialService.ClayRoofTilesName {string}
+MaterialService.CobblestoneName {string}
+MaterialService.ConcreteName {string}
+MaterialService.CorrodedMetalName {string}
+MaterialService.CrackedLavaName {string}
+MaterialService.DiamondPlateName {string}
+MaterialService.FabricName {string}
+MaterialService.FoilName {string}
+MaterialService.GlacierName {string}
+MaterialService.GraniteName {string}
+MaterialService.GrassName {string}
+MaterialService.GroundName {string}
+MaterialService.IceName {string}
+MaterialService.LeafyGrassName {string}
+MaterialService.LeatherName {string}
+MaterialService.LimestoneName {string}
+MaterialService.MarbleName {string}
+MaterialService.MetalName {string}
+MaterialService.MudName {string}
+MaterialService.PavementName {string}
+MaterialService.PebbleName {string}
+MaterialService.PlasterName {string}
+MaterialService.PlasticName {string}
+MaterialService.RockName {string}
+MaterialService.RoofShinglesName {string}
+MaterialService.RubberName {string}
+MaterialService.SaltName {string}
+MaterialService.SandName {string}
+MaterialService.SandstoneName {string}
+MaterialService.SlateName {string}
+MaterialService.SmoothPlasticName {string}
+MaterialService.SnowName {string}
+MaterialService.Use2022MaterialsXml {bool}
+MaterialService.WoodName {string}
+MaterialService.WoodPlanksName {string}
 
-MaterialVariant.TexturePack 
+MaterialVariant.TexturePack {ContentId}
 
-MetaBreakpointContext.ContextDataInternal 
+MetaBreakpointContext.ContextDataInternal {string}
 
-BasePart.Color3uint8 
-BasePart.MaterialVariantSerialized 
-BasePart.size 
+BasePart.Color3uint8 {Color3uint8}
+BasePart.MaterialVariantSerialized {string}
+BasePart.size {Vector3}
 
-FormFactorPart.formFactorRaw 
+FormFactorPart.formFactorRaw {FormFactor}
 formFactorRaw -> FormFactor
 formFactorRaw -> formFactor
 
-Part.shape 
+Part.shape {PartType}
 shape -> Shape
 shape -> shap
 
-Terrain.AcquisitionMethod 
-Terrain.Decoration 
-Terrain.GrassLength 
+Terrain.AcquisitionMethod {TerrainAcquisitionMethod}
+Terrain.Decoration {bool}
+Terrain.GrassLength {float}
 Terrain.MaterialColors {BinaryString}
 Terrain.PhysicsGrid {BinaryString}
 Terrain.SmoothGrid {BinaryString}
 AcquisitionMethod -> LastUsedModificationMethod
 
-TriangleMeshPart.AeroMeshData 
-TriangleMeshPart.FluidFidelityInternal 
-TriangleMeshPart.PhysicalConfigData 
+TriangleMeshPart.AeroMeshData {SharedString}
+TriangleMeshPart.FluidFidelityInternal {FluidFidelity}
+TriangleMeshPart.PhysicalConfigData {SharedString}
 FluidFidelityInternal -> FluidFidelity
 
-MeshPart.InitialSize 
+MeshPart.InitialSize {Vector3}
 MeshPart.PhysicsData {BinaryString}
-MeshPart.VertexCount 
+MeshPart.VertexCount {int}
 
-PartOperation.AssetId 
+PartOperation.AssetId {ContentId}
 PartOperation.ChildData {BinaryString}
-PartOperation.ChildData2 
-PartOperation.FormFactor 
-PartOperation.InitialSize 
+PartOperation.ChildData2 {SharedString}
+PartOperation.FormFactor {FormFactor}
+PartOperation.InitialSize {Vector3}
 PartOperation.MeshData {BinaryString}
-PartOperation.MeshData2 
+PartOperation.MeshData2 {SharedString}
 PartOperation.PhysicsData {BinaryString}
 
-TrussPart.style 
+TrussPart.style {Style}
 style -> Style
 
-Model.ModelMeshCFrame 
-Model.ModelMeshData 
-Model.ModelMeshSize 
-Model.NeedsPivotMigration 
-Model.ScaleFactor 
-Model.WorldPivotData 
+Model.ModelMeshCFrame {CFrame}
+Model.ModelMeshData {SharedString}
+Model.ModelMeshSize {Vector3}
+Model.NeedsPivotMigration {bool}
+Model.ScaleFactor {float}
+Model.WorldPivotData {OptionalCoordinateFrame}
 
-Workspace.AvatarUnificationMode 
+Workspace.AvatarUnificationMode {AvatarUnificationMode}
 Workspace.CollisionGroupData {BinaryString}
-Workspace.ExplicitAutoJoints 
-Workspace.FluidForces 
-Workspace.IKControlConstraintSupport 
-Workspace.MeshPartHeadsAndAccessories 
-Workspace.ModelStreamingBehavior 
-Workspace.MoverConstraintRootBehavior 
-Workspace.PathfindingUseImprovedSearch 
-Workspace.PhysicsSteppingMethod 
-Workspace.PlayerCharacterDestroyBehavior 
-Workspace.PrimalPhysicsSolver 
-Workspace.RejectCharacterDeletions 
-Workspace.RenderingCacheOptimizations 
-Workspace.ReplicateInstanceDestroySetting 
-Workspace.SandboxedInstanceMode 
-Workspace.SignalBehavior2 
-Workspace.StreamOutBehavior 
-Workspace.StreamingIntegrityMode 
-Workspace.StreamingMinRadius 
-Workspace.StreamingTargetRadius 
-Workspace.TerrainWeldsFixed 
-Workspace.TouchEventsUseCollisionGroups 
-Workspace.TouchesUseCollisionGroups 
+Workspace.ExplicitAutoJoints {bool}
+Workspace.FluidForces {FluidForces}
+Workspace.IKControlConstraintSupport {IKControlConstraintSupport}
+Workspace.MeshPartHeadsAndAccessories {MeshPartHeadsAndAccessories}
+Workspace.ModelStreamingBehavior {ModelStreamingBehavior}
+Workspace.MoverConstraintRootBehavior {MoverConstraintRootBehaviorMode}
+Workspace.PathfindingUseImprovedSearch {PathfindingUseImprovedSearch}
+Workspace.PhysicsImprovedSleep {RolloutState}
+Workspace.PhysicsSteppingMethod {PhysicsSteppingMethod}
+Workspace.PlayerCharacterDestroyBehavior {PlayerCharacterDestroyBehavior}
+Workspace.PrimalPhysicsSolver {PrimalPhysicsSolver}
+Workspace.RejectCharacterDeletions {RejectCharacterDeletions}
+Workspace.RenderingCacheOptimizations {RenderingCacheOptimizationMode}
+Workspace.ReplicateInstanceDestroySetting {ReplicateInstanceDestroySetting}
+Workspace.SandboxedInstanceMode {SandboxedInstanceMode}
+Workspace.SignalBehavior2 {SignalBehavior}
+Workspace.StreamOutBehavior {StreamOutBehavior}
+Workspace.StreamingIntegrityMode {StreamingIntegrityMode}
+Workspace.StreamingMinRadius {int}
+Workspace.StreamingTargetRadius {int}
+Workspace.TerrainWeldsFixed {bool}
+Workspace.TouchEventsUseCollisionGroups {RolloutState}
+Workspace.TouchesUseCollisionGroups {bool}
+TouchEventsUseCollisionGroups -> PhysicsImprovedSleep
 SignalBehavior2 -> SignalBehavior
 
-PackageLink.PackageIdSerialize 
-PackageLink.VersionIdSerialize 
+PackageLink.PackageIdSerialize {ContentId}
+PackageLink.VersionIdSerialize {int64}
 
 PartOperationAsset.ChildData {BinaryString}
 PartOperationAsset.MeshData {BinaryString}
 
 Player.RawJoinData {BinaryString}
 
-Players.BanningEnabled 
-Players.UseStrafingAnimations 
+Players.BanningEnabled {bool}
+Players.UseStrafingAnimations {bool}
 
 RotationCurve.ValuesAndTimes {BinaryString}
 
-ScriptDebugger.CoreScriptIdentifier 
-ScriptDebugger.ScriptGuid 
+ScriptDebugger.CoreScriptIdentifier {string}
+ScriptDebugger.ScriptGuid {string}
 
-ServerScriptService.LoadStringEnabled 
+ServerScriptService.LoadStringEnabled {bool}
 
-Smoke.opacity_xml 
-Smoke.riseVelocity_xml 
-Smoke.size_xml 
+Smoke.opacity_xml {float}
+Smoke.riseVelocity_xml {float}
+Smoke.size_xml {float}
 
-SoundService.VolumetricAudio 
+SoundService.VolumetricAudio {VolumetricAudio}
 
-StarterPlayer.AvatarJointUpgrade_SerializedRollout 
-StarterPlayer.EnableDynamicHeads 
-StarterPlayer.LoadCharacterLayeredClothing 
+StarterPlayer.AvatarJointUpgrade_SerializedRollout {RolloutState}
+StarterPlayer.EnableDynamicHeads {LoadDynamicHeads}
+StarterPlayer.LoadCharacterLayeredClothing {LoadCharacterLayeredClothing}
 AvatarJointUpgrade_SerializedRollout -> AvatarJointUpgrade
 LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing 
 
 StyleRule.PropertiesSerialize {BinaryString}
 
-StyleDerive.Index 
+StyleDerive.Index {int}
 
-TerrainDetail.TexturePack 
+TerrainDetail.TexturePack {ContentId}
 
-TerrainRegion.ExtentsMax 
-TerrainRegion.ExtentsMin 
+TerrainRegion.ExtentsMax {Vector3int16}
+TerrainRegion.ExtentsMin {Vector3int16}
 TerrainRegion.SmoothGrid {BinaryString}
 
-UnvalidatedAssetService.CachedData 
+UnvalidatedAssetService.CachedData {string}
 
-UserGameSettings.CompletedTutorials 
-UserGameSettings.ComputerCameraMovementChanged 
-UserGameSettings.ComputerMovementChanged 
-UserGameSettings.StartMaximized 
-UserGameSettings.StartScreenPosition 
-UserGameSettings.StartScreenSize 
-UserGameSettings.TouchCameraMovementChanged 
-UserGameSettings.TouchMovementChanged 
-UserGameSettings.gaID 
+UserGameSettings.CompletedTutorials {string}
+UserGameSettings.ComputerCameraMovementChanged {bool}
+UserGameSettings.ComputerMovementChanged {bool}
+UserGameSettings.StartMaximized {bool}
+UserGameSettings.StartScreenPosition {Vector2}
+UserGameSettings.StartScreenSize {Vector2}
+UserGameSettings.TouchCameraMovementChanged {bool}
+UserGameSettings.TouchMovementChanged {bool}
+UserGameSettings.gaID {string}
 
 BinaryStringValue.Value {BinaryString}
 
-DoubleConstrainedValue.value 
+DoubleConstrainedValue.value {double}
 
-IntConstrainedValue.value 
+IntConstrainedValue.value {int64}
 
-WeldConstraint.CFrame0 
-WeldConstraint.Part0Internal 
-WeldConstraint.Part1Internal 
-WeldConstraint.State 
+WeldConstraint.CFrame0 {CFrame}
+WeldConstraint.Part0Internal {BasePart}
+WeldConstraint.Part1Internal {BasePart}
+WeldConstraint.State {int}
 
 
 Potential Proxy Properties:
+EditableImage.IsReplicatedCopy {Serialize: False}
+EditableMesh.IsReplicatedCopy {Serialize: False}
+Instance.AttributesReplicate {Serialize: False}
 Instance.AttributesSerialize
+Animator.FacsReplicationData {Serialize: False}
 BallSocketConstraint.MaxFrictionTorqueXml
 Fire.heat_xml
 Fire.size_xml
+Folder.ReplicatedGuiInsertionOrder {Serialize: False}
+GuiBase2d.ReplicatedInsertionOrder {Serialize: False}
+VideoFrame.PlayingReplicating {Serialize: False}
+VideoFrame.TimePositionReplicating {Serialize: False}
 Path2D.PropertiesSerialize
 Humanoid.Health_XML
 Humanoid.InternalBodyScale
 Humanoid.InternalDisplayName {Scriptable} {Serialize: False}
 Humanoid.InternalHeadScale
 Humanoid.InternalOriginalHipHeight {Serialize: False}
+Humanoid.JumpReplicate {Serialize: False}
 Humanoid.MoveDirectionInternal {Serialize: False}
 HumanoidDescription.EmotesDataInternal
 HumanoidDescription.EquippedEmotesDataInternal
 IncrementalPatchBuilder.SerializePatch {Scriptable}
+Motor.ReplicateCurrentAngle {Serialize: False}
+Motor6D.ReplicateCurrentAngle6D {Serialize: False}
+Motor6D.ReplicateCurrentOffset6D {Serialize: False}
 MaterialService.Use2022MaterialsXml
 MetaBreakpointContext.ContextDataInternal
+NetworkSettings.IncomingReplicationLag {Scriptable}
+BasePart.CollisionGroupReplicate {Serialize: False}
 BasePart.MaterialVariantSerialized
+BasePart.ReplicationPV {Serialize: False}
 TriangleMeshPart.FluidFidelityInternal
+MeshPart.RenderFidelityReplicate {Serialize: False}
 PartOperation.SerializedCSGTree {Serialize: False}
 PartOperation.SerializedOperationGraph {Serialize: False}
+Workspace.ReplicateInstanceDestroySetting
 PackageLink.PackageIdSerialize
 PackageLink.SerializedDefaultAttributes {Scriptable}
 PackageLink.VersionIdSerialize
+PhysicsSettings.AreTerrainReplicationRegionsShown {Scriptable}
+Player.AccountAgeReplicate {Serialize: False}
+Player.CountryRegionCodeReplicate {Serialize: False}
+Player.FollowUserIdReplicated {Serialize: False}
 Player.InternalCharacterAppearanceLoaded {Serialize: False}
+Player.MembershipTypeReplicate {Serialize: False}
+Player.ReplicationFocus {Scriptable}
+Player.SuperSafeChatReplicate {Serialize: False}
 PlayerEmulatorService.SerializedEmulatedPolicyInfo {Scriptable}
 Players.MaxPlayersInternal {Scriptable}
 Players.PreferredPlayersInternal {Scriptable}
 Smoke.opacity_xml
 Smoke.riseVelocity_xml
 Smoke.size_xml
+Sound.PlayingReplicator {Serialize: False}
+Sound.TimePositionReplicator {Serialize: False}
 Sound.xmlRead_MaxDistance_3 {Serialize: False}
 Sound.xmlRead_MinDistance_3 {Serialize: False}
 StarterPlayer.AvatarJointUpgrade_SerializedRollout
 Studio.Enable Internal Beta Features {Scriptable}
 Studio.Enable Internal Features {Scriptable}
 StyleRule.PropertiesSerialize
+TextSource.UserIdReplicated {Serialize: False}
 WeldConstraint.Part0Internal
 WeldConstraint.Part1Internal

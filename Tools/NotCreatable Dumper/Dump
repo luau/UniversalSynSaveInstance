@@ -1,6 +1,10 @@
 
 Object
 
+Capture
+
+ScreenshotCapture
+
 EditableImage
 
 EditableMesh
@@ -188,6 +192,12 @@ PausedState
 PausedStateBreakpoint
 
 PausedStateException
+
+PlayerData
+
+PlayerDataRecord
+
+PlayerDataRecordConfig
 
 PlayerScripts
 

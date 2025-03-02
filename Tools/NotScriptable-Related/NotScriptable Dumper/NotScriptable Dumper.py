@@ -78,14 +78,16 @@ def fetch_api():
                     value_category = member["ValueType"]["Category"]
                     if value_category == "Enum":
                         enum_members[value_type] = member_name
-                    s += f"{class_name}.{member_name} {'{BinaryString}' if value_type == 'BinaryString' else ''}"
+                    s += f"{class_name}.{member_name} {{{value_type}}}"
                     for item in original_tags:
                         if isinstance(item, dict):
 
                             s += f"{'{PreferredDescriptorName: '+item.get('PreferredDescriptorName')+'}'}"
                     s += "\n"
 
-                if re.search(r"xml|internal|serial", member_name, re.IGNORECASE):
+                if re.search(
+                    r"xml|internal|serial|replica", member_name, re.IGNORECASE
+                ):
 
                     str = f"{class_name}.{member_name}"
                     if not special:

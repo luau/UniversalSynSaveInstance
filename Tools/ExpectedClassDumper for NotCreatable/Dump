@@ -7,6 +7,8 @@ CoreGui.SelectionImageObject {GuiObject}
 
 PlayerGui.SelectionImageObject {GuiObject}
 
+StarterGui.StudioInsertWidgetLayerCollectorAutoLinkStyleSheet {StyleSheet}
+
 Beam.Attachment0 {Attachment}
 Beam.Attachment1 {Attachment}
 
@@ -42,6 +44,8 @@ SelectionPartLasso.Part {BasePart}
 GuiService.SelectedObject {GuiObject}
 
 HapticEffect.Waveform {FloatCurve}
+
+InputBinding.UIButton {GuiButton}
 
 JointInstance.Part0 {BasePart}
 JointInstance.Part1 {BasePart}

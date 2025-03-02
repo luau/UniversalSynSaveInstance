@@ -47,9 +47,7 @@ do
 			local Class = {}
 
 			local ClassName = API_Class.Name
-			-- if ClassName == "GuiService" then
-			-- 	continue
-			-- end
+
 			local ClassTags = API_Class.Tags
 
 			if ClassTags then
@@ -90,7 +88,11 @@ do
 						local Serialization = Member.Serialization
 
 						local ValueType = Member.ValueType
-
+						if ClassName == "GuiService" then
+							if PropertyName == "CoreGuiFolder" then
+								continue
+							end
+						end
 						local Property = {
 							Name = PropertyName,
 							Category = ValueType.Category,
@@ -219,7 +221,7 @@ do
 					if descriptor == PropertyName or alreadynoted[descriptor] then
 						return
 					end
-					if not_Special and  isscriptable(instance, descriptor) then
+					if not_Special and isscriptable(instance, descriptor) then
 						return
 					end
 					alreadynoted[descriptor] = true
