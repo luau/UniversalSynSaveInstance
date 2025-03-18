@@ -46,6 +46,9 @@ AudioPlayer.TimeLength {CanSave Only}
 
 AudioSearchParams.AudioSubtype {CanLoad Only} {Deprecated}
 
+AudioTextToSpeech.IsLoaded {CanSave Only}
+AudioTextToSpeech.TimeLength {CanSave Only}
+
 AvatarChatService is NotCreatable but AvatarChatService.ClientFeatures has a default value: 0
 
 BaseImportData.Id {CanSave Only}
@@ -412,6 +415,7 @@ PathfindingService is NotCreatable but PathfindingService.EmptyCutoff has a defa
 
 Player.CharacterAppearance {Deprecated} {CanSave}
 Player.FollowUserId {CanSave Only}
+Player.ThirdPartyTextChatRestrictionStatus {CanSave Only}
 
 PlayerDataRecord.CreatedTime {CanSave Only}
 PlayerDataRecord.DefaultRecordName {CanSave Only}
@@ -596,6 +600,8 @@ VideoDeviceInput.IsReady {CanSave Only}
 VoiceChatInternal is NotCreatable but VoiceChatInternal.VoiceChatState has a default value: Idle
 
 VoiceChatService is NotCreatable but VoiceChatService.EnableDefaultVoice has a default value: true
+
+WebSocketClient.ConnectionState {CanSave Only}
 
 WeldConstraint.Active {CanSave Only}
 WeldConstraint.CFrame1 {CanLoad Only}

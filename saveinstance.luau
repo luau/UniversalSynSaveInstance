@@ -1017,6 +1017,9 @@ do
 			Environment = 2 ^ 31, ----------  31 (0x1f)
 			RemoteEvent = 2 ^ 32, ----------  32 (0x20)
 			LegacySound = 2 ^ 33, ----------  33 (0x21)
+			Players = 2 ^ 34, --------------  34 (0x22)
+			CapabilityControl = 2 ^ 35, ----  35 (0x23)
+			InternalTest = 2 ^ 60, ---------  60 (0x3c), Related to TestingGameScript
 			PluginOrOpenCloud = 2 ^ 61, ----  61 (0x3d)
 			Assistant = 2 ^ 62, ------------  62 (0x3e)
 			-- Restricted = 2 ^ 63, -----------  for negative (highest bit for signed integers)
@@ -2631,8 +2634,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						-- end
 						local Category, Optional = Property.Category, Property.Optional
 
-						local raw = UNREADABLE_BINARY_STRINGS and ValueType == "BinaryString" and __BREAK -- TODO Improve this somehow, not ideal to check it every time
-							or ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
+						local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
 
 						if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 							local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing

@@ -7,6 +7,7 @@ CoreGui.SelectionImageObject {GuiObject}
 
 PlayerGui.SelectionImageObject {GuiObject}
 
+StarterGui.StudioDefaultStyleSheet {StyleSheet}
 StarterGui.StudioInsertWidgetLayerCollectorAutoLinkStyleSheet {StyleSheet}
 
 Beam.Attachment0 {Attachment}
@@ -29,6 +30,9 @@ GuiObject.NextSelectionLeft {GuiObject}
 GuiObject.NextSelectionRight {GuiObject}
 GuiObject.NextSelectionUp {GuiObject}
 GuiObject.SelectionImageObject {GuiObject}
+
+GuiButton.HoverHapticEffect {HapticEffect}
+GuiButton.PressHapticEffect {HapticEffect}
 
 FloorWire.From {BasePart}
 FloorWire.To {BasePart}
