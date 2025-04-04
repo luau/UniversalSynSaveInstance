@@ -14,6 +14,7 @@ Font
 NumberRange
 NumberSequence
 OptionalCoordinateFrame
+Path2DControlPoint
 PhysicalProperties
 ProtectedString
 QDir

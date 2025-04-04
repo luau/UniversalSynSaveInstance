@@ -1,4 +1,7 @@
 
+ConfigSnapshot.Error {CanSave Only}
+ConfigSnapshot.Outdated {CanSave Only}
+
 EditableImage.Size {CanSave Only}
 
 EditableMesh.FixedSize {CanSave Only}
@@ -90,11 +93,6 @@ BodyThrust.location {CanLoad Only} {Deprecated}
 
 BodyVelocity.maxForce {CanLoad Only} {Deprecated}
 BodyVelocity.velocity {CanLoad Only} {Deprecated}
-
-Camera.CoordinateFrame {CanLoad Only} {Deprecated}
-Camera.NearPlaneZ {CanSave Only}
-Camera.ViewportSize {CanSave Only}
-Camera.focus {CanLoad Only} {Deprecated}
 
 BodyColors.HeadColor {CanLoad Only}
 BodyColors.LeftArmColor {CanLoad Only}
@@ -390,6 +388,11 @@ PartOperation.TriangleCount {CanSave Only}
 
 TrussPart.Style {CanLoad Only}
 
+Camera.CoordinateFrame {CanLoad Only} {Deprecated}
+Camera.NearPlaneZ {CanSave Only}
+Camera.ViewportSize {CanSave Only}
+Camera.focus {CanLoad Only} {Deprecated}
+
 HopperBin.Command {CanLoad Only}
 HopperBin.TextureName {CanLoad Only}
 
@@ -599,7 +602,7 @@ VideoDeviceInput.IsReady {CanSave Only}
 
 VoiceChatInternal is NotCreatable but VoiceChatInternal.VoiceChatState has a default value: Idle
 
-VoiceChatService is NotCreatable but VoiceChatService.EnableDefaultVoice has a default value: true
+VoiceChatService is NotCreatable but VoiceChatService.DefaultDistanceAttenuation has a default value: Inverse
 
 WebSocketClient.ConnectionState {CanSave Only}
 

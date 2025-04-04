@@ -70,7 +70,7 @@ def fetch_api():
                         member_tags = array_to_dictionary(member_tags)
 
                     serialization = member["Serialization"]
-                    if serialization["CanLoad"] and serialization["CanSave"]:
+                    if serialization["CanLoad"] :
                         value_type = member["ValueType"]
                         value_type_name = value_type["Name"]
                         value_type_cat = value_type["Category"]
