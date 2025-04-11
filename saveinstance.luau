@@ -937,7 +937,25 @@ XML_Descriptors = {
 		return Identifier
 	end,
 	SecurityCapabilities = nil,
-	-- SystemAddress = function(raw) return raw end, -- PeerId?
+	-- SystemAddress = function(raw) return raw end, -- PeerId?  -- ? Not sure
+	-- TweenInfo = function(raw) -- ? Not sure
+	-- 	local normalize_num = XML_Descriptors.__NORMALIZE_NUMBER
+	-- 	local enum = XML_Descriptors.__ENUM
+
+	-- 	return "<Time>"
+	-- 		.. normalize_num(raw.Time)
+	-- 		.. "</Time><DelayTime>"
+	-- 		.. normalize_num(raw.DelayTime)
+	-- 		.. "</DelayTime><RepeatCount>"
+	-- 		.. normalize_num(raw.RepeatCount)
+	-- 		.. "</RepeatCount><Reverses>"
+	-- 		.. XML_Descriptors.bool(raw.Reverses)
+	-- 		.. "</Reverses><EasingDirection>"
+	-- 		.. enum(raw.EasingDirection)
+	-- 		.. "</EasingDirection><EasingStyle>"
+	-- 		.. enum(raw.EasingStyle)
+	-- 		.. "</EasingStyle>"
+	-- end,
 	UDim = function(raw)
 		--[[
 			S: Represents the Scale component. Interpreted as a <float>.
