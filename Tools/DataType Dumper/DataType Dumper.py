@@ -1,6 +1,7 @@
 import requests
 import os
 import re
+import sys
 
 
 def array_to_dictionary(table, hybrid_mode=None):
@@ -24,33 +25,41 @@ datatypes = []
 datatypes_set = set()
 
 
-def api():
+def api(version_hash=None):
+    if version_hash:
+        # Use the provided version hash
+        api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-API-Dump.json"
+        try:
+            response = requests.get(api_dump_url)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as e:
+            print(f"Error fetching API dump for {version_hash}: {e}")
+            sys.exit(1)
+    else:
+        # Fall back to the original method of finding the latest version
+        deploy_history_url = "https://setup.rbxcdn.com/DeployHistory.txt"
+        deploy_history = requests.get(deploy_history_url).text
 
-    deploy_history_url = "https://setup.rbxcdn.com/DeployHistory.txt"
-    deploy_history = requests.get(deploy_history_url).text
+        lines = deploy_history.splitlines()
 
-    lines = deploy_history.splitlines()
-
-    for line in reversed(lines):
-
-        match = re.search(r"(version-[^\s]+)", line)
-
-        if match:
-            version_hash = match.group(1)
-
-            api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
-
-            try:
-                response = requests.get(api_dump_url)
-                response.raise_for_status()
-                return response
-
-            except requests.RequestException as e:
-                print(f"Error fetching API dump for {version_hash}: {e}")
+        for line in reversed(lines):
+            match = re.search(r"(version-[^\s]+)", line)
+            if match:
+                version_hash = match.group(1)
+                api_dump_url = (
+                    f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
+                )
+                try:
+                    response = requests.get(api_dump_url)
+                    response.raise_for_status()
+                    return response
+                except requests.RequestException as e:
+                    print(f"Error fetching API dump for {version_hash}: {e}")
 
 
-def fetch_api():
-    response = api()
+def fetch_api(version_hash=None):
+    response = api(version_hash)
     api_classes = response.json()["Classes"]
 
     global datatypes
@@ -70,27 +79,31 @@ def fetch_api():
                         member_tags = array_to_dictionary(member_tags)
 
                     serialization = member["Serialization"]
-                    if serialization["CanLoad"] :
+                    if True:
                         value_type = member["ValueType"]
                         value_type_name = value_type["Name"]
                         value_type_cat = value_type["Category"]
                         if value_type_cat == "Enum":
-                            value_type_name = "Enum"
+                            value_type_name = ""
                         if value_type_cat == "Class":
-                            value_type_name = "Class"
+                            value_type_name = ""
                         if value_type_name not in datatypes_set:
                             datatypes_set.add(value_type_name)
                             datatypes.append(value_type_name)
 
 
-try:
-    fetch_api()
-    datatypes.sort()
-    s = "\n".join(datatypes) + "\n"
-    print(s)
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    output_file_path = os.path.join(script_dir, "Dump")
-    with open(output_file_path, "w") as file:
-        file.write(s)
-except Exception as e:
-    print(f"Error: {e}")
+if __name__ == "__main__":
+    version_hash = None
+    if len(sys.argv) > 1:
+        version_hash = sys.argv[1]
+    try:
+        fetch_api(version_hash)
+        datatypes.sort()
+        s = "\n".join(datatypes) + "\n"
+        print(s)
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        output_file_path = os.path.join(script_dir, "Dump")
+        with open(output_file_path, "w") as file:
+            file.write(s)
+    except Exception as e:
+        print(f"Error: {e}")

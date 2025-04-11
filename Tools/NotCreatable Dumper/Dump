@@ -19,8 +19,6 @@ AnimationStreamTrack
 
 AnimationTrack
 
-AssetImportSession
-
 AnimationImportData
 
 FacsImportData
@@ -114,6 +112,10 @@ PartAdornment
 SelectionLasso
 
 HttpRequest
+
+ImportSession
+
+AssetImportSession
 
 InputObject
 
