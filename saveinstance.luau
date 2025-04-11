@@ -3123,7 +3123,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			local Callback = OPTIONS.Callback
 			if Callback then
-				local totalstr = ""
+				local totalstr = header
 				for _, chunk in chunks do
 					totalstr ..= chunk.str
 				end
