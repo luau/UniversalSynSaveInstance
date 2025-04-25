@@ -16,7 +16,7 @@ AnalyticsService is NotCreatable but AnalyticsService.ApiKey has a default value
 
 AnimationTrack.TimePosition {CanLoad Only}
 
-AnnotationsService is NotCreatable but AnnotationsService.AnnotationsVisible has a default value: true
+AnnotationsService is NotCreatable but AnnotationsService.AnnotationsLoadingStatus has a default value: Loading
 
 AssetDeliveryProxy is NotCreatable but AssetDeliveryProxy.Interface has a default value: 
 
@@ -511,6 +511,8 @@ Sparkles.Color {CanLoad Only}
 StarterPlayer is NotCreatable but StarterPlayer.AllowCustomAnimations has a default value: true
 
 Studio.UI Theme {CanSave Only} {Deprecated} {CanSave}
+
+StudioCameraService is NotCreatable but StudioCameraService.LockCameraSpeed has a default value: false
 
 StudioData is NotCreatable but StudioData.EnableScriptCollabByDefaultOnLoad has a default value: false
 

@@ -49,7 +49,7 @@ do
 		-- decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s")',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
-		getcon = 'string.find(...,"get",nil,true) and (string.find(...,"conn",nil,true) or string.find(...,"sig",nil,true)) and string.sub(...,#(...))=="s"',
+		-- getcon = 'string.find(...,"get",nil,true) and (string.find(...,"conn",nil,true) or string.find(...,"sig",nil,true)) and string.sub(...,#(...))=="s"',
 		getnilinstances = 'string.find(...,"nil",nil,true) and string.find(...,"get",nil,true) and string.sub(...,#...) == "s"', -- ! Could match some unwanted stuff
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)', --  or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true) due to Fluxus (dumpstring returns a function)
 		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
@@ -165,11 +165,6 @@ do -- * Load Region of Déjà Vu
 			end
 
 			table.freeze(bit32)
-		end
-
-		-- TODO Remove later
-		if EXECUTOR_NAME == "Delta" then
-			base64encode = nil
 		end
 
 		-- Credits @Reselim
@@ -745,8 +740,6 @@ XML_Descriptors = {
 	-- ? Roblox uses CDATA only for these (try to prove this wrong): CollisionGroupData, SmoothGrid, MaterialColors, PhysicsGrid
 	-- ! Assuming all base64 encoded strings won't have newlines
 
-	-- ! 7/7/24
-	-- ! Electron v3 'gethiddenproperty' automatically base64 encodes BinaryString values
 
 	BinaryString = function(raw)
 		return raw == "" and "" or base64encode(raw)
@@ -939,15 +932,15 @@ XML_Descriptors = {
 	SecurityCapabilities = nil,
 	-- SystemAddress = function(raw) return raw end, -- PeerId?  -- ? Not sure
 	-- TweenInfo = function(raw) -- ? Not sure
-	-- 	local normalize_num = XML_Descriptors.__NORMALIZE_NUMBER
+	-- 	local __NORMALIZE_NUMBER = XML_Descriptors.__NORMALIZE_NUMBER
 	-- 	local enum = XML_Descriptors.__ENUM
 
 	-- 	return "<Time>"
-	-- 		.. normalize_num(raw.Time)
+	-- 		.. __NORMALIZE_NUMBER(raw.Time)
 	-- 		.. "</Time><DelayTime>"
-	-- 		.. normalize_num(raw.DelayTime)
+	-- 		.. __NORMALIZE_NUMBER(raw.DelayTime)
 	-- 		.. "</DelayTime><RepeatCount>"
-	-- 		.. normalize_num(raw.RepeatCount)
+	-- 		.. __NORMALIZE_NUMBER(raw.RepeatCount)
 	-- 		.. "</RepeatCount><Reverses>"
 	-- 		.. XML_Descriptors.bool(raw.Reverses)
 	-- 		.. "</Reverses><EasingDirection>"
@@ -2380,8 +2373,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
 	end
 
-	local IPM_ENABLED = math.huge <= CLIENT_VERSION and IgnoreDefaultProperties -- ! NOT ENABLED YET
-	local IPM_DISABLED = not IPM_ENABLED
 	local __BREAK = "__BREAK" .. service.HttpService:GenerateGUID(false)
 
 	local function ReadProperty(instance, property, propertyName, special, category, optional)
@@ -2634,12 +2625,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if not (IgnorePropertiesOfNotScriptsOnScriptsMode and not isLuaSourceContainer(instance)) then
 					local default_instance, new_def_inst
 
-					if IPM_DISABLED and IgnoreDefaultProperties then
+					if IgnoreDefaultProperties then
 						default_instance = default_instances[ClassName]
 						if not default_instance then
 							local ClassTags = ClassList[ClassName].Tags
 							if not (ClassTags and ClassTags.NotCreatable) then -- __api_dump_class_not_creatable__ also indicates this
-								-- ! NotCreatableFixes are exceptions to the check above meaning if we don't keep the NotCreatableFixes updated then Instance.new below might start erroring in the future potentially; HOWEVER IsPropertyModified solves this issue and no updates are really needed as NotCreatableFixes is up-to-date as of 664 (which is when IPM was enabled)
+								-- ! NotCreatableFixes are exceptions to the check above meaning if we don't keep the NotCreatableFixes updated then Instance.new below might start erroring in the future potentially; HOWEVER IsPropertyModified solves this issue and no updates are really needed as NotCreatableFixes is up-to-date as of VERSION-HERE (which is when IPM gets enabled)
 								new_def_inst = Instance.new(ClassName) -- ! Assuming anything that doesn't have NotCreatable is possible to create (therefore no pcall); EXCEPTION NOTED ABOVE
 
 								default_instance = {}
@@ -2672,18 +2663,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							continue
 						end
 
-						local Special = Property.Special
-
-						-- if -- ! Not enabled yet (580), uncomment asap once enabled
-
-						-- 	not Special -- TODO: .Special is checked more than once (because it might be updated during ReadProperty)
-						-- 	and not (PropertyName == "Source" and isLuaSourceContainer(instance))
-						-- then -- ? Could be not just "Source" in the future
-						-- 	if not instance:IsPropertyModified(PropertyName) then
-						-- 		continue
-						-- 	end
-						-- end
-						local Category, Optional = Property.Category, Property.Optional
+						local Special, Category, Optional = Property.Special, Property.Category, Property.Optional
 
 						local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
 
@@ -3343,10 +3323,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local anti_idle
 		if OPTIONS.AntiIdle then
 			task.spawn(function()
-				local getcon = global_container.getcon
 				local Idled = GetLocalPlayer().Idled
-				if getcon then
-					for _, c in getcon(Idled) do
+				if getconnections then
+					for _, c in getconnections(Idled) do
 						if not pcall(function()
 							c:Disable()
 						end) then
