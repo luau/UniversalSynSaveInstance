@@ -86,7 +86,7 @@ local service = setmetatable({}, {
 		-- 	Service = cloneref(Service)
 		-- end
 		if Service then
-		self[serviceName] = Service
+			self[serviceName] = Service
 		end
 		return Service
 	end,
@@ -740,7 +740,6 @@ XML_Descriptors = {
 	-- ? Roblox uses CDATA only for these (try to prove this wrong): CollisionGroupData, SmoothGrid, MaterialColors, PhysicsGrid
 	-- ! Assuming all base64 encoded strings won't have newlines
 
-
 	BinaryString = function(raw)
 		return raw == "" and "" or base64encode(raw)
 	end,
@@ -1391,6 +1390,10 @@ do
 		local API_Dump
 
 		local ok, err = pcall(function()
+			if EXECUTOR_NAME == "Zenith" or EXECUTOR_NAME == "Velocity" then -- TODO Temp fix as it crashes on HttpGet for sites that return 403 code
+				return
+			end
+
 			local CLIENT_VERSION_str = tostring(CLIENT_VERSION)
 			local ok, result = pcall(readfile, CLIENT_VERSION_str)
 			if
