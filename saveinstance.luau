@@ -2074,6 +2074,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				{
 					"Workspace",
 					"PlayerGui",
+					"StarterPlayerScripts",
+					"StarterCharacterScripts",
 					"Players",
 					"Lighting",
 					"MaterialService",
