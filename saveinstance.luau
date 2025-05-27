@@ -2073,6 +2073,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			for _, serviceName in
 				{
 					"Workspace",
+					"PlayerGui",
 					"Players",
 					"Lighting",
 					"MaterialService",
