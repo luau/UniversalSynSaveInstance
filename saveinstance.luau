@@ -1364,8 +1364,8 @@ do
 				buffer.writeu8(b, offset, col_groups_n) -- Group count
 				offset += 1
 
-				for i, group in collision_groups do
-					local name, id, mask = group.name, i - 1, group.mask
+                for i, group in collision_groups do
+                    local name, id, mask = group.name, (group.id or (i - 1)), group.mask
 					local name_len = #name
 
 					buffer.writeu8(b, offset, id) -- ID
