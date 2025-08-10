@@ -1116,8 +1116,12 @@ end
 local ClassList
 
 do
-	local ClassPropertyExceptions = {
-		Whitelist = { TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }) },
+    local ClassPropertyExceptions = {
+        Whitelist = {
+            TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }),
+            MeshPart = ArrayToDict({ "CollisionFidelity" }),
+            PartOperation = ArrayToDict({ "CollisionFidelity" }),
+        },
 		Blacklist = {
 			LuaSourceContainer = ArrayToDict({ "ScriptGuid" }),
 			Instance = ArrayToDict({ "UniqueId", "HistoryId" }),
@@ -1360,8 +1364,8 @@ do
 				buffer.writeu8(b, offset, col_groups_n) -- Group count
 				offset += 1
 
-				for i, group in collision_groups do
-					local name, id, mask = group.name, i - 1, group.mask
+                for i, group in collision_groups do
+                    local name, id, mask = group.name, (group.id or (i - 1)), group.mask
 					local name_len = #name
 
 					buffer.writeu8(b, offset, id) -- ID
@@ -2521,7 +2525,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		wait_for_render()
 	end
 
-	local function save_specific(className, properties)
+    local function save_specific(className, properties)
 		local Ref = Instance.new(className) -- ! Assuming anything passed here is Creatable
 		local Item = ReturnItem(Ref.ClassName, Ref)
 
@@ -2533,9 +2537,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				tag = "ProtectedString"
 				value = XML_Descriptors.__PROTECTEDSTRING(val)
 				whitelisted = true
-			elseif "Name" == propertyName then
+            elseif "Name" == propertyName then
 				whitelisted = true
 				value, tag = ReturnValueAndTag(val, "string") -- * Doubt ValueType will change
+            elseif propertyName == "Tags" or propertyName == "AttributesSerialize" then
+                whitelisted = true
+                value = XML_Descriptors.BinaryString(val)
+                tag = "BinaryString"
 			end
 
 			if whitelisted then
@@ -2897,8 +2905,49 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local function save_extra(name, hierarchy, customClassName, source)
-		savebuffer[savebuffer_size] = save_specific((customClassName or "Folder"), { Name = name, Source = source })
+    local function save_extra(name, hierarchy, customClassName, source, templateInstance)
+        local props = { Name = name, Source = source }
+        if templateInstance then
+            -- Tags
+            local tags = templateInstance:GetTags()
+            if #tags > 0 then
+                props.Tags = table.concat(tags, "\0")
+            end
+            -- AttributesSerialize
+            local attrs = templateInstance:GetAttributes()
+            if next(attrs) ~= nil then
+                local attrs_n = 0
+                local buffer_size = 4
+                local attrs_sorted = {}
+                local attrs_formatted = table.clone(attrs)
+                for attr, val in attrs do
+                    attrs_n += 1
+                    attrs_sorted[attrs_n] = attr
+                    local Descriptor = Binary_Descriptors[typeof(val)]
+                    local bb, attr_size = Descriptor(val)
+                    attrs_formatted[attr] = bb
+                    buffer_size += 5 + #attr + attr_size
+                end
+                table.sort(attrs_sorted)
+                local b = buffer.create(buffer_size)
+                local offset = 0
+                buffer.writeu32(b, offset, attrs_n)
+                offset += 4
+                local string__descriptor = Binary_Descriptors.string
+                for _, attr in attrs_sorted do
+                    local b_Name, Name_size = string__descriptor(attr)
+                    buffer.copy(b, offset, b_Name)
+                    offset += Name_size
+                    buffer.writeu8(b, offset, attr_Type_IDs[typeof(attrs[attr])])
+                    offset += 1
+                    local bb = attrs_formatted[attr]
+                    buffer.copy(b, offset, bb)
+                    offset += buffer.len(bb)
+                end
+                props.AttributesSerialize = buffer.tostring(b)
+            end
+        end
+        savebuffer[savebuffer_size] = save_specific((customClassName or "Folder"), props)
 		savebuffer_size += 1
 		if hierarchy then
 			save_hierarchy(hierarchy)
@@ -2932,16 +2981,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if IsolateLocalPlayer or IsolateLocalPlayerCharacter then
 			local LocalPlayer = service.Players.LocalPlayer
 			if LocalPlayer then
-				if IsolateLocalPlayer then
-					SaveNotCreatable = true
-					save_extra("LocalPlayer", LocalPlayer:GetChildren())
-				end
-				if IsolateLocalPlayerCharacter then
-					local LocalPlayerCharacter = LocalPlayer.Character
-					if LocalPlayerCharacter then
-						save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren())
-					end
-				end
+                if IsolateLocalPlayer then
+                    SaveNotCreatable = true
+                    save_extra("LocalPlayer", LocalPlayer:GetChildren(), nil, nil, LocalPlayer)
+                end
+                if IsolateLocalPlayerCharacter then
+                    local LocalPlayerCharacter = LocalPlayer.Character
+                    if LocalPlayerCharacter then
+                        save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren(), nil, nil, LocalPlayerCharacter)
+                    end
+                end
 			end
 		end
 
