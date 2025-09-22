@@ -1117,7 +1117,11 @@ local ClassList
 
 do
 	local ClassPropertyExceptions = {
-		Whitelist = { TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }) },
+		   Whitelist = {
+            MeshPart = ArrayToDict({ "CollisionFidelity" }),
+            PartOperation = ArrayToDict({ "CollisionFidelity" }),
+            TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }),
+        },
 		Blacklist = {
 			LuaSourceContainer = ArrayToDict({ "ScriptGuid" }),
 			Instance = ArrayToDict({ "UniqueId", "HistoryId" }),
