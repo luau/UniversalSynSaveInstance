@@ -854,6 +854,7 @@ XML_Descriptors = {
 				.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
 				.. "</Style>"
 		end,
+	NetAssetRef = nil,
 	NumberRange = function(raw) -- tostring(raw) also works
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
 		local __NORMALIZE_RANGE = XML_Descriptors.__NORMALIZE_RANGE
@@ -1097,6 +1098,7 @@ end
 
 for descriptorName, redirectName in
 	{
+		NetAssetRef = "SharedString",
 		NumberSequence = "__SEQUENCE",
 		Vector2int16 = "Vector2",
 		Vector3int16 = "Vector3",
