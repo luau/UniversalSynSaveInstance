@@ -167,25 +167,25 @@ do -- * Load Region of Déjà Vu
 			table.freeze(bit32)
 		end
 
-		-- Credits @Reselim
-		local reselim_base64encode
+		-- Credits @daily3014 & @XoifaiI
+		local rbxcrypt_base64encode
 		pcall(function()
 			local b64_enc_buf = loadstring(
-				game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
+				game:HttpGet("https://raw.githubusercontent.com/daily3014/rbx-cryptography/refs/heads/main/src/Utilities/Base64.luau", true),
 				"Base64"
-			)().encode
-			reselim_base64encode = function(raw)
+			)().Encode
+			rbxcrypt_base64encode = function(raw)
 				return buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
 			end
 		end)
 
 		-- * Tests if base64encode exists and works properly then benchmark it
 		if base64encode and base64encode("\1\0\0\0\1") == "AQAAAAE=" then
-			if reselim_base64encode then
-				base64encode = benchmark(base64encode, reselim_base64encode, test_str)
+			if rbxcrypt_base64encode then
+				base64encode = benchmark(base64encode, rbxcrypt_base64encode, test_str)
 			end
 		else
-			base64encode = reselim_base64encode
+			base64encode = rbxcrypt_base64encode
 		end
 
 		assert(base64encode, "base64encode not found")
@@ -235,7 +235,7 @@ local SharedString_identifiers = setmetatable({
 	-- TODO: worst case, add fallback to str randomizer once numbers run out : )
 }, {
 	__index = function(self, str)
-		local Identifier = base64encode(tostring(self.identifier)) -- tostring is only needed for built-in base64encode, Reselim's doesn't need it as buffers autoconvert
+		local Identifier = base64encode(tostring(self.identifier)) -- tostring is only needed for built-in base64encode, Luau base64 implementations don't need it as buffers autoconvert
 		self.identifier += 1
 
 		self[str] = Identifier -- ? The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes..
