@@ -109,7 +109,7 @@ def fetch_api():
                     if value_category == "Enum":
                         value_type = member["ValueType"]["Name"]
                         if value_type == enum_type:
-                            s += f"{real_member_name} -> {member_name}\n"
+                            s += f"{real_member_name} -> {member_name} {{POTENTIAL PROXY}}\n"
 
         if len(s) != prev_len:
             s += "\n"

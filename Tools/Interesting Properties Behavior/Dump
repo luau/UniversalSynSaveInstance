@@ -1,10 +1,21 @@
 
+Capture.CaptureTime {CanSave Only}
+Capture.CaptureType {CanSave Only}
+Capture.FilePathString {CanSave Only}
+Capture.LocalId {CanSave Only}
+Capture.SourcePlaceId {CanSave Only}
+Capture.SourceUniverseId {CanSave Only}
+
+VideoCapture.FilePath {CanSave Only}
+VideoCapture.TimeLength {CanSave Only}
+
 ConfigSnapshot.Error {CanSave Only}
 ConfigSnapshot.Outdated {CanSave Only}
 
 EditableImage.Size {CanSave Only}
 
 EditableMesh.FixedSize {CanSave Only}
+EditableMesh.SkinningEnabled {Deprecated} {CanSave}
 
 Instance.Parent {CanLoad Only}
 Instance.archivable {CanLoad Only} {Deprecated}
@@ -37,22 +48,32 @@ AudioCompressor.Editor {CanLoad Only}
 
 AudioDeviceInput.IsReady {CanSave Only}
 
+AudioEmitter.SimulationFidelity {Deprecated} {CanSave}
+
 AudioEqualizer.Editor {CanLoad Only}
 
 AudioFilter.Editor {CanLoad Only}
 
 AudioLimiter.Editor {CanLoad Only}
 
+AudioListener.SimulationFidelity {Deprecated} {CanSave}
+
 AudioPlayer.AssetId {CanLoad Only} {Deprecated}
 AudioPlayer.IsReady {CanSave Only}
 AudioPlayer.TimeLength {CanSave Only}
 
+AudioRecorder.TimeLength {CanSave Only}
+
 AudioSearchParams.AudioSubtype {CanLoad Only} {Deprecated}
+
+AudioSpeechToText.VoiceDetected {CanSave Only}
 
 AudioTextToSpeech.IsLoaded {CanSave Only}
 AudioTextToSpeech.TimeLength {CanSave Only}
 
 AvatarChatService is NotCreatable but AvatarChatService.ClientFeatures has a default value: 0
+
+AvatarSettings is NotCreatable but AvatarSettings.Loaded has a default value: false
 
 BaseImportData.Id {CanSave Only}
 
@@ -112,12 +133,6 @@ DragDetector.WorldAxis {CanLoad Only}
 DragDetector.WorldSecondaryAxis {CanLoad Only}
 
 Collaborator is NotCreatable but Collaborator.CollaboratorColor has a default value: 0
-
-CommandInstance.Checked {CanLoad Only}
-CommandInstance.DisplayName {CanLoad Only}
-CommandInstance.Enabled {CanLoad Only}
-CommandInstance.Icon {CanLoad Only}
-CommandInstance.StatusTip {CanLoad Only}
 
 ConnectivityService.NetworkStatus {CanSave Only}
 ConnectivityService is NotCreatable but ConnectivityService.NetworkStatus has a default value: Unknown
@@ -233,6 +248,10 @@ TextBox.TextWrap {CanLoad Only} {Deprecated}
 
 ViewportFrame.CurrentCamera {CanLoad Only}
 
+BillboardGui.DistanceLowerLimit {Deprecated} {CanSave}
+BillboardGui.DistanceStep {CanLoad Only}
+BillboardGui.DistanceUpperLimit {Deprecated} {CanSave}
+
 DockWidgetPluginGui.HostWidgetWasRestored {CanSave Only}
 DockWidgetPluginGui is NotCreatable but DockWidgetPluginGui.HostWidgetWasRestored has a default value: false
 
@@ -248,6 +267,8 @@ Path2D.SelectedControlPoint {CanLoad Only}
 Path2D.SelectedControlPointData {CanLoad Only}
 
 GuiService.MenuIsOpen {CanSave Only}
+
+HapticEffect.Waveform {Deprecated} {CanSave}
 
 HttpService is NotCreatable but HttpService.HttpEnabled has a default value: false
 
@@ -324,6 +345,8 @@ MetaBreakpoint is NotCreatable but MetaBreakpoint.Condition has a default value:
 
 MetaBreakpointContext is NotCreatable but MetaBreakpointContext.ContextDataInternal has a default value: 0 1 2 
 
+MicroProfilerService is NotCreatable but MicroProfilerService.ContextLabel has a default value: 
+
 Mouse.Hit {CanSave Only}
 Mouse.Origin {CanSave Only}
 Mouse.Target {CanSave Only}
@@ -382,6 +405,8 @@ Terrain is NotCreatable but Terrain.AcquisitionMethod has a default value: None
 TriangleMeshPart.CollisionFidelity {CanLoad Only}
 TriangleMeshPart.FluidFidelity {CanLoad Only}
 
+MeshPart.HasJointOffset {Deprecated} {CanSave}
+MeshPart.JointOffset {Deprecated} {CanSave}
 MeshPart.MeshID {CanLoad Only} {Deprecated}
 
 PartOperation.TriangleCount {CanSave Only}
@@ -504,7 +529,7 @@ Sound.xmlRead_MinDistance_3 {CanLoad Only} {Deprecated}
 
 ChannelSelectorSoundEffect is NotCreatable but ChannelSelectorSoundEffect.Channel has a default value: 1
 
-SoundService is NotCreatable but SoundService.AmbientReverb has a default value: NoReverb
+SoundService is NotCreatable but SoundService.AcousticSimulationEnabled has a default value: false
 
 Sparkles.Color {CanLoad Only}
 
@@ -524,6 +549,10 @@ StudioUserService.IsLoggedIn {CanSave Only}
 StudioUserService is NotCreatable but StudioUserService.IsLoggedIn has a default value: false
 
 StyleRule.Index {CanLoad Only}
+
+StyleDerive.Index {CanLoad Only}
+
+StyleQuery.IsActive {CanSave Only}
 
 TaskScheduler.SchedulerDutyCycle {CanSave Only}
 TaskScheduler.SchedulerRate {CanSave Only}
@@ -562,6 +591,8 @@ TextChatService is NotCreatable but TextChatService.ChatTranslationEnabled has a
 
 TextSource is NotCreatable but TextSource.CanSend has a default value: true
 
+ThirdPartyUserService.FriendCommunicationRestrictionStatus {CanSave Only}
+
 Translator.LocaleId {CanSave Only}
 
 TweenBase.PlaybackState {CanSave Only}
@@ -585,7 +616,9 @@ UserInputService.KeyboardEnabled {CanSave Only}
 UserInputService.LegacyInputEventsEnabled {Deprecated} {CanSave}
 UserInputService.MouseDeltaSensitivity {CanLoad Only}
 UserInputService.MouseEnabled {CanSave Only}
+UserInputService.PreferredInput {CanSave Only}
 UserInputService.TouchEnabled {CanSave Only}
+UserInputService.TouchScreenEnabled {CanSave Only}
 UserInputService.VREnabled {CanSave Only}
 
 VRService is NotCreatable but VRService.AutomaticScaling has a default value: World
@@ -595,6 +628,9 @@ DoubleConstrainedValue.Value {CanLoad Only}
 
 IntConstrainedValue.ConstrainedValue {CanLoad Only}
 IntConstrainedValue.Value {CanLoad Only}
+
+ValueCurve.Length {CanSave Only}
+ValueCurve.ValueType {CanSave Only}
 
 VersionControlService is NotCreatable but VersionControlService.ScriptCollabEnabled has a default value: false
 
@@ -615,4 +651,6 @@ WeldConstraint.Part0 {CanLoad Only}
 WeldConstraint.Part1 {CanLoad Only}
 
 Wire.Connected {CanSave Only}
+
+WebStreamClient.ConnectionState {CanSave Only}
 

@@ -3,6 +3,8 @@ AudioDeviceInput.Player {Player}
 
 AudioDeviceOutput.Player {Player}
 
+AuroraScriptObject.BehaviorWeak {AuroraScript}
+
 CoreGui.SelectionImageObject {GuiObject}
 
 PlayerGui.SelectionImageObject {GuiObject}
