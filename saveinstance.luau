@@ -235,7 +235,14 @@ local function index(self, index_name)
 	return self[index_name]
 end
 
-local CLIENT_VERSION = tonumber(string.split(version(), ".")[2])
+local version = version
+if not version then
+	version = function()
+		return "UNKNOWN"
+	end
+end
+
+local CLIENT_VERSION = tonumber(string.split(version(), ".")[2]) or 9e9 -- Velocity temp fix
 
 local attr_Type_IDs = {
 	string = 0x02,
@@ -1419,7 +1426,7 @@ do
 		end)
 
 		if not ok or not API_Dump then
-			warn("[DEBUG] Failed to get " .. version() .. " API Dump, trying latest..")
+			warn("[DEBUG] Failed to get " .. version() .. " version API Dump, trying latest..")
 			warn("[DEBUG]", err)
 			API_Dump = service.HttpService:JSONEncode(
 				service.HttpService:JSONDecode(
