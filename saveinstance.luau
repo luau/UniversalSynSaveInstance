@@ -1033,6 +1033,7 @@ do
 			LegacySound = 2 ^ 33, ----------  33 (0x21)
 			Players = 2 ^ 34, --------------  34 (0x22)
 			CapabilityControl = 2 ^ 35, ----  35 (0x23)
+			RemoteCommand = 2 ^ 59, --------  59 (0x3b)
 			InternalTest = 2 ^ 60, ---------  60 (0x3c), Related to TestingGameScript
 			PluginOrOpenCloud = 2 ^ 61, ----  61 (0x3d)
 			Assistant = 2 ^ 62, ------------  62 (0x3e)
