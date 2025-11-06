@@ -652,5 +652,8 @@ WeldConstraint.Part1 {CanLoad Only}
 
 Wire.Connected {CanSave Only}
 
+VideoSampler.TimeLength {CanSave Only}
+VideoSampler.VideoContent {CanSave Only}
+
 WebStreamClient.ConnectionState {CanSave Only}
 

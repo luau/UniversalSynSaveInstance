@@ -1,44 +1,43 @@
-
-Axes
-BinaryString
-BrickColor
-CFrame
+Axes {CanSave} {CanLoad}
+BinaryString {CanSave} {CanLoad}
+BrickColor {CanSave} {CanLoad}
+CFrame {CanSave} {CanLoad}
 CSGPropertyData
-Color3
-Color3uint8
-ColorSequence
-Content
-ContentId
-DateTime
-Faces
+Color3 {CanSave} {CanLoad}
+Color3uint8 {CanSave} {CanLoad}
+ColorSequence {CanSave} {CanLoad}
+Content {CanSave} {CanLoad}
+ContentId {CanSave} {CanLoad}
+DateTime {CanSave} -> Probably has a descriptor
+Faces {CanSave} {CanLoad}
 FacsReplicationData
-Font
-NetAssetRef
-NumberRange
-NumberSequence
-OptionalCoordinateFrame
-Path2DControlPoint
-PhysicalProperties
-ProtectedString
-QDir
-QFont
-Ray
-Rect
+Font {CanSave} {CanLoad}
+NetAssetRef {CanSave} {CanLoad}
+NumberRange {CanSave} {CanLoad}
+NumberSequence {CanSave} {CanLoad}
+OptionalCoordinateFrame {CanSave} {CanLoad}
+Path2DControlPoint {CanLoad} -> Probably has a descriptor
+PhysicalProperties {CanSave} {CanLoad}
+ProtectedString {CanSave} {CanLoad}
+QDir {CanSave} {CanLoad}
+QFont {CanSave} {CanLoad}
+Ray {CanSave} {CanLoad}
+Rect {CanSave} {CanLoad}
 Region3int16
 ReplicationPV
-SecurityCapabilities
-SharedString
+SecurityCapabilities {CanSave} {CanLoad}
+SharedString {CanSave} {CanLoad}
 SystemAddress
 TweenInfo
-UDim
-UDim2
-UniqueId
-Vector2
-Vector3
-Vector3int16
-bool
-double
-float
-int
-int64
-string
+UDim {CanSave} {CanLoad}
+UDim2 {CanSave} {CanLoad}
+UniqueId {CanSave} {CanLoad}
+Vector2 {CanSave} {CanLoad}
+Vector3 {CanSave} {CanLoad}
+Vector3int16 {CanSave} {CanLoad}
+bool {CanSave} {CanLoad}
+double {CanSave} {CanLoad}
+float {CanSave} {CanLoad}
+int {CanSave} {CanLoad}
+int64 {CanSave} {CanLoad}
+string {CanSave} {CanLoad}

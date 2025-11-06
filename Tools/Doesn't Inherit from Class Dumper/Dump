@@ -1,5 +1,6 @@
 
 Object does not inherit from Instance
+AnimationNode does not inherit from Instance
 Capture does not inherit from Instance
 ScreenshotCapture does not inherit from Instance
 VideoCapture does not inherit from Instance
@@ -12,4 +13,5 @@ TerrainIterateOperation does not inherit from Instance
 TerrainModifyOperation does not inherit from Instance
 TerrainReadOperation does not inherit from Instance
 TerrainWriteOperation does not inherit from Instance
+VideoSampler does not inherit from Instance
 WebStreamClient does not inherit from Instance

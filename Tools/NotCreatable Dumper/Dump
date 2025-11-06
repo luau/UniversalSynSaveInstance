@@ -1,6 +1,8 @@
 
 Object
 
+AnimationNode
+
 Capture
 
 ScreenshotCapture
@@ -312,6 +314,8 @@ TerrainModifyOperation
 TerrainReadOperation
 
 TerrainWriteOperation
+
+VideoSampler
 
 WebStreamClient
 

@@ -10,6 +10,8 @@ Instance.Tags {BinaryString}
 
 AnimationClip.GuidBinaryString {BinaryString}
 
+AnimationNodeDefinition.InputPinData {BinaryString}
+
 AnimationRigData.label {BinaryString}
 AnimationRigData.name {BinaryString}
 AnimationRigData.parent {BinaryString}
@@ -305,7 +307,6 @@ BasePart.MaterialVariantSerialized
 BasePart.ReplicationPV {Serialize: False}
 TriangleMeshPart.FluidFidelityInternal
 MeshPart.RenderFidelityReplicate {Serialize: False}
-PartOperation.SerializedCSGTree {Serialize: False}
 PartOperation.SerializedOperationGraph {Serialize: False}
 Workspace.ReplicateInstanceDestroySetting
 PackageLink.PackageIdSerialize

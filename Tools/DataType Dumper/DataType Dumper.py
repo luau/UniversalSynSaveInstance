@@ -23,6 +23,8 @@ def array_to_dictionary(table, hybrid_mode=None):
 
 datatypes = []
 datatypes_set = set()
+can_save_tracker = {}
+can_load_tracker = {}
 
 
 def api(version_hash=None):
@@ -64,6 +66,8 @@ def fetch_api(version_hash=None):
 
     global datatypes
     global datatypes_set
+    global can_save_tracker
+    global can_load_tracker
 
     for api_class in api_classes:
         class_members = api_class["Members"]
@@ -79,17 +83,28 @@ def fetch_api(version_hash=None):
                         member_tags = array_to_dictionary(member_tags)
 
                     serialization = member["Serialization"]
-                    if True:
-                        value_type = member["ValueType"]
-                        value_type_name = value_type["Name"]
-                        value_type_cat = value_type["Category"]
-                        if value_type_cat == "Enum":
-                            value_type_name = ""
-                        if value_type_cat == "Class":
-                            value_type_name = ""
-                        if value_type_name not in datatypes_set:
-                            datatypes_set.add(value_type_name)
-                            datatypes.append(value_type_name)
+
+                    value_type = member["ValueType"]
+                    value_type_name = value_type["Name"]
+                    value_type_cat = value_type["Category"]
+                    if value_type_cat == "Enum" or value_type_cat == "Class":
+                        continue
+
+                    if serialization["CanSave"] == True:
+                        can_save_tracker[value_type_name] = True
+                    else:
+                        if value_type_name not in can_save_tracker:
+                            can_save_tracker[value_type_name] = False
+
+                    if serialization["CanLoad"] == True:
+                        can_load_tracker[value_type_name] = True
+                    else:
+                        if value_type_name not in can_load_tracker:
+                            can_load_tracker[value_type_name] = False
+
+                    if value_type_name not in datatypes_set:
+                        datatypes_set.add(value_type_name)
+                        datatypes.append(value_type_name)
 
 
 if __name__ == "__main__":
@@ -99,8 +114,29 @@ if __name__ == "__main__":
     try:
         fetch_api(version_hash)
         datatypes.sort()
-        s = "\n".join(datatypes) + "\n"
+
+        output_lines = []
+        for value_type in datatypes:
+            can_save_status = can_save_tracker.get(value_type, False)
+            can_load_status = can_load_tracker.get(value_type, False)
+
+            verdict_text = ""
+            if (can_save_status and not can_load_status) or (
+                can_load_status and not can_save_status
+            ):
+                verdict_text = "-> Probably has a descriptor"
+
+            parts = [value_type]
+            if can_save_status:
+                parts.append("{CanSave}")
+            if can_load_status:
+                parts.append("{CanLoad}")
+            parts.append(verdict_text)
+            output_lines.append(" ".join(parts).strip())
+
+        s = "\n".join(output_lines) + "\n"
         print(s)
+
         script_dir = os.path.dirname(os.path.realpath(__file__))
         output_file_path = os.path.join(script_dir, "Dump")
         with open(output_file_path, "w") as file:
