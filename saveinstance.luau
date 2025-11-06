@@ -170,7 +170,10 @@ do -- * Load Region of Déjà Vu
 		local rbxcrypt_base64encode
 		pcall(function()
 			local b64_enc_buf = loadstring(
-				game:HttpGet("https://raw.githubusercontent.com/daily3014/rbx-cryptography/refs/heads/main/src/Utilities/Base64.luau", true),
+				game:HttpGet(
+					"https://raw.githubusercontent.com/daily3014/rbx-cryptography/refs/heads/main/src/Utilities/Base64.luau",
+					true
+				),
 				"Base64"
 			)().Encode
 			rbxcrypt_base64encode = function(raw)
@@ -188,8 +191,8 @@ do -- * Load Region of Déjà Vu
 		end
 
 		assert(base64encode, "base64encode not found")
-			end
-		end
+	end
+end
 
 local SharedStrings = {}
 local SharedString_identifiers = setmetatable({
@@ -1091,11 +1094,11 @@ local ClassList
 
 do
 	local ClassPropertyExceptions = {
-		   Whitelist = {
-            MeshPart = ArrayToDict({ "CollisionFidelity" }),
-            PartOperation = ArrayToDict({ "CollisionFidelity" }),
-            TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }),
-        },
+		Whitelist = {
+			MeshPart = ArrayToDict({ "CollisionFidelity" }),
+			PartOperation = ArrayToDict({ "CollisionFidelity" }),
+			TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }),
+		},
 		Blacklist = {
 			LuaSourceContainer = ArrayToDict({ "ScriptGuid" }),
 			Instance = ArrayToDict({ "UniqueId", "HistoryId" }),
@@ -1103,7 +1106,7 @@ do
 	}
 
 	local NotScriptableFixes = { --[[
-		For more info: 
+		For more info:
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/NotScriptable%20Dumper/NotScriptable%20Dumper.py
 		]]
@@ -1588,7 +1591,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
 --- @field ShutdownWhenDone boolean -- Shuts the game down after saveinstance is finished. ___Default:___ false
 --- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
---- Anonymous {boolean|table{UserId = string, Name = string}} -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. Can also be a table with UserId & Name keys. ___Default:___ false
+--- .Anonymous {boolean|table{UserId = string, Name = string}} -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. Can also be a table with UserId & Name keys. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
 --- @field Callback function -- If set, the serialized data will be sent to the callback function instead of to file. ___Default:___ false
 --- @field mode string -- Valid modes: full, optimized, scripts. Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
@@ -1649,7 +1652,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 	local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
 
 	local CustomOptions = { SafeMode = true, timeout = 15, SaveBytecode = true }
-	
+
 	synsaveinstance(CustomOptions)
 	```
 	@within SynSaveInstance
@@ -1688,7 +1691,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
 		Callback = false,
-		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
+		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models. (Binary Only)
 		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
 		-- DisableCompression = false, --Description: Disables compression in the binary output
 
@@ -1733,21 +1736,25 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		SaveNotCreatable = false,
 		NotCreatableFixes = {
-			-- "CloudLocalizationTable",
 			-- "InputObject",
 			-- "LodDataEntity",
 			-- "Path",
-			-- "Translator",
 			"", -- * FilteredSelection
+			"AdvancedDragger",
 			"AnimationTrack",
+			"Dragger",
 			"Player",
 			"PlayerGui",
-			"PlayerScripts",
 			"PlayerMouse",
+			"PlayerMouse",
+			"PlayerScripts",
 			"ScreenshotHud",
 			"StudioData",
+			"TextChatMessage",
 			"TextSource",
 			"TouchTransmitter",
+			"Translator",
+			CloudLocalizationTable = "LocalizationTable",
 		},
 
 		-- ! Risky
@@ -1908,9 +1915,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						local name_match = class_match[child.Name]
 						if name_match then
 							table.insert(DecompileIgnore, child)
+						end
 					end
 				end
-			end
 			end
 		end
 
@@ -2637,9 +2644,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								if ok then
 									new_def_inst = result
 
-								default_instance = {}
+									default_instance = {}
 
-								default_instances[ClassName] = default_instance
+									default_instances[ClassName] = default_instance
 								elseif __DEBUG_MODE then
 									__DEBUG_MODE("Unable to create default Instance x2", ClassName, result)
 								end
@@ -2914,8 +2921,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local function save_game()
 		do
 			if IsModel then
-				--[[ 
-			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
+				--[[
+			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"
 			Also http can be converted to https but not sure if Roblox cares
 			-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
 		]]
@@ -3014,7 +3021,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		ServerStorage, ServerScriptService and Server Scripts are IMPOSSIBLE to save because of FilteringEnabled.
 
-		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else. Then run `game:GetService("Players").CharacterAutoLoads = true`.
+		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else or delete them. Then run `game:GetService("Players").CharacterAutoLoads = true`.
 		And use "Play Here" to start game instead of "Play" to spawn your Character where your Camera currently is.
 
 		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 

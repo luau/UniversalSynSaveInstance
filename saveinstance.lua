@@ -7,17 +7,17 @@ local function string_find(s, pattern)
 	return string.find(s, pattern, nil, true)
 end
 
-local function ArrayToDictionary(t, hydridMode, valueOverride, typeStrict)
+local function ArrayToDict(t, hydridMode, valueOverride, typeStrict)
 	local tmp = {}
 
 	if hydridMode then
-		for some1, some2 in next, t do
-			if type(some1) == "number" then
-				tmp[some2] = valueOverride or true
-			elseif type(some2) == "table" then
-				tmp[some1] = ArrayToDictionary(some2, hydridMode) -- Some1 is Class, Some2 is Name
+		for any1, any2 in next, t do
+			if type(any1) == "number" then
+				tmp[any2] = valueOverride or true
+			elseif type(any2) == "table" then
+				tmp[any1] = ArrayToDict(any2, hydridMode) -- any1 is Class, any2 is Name
 			else
-				tmp[some1] = some2
+				tmp[any1] = any2
 			end
 		end
 	else
@@ -29,27 +29,6 @@ local function ArrayToDictionary(t, hydridMode, valueOverride, typeStrict)
 	end
 
 	return tmp
-end
-
-local ESCAPES_PATTERN = "[&<>\"'\0\1-\9\11-\12\14-\31\127-\255]" -- * The safe way is to escape all five characters in text. However, the three characters " ' and > needn't be escaped in text
--- %z (\0 aka NULL) might not be needed as Roblox automatically converts it to space everywhere it seems like
--- Characters from: https://create.roblox.com/docs/en-us/ui/rich-text#escape-forms
--- * EscapesPattern should be ordered from most common to least common characters for sake of speed
--- * Might wanna use their numerical codes instead of named codes for reduced file size (Could be an Option)
--- TODO Maybe we should invert the pattern to only allow certain characters (future-proof)
-local ESCAPES = {
-	["&"] = "&amp;", -- 38
-	["<"] = "&lt;", -- 60
-	[">"] = "&gt;", -- 62
-	['"'] = "&#34;", --  quot
-	["'"] = "&#39;", -- apos
-	["\0"] = "",
-}
-
-for rangeStart, rangeEnd in string.gmatch(ESCAPES_PATTERN, "(.)%-(.)") do
-	for charCode = string.byte(rangeStart), string.byte(rangeEnd) do
-		ESCAPES[string.char(charCode)] = "&#" .. charCode .. ";"
-	end
 end
 
 local global_container
@@ -70,9 +49,10 @@ do
 		-- decompile = '(string.find(...,"decomp",nil,true) and string.sub(...,#...) ~= "s")',
 		gethiddenproperty = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"prop",nil,true) and string.sub(...,#...) ~= "s"',
 		gethui = 'string.find(...,"get",nil,true) and string.find(...,"h",nil,true) and string.find(...,"ui",nil,true)',
+		-- getcon = 'string.find(...,"get",nil,true) and (string.find(...,"conn",nil,true) or string.find(...,"sig",nil,true)) and string.sub(...,#(...))=="s"',
 		getnilinstances = 'string.find(...,"nil",nil,true) and string.find(...,"get",nil,true) and string.sub(...,#...) == "s"', -- ! Could match some unwanted stuff
 		getscriptbytecode = 'string.find(...,"get",nil,true) and string.find(...,"bytecode",nil,true)', --  or string.find(...,"dump",nil,true) and string.find(...,"string",nil,true) due to Fluxus (dumpstring returns a function)
-		hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
+		-- hash = 'local a={...}local b=a[1]local function c(a,b)return string.find(a,b,nil,true)end;return c(b,"hash")and c(string.lower(tostring(a[2])),"crypt")',
 		protectgui = 'string.find(...,"protect",nil,true) and string.find(...,"ui",nil,true) and not string.find(...,"un",nil,true)',
 		setthreadidentity = 'string.find(...,"identity",nil,true) and string.find(...,"set",nil,true)',
 	}, true, 10)
@@ -92,7 +72,6 @@ local writefile = writefile
 
 local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = global_container.base64encode
-local sha384
 
 local service = setmetatable({}, {
 	__index = function(self, serviceName)
@@ -105,18 +84,23 @@ local service = setmetatable({}, {
 		-- if cloneref then
 		-- 	Service = cloneref(Service)
 		-- end
-
-		self[serviceName] = Service
+		if Service then
+			self[serviceName] = Service
+		end
 		return Service
 	end,
 })
 
 local gethiddenproperty_fallback
 do -- * Load Region of Déjà Vu
-	local UGCValidationService = service.UGCValidationService
+	local UGCValidationService -- = service.UGCValidationService
 
 	gethiddenproperty_fallback = function(instance, propertyName)
-		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it
+		if not UGCValidationService then
+			UGCValidationService = service.UGCValidationService
+		end
+		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
+		-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
 	end
 	if gethiddenproperty then
 		local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
@@ -182,72 +166,33 @@ do -- * Load Region of Déjà Vu
 			table.freeze(bit32)
 		end
 
-		-- TODO Remove later
-		if EXECUTOR_NAME == "Delta" then
-			base64encode = nil
-		end
-
-		-- Credits @Reselim
-		local reselim_base64encode
+		-- Credits @daily3014 & @XoifaiI
+		local rbxcrypt_base64encode
 		pcall(function()
 			local b64_enc_buf = loadstring(
-				game:HttpGet("https://raw.githubusercontent.com/Reselim/Base64/master/Base64.lua", true),
+				game:HttpGet(
+					"https://raw.githubusercontent.com/daily3014/rbx-cryptography/refs/heads/main/src/Utilities/Base64.luau",
+					true
+				),
 				"Base64"
-			)().encode
-			reselim_base64encode = function(raw)
-				return raw == "" and raw or buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
+			)().Encode
+			rbxcrypt_base64encode = function(raw)
+				return buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
 			end
 		end)
 
 		-- * Tests if base64encode exists and works properly then benchmark it
 		if base64encode and base64encode("\1\0\0\0\1") == "AQAAAAE=" then
-			if reselim_base64encode then
-				base64encode = benchmark(base64encode, reselim_base64encode, test_str)
+			if rbxcrypt_base64encode then
+				base64encode = benchmark(base64encode, rbxcrypt_base64encode, test_str)
 			end
 		else
-			base64encode = reselim_base64encode
+			base64encode = rbxcrypt_base64encode
 		end
 
 		assert(base64encode, "base64encode not found")
 	end
-
-	do
-		local hash = global_container.hash
-
-		if hash then
-			sha384 = function(data)
-				return hash(data, "sha384")
-			end
-		end
-
-		local filename = "RequireOnlineModule"
-
-		-- Credits @boatbomber
-		local hashlib_sha384
-		pcall(function()
-			hashlib_sha384 = loadstring(
-				game:HttpGet("https://raw.githubusercontent.com/luau/SomeHub/main/" .. filename .. ".luau", true),
-				filename
-			)()(4544052033).sha384
-		end)
-
-		-- * Tests if sha384 exists then benchmark it
-		if hashlib_sha384 then
-			if sha384 then
-				sha384 = benchmark(sha384, hashlib_sha384, test_str)
-			else
-				sha384 = hashlib_sha384
-			end
-		end
-
-		assert(sha384, "sha384 hash function not found")
-	end
 end
-
-local custom_decompiler
-
--- if getscriptbytecode then
--- end
 
 local SharedStrings = {}
 local SharedString_identifiers = setmetatable({
@@ -256,7 +201,7 @@ local SharedString_identifiers = setmetatable({
 }, {
 	__index = function(self, str)
 		local identifier = self.identifier
-		local Identifier = base64encode(tostring(identifier)) -- tostring is only needed for built-in base64encode, Reselim's doesn't need it as buffers autoconvert
+		local Identifier = base64encode(tostring(identifier)) -- tostring is only needed for built-in base64encode, Luau base64 implementations don't need it as buffers autoconvert
 		self.identifier = identifier + 1
 
 		self[str] = Identifier -- ? The value of the md5 attribute is a Base64-encoded key. <SharedString> type elements use this key to refer to the value of the string. The value is the text content, which is Base64-encoded. Historically, the key was the MD5 hash of the string value. However, this is not required; the key can be any value that will uniquely identify the shared string. Roblox currently uses BLAKE2b truncated to 16 bytes..
@@ -264,24 +209,75 @@ local SharedString_identifiers = setmetatable({
 	end,
 })
 
-local Type_IDs = {
+local inherited_properties = {}
+local default_instances = {}
+local referents, ref_size = {}, 0 -- ? Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase.
+
+local function __BIT(...) -- * Credits to Friend (you know yourself)
+	local Value = 0
+
+	for i, bit in next, { ... } do
+		if bit then
+			Value = Value + 2 ^ (i - 1)
+		end
+	end
+
+	return Value
+end
+
+local function GetRef(instance)
+	local ref = referents[instance]
+	if not ref then
+		ref = ref_size
+		referents[instance] = ref
+		ref_size = ref_size + 1
+	end
+	return ref
+end
+
+local function index(self, index_name)
+	return self[index_name]
+end
+
+local version = version
+if not version then
+	version = function()
+		return "UNKNOWN"
+	end
+end
+
+local CLIENT_VERSION = tonumber(string.split(version(), ".")[2]) or 9e9 -- Velocity temp fix
+
+local attr_Type_IDs = {
 	string = 0x02,
 	boolean = 0x03,
 	-- int32 = 0x04,
 	-- float = 0x05,
 	number = 0x06,
+	-- Array = 0x07,
+	-- Dictionary = 0x08,
 	UDim = 0x09,
 	UDim2 = 0x0A,
+	Ray = 0x0B,
+	Faces = 0x0C,
+	Axes = 0x0D,
 	BrickColor = 0x0E,
 	Color3 = 0x0F,
 	Vector2 = 0x10,
 	Vector3 = 0x11,
+	Vector2int16 = 0x12,
+	Vector3int16 = 0x13,
 	CFrame = 0x14,
 	EnumItem = 0x15,
 	NumberSequence = 0x17,
+	NumberSequenceKeypoint = 0x18,
 	ColorSequence = 0x19,
+	ColorSequenceKeypoint = 0x1A,
 	NumberRange = 0x1B,
 	Rect = 0x1C,
+	PhysicalProperties = 0x1D,
+	Region3 = 0x1F,
+	Region3int16 = 0x20,
 	Font = 0x21,
 }
 local CFrame_Rotation_IDs = {
@@ -379,13 +375,38 @@ Binary_Descriptors = {
 	["UDim2"] = function(raw)
 		local b = buffer.create(16)
 
-		local Descriptors_UDim = Binary_Descriptors.UDim
-		local X = Descriptors_UDim(raw.X)
+		local UDim__descriptor = Binary_Descriptors.UDim
+		local X = UDim__descriptor(raw.X)
 		buffer.copy(b, 0, X)
-		local Y = Descriptors_UDim(raw.Y)
+		local Y = UDim__descriptor(raw.Y)
 		buffer.copy(b, 8, Y)
 
 		return b, 16
+	end,
+	["Ray"] = function(raw)
+		local b = buffer.create(24)
+
+		local Vector3__descriptor = Binary_Descriptors.Vector3
+		local Origin = Vector3__descriptor(raw.Origin)
+		buffer.copy(b, 0, Origin)
+		local Direction = Vector3__descriptor(raw.Direction)
+		buffer.copy(b, 12, Direction)
+
+		return b, 24
+	end,
+	["Faces"] = function(raw)
+		local b = buffer.create(4)
+
+		buffer.writeu32(b, 0, __BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front))
+
+		return b, 4
+	end,
+	["Axes"] = function(raw)
+		local b = buffer.create(4)
+
+		buffer.writeu32(b, 0, __BIT(raw.X, raw.Y, raw.Z))
+
+		return b, 4
 	end,
 	["BrickColor"] = function(raw)
 		local b = buffer.create(4)
@@ -419,6 +440,23 @@ Binary_Descriptors = {
 		buffer.writef32(b, 8, raw.Z)
 
 		return b, 12
+	end,
+	["Vector2int16"] = function(raw)
+		local b = buffer.create(4)
+
+		buffer.writei16(b, 0, raw.X)
+		buffer.writei16(b, 2, raw.Y)
+
+		return b, 4
+	end,
+	["Vector3int16"] = function(raw)
+		local b = buffer.create(6)
+
+		buffer.writei16(b, 0, raw.X)
+		buffer.writei16(b, 2, raw.Y)
+		buffer.writei16(b, 4, raw.Z)
+
+		return b, 6
 	end,
 	["CFrame"] = function(raw)
 		local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = raw:GetComponents()
@@ -474,13 +512,14 @@ Binary_Descriptors = {
 		return b, len
 	end,
 	["NumberSequence"] = nil,
-
+	-- ["NumberSequenceKeypoint"] = nil, -- TODO Only impl. if necessary because NumberSequence will reference this therefore slowing down itself
 	["ColorSequence"] = function(raw)
 		return Binary_Descriptors.__SEQUENCE(raw, function(color3, b, offset)
 			buffer.copy(b, offset, Binary_Descriptors.Color3(color3))
 			return 12
 		end, 20, 0)
 	end,
+	-- ["ColorSequenceKeypoint"] = nil, -- TODO Only impl. if necessary because ColorSequence will reference this therefore slowing down itself
 	["NumberRange"] = function(raw)
 		local b = buffer.create(8)
 
@@ -492,25 +531,91 @@ Binary_Descriptors = {
 	["Rect"] = function(raw)
 		local b = buffer.create(16)
 
-		local Descriptors_Vector2 = Binary_Descriptors.Vector2
-		local Min = Descriptors_Vector2(raw.Min)
+		local Vector2__descriptor = Binary_Descriptors.Vector2
+		local Min = Vector2__descriptor(raw.Min)
 		buffer.copy(b, 0, Min)
-		local Max = Descriptors_Vector2(raw.Max)
+		local Max = Vector2__descriptor(raw.Max)
 		buffer.copy(b, 8, Max)
 
 		return b, 16
 	end,
-	["Font"] = function(raw)
-		local Descriptors_string = Binary_Descriptors.string
+	["PhysicalProperties"] = function(raw) -- ? Not sure yet (https://github.com/RobloxAPI/spec/blob/master/properties/drafts/AttributesSerializeFull.md#physicalproperties)
+		local len = 1
+		if raw then
+			len = len + 24
+		end
+		local b = buffer.create(len)
 
-		local b_Family, Family_size = Descriptors_string(raw.Family)
-		local b_CachedFaceId, CachedFaceId_size = Descriptors_string("")
+		buffer.writeu8(b, 0, raw and 3 or 0) -- 3 means it has set CustomPhysicalProperties & has set AcousticAbsorption
+
+		if raw then
+			buffer.writef32(b, 1, raw.Density)
+			buffer.writef32(b, 5, raw.Friction)
+			buffer.writef32(b, 9, raw.Elasticity)
+			buffer.writef32(b, 13, raw.FrictionWeight)
+			buffer.writef32(b, 17, raw.ElasticityWeight)
+			buffer.writef32(b, 21, raw.AcousticAbsorption)
+		end
+
+		return b, len
+	end,
+	["Region3"] = function(raw)
+		local b = buffer.create(24)
+
+		local Vector3__descriptor = Binary_Descriptors.Vector3
+		local Min = Vector3__descriptor(raw.Min)
+		buffer.copy(b, 0, Min)
+		local Max = Vector3__descriptor(raw.Max)
+		buffer.copy(b, 12, Max)
+
+		return b, 24
+	end,
+	["Region3int16"] = function(raw)
+		local b = buffer.create(12)
+
+		local Vector3int16__descriptor = Binary_Descriptors.Vector3int16
+		local Min = Vector3int16__descriptor(raw.Min)
+		buffer.copy(b, 0, Min)
+		local Max = Vector3int16__descriptor(raw.Max)
+		buffer.copy(b, 6, Max)
+
+		return b, 12
+	end,
+	["Font"] = 636 < CLIENT_VERSION and function(raw)
+		local string__descriptor = Binary_Descriptors.string
+
+		local b_Family, Family_size = string__descriptor(raw.Family)
+		local b_CachedFaceId, CachedFaceId_size = string__descriptor("")
 
 		local len = 3 + Family_size + CachedFaceId_size
 		local b = buffer.create(len)
 
-		buffer.writeu16(b, 0, raw.Weight.Value)
-		buffer.writeu8(b, 2, raw.Style.Value)
+		local ok_w, weight = pcall(index, raw, "Weight")
+		local ok_s, style = pcall(index, raw, "Style")
+
+		buffer.writeu16(b, 0, ok_w and weight.Value or 0)
+		buffer.writeu8(b, 2, ok_s and style.Value or 0)
+
+		buffer.copy(b, 3, b_Family)
+		buffer.copy(b, 3 + Family_size, b_CachedFaceId)
+
+		return b, len
+	end or function(raw)
+		local string__descriptor = Binary_Descriptors.string
+
+		local b_Family, Family_size = string__descriptor(raw.Family)
+		local b_CachedFaceId, CachedFaceId_size = string__descriptor("")
+
+		local len = 3 + Family_size + CachedFaceId_size
+		local b = buffer.create(len)
+
+		local FontString = tostring(raw)
+
+		local EmptyWeight = string_find(FontString, "Weight = ,")
+		local EmptyStyle = string_find(FontString, "Style =  }")
+
+		buffer.writeu16(b, 0, EmptyWeight and 0 or raw.Weight.Value)
+		buffer.writeu8(b, 2, EmptyStyle and 0 or raw.Style.Value)
 
 		buffer.copy(b, 3, b_Family)
 		buffer.copy(b, 3 + Family_size, b_CachedFaceId)
@@ -522,26 +627,36 @@ do
 	Binary_Descriptors.NumberSequence = Binary_Descriptors.__SEQUENCE
 end
 
+local ESCAPES_PATTERN = "[&<>\"'\0\1-\9\11-\12\14-\31\127-\255]" -- * The safe way is to escape all five characters in text. However, the three characters " ' and > needn't be escaped in text
+-- %z (\0 aka NULL) might not be needed as Roblox automatically converts it to space everywhere it seems like
+-- Characters from: https://create.roblox.com/docs/en-us/ui/rich-text#escape-forms
+-- * EscapesPattern should be ordered from most common to least common characters for sake of speed
+-- * Might wanna use their numerical codes instead of named codes for reduced file size (Could be an Option)
+-- TODO Maybe we should invert the pattern to only allow certain characters (future-proof)
+local ESCAPES = {
+	["&"] = "&amp;", -- 38
+	["<"] = "&lt;", -- 60
+	[">"] = "&gt;", -- 62
+	['"'] = "&#34;", --  quot
+	["'"] = "&#39;", -- apos
+	["\0"] = "",
+}
+
+for rangeStart, rangeEnd in string.gmatch(ESCAPES_PATTERN, "(.)%-(.)") do
+	for charCode = string.byte(rangeStart), string.byte(rangeEnd) do
+		ESCAPES[string.char(charCode)] = "&#" .. charCode .. ";"
+	end
+end
+
 local XML_Descriptors
 XML_Descriptors = {
-	__BIT = function(...) -- * Credits to Friend (you know yourself)
-		local Value = 0
-
-		for i, bit in next, { ... } do
-			if bit then
-				Value = Value + 2 ^ (i - 1)
-			end
-		end
-
-		return Value
-	end,
 	__CDATA = function(raw) -- ? Normally Roblox doesn't use CDATA unless the string has newline characters (\n); We rather CDATA everything for sake of speed
 		return "<![CDATA[" .. raw .. "]]>"
 	end,
 	__ENUM = function(raw)
 		return raw.Value, "token"
 	end,
-	__EXTREME = function(raw)
+	__NORMALIZE_NUMBER = function(raw)
 		if raw ~= raw then
 			return "NAN"
 		elseif raw == math.huge then
@@ -552,7 +667,7 @@ XML_Descriptors = {
 
 		return raw
 	end,
-	__EXTREME_RANGE = function(raw)
+	__NORMALIZE_RANGE = function(raw)
 		return raw ~= raw and "0" or raw -- Normally we should return "-nan(ind)" instead of "0" but this adds more compatibility
 	end,
 	__MINMAX = function(min, max, descriptor)
@@ -564,23 +679,23 @@ XML_Descriptors = {
 	__SEQUENCE = function(raw, valueFormatter)
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
 		-- tostring(raw) also works (but way slower rn)
-		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
+		local __NORMALIZE_RANGE = XML_Descriptors.__NORMALIZE_RANGE
 
-		local Converted = ""
+		local sequence = ""
 
 		for _, keypoint in next, raw.Keypoints do
 			local Value = keypoint.Value
 
-			Converted = Converted
+			sequence = sequence
 				.. keypoint.Time
 				.. " "
 				.. (
 					valueFormatter and valueFormatter(Value)
-					or __EXTREME_RANGE(Value) .. " " .. __EXTREME_RANGE(keypoint.Envelope) .. " "
+					or __NORMALIZE_RANGE(Value) .. " " .. __NORMALIZE_RANGE(keypoint.Envelope) .. " "
 				) -- ? Trailing whitespace is only needed for lune compatibility
 		end
 
-		return Converted
+		return sequence
 	end,
 	__VECTOR = function(X, Y, Z) -- Each element is a <float>
 		local Value = "<X>" .. X .. "</X><Y>" .. Y .. "</Y>" -- There is no Vector without at least two Coordinates.. (Vector1, at least on Roblox)
@@ -597,19 +712,15 @@ XML_Descriptors = {
 	Axes = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 7
 
-		return "<axes>" .. XML_Descriptors.__BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
+		return "<axes>" .. __BIT(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
 
 	-- ? Roblox uses CDATA only for these (try to prove this wrong): CollisionGroupData, SmoothGrid, MaterialColors, PhysicsGrid
 	-- ! Assuming all base64 encoded strings won't have newlines
 
-	-- ! 7/7/24
-	-- ! Fix for Electron v3
-	-- ! Electron v3 'gethiddenproperty' automatically base64 encodes BinaryString values
-
-	BinaryString = EXECUTOR_NAME == "Electron" and function(raw)
-		return raw
-	end or base64encode, -- TODO Issues may arise if NotScriptableFix or gethiddenproperty_fallback are able to read BinaryString where gethiddenproperty can't on Electron
+	BinaryString = function(raw)
+		return raw == "" and "" or base64encode(raw)
+	end,
 
 	BrickColor = function(raw)
 		return raw.Number -- * Roblox encodes the tags as "int", but this is not required for Roblox to properly decode the type. For better compatibility, it is preferred that third-party implementations encode and decode "BrickColor" tags instead. Could also use "int" or "Color3uint8"
@@ -643,12 +754,12 @@ XML_Descriptors = {
 	end,
 	Color3uint8 = function(raw)
 		-- https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md#color3uint8
+		-- ? It is recommended that Color3uint8 is encoded with text instead of elements.
 
 		return 0xFF000000
 			+ (math.floor(raw.R * 255) * 0x10000)
 			+ (math.floor(raw.G * 255) * 0x100)
-			+ math.floor(raw.B * 255) -- ? It is recommended that Color3uint8 is encoded with text instead of elements.
-
+			+ math.floor(raw.B * 255)
 		-- return bit32.bor(
 		-- 	bit32.bor(bit32.bor(bit32.lshift(0xFF, 24), bit32.lshift(0xFF * raw.R, 16)), bit32.lshift(0xFF * raw.G, 8)),
 		-- 	0xFF * raw.B
@@ -660,51 +771,90 @@ XML_Descriptors = {
 		-- The value is the text content, formatted as a space-separated list of FLOATing point numbers.
 
 		return XML_Descriptors.__SEQUENCE(raw, function(color3)
-			local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
+			local __NORMALIZE_RANGE = XML_Descriptors.__NORMALIZE_RANGE
 
-			return __EXTREME_RANGE(color3.R)
+			return __NORMALIZE_RANGE(color3.R)
 				.. " "
-				.. __EXTREME_RANGE(color3.G)
+				.. __NORMALIZE_RANGE(color3.G)
 				.. " "
-				.. __EXTREME_RANGE(color3.B)
+				.. __NORMALIZE_RANGE(color3.B)
 				.. " 0 "
 		end)
 	end,
+	Content = function(raw)
+		local SourceType = raw.SourceType
+		return SourceType == Enum.ContentSourceType.None and "<null></null>"
+			or SourceType == Enum.ContentSourceType.Uri and "<uri>" .. XML_Descriptors.string(raw.Uri) .. "</uri>"
+			or SourceType == Enum.ContentSourceType.Object and "<Ref>" .. GetRef(raw.Object)
+			.. "</Ref>" -- TODO Not sure, run tests
+	end,
 	ContentId = function(raw)
-		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw) .. "</url>", "Content"
+		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw) .. "</url>", "Content" -- TODO Remove "Content" str once Roblox fully releases Content DataType
 	end,
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. XML_Descriptors.CFrame(raw) .. "</CFrame>"
 	end,
-	-- DateTime = function(raw) return raw.UnixTimestampMillis end, -- TODO
+	-- DateTime = function(raw) return raw.UnixTimestampMillis end, -- ? Not sure
 	Faces = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 63
-		return "<faces>"
-			.. XML_Descriptors.__BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front)
-			.. "</faces>"
+		return "<faces>" .. __BIT(raw.Right, raw.Top, raw.Back, raw.Left, raw.Bottom, raw.Front) .. "</faces>"
 	end,
-	Font = function(raw)
-		local FontString = tostring(raw) -- TODO: Temporary fix
+	Font = 636 < CLIENT_VERSION
+			and function(raw)
+				-- TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
+				--[[
+		? game:GetService("TextService"):GetFontMemoryData()
+		? rbxasset://fonts/families/{Enum.Font.BuilderSans.Name}.json
+		]]
 
-		local EmptyWeight = string_find(FontString, "Weight = ,")
-		local EmptyStyle = string_find(FontString, "Style =  }")
+				local ok_w, weight = pcall(index, raw, "Weight")
+				local ok_s, style = pcall(index, raw, "Style")
 
-		return "<Family>"
-			.. XML_Descriptors.ContentId(raw.Family)
-			.. "</Family><Weight>"
-			.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
-			.. "</Weight><Style>"
-			.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
-			.. "</Style>" --TODO (OPTIONAL ELEMENT): Figure out how to determine (ContentId) <CachedFaceId><url>rbxasset://fonts/GothamSSm-Medium.otf</url></CachedFaceId>
-	end,
+				return "<Family>"
+					.. XML_Descriptors.ContentId(raw.Family)
+					.. "</Family><Weight>"
+					.. (ok_w and XML_Descriptors.__ENUM(weight) or "")
+					.. "</Weight><Style>"
+					.. (ok_s and style.Name or "") -- Weird but this field accepts .Name of enum instead..
+					.. "</Style>"
+			end
+		or function(raw)
+			local FontString = tostring(raw) -- TODO: Temporary fix
+
+			local EmptyWeight = string_find(FontString, "Weight = ,")
+			local EmptyStyle = string_find(FontString, "Style =  }")
+
+			return "<Family>"
+				.. XML_Descriptors.ContentId(raw.Family)
+				.. "</Family><Weight>"
+				.. (EmptyWeight and "" or XML_Descriptors.__ENUM(raw.Weight))
+				.. "</Weight><Style>"
+				.. (EmptyStyle and "" or raw.Style.Name) -- Weird but this field accepts .Name of enum instead..
+				.. "</Style>"
+		end,
+	NetAssetRef = nil,
 	NumberRange = function(raw) -- tostring(raw) also works
 		-- The value is the text content, formatted as a space-separated list of floating point numbers.
-		local __EXTREME_RANGE = XML_Descriptors.__EXTREME_RANGE
+		local __NORMALIZE_RANGE = XML_Descriptors.__NORMALIZE_RANGE
 
-		return __EXTREME_RANGE(raw.Min) .. " " .. __EXTREME_RANGE(raw.Max) --[[.. " "]] -- ! This might be required to bypass detections as thats how its formatted usually; __EXTREME_RANGE is not needed here but it fixes the issue where "nan 10" value would reset to "0 0"
+		return __NORMALIZE_RANGE(raw.Min) .. " " .. __NORMALIZE_RANGE(raw.Max) --[[.. " "]] -- ! This might be required for compatibility; __NORMALIZE_RANGE is not needed here but it fixes the issue where "nan 10" value would reset to "0 0"
 	end,
 	NumberSequence = nil,
 	-- NumberSequence = Descriptors.__SEQUENCE,
+
+	-- Path2DControlPoint = function(raw)  -- ? Not sure
+	-- 	local udim2 = XML_Descriptors.UDim2
+	-- 	return "<Position>"
+	-- 		.. udim2(raw.Position)
+	-- 		.. "</Position>"
+	-- 		.. "<LeftTangent>"
+	-- 		.. udim2(raw.LeftTangent)
+	-- 		.. "</LeftTangent>"
+	-- 		.. "<RightTangent>"
+	-- 		.. udim2(raw.RightTangent)
+	-- 		.. "</RightTangent>"
+	-- end,
+
 	PhysicalProperties = function(raw)
 		--[[
 			Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
@@ -714,20 +864,15 @@ XML_Descriptors = {
 			Elasticity
 			FrictionWeight
 			ElasticityWeight
+			AcousticAbsorption
 
 			The value of each component is represented by the text content formatted as a 32-bit floating point number (see float)
 		]]
 
-		local CustomPhysics
-		if raw then
-			CustomPhysics = true
-		else
-			CustomPhysics = false
-		end
-		CustomPhysics = "<CustomPhysics>" .. XML_Descriptors.bool(CustomPhysics) .. "</CustomPhysics>"
+		local CustomPhysics = "<CustomPhysics>" .. XML_Descriptors.bool(raw and true or false) .. "</CustomPhysics>"
 
 		return raw
-				and CustomPhysics .. "<Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight>"
+				and CustomPhysics .. "<Density>" .. raw.Density .. "</Density><Friction>" .. raw.Friction .. "</Friction><Elasticity>" .. raw.Elasticity .. "</Elasticity><FrictionWeight>" .. raw.FrictionWeight .. "</FrictionWeight><ElasticityWeight>" .. raw.ElasticityWeight .. "</ElasticityWeight><AcousticAbsorption>" .. raw.AcousticAbsorption .. "</AcousticAbsorption>"
 			or CustomPhysics
 	end,
 	-- ProtectedString = function(raw) return tostring(raw), "ProtectedString" end,
@@ -739,21 +884,21 @@ XML_Descriptors = {
 	Rect = function(raw)
 		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector2), "Rect2D"
 	end,
-	Region3 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/Network/Replicator.cpp#L1306)
+	Region3 = function(raw) -- ? Not sure yet (/Network/Replicator.cpp#L1306)
 		local Translation = raw.CFrame.Position
 		local HalfSize = raw.Size * 0.5
 
 		return XML_Descriptors.__MINMAX(
-			Translation - HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L38
-			Translation + HalfSize, -- https://github.com/ui0ppk/roblox-master/blob/main/App/util/Region3.cpp#L42
+			Translation - HalfSize, -- /App/util/Region3.cpp#L38
+			Translation + HalfSize, -- /App/util/Region3.cpp#L42
 			XML_Descriptors.Vector3
 		)
 	end,
-	Region3int16 = function(raw) --? Not sure yet (https://github.com/ui0ppk/roblox-master/blob/main/App/v8tree/EnumProperty.cpp#L346)
+	Region3int16 = function(raw) -- ? Not sure yet (/App/v8tree/EnumProperty.cpp#L346)
 		return XML_Descriptors.__MINMAX(raw.Min, raw.Max, XML_Descriptors.Vector3int16)
 	end,
 	SharedString = function(raw)
-		raw = base64encode(raw)
+		raw = raw == "" and "" or base64encode(raw)
 
 		local Identifier = SharedString_identifiers[raw]
 
@@ -763,8 +908,26 @@ XML_Descriptors = {
 
 		return Identifier
 	end,
-	SecurityCapabilities = tostring, -- TODO: Find a faster solution
-	-- SystemAddress = function(raw) return raw end,
+	SecurityCapabilities = nil,
+	-- SystemAddress = function(raw) return raw end, -- PeerId?  -- ? Not sure
+	-- TweenInfo = function(raw) -- ? Not sure
+	-- 	local __NORMALIZE_NUMBER = XML_Descriptors.__NORMALIZE_NUMBER
+	-- 	local enum = XML_Descriptors.__ENUM
+
+	-- 	return "<Time>"
+	-- 		.. __NORMALIZE_NUMBER(raw.Time)
+	-- 		.. "</Time><DelayTime>"
+	-- 		.. __NORMALIZE_NUMBER(raw.DelayTime)
+	-- 		.. "</DelayTime><RepeatCount>"
+	-- 		.. __NORMALIZE_NUMBER(raw.RepeatCount)
+	-- 		.. "</RepeatCount><Reverses>"
+	-- 		.. XML_Descriptors.bool(raw.Reverses)
+	-- 		.. "</Reverses><EasingDirection>"
+	-- 		.. enum(raw.EasingDirection)
+	-- 		.. "</EasingDirection><EasingStyle>"
+	-- 		.. enum(raw.EasingStyle)
+	-- 		.. "</EasingStyle>"
+	-- end,
 	UDim = function(raw)
 		--[[
 			S: Represents the Scale component. Interpreted as a <float>.
@@ -794,7 +957,7 @@ XML_Descriptors = {
 			.. "</YO>"
 	end,
 
-	-- UniqueId = function(raw)
+	-- UniqueId = function(raw) -- ? Not sure  -- ? No idea if this even needs a Descriptor
 	-- 	--[[
 	-- 		UniqueId properties might be random everytime Studio saves a place file
 	-- 		and don't have a use right now outside of packages, which SSI doesn't
@@ -802,7 +965,7 @@ XML_Descriptors = {
 	-- 		them until we have to.
 	-- 	]]
 	-- 	-- https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/roblox/LuaPackages/Packages/_Index/ApolloClientTesting/ApolloClientTesting/utilities/common/makeUniqueId.lua#L62
-	-- 	return "" -- ? No idea if this even needs a Descriptor
+	-- 	return ""
 	-- end,
 
 	Vector2 = function(raw)
@@ -836,305 +999,410 @@ XML_Descriptors = {
 			or string_find(raw, "]]>") and string.gsub(raw, ESCAPES_PATTERN, ESCAPES)
 			or XML_Descriptors.__CDATA(string.gsub(raw, "\0", ""))
 	end,
+
+	--------------------------------------------------------------
+	-----------%localappdata%/Roblox/GlobalSettings_13.xml--------
+	--------------------------------------------------------------
+	-- QDir = function(raw) -- ? Not sure
+	-- 	return raw
+	-- end,
+	-- QFont = function(raw) -- ? Not sure
+	-- 	return raw
+	-- end,
 }
+
+do
+	local BASE_CAPABILITIES
+	pcall(function()
+		BASE_CAPABILITIES = SecurityCapabilities.new()
+	end)
+	if BASE_CAPABILITIES then
+		local CAPABILITY_BITS = {
+			Plugin = 2 ^ 0, ----------------  0
+			LocalUser = 2 ^ 1, -------------  1
+			WritePlayer = 2 ^ 2, -----------  2
+			RobloxScript = 2 ^ 3, ----------  3
+			RobloxEngine = 2 ^ 4, ----------  4
+			NotAccessible = 2 ^ 5, ---------  5
+			RunClientScript = 2 ^ 8, -------  8
+			RunServerScript = 2 ^ 9, -------  9
+			AccessOutsideWrite = 2 ^ 11, ---  11 (0xb)
+			Unassigned = 2 ^ 15, -----------  15 (0xf)
+			AssetRequire = 2 ^ 16, ---------  16 (0x10)
+			LoadString = 2 ^ 17, -----------  17 (0x11)
+			ScriptGlobals = 2 ^ 18, --------  18 (0x12)
+			CreateInstances = 2 ^ 19, ------  19 (0x13)
+			Basic = 2 ^ 20, ----------------  20 (0x14)
+			Audio = 2 ^ 21, ----------------  21 (0x15)
+			DataStore = 2 ^ 22, ------------  22 (0x16)
+			Network = 2 ^ 23, --------------  23 (0x17)
+			Physics = 2 ^ 24, --------------  24 (0x18)
+			UI = 2 ^ 25, -------------------  25 (0x19)
+			CSG = 2 ^ 26, ------------------  26 (0x1a)
+			Chat = 2 ^ 27, -----------------  27 (0x1b)
+			Animation = 2 ^ 28, ------------  28 (0x1c)
+			Avatar = 2 ^ 29, ---------------  29 (0x1d)
+			Input = 2 ^ 30, ----------------  30 (0x1e)
+			Environment = 2 ^ 31, ----------  31 (0x1f)
+			RemoteEvent = 2 ^ 32, ----------  32 (0x20)
+			LegacySound = 2 ^ 33, ----------  33 (0x21)
+			Players = 2 ^ 34, --------------  34 (0x22)
+			CapabilityControl = 2 ^ 35, ----  35 (0x23)
+			RemoteCommand = 2 ^ 59, --------  59 (0x3b)
+			InternalTest = 2 ^ 60, ---------  60 (0x3c), Related to TestingGameScript
+			PluginOrOpenCloud = 2 ^ 61, ----  61 (0x3d)
+			Assistant = 2 ^ 62, ------------  62 (0x3e)
+			-- Restricted = 2 ^ 63, -----------  for negative (highest bit for signed integers)
+		}
+
+		XML_Descriptors.SecurityCapabilities = function(raw)
+			-- TODO tostring & string.split aren't ideal but this is the only way until the feature is out of the experimental phase
+
+			if raw == BASE_CAPABILITIES then
+				return 0
+			end
+
+			local result = 0
+
+			for _, flag in next, string.split(tostring(raw), " | ") do
+				local bit = CAPABILITY_BITS[flag]
+				if bit then
+					result = result + bit
+				end
+			end
+
+			return result
+		end
+	end
+end
+
 for descriptorName, redirectName in
 	next,
 	{
-		Content = "ContentId", -- For sake of compatibility with older clients
+		NetAssetRef = "SharedString",
 		NumberSequence = "__SEQUENCE",
 		Vector2int16 = "Vector2",
 		Vector3int16 = "Vector3",
-		double = "__EXTREME",
-		float = "__EXTREME",
-		int = "__EXTREME",
-		int64 = "__EXTREME",
+		double = "__NORMALIZE_NUMBER",
+		float = "__NORMALIZE_NUMBER",
+		int = "__NORMALIZE_NUMBER",
+		int64 = "__NORMALIZE_NUMBER",
 	}
 do
 	XML_Descriptors[descriptorName] = XML_Descriptors[redirectName]
+end
+if CLIENT_VERSION < math.huge then -- math.huge because unknown yet
+	-- ! For sake of compatibility with older clients, Roblox currently does this too but it WILL probably change in the future so keep track of that. ONCE ROBLOX MOVES AWAY FROM THIS, MAKE SURE TO KEEP SUPPORT FOR VERY OLD CLIENTS; 645 <= CLIENT Ver < ??? (ver when roblox moves away), THIS IS COMPLICATED SO PROBABLY NO SUPPORT, JUST USE OLDER VER OF USSI; NEWEST CLIENTS
+	XML_Descriptors.Content = XML_Descriptors.ContentId
 end
 
 local ClassList
 
 do
 	local ClassPropertyExceptions = {
-		Whitelist = { TriangleMeshPart = ArrayToDictionary({ "CollisionFidelity" }) },
+		Whitelist = {
+			MeshPart = ArrayToDict({ "CollisionFidelity" }),
+			PartOperation = ArrayToDict({ "CollisionFidelity" }),
+			TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }),
+		},
 		Blacklist = {
-			LuaSourceContainer = ArrayToDictionary({ "ScriptGuid" }),
-			Instance = ArrayToDictionary({ "UniqueId", "HistoryId", "Capabilities" }),
+			LuaSourceContainer = ArrayToDict({ "ScriptGuid" }),
+			Instance = ArrayToDict({ "UniqueId", "HistoryId" }),
 		},
 	}
 
-	local NotScriptableFixes =
-		{ -- For more info: https://github.com/luau/UniversalSynSaveInstance/blob/master/Tests/Potentially%20Missing%20Properties%20Tracker.luau
-			Instance = {
-				AttributesSerialize = function(instance)
-					-- * There are certain restrictions for names of attributes
-					-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
-					-- But it seems like even if those are present, Studio still opens the file just fine
-					-- So there is no need to check for them currently
+	local NotScriptableFixes = { --[[
+		For more info: 
+		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
+		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/NotScriptable%20Dumper/NotScriptable%20Dumper.py
+		]]
+		Instance = {
+			AttributesSerialize = function(instance)
+				-- * There are certain restrictions for names of attributes
+				-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
+				-- But it seems like even if those are present, Studio still opens the file just fine
+				-- So there is no need to check for them currently
 
-					-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
-					-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
+				-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
+				-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
 
-					local attrs = instance:GetAttributes()
+				local attrs = instance:GetAttributes()
 
-					if not next(attrs) then
-						return ""
+				if not next(attrs) then
+					return ""
+				end
+
+				local attrs_n = 0
+				local buffer_size = 4
+				local attrs_sorted = {}
+				local attrs_formatted = table.clone(attrs)
+				for attr, val in next, attrs do
+					attrs_n = attrs_n + 1
+					attrs_sorted[attrs_n] = attr
+
+					local Type = typeof(val)
+
+					local Descriptor = Binary_Descriptors[Type]
+					local attr_size
+
+					attrs_formatted[attr], attr_size = Descriptor(val)
+
+					buffer_size = buffer_size + 5 + #attr + attr_size
+				end
+
+				table.sort(attrs_sorted)
+
+				local b = buffer.create(buffer_size)
+
+				local offset = 0
+
+				buffer.writeu32(b, offset, attrs_n)
+				offset = offset + 4
+
+				local string__descriptor = Binary_Descriptors.string
+				for _, attr in next, attrs_sorted do
+					local b_Name, Name_size = string__descriptor(attr)
+
+					buffer.copy(b, offset, b_Name)
+					offset = offset + Name_size
+
+					buffer.writeu8(b, offset, attr_Type_IDs[typeof(attrs[attr])])
+					offset = offset + 1
+
+					local bb = attrs_formatted[attr]
+
+					buffer.copy(b, offset, bb)
+					offset = offset + buffer.len(bb)
+				end
+
+				return buffer.tostring(b)
+			end,
+			DefinesCapabilities = "Sandboxed",
+			Tags = function(instance)
+				-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
+
+				local tags = instance:GetTags()
+
+				if #tags == 0 then
+					return ""
+				end
+
+				return table.concat(tags, "\0")
+			end,
+		},
+
+		-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
+		BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
+		BasePart = {
+			Color3uint8 = "Color",
+			MaterialVariantSerialized = "MaterialVariant",
+			size = "Size",
+		},
+		DoubleConstrainedValue = { value = "Value" },
+		IntConstrainedValue = { value = "Value" },
+
+		-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
+		-- 	local Receiver  = instance:GetAttachedReceivers()[1]
+		-- 	if Receiver then
+		-- 		return Receiver:GetCurrentValue()
+		-- 	else
+		-- 		error("No Receiver", 2)
+		-- 	end
+		-- end},
+		Terrain = {
+			AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
+			MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
+				local TERRAIN_MATERIAL_COLORS =
+					{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
+						Enum.Material.Grass,
+						Enum.Material.Slate,
+						Enum.Material.Concrete,
+						Enum.Material.Brick,
+						Enum.Material.Sand,
+						Enum.Material.WoodPlanks,
+						Enum.Material.Rock,
+						Enum.Material.Glacier,
+						Enum.Material.Snow,
+						Enum.Material.Sandstone,
+						Enum.Material.Mud,
+						Enum.Material.Basalt,
+						Enum.Material.Ground,
+						Enum.Material.CrackedLava,
+						Enum.Material.Asphalt,
+						Enum.Material.Cobblestone,
+						Enum.Material.Ice,
+						Enum.Material.LeafyGrass,
+						Enum.Material.Salt,
+						Enum.Material.Limestone,
+						Enum.Material.Pavement,
+					}
+
+				local b = buffer.create(69) -- 69 bytes: 6 reserved + 63 for colors (21 materials * 3 components)
+				local offset = 6 -- 6 reserved bytes
+
+				local RGB_components = { "R", "G", "B" }
+
+				for _, material in next, TERRAIN_MATERIAL_COLORS do
+					local color = instance:GetMaterialColor(material)
+					for _, component in next, RGB_components do
+						buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
+						offset = offset + 1
 					end
+				end
 
-					local attrs_n = 0
-					local buffer_size = 4
-					local attrs_sorted = {}
-					local attrs_formatted = table.clone(attrs)
-					for attr, val in next, attrs do
-						attrs_n = attrs_n + 1
-						attrs_sorted[attrs_n] = attr
+				return buffer.tostring(b)
+			end,
+		},
+		TriangleMeshPart = {
+			FluidFidelityInternal = "FluidFidelity",
+		},
+		MeshPart = { InitialSize = "MeshSize" },
+		PartOperation = { InitialSize = "MeshSize" },
+		Part = { shape = "Shape" },
+		TrussPart = { style = "Style" },
+		FormFactorPart = {
+			formFactorRaw = "FormFactor",
+		},
+		Fire = { heat_xml = "Heat", size_xml = "Size" },
+		Humanoid = { Health_XML = "Health" },
+		HumanoidDescription = {
+			EmotesDataInternal = function(instance)
+				local emotes_data = ""
+				for name, ids in next, instance:GetEmotes() do
+					emotes_data = emotes_data .. name .. "^" .. table.concat(ids, "^") .. "^\\"
+				end
+				return emotes_data
+			end,
+			EquippedEmotesDataInternal = function(instance)
+				local equipped_emotes_data = ""
+				for _, emote in next, instance:GetEquippedEmotes() do
+					equipped_emotes_data = equipped_emotes_data .. emote.Slot .. "^" .. emote.Name .. "\\"
+				end
+				return equipped_emotes_data
+			end,
+		},
+		LocalizationTable = {
+			Contents = function(instance)
+				return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
+			end,
+		},
+		MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
 
-						local Type = typeof(val)
+		Model = {
+			ScaleFactor = function(instance)
+				return instance:GetScale()
+			end,
+			WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
+		},
+		PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
+		Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
 
-						local Descriptor = Binary_Descriptors[Type]
-						local attr_size
+		StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
+		Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
+		Sound = {
+			xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
+		},
+		-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
+		-- 	CameraCFrame = function(instance) -- *
+		-- 		local CurrentCamera = instance.CurrentCamera
+		-- 		if CurrentCamera then
+		-- 			return CurrentCamera.CFrame
+		-- 		else
+		-- 			error("No CurrentCamera", 2)
+		-- 		end
+		-- 	end,
+		-- 	-- CameraFieldOfView =
+		-- },
+		WeldConstraint = {
+			Part0Internal = "Part0",
+			Part1Internal = "Part1",
+			-- State = function(instance)
+			-- 	-- If untouched then default state is 3 (default true)
+			-- 	return instance.Enabled and 1 or 0
+			-- end,
+		},
+		Workspace = {
+			-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
+			CollisionGroupData = function()
+				local collision_groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
 
-						attrs_formatted[attr], attr_size = Descriptor(val)
+				local col_groups_n = #collision_groups
 
-						buffer_size = buffer_size + 5 + #attr + attr_size
-					end
+				if col_groups_n == 0 then
+					return "\1\0"
+				end
 
-					table.sort(attrs_sorted)
+				local buffer_size = 2 -- Initial size
 
-					local b = buffer.create(buffer_size)
+				for _, group in next, collision_groups do
+					buffer_size = buffer_size + 7 + #group.name
+				end
 
-					local offset = 0
+				local b = buffer.create(buffer_size)
 
-					buffer.writeu32(b, offset, attrs_n)
+				local offset = 0
+
+				buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
+				offset = offset + 1
+				buffer.writeu8(b, offset, col_groups_n) -- Group count
+				offset = offset + 1
+
+				for i, group in next, collision_groups do
+					local name, id, mask = group.name, i - 1, group.mask
+					local name_len = #name
+
+					buffer.writeu8(b, offset, id) -- ID
+					offset = offset + 1
+
+					buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
+					offset = offset + 1
+
+					buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
 					offset = offset + 4
 
-					local Descriptors_string = Binary_Descriptors.string
-					for _, attr in next, attrs_sorted do
-						local b_Name, Name_size = Descriptors_string(attr)
-
-						buffer.copy(b, offset, b_Name)
-						offset = offset + Name_size
-
-						buffer.writeu8(b, offset, Type_IDs[typeof(attrs[attr])])
-						offset = offset + 1
-
-						local bb = attrs_formatted[attr]
-
-						buffer.copy(b, offset, bb)
-						offset = offset + buffer.len(bb)
-					end
-
-					return buffer.tostring(b)
-				end,
-				Tags = function(instance)
-					-- https://github.com/RobloxAPI/spec/blob/master/properties/Tags.md
-
-					local tags = instance:GetTags()
-
-					if #tags == 0 then
-						return ""
-					end
-
-					return table.concat(tags, "\0")
-				end,
-			},
-
-			-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
-			BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
-			BasePart = {
-				Color3uint8 = "Color",
-				MaterialVariantSerialized = "MaterialVariant",
-				size = "Size",
-			},
-			-- CustomEvent = {PersistedCurrentValue=function(instance) -- * Class is Deprecated and :SetValue doesn't seem to affect GetCurrentValue anymore
-			-- 	local Receiver  = instance:GetAttachedReceivers()[1]
-			-- 	if Receiver then
-			-- 		return Receiver:GetCurrentValue()
-			-- 	else
-			-- 		error("No Receiver", 2)
-			-- 	end
-			-- end},
-			Terrain = {
-				AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
-				MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
-					local TERRAIN_MATERIAL_COLORS =
-						{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
-							Enum.Material.Grass,
-							Enum.Material.Slate,
-							Enum.Material.Concrete,
-							Enum.Material.Brick,
-							Enum.Material.Sand,
-							Enum.Material.WoodPlanks,
-							Enum.Material.Rock,
-							Enum.Material.Glacier,
-							Enum.Material.Snow,
-							Enum.Material.Sandstone,
-							Enum.Material.Mud,
-							Enum.Material.Basalt,
-							Enum.Material.Ground,
-							Enum.Material.CrackedLava,
-							Enum.Material.Asphalt,
-							Enum.Material.Cobblestone,
-							Enum.Material.Ice,
-							Enum.Material.LeafyGrass,
-							Enum.Material.Salt,
-							Enum.Material.Limestone,
-							Enum.Material.Pavement,
-						}
-
-					local b = buffer.create(69) -- 69 bytes: 6 reserved + 63 for colors (21 materials * 3 components)
-					local offset = 6 -- 6 reserved bytes
-
-					local RGB_components = { "R", "G", "B" }
-
-					for _, material in next, TERRAIN_MATERIAL_COLORS do
-						local color = instance:GetMaterialColor(material)
-						for _, component in next, RGB_components do
-							buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
-							offset = offset + 1
-						end
-					end
-
-					return buffer.tostring(b)
-				end,
-			},
-			TriangleMeshPart = {
-				FluidFidelityInternal = "FluidFidelity",
-			},
-			MeshPart = { InitialSize = "MeshSize" },
-			PartOperation = { InitialSize = "MeshSize" },
-			Part = { shape = "Shape" },
-			TrussPart = { style = "Style" },
-			FormFactorPart = {
-				formFactorRaw = "FormFactor",
-			},
-			DoubleConstrainedValue = { value = "Value" },
-			IntConstrainedValue = { value = "Value" },
-			Fire = { heat_xml = "Heat", size_xml = "Size" },
-
-			Humanoid = { Health_XML = "Health" },
-			LocalizationTable = {
-				Contents = function(instance)
-					return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
-				end,
-			},
-			MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
-
-			Model = {
-				ScaleFactor = function(instance)
-					return instance:GetScale()
-				end,
-				WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
-				-- ModelMeshCFrame = "Pivot Offset",  -- * Both are NotScriptable
-			},
-			PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
-			Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
-
-			StarterPlayer = { AvatarJointUpgrade_Serialized = "AvatarJointUpgrade" },
-			Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
-			Sound = {
-				xmlRead_MaxDistance_3 = "RollOffMaxDistance", -- * Also MaxDistance
-			},
-			-- ViewportFrame = { -- * Pointless because these reflect CurrentCamera's properties
-			-- 	CameraCFrame = function(instance) -- *
-			-- 		local CurrentCamera = instance.CurrentCamera
-			-- 		if CurrentCamera then
-			-- 			return CurrentCamera.CFrame
-			-- 		else
-			-- 			error("No CurrentCamera", 2)
-			-- 		end
-			-- 	end,
-			-- 	-- CameraFieldOfView =
-			-- },
-			WeldConstraint = {
-				Part0Internal = "Part0",
-				Part1Internal = "Part1",
-				-- State = function(instance)
-				-- 	-- If untouched then default state is 3 (default true)
-				-- 	return instance.Enabled and 1 or 0
-				-- end,
-			},
-			Workspace = {
-				-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
-				CollisionGroupData = function()
-					local collision_groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
-
-					local col_groups_n = #collision_groups
-
-					if col_groups_n == 0 then
-						return "\1\0"
-					end
-
-					local buffer_size = 3 -- Initial size
-
-					for _, group in next, collision_groups do
-						buffer_size = buffer_size + 7 + #group.name
-					end
-
-					buffer_size = buffer_size - 1 -- Except Default group
-
-					local b = buffer.create(buffer_size)
-
-					local offset = 0
-
-					buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
+					buffer.writeu8(b, offset, name_len) -- Name length
 					offset = offset + 1
-					buffer.writeu16(b, offset, col_groups_n * 10) -- Group count (not sure about u16)
-					offset = offset + 2
+					buffer.writestring(b, offset, name) -- Name
+					offset = offset + name_len
+				end
 
-					for i, group in next, collision_groups do
-						local name, id, mask = group.name, i - 1, group.mask
-						local name_len = #name
-
-						if id ~= 0 then
-							buffer.writeu8(b, offset, id) -- ID
-							offset = offset + 1
-						end
-
-						buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
-						offset = offset + 1
-
-						buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
-						offset = offset + 4
-
-						buffer.writeu8(b, offset, name_len) -- Name length
-						offset = offset + 1
-						buffer.writestring(b, offset, name) -- Name
-						offset = offset + name_len
-					end
-
-					return buffer.tostring(b)
-				end,
-			},
-		}
+				return buffer.tostring(b)
+			end,
+		},
+	}
 
 	local function FetchAPI()
 		-- Credits @MaximumADHD
 
 		local API_Dump
 
-		local CLIENT_VERSION = string.split(version(), ".")[2]
-
 		local ok, err = pcall(function()
-			local ok, result = pcall(readfile, CLIENT_VERSION)
-			if ok and result and result ~= "" then
+			if EXECUTOR_NAME == "Zenith" or EXECUTOR_NAME == "Velocity" then -- TODO Temp fix as it crashes on HttpGet for sites that return 403 code
+				return
+			end
+
+			local CLIENT_VERSION_str = tostring(CLIENT_VERSION)
+			local ok, result = pcall(readfile, CLIENT_VERSION_str)
+			if
+				ok
+				and result
+				and result ~= ""
+				and pcall(service.HttpService.JSONDecode, service.HttpService, result)
+			then
 				API_Dump = result
 				return
 			end
 
-			local DeployHistory = game:HttpGet("https://setup.rbxcdn.com/DeployHistory.txt", true)
-			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
-
 			local matching_versions, is_matched = {}
 
-			local lines = string.split(DeployHistory, "\n")
-			for i = #lines, 1, -1 do
-				local line = lines[i]
+			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
+			local DeployHistory = string.split(game:HttpGet("https://setup.rbxcdn.com/DeployHistory.txt", true), "\n")
+			for i = #DeployHistory, 1, -1 do
+				local line = DeployHistory[i]
 
 				local file_version = string.match(line, "file version: ([%d, ]+)")
 				if file_version then
-					if string.split(file_version, ", ")[2] == CLIENT_VERSION then
+					if string.split(file_version, ", ")[2] == CLIENT_VERSION_str then
 						is_matched = true
 
 						local version_hash = string.match(line, "(version%-[^%s]+)")
@@ -1163,11 +1431,11 @@ do
 				end
 			end
 
-			writefile(CLIENT_VERSION, API_Dump)
+			writefile(CLIENT_VERSION_str, API_Dump)
 		end)
 
 		if not ok or not API_Dump then
-			warn("[DEBUG] Failed to get " .. version() .. " API Dump, trying latest..")
+			warn("[DEBUG] Failed to get " .. version() .. " version API Dump, trying latest..")
 			warn("[DEBUG]", err)
 			API_Dump = service.HttpService:JSONEncode(
 				service.HttpService:JSONDecode(
@@ -1182,7 +1450,7 @@ do
 		local classList = {}
 
 		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
-		CLIENT_VERSION = tonumber(CLIENT_VERSION)
+
 		for _, API_Class in next, service.HttpService:JSONDecode(API_Dump) do
 			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
@@ -1194,7 +1462,7 @@ do
 			local ClassName = API_Class.Name
 
 			if ClassTags then
-				Class.Tags = ArrayToDictionary(ClassTags, nil, nil, "string") -- or {}
+				Class.Tags = ArrayToDict(ClassTags, nil, nil, "string") -- or {}
 			end
 
 			local NotScriptableFixClass = NotScriptableFixes[ClassName]
@@ -1204,73 +1472,97 @@ do
 			local ClassWhitelist, ClassBlacklist = ClassesWhitelist[ClassName], ClassesBlacklist[ClassName]
 
 			for _, Member in next, API_Class.Members do
-				if Member.MemberType == "Property" then
-					local Serialization = Member.Serialization
+				-- ? print(game:GetService("ReflectionService"):GetPropertyNames("TextBox"))
+				repeat
+					if Member.MemberType == "Property" then
+						local Serialization = Member.Serialization
 
-					if Serialization.CanLoad then -- If Roblox doesn't save it why should we; If Roblox doesn't load it we don't need to save it
-						--[[
+						if Serialization.CanLoad then -- If Roblox doesn't save it why should we; If Roblox doesn't load it we don't need to save it
+							--[[
 							-- ! CanSave replaces "Tags.Deprecated" check because there are some old properties which are deprecated yet have CanSave.
 							Example: Humanoid.Health is CanSave false due to Humanoid.Health_XML being CanSave true (obsolete properties basically) - in this case both of them will Load. (aka PropertyPatches)
 							CanSave being on same level as CanLoad also fixes potential issues with overlapping properties like Color, Color3 & Color3uint8 of BasePart, out of which only Color3uint8 should save
 							This also fixes everything in IgnoreClassProperties automatically without need to hardcode :)
 							A very simple fix for many problems that saveinstance scripts encounter!
 						--]]
-						local PropertyName = Member.Name
-						if
-							(Serialization.CanSave or ClassWhitelist and ClassWhitelist[PropertyName])
-							and not (ClassBlacklist and ClassBlacklist[PropertyName])
-						then
-							local MemberTags = Member.Tags
+							local PropertyName = Member.Name
+							if
+								(Serialization.CanSave or ClassWhitelist and ClassWhitelist[PropertyName])
+								and not (ClassBlacklist and ClassBlacklist[PropertyName])
+							then
+								local MemberTags = Member.Tags
 
-							local ValueType = Member.ValueType
-							local ValueType_Name = ValueType.Name
+								local ValueType = Member.ValueType
+								local ValueType_Name = ValueType.Name
 
-							if 649 <= CLIENT_VERSION and ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
-								continue
-							end
-
-							local Special
-
-							if MemberTags then
-								MemberTags = ArrayToDictionary(MemberTags, nil, nil, "string")
-
-								Special = MemberTags.NotScriptable
-							end
-
-							-- if not Special then
-							local Property = {
-								Name = PropertyName,
-								Category = ValueType.Category,
-								-- Default = Member.Default,
-								-- Tags = MemberTags,
-								ValueType = ValueType_Name,
-
-								Special = Special,
-
-								CanRead = nil,
-							}
-
-							if string.sub(ValueType_Name, 1, 8) == "Optional" then
-								-- Extract the string after "Optional"
-								Property.Optional = string.sub(ValueType_Name, 9)
-							end
-
-							if NotScriptableFixClass then
-								local NotScriptableFix = NotScriptableFixClass[PropertyName]
-								if NotScriptableFix then
-									Property.Fallback = type(NotScriptableFix) == "function" and NotScriptableFix
-										or function(instance)
-											return instance[NotScriptableFix]
-										end
+								if 645 <= CLIENT_VERSION and ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
+									break
 								end
-							end
-							ClassProperties[ClassProperties_size] = Property
-							ClassProperties_size = ClassProperties_size + 1
 
-							-- end
+								local Special, PreferredDescriptorName
+
+								if MemberTags then
+									for _, tag in next, MemberTags do
+										if type(tag) == "table" then
+											PreferredDescriptorName = tag.PreferredDescriptorName
+											if PreferredDescriptorName and Special then
+												break
+											end
+										elseif tag == "NotScriptable" then
+											Special = true
+											if PreferredDescriptorName then
+												break
+											end
+										end
+									end
+								end
+
+								-- if not Special then
+								local Property = {
+									Name = PropertyName,
+									Category = ValueType.Category,
+									-- Default = Member.Default,
+									-- Tags = MemberTags,
+									ValueType = ValueType_Name,
+
+									Special = Special,
+
+									CanRead = nil,
+								}
+
+								if string.sub(ValueType_Name, 1, 8) == "Optional" then
+									-- Extract the string after "Optional"
+									Property.Optional = string.sub(ValueType_Name, 9)
+								end
+
+								if NotScriptableFixClass then
+									local NotScriptableFix = NotScriptableFixClass[PropertyName]
+									if NotScriptableFix then
+										Property.Fallback = type(NotScriptableFix) == "function" and NotScriptableFix
+											or PreferredDescriptorName and function(instance)
+												local o, r = pcall(index, instance, PreferredDescriptorName)
+												if o then
+													return r
+												end
+												return instance[NotScriptableFix]
+											end
+											or function(instance)
+												return instance[NotScriptableFix]
+											end
+									end
+								elseif PreferredDescriptorName then
+									Property.Fallback = function(instance)
+										return instance[PreferredDescriptorName]
+									end
+								end
+								ClassProperties[ClassProperties_size] = Property
+								ClassProperties_size = ClassProperties_size + 1
+
+								-- end
+							end
 						end
 					end
-				end
+				until true
 			end
 
 			classList[ClassName] = Class
@@ -1291,10 +1583,6 @@ do
 	end
 end
 
-local inherited_properties = {}
-local default_instances = {}
-local referents, ref_size = {}, 0 -- ? Roblox encodes all <Item> elements with a referent attribute. Each value is generated by starting with the prefix RBX, followed by a UUID version 4, with - characters removed, and all characters converted to uppercase.
-
 local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 
 --[=[
@@ -1304,20 +1592,20 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 
 --- @interface CustomOptions table
 --- * Structure of the main CustomOptions table.
---- * Note: Aliases take priority over parent option name.
+--- * Note: Options are case-insensitive, meaning you could type `NilInstances` option as `nilInStaNces` and it would still be valid.
 --- @within SynSaveInstance
---- @field __DEBUG_MODE boolean -- Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
+--- @field __DEBUG_MODE boolean -- This will print debug logs to console about unusual scenarios. Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
 --- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ false
 --- @field ShutdownWhenDone boolean -- Shuts the game down after saveinstance is finished. ___Default:___ false
 --- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
---- Anonymous {boolean|table{UserId = string, Name = string}} -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. Can also be a table with UserId & Name keys. ___Default:___ false
+--- .Anonymous {boolean|table{UserId = string, Name = string}} -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. Can also be a table with UserId & Name keys. ___Default:___ false
 --- @field ShowStatus boolean -- ___Default:___ true
---- @field Callback boolean -- If set, the serialized data will be sent to the callback function instead of to file. ___Default:___ nil
---- @field mode string -- Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
+--- @field Callback function -- If set, the serialized data will be sent to the callback function instead of to file. ___Default:___ false
+--- @field mode string -- Valid modes: full, optimized, scripts. Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
 --- @field noscripts boolean -- ___Aliases:___ `Decompile`. ___Default:___ false
 --- @field scriptcache boolean -- ___Default:___ true
---- @field decomptype string -- * "custom" - for built-in custom decompiler. ___Default:___ Your executor's decompiler, if available. Otherwise uses "custom" if not.
+--- @field decomptype string -- * Deprecated. ___Default:___ Uses your executor's decompiler, if available.
 --- @field timeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout (unreliable). ***Aliases***: `DecompileTimeout`. ___Default:___ 10
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
@@ -1327,7 +1615,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
 --- @field FilePath string -- Must only contain the name of the file, no file extension. ___Default:___ false
---- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. Only saves the instance itself, not the descendants. If you wish to save descendants too then use @ExtraInstances={Object}. ___Default:___ false
+--- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
 --- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
 --- @field NilInstances boolean -- Save instances that aren't Parented (Parented to nil). ___Default:___ false
 --- .NilInstancesFixes {[Instance.ClassName] = function} -- * This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though). For example, Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways. **TO AVOID THIS BEHAVIOR USE THIS EXAMPLE:** {ClassName_That_Doesnt_Need_Fix = false}. ___Default:___ {Animator = function, AdPortal = function, BaseWrap = function, Attachment = function}
@@ -1338,9 +1626,9 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IsolateLocalPlayer boolean -- Saves Children of LocalPlayer as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
 --- @field IsolateStarterPlayer boolean -- If enabled, StarterPlayer will be cleared and the saved starter player will be placed into folders. ___Default:___ false
 --- @field IsolateLocalPlayerCharacter boolean -- Saves Children of LocalPlayer.Character as separate folder and prevents any instance of ClassName Player with .Name identical to LocalPlayer.Name from saving. ___Default:___ false
---- @field RemovePlayerCharacters boolean -- Ignore player characters while saving. (Enables SaveNonCreatable automatically). ___Default:___ true
---- @field SaveNonCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). ___Default:___ false
---- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "Player", "PlayerScripts", "PlayerGui" }
+--- @field RemovePlayerCharacters boolean -- Ignore player characters while saving. (Enables SaveNotCreatable automatically). ___Default:___ true
+--- @field SaveNotCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). ___Default:___ false
+--- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "", "Player", "PlayerScripts", "PlayerGui", "TouchTransmitter" }
 --- @field IsolatePlayers boolean -- * This option does save players, it's just they won't show up in Studio and can only be viewed through the place file code (in text editor). More info at https://github.com/luau/UniversalSynSaveInstance/issues/2. ___Default:___ false
 --- @field AlternativeWritefile boolean -- * Splits file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. Though there is a risk of appendfile working incorrectly on some executors. ___Default:___ true
 --- @field IgnoreDefaultPlayerScripts boolean -- * **RISKY: Ignores Default PlayerScripts like PlayerModule & RbxCharacterSounds. Prevents crashes on certain Executors. ___Default:___ true
@@ -1353,7 +1641,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- Aliases for the [SynSaveInstance.CustomOptions table].
 --- @field FilePath string -- FileName
 --- @field IgnoreDefaultProperties string -- IgnoreDefaultProps
---- @field SaveNonCreatable string -- SaveNotCreatable
+--- @field SaveNotCreatable string -- SaveNonCreatable
 --- @field IsolatePlayers string -- SavePlayers
 --- @field scriptcache string -- DecompileJobless
 --- @field timeout string -- DecompileTimeout
@@ -1394,9 +1682,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local currentstr, currentsize, totalsize, chunks = "", 0, 0, table.create(1)
-	local savebuffer, savebuffer_size = {
-		'<roblox version="4">',
-	}, 2
+	local savebuffer, savebuffer_size = {}, 1
+	local header =
+		'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw --><roblox version="4">'
 
 	local StatusText
 
@@ -1404,14 +1692,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		mode = "optimized",
 		noscripts = false,
 		scriptcache = true,
-		decomptype = "",
+		-- decomptype = "",
 		timeout = 10,
-		--* New:
+		-- * New:
 		__DEBUG_MODE = false,
 
 		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
-		Callback = nil,
-		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
+		Callback = false,
+		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models. (Binary Only)
 		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
 		-- DisableCompression = false, --Description: Disables compression in the binary output
 
@@ -1446,7 +1734,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IgnoreDefaultProperties = true,
 		IgnoreNotArchivable = true,
 		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
-		IgnoreSpecialProperties = ArrayToDictionary({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
+		IgnoreSpecialProperties = ArrayToDict({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
 
 		IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
 		IsolateLocalPlayerCharacter = false,
@@ -1454,35 +1742,62 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		IsolateStarterPlayer = false,
 		RemovePlayerCharacters = true,
 
-		SaveNonCreatable = false,
-		NotCreatableFixes = { "Player", "PlayerScripts", "PlayerGui", "TouchTransmitter" },
+		SaveNotCreatable = false,
+		NotCreatableFixes = {
+			-- "InputObject",
+			-- "LodDataEntity",
+			-- "Path",
+			"", -- * FilteredSelection
+			"AdvancedDragger",
+			"AnimationTrack",
+			"Dragger",
+			"Player",
+			"PlayerGui",
+			"PlayerMouse",
+			"PlayerMouse",
+			"PlayerScripts",
+			"ScreenshotHud",
+			"StudioData",
+			"TextChatMessage",
+			"TextSource",
+			"TouchTransmitter",
+			"Translator",
+			CloudLocalizationTable = "LocalizationTable",
+		},
 
 		-- ! Risky
 
 		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
 		SharedStringOverwrite = false,
 		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
-		AlternativeWritefile = not ArrayToDictionary({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
+		AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
 
 		OptionsAliases = { -- You can't really modify these as a user
-			FilePath = "FileName",
-			IgnoreDefaultProperties = "IgnoreDefaultProps",
+			DecompileTimeout = "timeout",
+			FileName = "FilePath",
+			IgnoreArchivable = "IgnoreNotArchivable",
+			IgnoreDefaultProps = "IgnoreDefaultProperties",
 			SaveNonCreatable = "SaveNotCreatable",
-			IsolatePlayers = "SavePlayers",
-			scriptcache = "DecompileJobless",
-			timeout = "DecompileTimeout",
-			IgnoreNotArchivable = "IgnoreArchivable",
+			SavePlayers = "IsolatePlayers",
 		},
 	}
 
-	local function GetAlias(searchAlias)
-		for option, alias in next, OPTIONS.OptionsAliases do
-			if searchAlias == alias then
-				return option
-			end
+	local OPTIONS_lowercase, CustomOptions_valid = {}, {}
+	for option_name in next, OPTIONS do
+		local option_name_lowercase = string.lower(option_name)
+		if OPTIONS_lowercase[option_name_lowercase] then
+			warn("DUPLICATE OPTION", option_name)
+		else
+			OPTIONS_lowercase[option_name_lowercase] = option_name
 		end
-
-		return ""
+	end
+	for option_alias, option_name in next, OPTIONS.OptionsAliases do
+		local option_name_lowercase = string.lower(option_alias)
+		if OPTIONS_lowercase[option_name_lowercase] then
+			warn("DUPLICATE ALIAS", option_alias)
+		else
+			OPTIONS_lowercase[option_name_lowercase] = option_name
+		end
 	end
 
 	do -- * Load Settings
@@ -1556,14 +1871,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				CustomOptions = {}
 			else
 				for key, value in next, CustomOptions do
-					if OPTIONS[key] == nil then
-						local Option = GetAlias(key)
+					local option = OPTIONS_lowercase[string.lower(key)]
 
-						if Option then
-							OPTIONS[Option] = value
-						end
-					else
-						OPTIONS[key] = value
+					if option then
+						OPTIONS[option] = value
+						CustomOptions_valid[option] = true
 					end
 				end
 				local Decompile = CustomOptions.Decompile
@@ -1590,29 +1902,48 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	if OPTIONS.IgnoreDefaultPlayerScripts then
 		-- TODO This is a bad workaround, find a better automatic way
+		-- TODO Look into https://robloxapi.github.io/ref/class/LuaSourceContainer.html#member-isPlayerScript
 		local DecompileIgnore = OPTIONS.DecompileIgnore
 
-		local Path = service.StarterPlayer:FindFirstChild("StarterPlayerScripts")
-		local Exclude = { ModuleScript = { "PlayerModule" }, LocalScript = { "RbxCharacterSounds" } }
-		if Path then
-			for _, className in next, Exclude do
-				for _, name in next, className do
-					local Found = Path:FindFirstChild(name)
-					if Found then
-						table.insert(DecompileIgnore, Found)
+		local default_scripts = ArrayToDict({
+			ModuleScript = { "PlayerModule" },
+			LocalScript = {
+				"BubbleChat",
+				"ChatScript",
+				"PlayerScriptsLoader",
+				"RbxCharacterSounds",
+			},
+		}, true)
+
+		local function ignorePath(path)
+			if path then
+				for _, child in next, path:GetChildren() do
+					local class_match = default_scripts[child.ClassName]
+					if class_match then
+						local name_match = class_match[child.Name]
+						if name_match then
+							table.insert(DecompileIgnore, child)
+						end
 					end
 				end
 			end
+		end
+
+		ignorePath(service.StarterPlayer:FindFirstChild("StarterPlayerScripts"))
+
+		local LocalPlayer = service.Players.LocalPlayer
+		if LocalPlayer then
+			ignorePath(LocalPlayer:FindFirstChild("PlayerScripts"))
 		end
 	end
 
 	local InstancesOverrides = {}
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
-		ArrayToDictionary(OPTIONS.DecompileIgnore, true),
-		ArrayToDictionary(OPTIONS.IgnoreList, true),
-		ArrayToDictionary(OPTIONS.IgnoreProperties),
-		ArrayToDictionary(OPTIONS.NotCreatableFixes, true, "Folder")
+		ArrayToDict(OPTIONS.DecompileIgnore, true),
+		ArrayToDict(OPTIONS.IgnoreList, true),
+		ArrayToDict(OPTIONS.IgnoreProperties),
+		ArrayToDict(OPTIONS.NotCreatableFixes, true, "Folder")
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
@@ -1639,10 +1970,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		gethiddenproperty = nil
 	end
 
-	local SaveNonCreatable = OPTIONS.SaveNonCreatable
+	local SaveNotCreatable = OPTIONS.SaveNotCreatable
 	local TreatUnionsAsParts = OPTIONS.TreatUnionsAsParts
 
 	local DecompileJobless = OPTIONS.DecompileJobless
+	if DecompileJobless then
+		OPTIONS.scriptcache = true
+	end
 	local ScriptCache = OPTIONS.scriptcache and getscriptbytecode
 
 	local Timeout = OPTIONS.timeout
@@ -1652,7 +1986,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local ldeccache = GLOBAL_ENV.scriptcache
 
-	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNonCreatableWillBeEnabled, RecoveredScripts
+	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNotCreatableWillBeEnabled, RecoveredScripts
+
+	if OPTIONS.ReadMe then
+		RecoveredScripts = {}
+	end
 
 	if ScriptCache and not ldeccache then
 		ldeccache = {}
@@ -1698,7 +2036,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"NilInstances",
 				}
 			do
-				if CustomOptions[key] == nil and CustomOptions[GetAlias(key)] == nil then
+				if CustomOptions_valid[key] == nil then
 					OPTIONS[key] = false
 				end
 			end
@@ -1730,7 +2068,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if not ToSaveInstance then
 				local Children = TempRoot:GetChildren()
 				if 0 < #Children then
-					local tmp_dict = ArrayToDictionary(tmp)
+					local tmp_dict = ArrayToDict(tmp)
 					for _, child in next, Children do
 						if not tmp_dict[child] then
 							table.insert(tmp, child)
@@ -1742,7 +2080,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- if IsolatePlayers then
 			-- 	table.insert(_list_0, "Players")
 			-- end
-			local tmp_dict = ArrayToDictionary(tmp)
+			local tmp_dict = ArrayToDict(tmp)
 
 			for _, serviceName in
 				next,
@@ -1762,13 +2100,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					"StarterPlayer",
 					"Teams",
 					"SoundService",
-					"TextChatService",
 					"Chat",
+					"TextChatService",
 
+					"LocalizationService", -- For LocalizationTables
 					-- "InsertService",
 					"JointsService",
 
-					"LocalizationService", -- For LocalizationTables
 					-- "TestService",
 					-- "VoiceChatService",
 				}
@@ -1893,11 +2231,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function construct_TimeoutHandler(timeout, f, timeout_ret)
-		return function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
-			if timeout < 0 then
-				return pcall(f, script)
-			end
-
+		return timeout < 0 and function(script)
+			return pcall(f, script)
+		end or function(script) -- TODO Ideally use ... (vararg) instead of `script` in case this is reused for something other than `decompile` & `getscriptbytecode`
 			local thread = coroutine.running()
 			local timeoutThread, isCancelled
 
@@ -1943,7 +2279,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do
-		local Decompiler = OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
+		local Decompiler = decompile --OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
 
 		-- if Decompiler == custom_decompiler then -- Cope
 		-- 	local key = "DecompileTimeout"
@@ -1965,17 +2301,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			ldecompile = function(script)
 				-- local name = scr.ClassName .. scr.Name
-				local hashed_bytecode
+				local bytecode
 				if ScriptCache then
-					local s, bytecode = getbytecode(script) -- 	TODO This is awful because we already do this in Custom Decomp (when we are using it, that is)
+					local s
+					s, bytecode = getbytecode(script)
 					local cached
 
 					if s then
 						if not bytecode or bytecode == "" then
 							return "-- The Script is Empty"
 						end
-						hashed_bytecode = sha384(bytecode)
-						cached = ldeccache[hashed_bytecode]
+						cached = ldeccache[bytecode]
+					else
+						bytecode = nil
 					end
 
 					if cached then
@@ -1983,10 +2321,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							__DEBUG_MODE("Found in Cache", script:GetFullName())
 						end
 						return cached
-					elseif DecompileJobless then
-						return "-- Not found in already decompiled ScriptCache"
 					end
 				else
+					if DecompileJobless then
+						return "-- Not found in already decompiled ScriptCache"
+					end
+
 					task.wait() -- TODO Maybe remove?
 				end
 
@@ -2003,8 +2343,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					output = "--[[ Failed to decompile. Reason:\n" .. (result or "") .. "\n]]"
 				end
 
-				if ScriptCache and hashed_bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
-					ldeccache[hashed_bytecode] = output -- ? Should we cache even if it timed out?
+				if ScriptCache and bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
+					ldeccache[bytecode] = output -- ? Should we cache even if it timed out?
 					if __DEBUG_MODE then
 						__DEBUG_MODE("Cached", script:GetFullName())
 					end
@@ -2033,7 +2373,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return true
 	end
 
-	local function replaceClassName(instance, InstanceName, ClassName, newClassName)
+	local function replaceClassName(instance, InstanceName, ClassName)
 		local InstanceOverride
 		if InstanceName ~= ClassName then -- TODO Compare against default instance instead (TouchTransmitter is called TouchInterest by default)
 			InstanceOverride = InstancesOverrides[instance]
@@ -2042,11 +2382,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				InstancesOverrides[instance] = InstanceOverride
 			end
 		end
-		return newClassName, InstanceOverride
-	end
-
-	local function getsafeproperty(instance, propertyName)
-		return instance[propertyName]
+		return InstanceOverride
 	end
 
 	local function filterPropVal(result, propertyName, category) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
@@ -2054,10 +2390,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			or result == "can't get value"
 			or type(result) == "string"
 				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
-	end
-
-	local function unfilterPropVal(category, optional)
-		return category ~= "Class" and not optional
 	end
 
 	local __BREAK = "__BREAK" .. service.HttpService:GenerateGUID(false)
@@ -2093,7 +2425,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if filterPropVal(raw, propertyName, category) then
 					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
 
-					if result ~= nil or unfilterPropVal(category, optional) then
+					if result ~= nil or not optional then
 						if __DEBUG_MODE then
 							__DEBUG_MODE("Filtered", propertyName)
 						end
@@ -2108,7 +2440,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if CanRead then
 				raw = instance[propertyName]
 			else -- Assuming CanRead == nil (untested)
-				local ok, result = pcall(getsafeproperty, instance, propertyName)
+				local ok, result = pcall(index, instance, propertyName)
 
 				if ok then
 					raw = result
@@ -2134,14 +2466,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function ReturnItem(className, instance)
-		local ref = referents[instance]
-		if not ref then
-			ref = ref_size
-			referents[instance] = ref
-			ref_size = ref_size + 1
-		end
-
-		return '<Item class="' .. className .. '" referent="' .. ref .. '"><Properties>' -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is Enabled OR If all properties are default (reduces file size by at least 1.4%)
+		return '<Item class="' .. className .. '" referent="' .. GetRef(instance) .. '"><Properties>' -- TODO: Ideally this shouldn't return <Properties> as well as the line below to close it IF  IgnorePropertiesOfNotScriptsOnScriptsMode is Enabled OR If all properties are default (reduces file size by at least 1.4%)
 	end
 
 	local function ReturnProperty(tag, propertyName, value)
@@ -2283,14 +2608,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					local Fix = NotCreatableFixes[ClassName]
 
 					if Fix then
-						if SaveNonCreatable then
-						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, Fix)
+						if SaveNotCreatable then
+							ClassName, InstanceOverride = Fix, replaceClassName(instance, InstanceName, ClassName)
 						else
 							break -- They won't show up in Studio anyway (Enable SaveNonCreatable if you wish to bypass this)
 						end
 					else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
 						if TreatUnionsAsParts and instance:IsA("PartOperation") then
-						ClassName, InstanceOverride = replaceClassName(instance, InstanceName, ClassName, "Part")
+							ClassName, InstanceOverride = "Part", replaceClassName(instance, InstanceName, ClassName)
 							ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
 						elseif not ClassList[ClassName] then -- ? API Dump is outdated then
 							if __DEBUG_MODE then
@@ -2305,9 +2630,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				if not InstanceOverride then
 					InstanceOverride = InstancesOverrides[instance]
-				end
-				if ClassName == "" then -- * FilteredSelection
-					ClassName = "Folder"
 				end
 
 				-- ? The reason we only save .Name (and few other props in save_specific) is because
@@ -2328,20 +2650,31 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							if not default_instance then
 								local ClassTags = ClassList[ClassName].Tags
 								if not (ClassTags and ClassTags.NotCreatable) then -- __api_dump_class_not_creatable__ also indicates this
-									new_def_inst = Instance.new(ClassName) -- ! Assuming anything that doesn't have NotCreatable is possible to create (therefore no pcall)
+								-- NotCreatableFixes are exceptions to the check above meaning if we don't keep the NotCreatableFixes updated then Instance.new below might start erroring in the future potentially; HOWEVER IsPropertyModified solves this issue and no updates are really needed as NotCreatableFixes is up-to-date as of VERSION-HERE (which is when IPM gets enabled)
+								local ok, result = pcall(Instance.new, ClassName) -- ! pcall is needed for level 3 execs (for example TestService); EXCEPTION NOTED ABOVE (irrelevant)
+
+								if ok then
+									new_def_inst = result
 
 									default_instance = {}
 
 									default_instances[ClassName] = default_instance
 								elseif __DEBUG_MODE then
+									__DEBUG_MODE("Unable to create default Instance x2", ClassName, result)
+								end
+								elseif __DEBUG_MODE then
 									__DEBUG_MODE("Unable to create default Instance", ClassName)
 								end
 							end
 						end
-						local proplist = inherited_properties[ClassNameOverride or ClassName]
-						if not proplist then
-							proplist = GetInheritedProps(ClassNameOverride or ClassName)
-							inherited_properties[ClassNameOverride or ClassName] = proplist
+						local proplist
+						do
+							local class = ClassNameOverride or ClassName
+							proplist = inherited_properties[class]
+							if not proplist then
+								proplist = GetInheritedProps(class)
+								inherited_properties[class] = proplist
+							end
 						end
 						for _, Property in next, proplist do
 							repeat
@@ -2357,15 +2690,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									break
 								end
 
-								local Category, Optional, Special =
-									Property.Category, Property.Optional, Property.Special
+								local Special, Category, Optional =
+									Property.Special, Property.Category, Property.Optional
 
 								local raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
 
 								if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
 									local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
 
-							if result == nil and unfilterPropVal(Category, Optional) then
+									if result == nil and not Optional then
 										ok = nil
 									end
 
@@ -2404,12 +2737,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									and not (PropertyName == "Source" and isLuaSourceContainer(instance))
 								then -- ? Could be not just "Source" in the future
 									if new_def_inst then
-										default_instance[PropertyName] = getsafeproperty(new_def_inst, PropertyName)
+										default_instance[PropertyName] = index(new_def_inst, PropertyName)
 									end
 									if default_instance[PropertyName] == raw then
 										break
 									end
-									-- local ok, IsModified = pcall(IsPropertyModified, instance, PropertyName) -- ? Not yet enabled lol (580)
 								end
 
 								-- Serialization start
@@ -2418,7 +2750,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								if Category == "Class" then
 									tag = "Ref"
 									if raw then
-										if SaveNonCreatableWillBeEnabled then
+										if SaveNotCreatableWillBeEnabled then
 											local Fix = NotCreatableFixes[raw.ClassName]
 											if
 												Fix
@@ -2432,12 +2764,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 											end
 										end
 
-										value = referents[raw]
-										if not value then
-											value = ref_size
-											referents[raw] = value
-											ref_size = ref_size + 1
-										end
+										value = GetRef(raw)
 									else
 										value = "null"
 									end
@@ -2467,40 +2794,47 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 													local Path = instance:GetFullName()
 													if RecoveredScripts then
 														table.insert(RecoveredScripts, Path)
-													else
-														RecoveredScripts = { Path }
 													end
 
 													LinkedSource = string.match(LinkedSource_Url, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
 													if LinkedSource then
-														local cached = ldeccache[LinkedSource]
+														if ScriptCache then
+															local cached = ldeccache[LinkedSource]
 
-														if cached then
-															value = cached
-															should_decompile = nil
-														elseif DecompileJobless then
-															value = "-- Not found in already decompiled ScriptCache"
-															should_decompile = nil
+															if cached then
+																value = cached
+																should_decompile = nil
+															end
 														end
+														if should_decompile then
+															if DecompileJobless then
+																value = "-- Not found in LinkedSource ScriptCache"
+																should_decompile = nil
+															end
 
-												LinkedSource_type = string.find(LinkedSource, "%a") and "hash" or "id"
+															LinkedSource_type = string.find(LinkedSource, "%a")
+																	and "hash"
+																or "id"
 
-														local asset = LinkedSource_type .. "=" .. LinkedSource
+															local asset = LinkedSource_type .. "=" .. LinkedSource
 
-														local source
-														local ok = pcall(function()
-															-- Credits @halffalse
-															source = game:HttpGet(
-																"https://assetdelivery.roproxy.com/v1/asset/?" .. asset
-															)
-														end)
+															local ok, source = pcall(function()
+																-- Credits @halffalse
+																return game:HttpGet(
+																	"https://assetdelivery.roproxy.com/v1/asset/?"
+																		.. asset
+																)
+															end)
 
-												if ok and filterLinkedSource(source) then
-															ldeccache[LinkedSource] = source
+															if ok and filterLinkedSource(source) then
+																if ScriptCache then
+																	ldeccache[LinkedSource] = source
+																end
 
-															value = source
+																value = source
 
-															should_decompile = nil
+																should_decompile = nil
+															end
 														end
 													else --if __DEBUG_MODE then -- * We print this anyway because very important
 														warn(
@@ -2521,7 +2855,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 															and instance.RunContext ~= Enum.RunContext.Client
 													then
 														value =
-															"-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" --TODO: Could be not just server scripts in the future
+															"-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" -- TODO: Could be not just server scripts in the future
 													else
 														value = ldecompile(instance)
 														if SaveBytecode then
@@ -2605,20 +2939,21 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function save_game()
-		writefile(placename, "")
-
-		if IsModel then
-			savebuffer[savebuffer_size] = '<Meta name="ExplicitAutoJoints">true</Meta>'
-			savebuffer_size = savebuffer_size + 1
-		end
-		--[[
+		do
+			if IsModel then
+				--[[
 			-- ? Roblox encodes the following additional attributes. These are not required. Moreover, any defined schemas are ignored, and not required for a file to be valid: xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd"  
-			Also http can be converted to https but not sure if Roblox would decide to detect that
+			Also http can be converted to https but not sure if Roblox cares
 			-- ? <External>null</External><External>nil</External>  - <External> is a legacy concept that is no longer used.
 		]]
+				header = header .. '<Meta name="ExplicitAutoJoints">true</Meta>'
+			end
+
+			writefile(placename, header) -- TODO This is sort of useless if writefile will be used at the end (like if AlternativeWritefile and Callback are unused)
+		end
 
 		-- TODO Find a better solution for this
-		SaveNonCreatableWillBeEnabled = SaveNonCreatable
+		SaveNotCreatableWillBeEnabled = SaveNotCreatable
 			or (IsolateLocalPlayer or IsolateLocalPlayerCharacter) and IsolateLocalPlayer
 			or IsolatePlayers
 			or NilInstances and global_container.getnilinstances -- ! Make sure this accurately reflects everything below
@@ -2629,25 +2964,25 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local LocalPlayer = service.Players.LocalPlayer
 			if LocalPlayer then
 				if IsolateLocalPlayer then
-					SaveNonCreatable = true
+					SaveNotCreatable = true
 					save_extra("LocalPlayer", LocalPlayer:GetChildren())
 				end
 				if IsolateLocalPlayerCharacter then
 					local LocalPlayerCharacter = LocalPlayer.Character
 					if LocalPlayerCharacter then
-						save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren())
+						save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren(), "Model")
 					end
 				end
 			end
 		end
 
 		if IsolateStarterPlayer then
-			-- SaveNonCreatable = true -- TODO: Enable if StarterPlayerScripts or StarterCharacterScripts stop showing up in isolated folder in Studio
+			-- SaveNotCreatable = true -- TODO: Enable if StarterPlayerScripts or StarterCharacterScripts stop showing up in isolated folder in Studio
 			save_extra("StarterPlayer", service.StarterPlayer:GetChildren())
 		end
 
 		if IsolatePlayers then
-			SaveNonCreatable = true
+			SaveNotCreatable = true
 			save_extra("Players", service.Players:GetChildren())
 		end
 
@@ -2685,7 +3020,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					nil_instances_size = nil_instances_size + 1
 				end
 			end
-			SaveNonCreatable = true
+			SaveNotCreatable = true
 			save_extra("Nil Instances", nil_instances)
 		end
 
@@ -2695,7 +3030,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				nil,
 				"Script",
 				"--[[\n"
-					.. (RecoveredScripts and "\t\tIMPORTANT: Original Source of these Scripts was Recovered: " .. service.HttpService:JSONEncode(
+					.. (#RecoveredScripts ~= 0 and "\t\tIMPORTANT: Original Source of these Scripts was Recovered: " .. service.HttpService:JSONEncode(
 						RecoveredScripts
 					) .. "\n" or "")
 					.. [[
@@ -2706,7 +3041,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		ServerStorage, ServerScriptService and Server Scripts are IMPOSSIBLE to save because of FilteringEnabled.
 
-		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else. Then run `game:GetService("Players").CharacterAutoLoads = true`.
+		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else or delete them. Then run `game:GetService("Players").CharacterAutoLoads = true`.
 		And use "Play Here" to start game instead of "Play" to spawn your Character where your Camera currently is.
 
 		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s). 
@@ -2738,6 +3073,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					.. os.clock() - elapse_t
 					.. " PlaceId: "
 					.. game.PlaceId
+					.. " PlaceVersion: "
+					.. game.PlaceVersion
+					.. " Client Version: "
+					.. version()
 					.. " Executor: "
 					.. (identify_executor and table.concat({ identify_executor() }, " ") or "Unknown")
 					.. "\n]]"
@@ -2816,7 +3155,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			local Callback = OPTIONS.Callback
 			if Callback then
-				local totalstr = ""
+				local totalstr = header
 				for _, chunk in next, chunks do
 					totalstr = totalstr .. chunk.str
 				end
@@ -2847,7 +3186,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 				end
 			else
-				local totalstr = ""
+				local totalstr = header
 				for _, chunk in next, chunks do
 					totalstr = totalstr .. chunk.str
 				end
@@ -3018,7 +3357,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local anti_idle
 		if OPTIONS.AntiIdle then
 			task.spawn(function()
-				anti_idle = GetLocalPlayer().Idled:Connect(function()
+				local Idled = GetLocalPlayer().Idled
+				if getconnections then
+					for _, c in next, getconnections(Idled) do
+						if not pcall(function()
+							c:Disable()
+						end) then
+							pcall(function()
+								c:Disconnect()
+							end)
+						end
+					end
+				end
+				anti_idle = Idled:Connect(function()
 					service.VirtualInputManager:SendMouseWheelEvent(
 						service.UserInputService:GetMouseLocation().X,
 						service.UserInputService:GetMouseLocation().Y,
