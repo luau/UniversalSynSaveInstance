@@ -904,7 +904,7 @@ XML_Descriptors = {
 		return Identifier
 	end,
 	SecurityCapabilities = nil,
-	-- SystemAddress = function(raw) return raw end, -- PeerId?  -- ? Not sure
+	-- SystemAddress = function(raw) return raw end, -- PeerId? systemAddress as a string in the format "IP|Port", "|" being portDelineator, should not be '.', ':', '%', '-', '/', a number, or a-f  -- ? Not sure
 	-- TweenInfo = function(raw) -- ? Not sure
 	-- 	local __NORMALIZE_NUMBER = XML_Descriptors.__NORMALIZE_NUMBER
 	-- 	local enum = XML_Descriptors.__ENUM
@@ -960,7 +960,7 @@ XML_Descriptors = {
 	-- 		them until we have to.
 	-- 	]]
 	-- 	-- https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/roblox/LuaPackages/Packages/_Index/ApolloClientTesting/ApolloClientTesting/utilities/common/makeUniqueId.lua#L62
-	-- 	return ""
+	-- 	return raw -- seems to be string type by default
 	-- end,
 
 	Vector2 = function(raw)
@@ -1371,7 +1371,7 @@ do
 		local API_Dump
 
 		local ok, err = pcall(function()
-			if EXECUTOR_NAME == "Zenith" or EXECUTOR_NAME == "Velocity" then -- TODO Temp fix as it crashes on HttpGet for sites that return 403 code
+			if EXECUTOR_NAME == "Velocity" then -- TODO Temp fix as it crashes on HttpGet for sites that return 403 code
 				return
 			end
 
