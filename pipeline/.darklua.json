@@ -1,0 +1,35 @@
+{
+    "generator": "dense",
+    "bundle": {
+        "modules_identifier": "__DIST",
+        "require_mode": {
+			"name": "path",
+			"use_luau_configuration": true
+		}
+    },
+    "rules": [
+		"convert_local_function_to_assign",
+		"convert_index_to_field",
+		"compute_expression",
+		"filter_after_early_return",
+		"group_local_assignment",
+		"remove_comments",
+		"remove_empty_do",
+		"remove_debug_profiling",
+		"remove_function_call_parens",
+		"remove_nil_declaration",
+		"remove_spaces",
+		"remove_types",
+		"remove_unused_if_branch",
+		"remove_unused_variable",
+		"remove_unused_while",
+		{
+			"rule": "rename_variables",
+			"include_functions": true,
+			"globals": [
+				"$default",
+				"$roblox"
+			]
+		}
+	]
+}

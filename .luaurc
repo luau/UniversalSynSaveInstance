@@ -1,0 +1,13 @@
+{
+    "languageMode": "strict",
+    "lintErrors": false,
+    "typeErrors": false,
+    "lint": { "*": true , "ImportUnused": false},
+    "aliases": {
+        "src": "./src",
+        "utilities": "./src/utilities",
+        "types": "./src/types.luau",
+        "packages": "./packages",
+        "globals": "./.globals"
+    }
+}

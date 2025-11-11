@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build source",
+        "type": "shell",
+        "command": "lune",
+        "args": [
+          "run",
+          "pipeline/build",
+          "pipeline/.pcmp.json"
+        ],
+        "group": {
+          "kind": "build"
+        },
+        "problemMatcher": [],
+        "detail": "Builds and composes source with ProCMP"
+      },
+      {
+        "label": "Format src directory",
+        "type": "shell",
+        "command": "stylua",
+        "args": [
+          "--config",
+          "stylua.toml",
+          "src"
+        ],
+        "group": "build",
+        "problemMatcher": [],
+        "detail": "Formats all Lua files in the src directory using StyLua with project config"
+      }
+    ]
+  }
+  
