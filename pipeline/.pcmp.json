@@ -1,63 +1,63 @@
 {
-    "openComposedOutput": true,
+  "openComposedOutput": true,
 
-    "deployment": {
-        "enabled": true,
-        "github": {
-            "enabled": true,
-            "owner": "Axp3cter",
-            "repo": "Beehemoth"
-        }
+  "deployment": {
+    "enabled": true,
+    "github": {
+      "enabled": true,
+      "owner": "Axp3cter",
+      "repo": "UniversalSynSaveInstance"
+    }
+  },
+
+  "buildConfigs": [
+    {
+      "name": "Test",
+
+      "promptVersion": false,
+      "promptDeploy": false,
+
+      "frame": "pipeline/frame.luau",
+      "darkluaConfig": "pipeline/.darklua_debug.json",
+      "input": "tests/test.luau",
+      "output": "generated/test.client.luau"
     },
 
-    "buildConfigs": [
-        {
-            "name": "Test",
+    {
+      "name": "Debug",
 
-            "promptVersion": false,
-            "promptDeploy": false,
+      "promptVersion": false,
+      "promptDeploy": false,
 
-            "frame": "pipeline/frame.luau",
-            "darkluaConfig": "pipeline/.darklua_debug.json",
-            "input": "tests/test.luau",
-            "output": "generated/test.client.luau"
-        },
+      "frame": "pipeline/frame.luau",
+      "darkluaConfig": "pipeline/.darklua_debug.json",
+      "input": "src/init.luau",
+      "output": "generated/debug.luau"
+    },
 
-        {
-            "name": "Debug",
+    {
+      "name": "Beta",
 
-            "promptVersion": false,
-            "promptDeploy": false,
+      "promptVersion": true,
+      "promptDeploy": true,
+      "prerelease": true,
 
-            "frame": "pipeline/frame.luau",
-            "darkluaConfig": "pipeline/.darklua_debug.json",
-            "input": "src/init.luau",
-            "output": "generated/debug.luau"
-        },
+      "frame": "pipeline/frame.luau",
+      "darkluaConfig": "pipeline/.darklua.json",
+      "input": "src/init.luau",
+      "output": "generated/dist.luau"
+    },
 
-        {
-            "name": "Beta",
+    {
+      "name": "Release",
 
-            "promptVersion": true,
-            "promptDeploy": true,
-            "prerelease": true,
+      "promptVersion": true,
+      "promptDeploy": true,
 
-            "frame": "pipeline/frame.luau",
-            "darkluaConfig": "pipeline/.darklua.json",
-            "input": "src/init.luau",
-            "output": "generated/dist.luau"
-        },
-
-        {
-            "name": "Release",
-            
-            "promptVersion": true,
-            "promptDeploy": true,
-
-            "frame": "pipeline/frame.luau",
-            "darkluaConfig": "pipeline/.darklua.json",
-            "input": "src/init.luau",
-            "output": "generated/dist.luau"
-        }
-    ]
+      "frame": "pipeline/frame.luau",
+      "darkluaConfig": "pipeline/.darklua.json",
+      "input": "src/init.luau",
+      "output": "generated/dist.luau"
+    }
+  ]
 }
