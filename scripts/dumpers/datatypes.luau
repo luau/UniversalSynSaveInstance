@@ -17,7 +17,10 @@ local lib = require("../lib")
 
 -- Type Definitions
 
--- Maps type names to their serialization capability (true/false)
+--[=[
+	@class SerializationFlags
+	Maps type names to their serialization capability (true/false).
+]=]
 type SerializationFlags = { [string]: boolean }
 
 --[=[

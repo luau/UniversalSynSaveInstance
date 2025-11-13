@@ -81,7 +81,9 @@ local NotScriptable = {}
 	@return boolean -- True if serialization-related
 ]=]
 local function isSerializationNamed(name: string): boolean
-	local lower = string.lower(name)
+	local lower: string
+
+	lower = string.lower(name)
 	for _, pattern in SERIALIZATION_PATTERNS do
 		if string.find(lower, pattern) then
 			return true
@@ -316,9 +318,12 @@ local function buildOutput(
 
 	-- Sort for deterministic output
 	table.sort(combined, function(a, b)
+		local aKey: string
+		local bKey: string
+
 		if a.class == b.class then
-			local aKey = a.property or a.real or ""
-			local bKey = b.property or b.real or ""
+			aKey = a.property or a.real or ""
+			bKey = b.property or b.real or ""
 			return aKey < bKey
 		end
 		return a.class < b.class
