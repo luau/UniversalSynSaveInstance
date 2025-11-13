@@ -146,32 +146,6 @@ function Composer.composeFromFile(templatePath: string, markers: Markers): Compo
 end
 
 --[=[
-	Validates that all markers in template are provided.
-
-	Extracts all __COMPOSER.Insert(__COMPOSER.{key}) patterns from template
-	and checks if corresponding values exist in the markers dictionary.
-
-	@param template Template string to check
-	@param markers Dictionary of available markers
-	@return True if valid, or false and list of missing marker names
-]=]
-function Composer.validateMarkers(template: string, markers: Markers): (boolean, { string }?)
-	local missing: { string } = {}
-
-	for markerKey in template:gmatch("__COMPOSER%.Insert%(__COMPOSER%.([%w_]+)%)") do
-		if not markers[markerKey] then
-			table.insert(missing, markerKey)
-		end
-	end
-
-	if #missing > 0 then
-		return false, missing
-	end
-
-	return true, nil
-end
-
---[=[
 	Extracts all unique marker names from a template.
 
 	Returns each marker name only once even if it appears multiple times.

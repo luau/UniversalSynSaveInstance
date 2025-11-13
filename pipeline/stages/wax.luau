@@ -167,24 +167,4 @@ function Wax.getVersion(): string?
 	return result.stdout:match("wax v([%d%.]+)")
 end
 
---[=[
-	Detects if the input file is a Rojo project.
-
-	@param input Input file path
-	@return True if ends with .project.json
-]=]
-function Wax.isRojoProject(input: string): boolean
-	return input:match("%.project%.json$") ~= nil
-end
-
---[=[
-	Detects if the input file is a Roblox model.
-
-	@param input Input file path
-	@return True if ends with .rbxm or .rbxmx
-]=]
-function Wax.isRobloxModel(input: string): boolean
-	return input:match("%.rbxmx?$") ~= nil
-end
-
 return Wax

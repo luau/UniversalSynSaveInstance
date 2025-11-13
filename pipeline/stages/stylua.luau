@@ -104,25 +104,6 @@ function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatRe
 end
 
 --[=[
-	Formats multiple files using stylua.
-
-	Processes each file sequentially and collects results.
-
-	@param filePaths List of file paths to format
-	@param config Optional stylua configuration
-	@return List of FormatResults for each file
-]=]
-function Stylua.formatMultiple(filePaths: { string }, config: Config.StyluaConfig?): { FormatResult }
-	local results: { FormatResult } = {}
-
-	for _, filePath: string in filePaths do
-		table.insert(results, Stylua.format(filePath, config))
-	end
-
-	return results
-end
-
---[=[
 	Checks if stylua is available in the system PATH.
 
 	@return True if stylua command is available
@@ -144,63 +125,6 @@ function Stylua.getVersion(): string?
 	end
 
 	return result.stdout:match("stylua ([%d%.]+)")
-end
-
---[=[
-	Validates a stylua configuration file.
-
-	Attempts to run stylua with the config to check for errors.
-
-	@param configPath Path to config TOML file
-	@return True if valid, false and error message otherwise
-]=]
-function Stylua.validateConfig(configPath: string): (boolean, string?)
-	if not Fs.exists(configPath) then
-		return false, `Config not found: {configPath}`
-	end
-
-	local result = Process.exec("stylua", {
-		"--config-path",
-		configPath,
-		"--check",
-		configPath,
-	})
-
-	if not result.ok and result.stderr:find("config") then
-		return false, `Invalid config: {result.stderr}`
-	end
-
-	return true, nil
-end
-
---[=[
-	Checks if a file needs formatting without modifying it.
-
-	Uses stylua --check to test formatting without changing file.
-
-	@param filePath Path to file to check
-	@param config Optional stylua configuration
-	@return True if needs formatting, false if already formatted
-]=]
-function Stylua.needsFormatting(filePath: string, config: Config.StyluaConfig?): (boolean, string?)
-	if not Fs.exists(filePath) then
-		return false, `File not found: {filePath}`
-	end
-
-	local args: { string } = { "--check" }
-
-	if config and config.configPath then
-		table.insert(args, "--config-path")
-		table.insert(args, config.configPath)
-	elseif Fs.exists(DEFAULT_CONFIG_PATH) then
-		table.insert(args, "--config-path")
-		table.insert(args, DEFAULT_CONFIG_PATH)
-	end
-
-	table.insert(args, filePath)
-
-	local result = Process.exec("stylua", args)
-	return not result.ok, nil
 end
 
 return Stylua

@@ -133,13 +133,4 @@ function Compose.validateTemplate(templatePath: string): (boolean, string?)
 	return true, nil
 end
 
---[=[
-	Gets the default template path for standard builds.
-
-	@return Default template file path
-]=]
-function Compose.getDefaultTemplatePath(): string
-	return "pipeline/templates/frame.luau"
-end
-
 return Compose
