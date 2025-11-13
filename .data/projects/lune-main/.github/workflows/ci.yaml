@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Install Tooling
+        uses: CompeyDev/setup-rokit@v0.1.2
+
+      - name: Check Formatting
+        run: ./scripts/format-check.sh
+
+  analyze:
+    needs: ["fmt"]
+    name: Analyze and lint Luau files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Tooling
+        uses: CompeyDev/setup-rokit@v0.1.2
+
+      - name: Analyze
+        run: ./scripts/analyze.sh
+
+  ci:
+    needs: ["fmt"]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x86_64
+            runner-os: windows-2022
+            cargo-target: x86_64-pc-windows-msvc
+
+          - name: Windows aarch64
+            runner-os: windows-11-arm
+            cargo-target: aarch64-pc-windows-msvc
+
+          - name: Linux x86_64
+            runner-os: ubuntu-22.04
+            cargo-target: x86_64-unknown-linux-gnu
+
+          - name: Linux aarch64
+            runner-os: ubuntu-22.04-arm
+            cargo-target: aarch64-unknown-linux-gnu
+
+          - name: macOS x86_64
+            runner-os: macos-15
+            cargo-target: x86_64-apple-darwin
+
+          - name: macOS aarch64
+            runner-os: macos-15
+            cargo-target: aarch64-apple-darwin
+
+    name: CI - ${{ matrix.name }}
+    runs-on: ${{ matrix.runner-os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: ${{ matrix.cargo-target }}
+
+      - name: Install binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install nextest
+        run: cargo binstall cargo-nextest
+
+      - name: Build
+        run: |
+          cargo build --workspace \
+          --locked --all-features \
+          --target ${{ matrix.cargo-target }}
+
+      - name: Lint
+        run: |
+          cargo clippy --workspace \
+          --locked --all-features \
+          --target ${{ matrix.cargo-target }}
+
+      - name: Test
+        run: |
+          cargo nextest run --no-fail-fast \
+          --locked --all-features \
+          --target ${{ matrix.cargo-target }}

@@ -1,0 +1,1216 @@
+{
+  "counts": {
+    "notScriptable": 169,
+    "proxies": 8,
+    "serializationNamed": 51
+  },
+  "metadata": {
+    "timestamp": "2025-11-11T03:35:41",
+    "version": "latest"
+  },
+  "properties": [
+    {
+      "class": "Instance",
+      "property": "AttributesSerialize",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Instance",
+      "property": "HistoryId",
+      "valueType": "UniqueId"
+    },
+    {
+      "class": "Instance",
+      "property": "Tags",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Instance",
+      "property": "UniqueId",
+      "valueType": "UniqueId"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "articulatedJoint",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "endEffectorRotationConstraint",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "endEffectorTranslationConstraint",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "facsControl",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "label",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "name",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "parent",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "postTransform",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "preTransform",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "transform",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "AnimationRigData",
+      "property": "weight",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "StarterGui",
+      "property": "VirtualCursorMode",
+      "valueType": "VirtualCursorMode"
+    },
+    {
+      "class": "BaseWrap",
+      "property": "HSRAssetId",
+      "valueType": "Content"
+    },
+    {
+      "class": "BaseWrap",
+      "property": "HSRData",
+      "valueType": "SharedString"
+    },
+    {
+      "class": "BaseWrap",
+      "property": "HSRMeshIdData",
+      "valueType": "SharedString"
+    },
+    {
+      "class": "BaseWrap",
+      "property": "TemporaryCageMeshId",
+      "valueType": "Content"
+    },
+    {
+      "class": "WrapLayer",
+      "property": "TemporaryReferenceId",
+      "valueType": "Content"
+    },
+    {
+      "class": "BallSocketConstraint",
+      "property": "MaxFrictionTorqueXml",
+      "valueType": "float"
+    },
+    {
+      "class": "CustomEvent",
+      "property": "PersistedCurrentValue",
+      "valueType": "float"
+    },
+    {
+      "class": "DataModelMesh",
+      "property": "LODX",
+      "valueType": "LevelOfDetailSetting"
+    },
+    {
+      "class": "DataModelMesh",
+      "property": "LODY",
+      "valueType": "LevelOfDetailSetting"
+    },
+    {
+      "class": "BevelMesh",
+      "property": "Bevel",
+      "valueType": "float"
+    },
+    {
+      "class": "BevelMesh",
+      "property": "Bevel Roundness",
+      "valueType": "float"
+    },
+    {
+      "class": "BevelMesh",
+      "property": "Bulge",
+      "valueType": "float"
+    },
+    {
+      "class": "DebuggerBreakpoint",
+      "property": "line",
+      "valueType": "int"
+    },
+    {
+      "class": "Fire",
+      "property": "heat_xml",
+      "valueType": "float"
+    },
+    {
+      "class": "Fire",
+      "property": "size_xml",
+      "valueType": "float"
+    },
+    {
+      "class": "FloatCurve",
+      "property": "ValuesAndTimes",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "FunctionalTest",
+      "property": "HasMigratedSettingsToTestService",
+      "valueType": "bool"
+    },
+    {
+      "class": "GoogleAnalyticsConfiguration",
+      "property": "gaID",
+      "valueType": "string"
+    },
+    {
+      "class": "ViewportFrame",
+      "property": "CameraCFrame",
+      "valueType": "CFrame"
+    },
+    {
+      "class": "ViewportFrame",
+      "property": "CameraFieldOfView",
+      "valueType": "float"
+    },
+    {
+      "class": "HiddenSurfaceRemovalAsset",
+      "property": "HSRData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "HiddenSurfaceRemovalAsset",
+      "property": "HSRMeshIdData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Humanoid",
+      "property": "Health_XML",
+      "valueType": "float"
+    },
+    {
+      "class": "Humanoid",
+      "property": "InternalBodyScale",
+      "valueType": "Vector3"
+    },
+    {
+      "class": "Humanoid",
+      "property": "InternalHeadScale",
+      "valueType": "float"
+    },
+    {
+      "class": "HumanoidDescription",
+      "property": "AccessoryBlob",
+      "valueType": "string"
+    },
+    {
+      "class": "HumanoidDescription",
+      "property": "EmotesDataInternal",
+      "valueType": "string"
+    },
+    {
+      "class": "HumanoidDescription",
+      "property": "EquippedEmotesDataInternal",
+      "valueType": "string"
+    },
+    {
+      "class": "InsertService",
+      "property": "AllowClientInsertModels",
+      "valueType": "bool"
+    },
+    {
+      "class": "Lighting",
+      "property": "Technology",
+      "valueType": "Technology"
+    },
+    {
+      "class": "LocalizationTable",
+      "property": "Contents",
+      "valueType": "string"
+    },
+    {
+      "class": "LuaSourceContainer",
+      "property": "ScriptGuid",
+      "valueType": "string"
+    },
+    {
+      "class": "MarkerCurve",
+      "property": "ValuesAndTimes",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "MaterialService",
+      "property": "AsphaltName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "BasaltName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "BrickName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "CobblestoneName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "ConcreteName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "CorrodedMetalName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "CrackedLavaName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "DiamondPlateName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "FabricName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "FoilName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "GlacierName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "GraniteName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "GrassName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "GroundName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "IceName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "LeafyGrassName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "LimestoneName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "MarbleName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "MetalName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "MudName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "PavementName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "PebbleName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "PlasticName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "RockName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "SaltName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "SandName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "SandstoneName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "SlateName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "SmoothPlasticName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "SnowName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "Use2022MaterialsXml",
+      "valueType": "bool"
+    },
+    {
+      "class": "MaterialService",
+      "property": "WoodName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialService",
+      "property": "WoodPlanksName",
+      "valueType": "string"
+    },
+    {
+      "class": "MaterialVariant",
+      "property": "TexturePack",
+      "valueType": "Content"
+    },
+    {
+      "class": "MetaBreakpointContext",
+      "property": "ContextDataInternal",
+      "valueType": "string"
+    },
+    {
+      "class": "BasePart",
+      "property": "Color3uint8",
+      "valueType": "Color3uint8"
+    },
+    {
+      "class": "BasePart",
+      "property": "MaterialVariantSerialized",
+      "valueType": "string"
+    },
+    {
+      "class": "BasePart",
+      "property": "size",
+      "valueType": "Vector3"
+    },
+    {
+      "class": "FormFactorPart",
+      "property": "formFactorRaw",
+      "valueType": "FormFactor"
+    },
+    {
+      "class": "Part",
+      "property": "shape",
+      "valueType": "PartType"
+    },
+    {
+      "class": "Terrain",
+      "property": "AcquisitionMethod",
+      "valueType": "TerrainAcquisitionMethod"
+    },
+    {
+      "class": "Terrain",
+      "property": "Decoration",
+      "valueType": "bool"
+    },
+    {
+      "class": "Terrain",
+      "property": "MaterialColors",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Terrain",
+      "property": "PhysicsGrid",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Terrain",
+      "property": "SmoothGrid",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "TriangleMeshPart",
+      "property": "LODData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "TriangleMeshPart",
+      "property": "PhysicalConfigData",
+      "valueType": "SharedString"
+    },
+    {
+      "class": "MeshPart",
+      "property": "InitialSize",
+      "valueType": "Vector3"
+    },
+    {
+      "class": "MeshPart",
+      "property": "PhysicsData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "MeshPart",
+      "property": "VertexCount",
+      "valueType": "int"
+    },
+    {
+      "class": "PartOperation",
+      "property": "AssetId",
+      "valueType": "Content"
+    },
+    {
+      "class": "PartOperation",
+      "property": "ChildData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "PartOperation",
+      "property": "ChildData2",
+      "valueType": "SharedString"
+    },
+    {
+      "class": "PartOperation",
+      "property": "FormFactor",
+      "valueType": "FormFactor"
+    },
+    {
+      "class": "PartOperation",
+      "property": "InitialSize",
+      "valueType": "Vector3"
+    },
+    {
+      "class": "PartOperation",
+      "property": "MeshData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "PartOperation",
+      "property": "MeshData2",
+      "valueType": "SharedString"
+    },
+    {
+      "class": "PartOperation",
+      "property": "PhysicsData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "TrussPart",
+      "property": "style",
+      "valueType": "Style"
+    },
+    {
+      "class": "Model",
+      "property": "ModelMeshCFrame",
+      "valueType": "CFrame"
+    },
+    {
+      "class": "Model",
+      "property": "ModelMeshData",
+      "valueType": "SharedString"
+    },
+    {
+      "class": "Model",
+      "property": "ModelMeshSize",
+      "valueType": "Vector3"
+    },
+    {
+      "class": "Model",
+      "property": "NeedsPivotMigration",
+      "valueType": "bool"
+    },
+    {
+      "class": "Model",
+      "property": "WorldPivotData",
+      "valueType": "OptionalCoordinateFrame"
+    },
+    {
+      "class": "Workspace",
+      "property": "AnimationWeightedBlendFix",
+      "valueType": "NewAnimationRuntimeSetting"
+    },
+    {
+      "class": "Workspace",
+      "property": "CollisionGroupData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Workspace",
+      "property": "ExplicitAutoJoints",
+      "valueType": "bool"
+    },
+    {
+      "class": "Workspace",
+      "property": "HumanoidOnlySetCollisionsOnStateChange",
+      "valueType": "HumanoidOnlySetCollisionsOnStateChange"
+    },
+    {
+      "class": "Workspace",
+      "property": "MeshPartHeadsAndAccessories",
+      "valueType": "MeshPartHeadsAndAccessories"
+    },
+    {
+      "class": "Workspace",
+      "property": "PhysicsSteppingMethod",
+      "valueType": "PhysicsSteppingMethod"
+    },
+    {
+      "class": "Workspace",
+      "property": "ReplicateInstanceDestroySetting",
+      "valueType": "ReplicateInstanceDestroySetting"
+    },
+    {
+      "class": "Workspace",
+      "property": "SignalBehavior",
+      "valueType": "SignalBehavior"
+    },
+    {
+      "class": "Workspace",
+      "property": "StreamOutBehavior",
+      "valueType": "StreamOutBehavior"
+    },
+    {
+      "class": "Workspace",
+      "property": "StreamingIntegrityMode",
+      "valueType": "StreamingIntegrityMode"
+    },
+    {
+      "class": "Workspace",
+      "property": "StreamingMinRadius",
+      "valueType": "int"
+    },
+    {
+      "class": "Workspace",
+      "property": "StreamingTargetRadius",
+      "valueType": "int"
+    },
+    {
+      "class": "Workspace",
+      "property": "TerrainWeldsFixed",
+      "valueType": "bool"
+    },
+    {
+      "class": "Workspace",
+      "property": "TouchesUseCollisionGroups",
+      "valueType": "bool"
+    },
+    {
+      "class": "Workspace",
+      "property": "UnionsScaleNonuniformly",
+      "valueType": "UnionsScaleNonuniformly"
+    },
+    {
+      "class": "PackageLink",
+      "property": "AutoUpdate",
+      "valueType": "bool"
+    },
+    {
+      "class": "PackageLink",
+      "property": "ModifiedState",
+      "valueType": "int"
+    },
+    {
+      "class": "PackageLink",
+      "property": "PackageIdSerialize",
+      "valueType": "Content"
+    },
+    {
+      "class": "PackageLink",
+      "property": "VersionIdSerialize",
+      "valueType": "int64"
+    },
+    {
+      "class": "PartOperationAsset",
+      "property": "ChildData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "PartOperationAsset",
+      "property": "MeshData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Player",
+      "property": "RawJoinData",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "Player",
+      "property": "ReplicatedLocaleId",
+      "valueType": "string"
+    },
+    {
+      "class": "Players",
+      "property": "UseStrafingAnimations",
+      "valueType": "bool"
+    },
+    {
+      "class": "RotationCurve",
+      "property": "ValuesAndTimes",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "ScriptDebugger",
+      "property": "CoreScriptIdentifier",
+      "valueType": "string"
+    },
+    {
+      "class": "ScriptDebugger",
+      "property": "ScriptGuid",
+      "valueType": "string"
+    },
+    {
+      "class": "ServerScriptService",
+      "property": "LoadStringEnabled",
+      "valueType": "bool"
+    },
+    {
+      "class": "Smoke",
+      "property": "opacity_xml",
+      "valueType": "float"
+    },
+    {
+      "class": "Smoke",
+      "property": "riseVelocity_xml",
+      "valueType": "float"
+    },
+    {
+      "class": "Smoke",
+      "property": "size_xml",
+      "valueType": "float"
+    },
+    {
+      "class": "Sound",
+      "property": "xmlRead_MaxDistance_3",
+      "valueType": "float"
+    },
+    {
+      "class": "SoundService",
+      "property": "VolumetricAudio",
+      "valueType": "VolumetricAudio"
+    },
+    {
+      "class": "StarterPlayer",
+      "property": "EnableDynamicHeads",
+      "valueType": "LoadDynamicHeads"
+    },
+    {
+      "class": "StarterPlayer",
+      "property": "LoadCharacterLayeredClothing",
+      "valueType": "LoadCharacterLayeredClothing"
+    },
+    {
+      "class": "TerrainDetail",
+      "property": "TexturePack",
+      "valueType": "Content"
+    },
+    {
+      "class": "TerrainRegion",
+      "property": "ExtentsMax",
+      "valueType": "Vector3int16"
+    },
+    {
+      "class": "TerrainRegion",
+      "property": "ExtentsMin",
+      "valueType": "Vector3int16"
+    },
+    {
+      "class": "TerrainRegion",
+      "property": "SmoothGrid",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "UnvalidatedAssetService",
+      "property": "CachedData",
+      "valueType": "string"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "CompletedTutorials",
+      "valueType": "string"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "ComputerCameraMovementChanged",
+      "valueType": "bool"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "ComputerMovementChanged",
+      "valueType": "bool"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "StartMaximized",
+      "valueType": "bool"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "StartScreenPosition",
+      "valueType": "Vector2"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "StartScreenSize",
+      "valueType": "Vector2"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "TouchCameraMovementChanged",
+      "valueType": "bool"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "TouchMovementChanged",
+      "valueType": "bool"
+    },
+    {
+      "class": "UserGameSettings",
+      "property": "gaID",
+      "valueType": "string"
+    },
+    {
+      "class": "BinaryStringValue",
+      "property": "Value",
+      "valueType": "BinaryString"
+    },
+    {
+      "class": "DoubleConstrainedValue",
+      "property": "value",
+      "valueType": "double"
+    },
+    {
+      "class": "IntConstrainedValue",
+      "property": "value",
+      "valueType": "int64"
+    },
+    {
+      "class": "WeldConstraint",
+      "property": "CFrame0",
+      "valueType": "CFrame"
+    },
+    {
+      "class": "WeldConstraint",
+      "property": "Part0Internal",
+      "valueType": "BasePart"
+    },
+    {
+      "class": "WeldConstraint",
+      "property": "Part1Internal",
+      "valueType": "BasePart"
+    },
+    {
+      "class": "WeldConstraint",
+      "property": "State",
+      "valueType": "int"
+    }
+  ],
+  "proxies": [
+    {
+      "class": "DataModelMesh",
+      "enumType": "LevelOfDetailSetting",
+      "proxy": "LODX",
+      "real": "LODY"
+    },
+    {
+      "class": "FormFactorPart",
+      "enumType": "FormFactor",
+      "proxy": "FormFactor",
+      "real": "formFactorRaw"
+    },
+    {
+      "class": "FormFactorPart",
+      "enumType": "FormFactor",
+      "proxy": "formFactor",
+      "real": "formFactorRaw"
+    },
+    {
+      "class": "Part",
+      "enumType": "PartType",
+      "proxy": "Shape",
+      "real": "shape"
+    },
+    {
+      "class": "Part",
+      "enumType": "PartType",
+      "proxy": "shap",
+      "real": "shape"
+    },
+    {
+      "class": "Terrain",
+      "enumType": "TerrainAcquisitionMethod",
+      "proxy": "LastUsedModificationMethod",
+      "real": "AcquisitionMethod"
+    },
+    {
+      "class": "TrussPart",
+      "enumType": "Style",
+      "proxy": "Style",
+      "real": "style"
+    },
+    {
+      "class": "StarterPlayer",
+      "enumType": "LoadCharacterLayeredClothing",
+      "proxy": "LoadCharacterLayeredClothing ",
+      "real": "LoadCharacterLayeredClothing"
+    }
+  ],
+  "serializationNamed": [
+    {
+      "class": "Instance",
+      "property": "AttributesReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Instance",
+      "property": "AttributesSerialize",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "BallSocketConstraint",
+      "property": "MaxFrictionTorqueXml",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Fire",
+      "property": "heat_xml",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Fire",
+      "property": "size_xml",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Folder",
+      "property": "ReplicatedGuiInsertionOrder",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "GuiBase2d",
+      "property": "ReplicatedInsertionOrder",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "VideoFrame",
+      "property": "PlayingReplicating",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "VideoFrame",
+      "property": "TimePositionReplicating",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Humanoid",
+      "property": "Health_XML",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Humanoid",
+      "property": "InternalBodyScale",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Humanoid",
+      "property": "InternalHeadScale",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Humanoid",
+      "property": "InternalOriginalHipHeight",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Humanoid",
+      "property": "JumpReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Humanoid",
+      "property": "MoveDirectionInternal",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "HumanoidDescription",
+      "property": "EmotesDataInternal",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "HumanoidDescription",
+      "property": "EquippedEmotesDataInternal",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "MaterialService",
+      "property": "Use2022MaterialsXml",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "MetaBreakpointContext",
+      "property": "ContextDataInternal",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "NetworkSettings",
+      "property": "IncomingReplicationLag",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "BasePart",
+      "property": "CollisionGroupReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "BasePart",
+      "property": "MaterialVariantSerialized",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "MeshPart",
+      "property": "RenderFidelityReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Workspace",
+      "property": "ReplicateInstanceDestroySetting",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "PackageLink",
+      "property": "PackageIdSerialize",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "PackageLink",
+      "property": "VersionIdSerialize",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "PhysicsSettings",
+      "property": "AreTerrainReplicationRegionsShown",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "Player",
+      "property": "AccountAgeReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Player",
+      "property": "CountryRegionCodeReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Player",
+      "property": "FollowUserIdReplicated",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Player",
+      "property": "InternalCharacterAppearanceLoaded",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Player",
+      "property": "MembershipTypeReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Player",
+      "property": "ReplicatedLocaleId",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Player",
+      "property": "ReplicatedLocaleIdInternal",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Player",
+      "property": "ReplicationFocus",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "Player",
+      "property": "SuperSafeChatReplicate",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "PlayerEmulatorService",
+      "property": "SerializedEmulatedPolicyInfo",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "Players",
+      "property": "MaxPlayersInternal",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "Players",
+      "property": "PreferredPlayersInternal",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "Smoke",
+      "property": "opacity_xml",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Smoke",
+      "property": "riseVelocity_xml",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Smoke",
+      "property": "size_xml",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Sound",
+      "property": "PlayingReplicator",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Sound",
+      "property": "TimePositionReplicator",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Sound",
+      "property": "xmlRead_MaxDistance_3",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "Sound",
+      "property": "xmlRead_MinDistance_3",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "Studio",
+      "property": "Enable Internal Beta Features",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "Studio",
+      "property": "Enable Internal Features",
+      "scriptable": true,
+      "serializable": true
+    },
+    {
+      "class": "TextSource",
+      "property": "UserIdReplicated",
+      "scriptable": false,
+      "serializable": false
+    },
+    {
+      "class": "WeldConstraint",
+      "property": "Part0Internal",
+      "scriptable": false,
+      "serializable": true
+    },
+    {
+      "class": "WeldConstraint",
+      "property": "Part1Internal",
+      "scriptable": false,
+      "serializable": true
+    }
+  ]
+}

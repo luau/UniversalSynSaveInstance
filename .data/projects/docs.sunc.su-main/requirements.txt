@@ -1,0 +1,4 @@
+mkdocs-material
+mkdocs-git-revision-date-localized-plugin
+pygments
+mkdocs-git-committers-plugin-2

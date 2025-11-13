@@ -1,0 +1,23 @@
+[package]
+name = "lune-utils"
+version = "0.3.4"
+edition = "2024"
+license = "MPL-2.0"
+repository = "https://github.com/lune-org/lune"
+description = "Utilities library for Lune"
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+mlua = { version = "0.11.4", features = ["luau", "async"] }
+
+console = "0.16"
+dunce = "1.0"
+os_str_bytes = { version = "7.0", features = ["conversions"] }
+path-clean = "1.0"
+parking_lot = "0.12.3"
+semver = "1.0"

@@ -1,0 +1,23 @@
+[package]
+name = "lune-std-fs"
+version = "0.3.4"
+edition = "2024"
+license = "MPL-2.0"
+repository = "https://github.com/lune-org/lune"
+description = "Lune standard library - FS"
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+mlua = { version = "0.11.4", features = ["luau"] }
+
+async-fs = "2.1"
+bstr = "1.9"
+futures-lite = "2.6"
+
+lune-utils = { version = "0.3.4", path = "../lune-utils" }
+lune-std-datetime = { version = "0.3.4", path = "../lune-std-datetime" }

@@ -1,0 +1,64 @@
+[package]
+name = "mlua-luau-scheduler"
+version = "0.2.3"
+edition = "2024"
+license = "MPL-2.0"
+repository = "https://github.com/lune-org/lune"
+description = "Luau-based async scheduler, using mlua and async-executor"
+readme = "README.md"
+keywords = ["async", "luau", "scheduler"]
+categories = ["asynchronous"]
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+async-executor = "1.13"
+blocking = "1.6"
+futures-lite = "2.6"
+rustc-hash = "2.1"
+tracing = "0.1"
+
+mlua = { version = "0.11.4", features = [
+    "luau",
+    "luau-jit",
+    "async",
+    "serialize",
+] }
+
+[dev-dependencies]
+async-fs = "2.1"
+async-io = "2.4"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-tracy = "0.11"
+
+[[example]]
+name = "basic_sleep"
+test = true
+
+[[example]]
+name = "basic_spawn"
+test = true
+
+[[example]]
+name = "callbacks"
+test = true
+
+[[example]]
+name = "exit_code"
+test = true
+
+[[example]]
+name = "lots_of_threads"
+test = true
+
+[[example]]
+name = "scheduler_ordering"
+test = true
+
+[[example]]
+name = "tracy"
+test = false

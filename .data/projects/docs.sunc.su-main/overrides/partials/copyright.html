@@ -1,0 +1,158 @@
+<p>
+    <strong>&copy; <span id="nml-copyright-year">2025</span> sUNC - All Rights Reserved.</strong>
+    <br>
+    This documentation is the rightful work of generous sUNC contributors and maintainers, who strive to keep everything
+    clear, accurate, and helpful.
+</p>
+
+<p style="font-size: 0.85em; color: var(--copyright-accent-colour);">
+    This domain and documentation site are the result of a collaboration between sUNC and the <strong>Numelon
+        Bespoke</strong> service by <a href="https://numelon.com" target="_blank"
+        style="color: var(--md-primary-fg-color); text-decoration: none;">Numelon Ltd.</a> - a company incorporated in
+    England and Wales
+    under No.
+    15801378.
+</p>
+
+<style>
+    @keyframes grow-alien {
+        0% {
+            transform: scale(0.05);
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+</style>
+
+<!-- NOTE -->
+<!-- For the Nue Programming Language documentation, replace this with the nue logo. -->
+<!-- Every time you click the nue logo, it will pulse (slightly get bigger then go back to the original side) -->
+<!-- When you start to spam click, the nue logo gets bigger until it explodes and your entire page gets filled with small Nue logos that fall down the page -->
+<!-- then the page would refresh -->
+<img id="dancing-alien" src="../../../../../../../../../../assets/dancing-alienchik.webp" style="cursor:pointer">
+
+<style>
+    @keyframes grow-alien {
+        0% {
+            transform: scale(0.05);
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes spin-rays {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .divine-rays {
+        position: absolute;
+        width: 200vmax;
+        height: 200vmax;
+        background: conic-gradient(from 0deg,
+                #c08e33 0deg 15deg,
+                #966e47 15deg 30deg,
+                #c08e33 30deg 45deg,
+                #966e47 45deg 60deg,
+                #c08e33 60deg 75deg,
+                #966e47 75deg 90deg,
+                #c08e33 90deg 105deg,
+                #966e47 105deg 120deg,
+                #c08e33 120deg 135deg,
+                #966e47 135deg 150deg,
+                #c08e33 150deg 165deg,
+                #966e47 165deg 180deg,
+                #c08e33 180deg 195deg,
+                #966e47 195deg 210deg,
+                #c08e33 210deg 225deg,
+                #966e47 225deg 240deg,
+                #c08e33 240deg 255deg,
+                #966e47 255deg 270deg,
+                #c08e33 270deg 285deg,
+                #966e47 285deg 300deg,
+                #c08e33 300deg 315deg,
+                #966e47 315deg 330deg,
+                #c08e33 330deg 345deg,
+                #966e47 345deg 360deg);
+        border-radius: 50%;
+        animation: spin-rays 20s linear infinite;
+        z-index: 1;
+        filter: blur(5px) brightness(1.2);
+    }
+</style>
+
+<script>
+    document.getElementById("nml-copyright-year").textContent = new Date().getFullYear();
+
+    const alien = document.getElementById("dancing-alien");
+    alien.addEventListener("click", () => {
+        // Overlay
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.width = "100vw";
+        overlay.style.height = "100vh";
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.96)";
+        overlay.style.zIndex = "9999";
+        overlay.style.display = "flex";
+        overlay.style.justifyContent = "center";
+        overlay.style.alignItems = "center";
+        overlay.style.overflow = "hidden";
+
+        const container = document.createElement("div");
+        container.style.position = "relative";
+        container.style.width = "100vw";
+        container.style.height = "100vh";
+        container.style.display = "flex";
+        container.style.justifyContent = "center";
+        container.style.alignItems = "center";
+
+        const rays = document.createElement("div");
+        rays.className = "divine-rays";
+        container.appendChild(rays);
+
+        const bigAlien = document.createElement("img");
+        bigAlien.src = alien.src;
+        bigAlien.style.width = "100vw";
+        bigAlien.style.height = "100vh";
+        bigAlien.style.objectFit = "contain";
+        bigAlien.style.animation = "grow-alien 20s ease-in-out forwards";
+        bigAlien.style.transformOrigin = "center";
+        bigAlien.style.imageRendering = "pixelated";
+        bigAlien.style.zIndex = "2";
+        container.appendChild(bigAlien);
+
+        const iframe = document.createElement("iframe");
+        iframe.src = "https://www.youtube.com/embed/7VHbSCJyxyE?autoplay=1";
+        iframe.allow = "autoplay";
+        iframe.style.display = "none";
+        overlay.appendChild(iframe);
+
+        overlay.appendChild(container);
+        document.body.appendChild(overlay);
+
+        setTimeout(() => {
+            location.reload();
+        }, 20000);
+    });
+</script>

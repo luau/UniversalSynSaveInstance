@@ -1,0 +1,2318 @@
+{
+  "counts": {
+    "interesting": 284,
+    "notCreatable": 46
+  },
+  "metadata": {
+    "timestamp": "2025-11-11T03:18:20",
+    "version": "latest"
+  },
+  "notCreatableWithDefaults": [
+    {
+      "class": "AssetDeliveryProxy",
+      "default": "0",
+      "property": "Port"
+    },
+    {
+      "class": "AssetPatchSettings",
+      "default": "",
+      "property": "PatchId"
+    },
+    {
+      "class": "PlayerGui",
+      "default": "LandscapeLeft",
+      "property": "CurrentScreenOrientation"
+    },
+    {
+      "class": "Chat",
+      "default": "false",
+      "property": "BubbleChatEnabled"
+    },
+    {
+      "class": "DataStoreService",
+      "default": "true",
+      "property": "AutomaticRetry"
+    },
+    {
+      "class": "DebuggerBreakpoint",
+      "default": "0",
+      "property": "Line"
+    },
+    {
+      "class": "FaceAnimatorService",
+      "default": "false",
+      "property": "FlipHeadOrientation"
+    },
+    {
+      "class": "FacialAnimationRecordingService",
+      "default": "false",
+      "property": "BiometricDataConsent"
+    },
+    {
+      "class": "FacialAnimationStreamingService",
+      "default": "None",
+      "property": "EnableFlags"
+    },
+    {
+      "class": "FacialAnimationStreamingServiceV2",
+      "default": "0",
+      "property": "ServiceState"
+    },
+    {
+      "class": "GamepadService",
+      "default": "false",
+      "property": "GamepadCursorEnabled"
+    },
+    {
+      "class": "DockWidgetPluginGui",
+      "default": "false",
+      "property": "HostWidgetWasRestored"
+    },
+    {
+      "class": "HttpService",
+      "default": "false",
+      "property": "HttpEnabled"
+    },
+    {
+      "class": "IncrementalPatchBuilder",
+      "default": "false",
+      "property": "HighCompression"
+    },
+    {
+      "class": "InputObject",
+      "default": "None",
+      "property": "UserInputType"
+    },
+    {
+      "class": "InsertService",
+      "default": "false",
+      "property": "AllowInsertFreeModels"
+    },
+    {
+      "class": "Lighting",
+      "default": "14",
+      "property": "ClockTime"
+    },
+    {
+      "class": "LocalizationService",
+      "default": "",
+      "property": "GameSourceLanguageId"
+    },
+    {
+      "class": "LodDataEntity",
+      "default": "0, 0, 0",
+      "property": "EntityScale"
+    },
+    {
+      "class": "MaterialService",
+      "default": "Granite",
+      "property": "GraniteName"
+    },
+    {
+      "class": "MetaBreakpoint",
+      "default": "true",
+      "property": "Enabled"
+    },
+    {
+      "class": "MetaBreakpointContext",
+      "default": "0 1 2 ",
+      "property": "ContextDataInternal"
+    },
+    {
+      "class": "Terrain",
+      "default": "",
+      "property": "MaterialColors"
+    },
+    {
+      "class": "PackageLink",
+      "default": "",
+      "property": "PackageId"
+    },
+    {
+      "class": "PathfindingService",
+      "default": "0",
+      "property": "EmptyCutoff"
+    },
+    {
+      "class": "PlayerEmulatorService",
+      "default": "false",
+      "property": "CustomPoliciesEnabled"
+    },
+    {
+      "class": "PolicyService",
+      "default": "Unknown",
+      "property": "LuobuWhitelisted"
+    },
+    {
+      "class": "ScriptContext",
+      "default": "true",
+      "property": "ScriptsDisabled"
+    },
+    {
+      "class": "ScriptDebugger",
+      "default": "false",
+      "property": "IsPaused"
+    },
+    {
+      "class": "ServerScriptService",
+      "default": "false",
+      "property": "LoadStringEnabled"
+    },
+    {
+      "class": "SoundService",
+      "default": "Automatic",
+      "property": "VolumetricAudio"
+    },
+    {
+      "class": "StarterPlayer",
+      "default": "UserChoice",
+      "property": "DevComputerMovementMode"
+    },
+    {
+      "class": "StudioData",
+      "default": "false",
+      "property": "EnableScriptCollabByDefaultOnLoad"
+    },
+    {
+      "class": "StudioDeviceEmulatorService",
+      "default": "0, 0",
+      "property": "PivotPosition"
+    },
+    {
+      "class": "BubbleChatConfiguration",
+      "default": "true",
+      "property": "Enabled"
+    },
+    {
+      "class": "ChatInputBarConfiguration",
+      "default": "0, 0",
+      "property": "AbsoluteSizeWrite"
+    },
+    {
+      "class": "ChatWindowConfiguration",
+      "default": "true",
+      "property": "Enabled"
+    },
+    {
+      "class": "TextChatMessage",
+      "default": "",
+      "property": "MessageId"
+    },
+    {
+      "class": "TextChatService",
+      "default": "true",
+      "property": "CreateDefaultTextChannels"
+    },
+    {
+      "class": "TextSource",
+      "default": "0",
+      "property": "UserIdReplicated"
+    },
+    {
+      "class": "UnvalidatedAssetService",
+      "default": "{\"lastSaveTime\":0,\"lastKnownPublishRequest\":0,\"users\":[]}",
+      "property": "CachedData"
+    },
+    {
+      "class": "VersionControlService",
+      "default": "false",
+      "property": "ScriptCollabVersionHistoryEnabled"
+    },
+    {
+      "class": "VideoCaptureService",
+      "default": "",
+      "property": "CameraID"
+    },
+    {
+      "class": "VoiceChatInternal",
+      "default": "Idle",
+      "property": "VoiceChatState"
+    },
+    {
+      "class": "VoiceChatService",
+      "default": "false",
+      "property": "VoiceChatEnabledForUniverseOnRcc"
+    },
+    {
+      "class": "VoiceSource",
+      "default": "0",
+      "property": "UserId"
+    }
+  ],
+  "properties": [
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Instance",
+      "property": "Parent",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Instance",
+      "deprecated": true,
+      "property": "archivable",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Accoutrement",
+      "property": "AttachmentForward",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Accoutrement",
+      "property": "AttachmentPos",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Accoutrement",
+      "property": "AttachmentRight",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Accoutrement",
+      "property": "AttachmentUp",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "AdPortal",
+      "property": "PortalVersion",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "AnalyticsService",
+      "deprecated": true,
+      "property": "ApiKey",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "AnimationTrack",
+      "property": "TimePosition",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "Axis",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "Orientation",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "Position",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "SecondaryAxis",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "WorldAxis",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "WorldCFrame",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "WorldOrientation",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "WorldPosition",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Attachment",
+      "property": "WorldSecondaryAxis",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Bone",
+      "property": "Transform",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "HopperBin",
+      "property": "Command",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "HopperBin",
+      "property": "TextureName",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Tool",
+      "property": "GripForward",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Tool",
+      "property": "GripPos",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Tool",
+      "property": "GripRight",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Tool",
+      "property": "GripUp",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "CoreGui",
+      "property": "Version",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "StarterGui",
+      "deprecated": true,
+      "property": "ResetPlayerGuiOnSpawn",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyAngularVelocity",
+      "deprecated": true,
+      "property": "angularvelocity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyAngularVelocity",
+      "deprecated": true,
+      "property": "maxTorque",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyForce",
+      "deprecated": true,
+      "property": "force",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyGyro",
+      "deprecated": true,
+      "property": "cframe",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyGyro",
+      "deprecated": true,
+      "property": "maxTorque",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyPosition",
+      "deprecated": true,
+      "property": "maxForce",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyPosition",
+      "deprecated": true,
+      "property": "position",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyThrust",
+      "deprecated": true,
+      "property": "force",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyThrust",
+      "deprecated": true,
+      "property": "location",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyVelocity",
+      "deprecated": true,
+      "property": "maxForce",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyVelocity",
+      "deprecated": true,
+      "property": "velocity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Camera",
+      "deprecated": true,
+      "property": "CoordinateFrame",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Camera",
+      "property": "NearPlaneZ",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Camera",
+      "property": "ViewportSize",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Camera",
+      "deprecated": true,
+      "property": "focus",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyColors",
+      "property": "HeadColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyColors",
+      "property": "LeftArmColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyColors",
+      "property": "LeftLegColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyColors",
+      "property": "RightArmColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyColors",
+      "property": "RightLegColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BodyColors",
+      "property": "TorsoColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Clothing",
+      "property": "Outfit1",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Clothing",
+      "property": "Outfit2",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "CommandInstance",
+      "property": "Checked",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "CommandInstance",
+      "property": "DisplayName",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "CommandInstance",
+      "property": "Enabled",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "CommandInstance",
+      "property": "Icon",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "CommandInstance",
+      "property": "StatusTip",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "HingeConstraint",
+      "property": "CurrentAngle",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "RodConstraint",
+      "property": "CurrentDistance",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "RopeConstraint",
+      "property": "CurrentDistance",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "SlidingBallConstraint",
+      "property": "CurrentPosition",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "CylindricalConstraint",
+      "property": "CurrentAngle",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "CylindricalConstraint",
+      "property": "WorldRotationAxis",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "SpringConstraint",
+      "property": "CurrentLength",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TorsionSpringConstraint",
+      "property": "CurrentAngle",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "TorsionSpringConstraint",
+      "deprecated": true,
+      "property": "LimitEnabled",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ContentProvider",
+      "property": "BaseUrl",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ContentProvider",
+      "property": "RequestQueueSize",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ControllerManager",
+      "property": "ActiveController",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreInfo",
+      "property": "CreatedTime",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreInfo",
+      "property": "DataStoreName",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreInfo",
+      "property": "UpdatedTime",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreKey",
+      "property": "KeyName",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreKeyInfo",
+      "property": "CreatedTime",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreKeyInfo",
+      "property": "UpdatedTime",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreKeyInfo",
+      "property": "Version",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreObjectVersionInfo",
+      "property": "CreatedTime",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreObjectVersionInfo",
+      "property": "IsDeleted",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreObjectVersionInfo",
+      "property": "Version",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "DataStoreService",
+      "deprecated": true,
+      "property": "LegacyNamingScheme",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "Debris",
+      "deprecated": true,
+      "property": "MaxItems",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DebugSettings",
+      "property": "DataModel",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DebugSettings",
+      "property": "InstanceCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DebugSettings",
+      "property": "JobCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DebugSettings",
+      "property": "PlayerCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DebugSettings",
+      "property": "RobloxVersion",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DebuggerManager",
+      "property": "DebuggingEnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Decal",
+      "deprecated": true,
+      "property": "Shiny",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Decal",
+      "deprecated": true,
+      "property": "Specular",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Fire",
+      "property": "Heat",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Fire",
+      "property": "Size",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Fire",
+      "deprecated": true,
+      "property": "size",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "FloatCurve",
+      "property": "Length",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "FunctionalTest",
+      "property": "AllowSleep",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "FunctionalTest",
+      "property": "Is30FpsThrottleEnabled",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "FunctionalTest",
+      "property": "PhysicsEnvironmentalThrottle",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "FunctionalTest",
+      "property": "Timeout",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "GameSettings",
+      "property": "VideoRecording",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "GuiBase2d",
+      "deprecated": true,
+      "property": "Localize",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "GuiObject",
+      "deprecated": true,
+      "property": "BackgroundColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "GuiObject",
+      "deprecated": true,
+      "property": "BorderColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "GuiObject",
+      "deprecated": true,
+      "property": "Draggable",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "GuiObject",
+      "property": "Transparency",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextButton",
+      "deprecated": true,
+      "property": "FontSize",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TextButton",
+      "property": "LocalizedText",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextButton",
+      "deprecated": true,
+      "property": "TextColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextButton",
+      "deprecated": true,
+      "property": "TextWrap",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextLabel",
+      "deprecated": true,
+      "property": "FontSize",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TextLabel",
+      "property": "LocalizedText",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextLabel",
+      "deprecated": true,
+      "property": "TextColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextLabel",
+      "deprecated": true,
+      "property": "TextWrap",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ScrollingFrame",
+      "property": "AbsoluteCanvasSize",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ScrollingFrame",
+      "property": "AbsoluteWindowSize",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextBox",
+      "deprecated": true,
+      "property": "FontSize",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextBox",
+      "deprecated": true,
+      "property": "TextColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TextBox",
+      "deprecated": true,
+      "property": "TextWrap",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "ViewportFrame",
+      "property": "CurrentCamera",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DockWidgetPluginGui",
+      "property": "HostWidgetWasRestored",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "ScreenGui",
+      "property": "ScreenInsets",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "GuiBase3d",
+      "deprecated": true,
+      "property": "Color",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "SelectionBox",
+      "deprecated": true,
+      "property": "SurfaceColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "SelectionSphere",
+      "deprecated": true,
+      "property": "SurfaceColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "GuiService",
+      "property": "MenuIsOpen",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "Humanoid",
+      "deprecated": true,
+      "property": "CollisionType",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Humanoid",
+      "property": "Health",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Humanoid",
+      "property": "Jump",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Humanoid",
+      "deprecated": true,
+      "property": "LeftLeg",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Humanoid",
+      "deprecated": true,
+      "property": "RightLeg",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Humanoid",
+      "property": "RootPart",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Humanoid",
+      "deprecated": true,
+      "property": "Torso",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Humanoid",
+      "deprecated": true,
+      "property": "maxHealth",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterBaseSettings",
+      "property": "Id",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMaterialSettings",
+      "property": "IsPbr",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "CageManifold",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "CageMeshNotIntersected",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "CageNoOverlappingVertices",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "CageUVMatched",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "Dimensions",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "MeshNoHoleDetected",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "NoIrrelevantCageModified",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "NoOuterCageFarExtendedFromMesh",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterMeshSettings",
+      "property": "PolygonCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterRootSettings",
+      "property": "FileDimensions",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "ImporterRootSettings",
+      "property": "PolygonCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "InsertService",
+      "deprecated": true,
+      "property": "AllowInsertFreeModels",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "InternalSyncItem",
+      "property": "Target",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Motor",
+      "property": "CurrentAngle",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Lighting",
+      "property": "ClockTime",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "Lighting",
+      "deprecated": true,
+      "property": "Outlines",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Lighting",
+      "deprecated": true,
+      "property": "ShadowColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "LocalizationTable",
+      "deprecated": true,
+      "property": "DevelopmentLanguage",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "MarkerCurve",
+      "property": "Length",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "MetaBreakpoint",
+      "property": "Id",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "MetaBreakpoint",
+      "property": "IsLogpoint",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "MetaBreakpoint",
+      "property": "Valid",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "Hit",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "Origin",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "Target",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "TargetSurface",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "UnitRay",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "ViewSizeX",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "ViewSizeY",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "X",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Mouse",
+      "property": "Y",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "NotificationService",
+      "property": "SelectedTheme",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "AssemblyAngularVelocity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "AssemblyLinearVelocity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "BackParamA",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "BackParamB",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "BackSurfaceInput",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "BottomParamA",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "BottomParamB",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "BottomSurfaceInput",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "BrickColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "Color",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "Elasticity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "Friction",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "FrontParamA",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "FrontParamB",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "FrontSurfaceInput",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "LeftParamA",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "LeftParamB",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "LeftSurfaceInput",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "Orientation",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "Position",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "RightParamA",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "RightParamB",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "RightSurfaceInput",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "RotVelocity",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "Rotation",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "Size",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "TopParamA",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "TopParamB",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "TopSurfaceInput",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "Velocity",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "deprecated": true,
+      "property": "brickColor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "BasePart",
+      "property": "siz",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "FormFactorPart",
+      "deprecated": true,
+      "property": "FormFactor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "FormFactorPart",
+      "deprecated": true,
+      "property": "formFactor",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Part",
+      "property": "Shape",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Part",
+      "property": "shap",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Terrain",
+      "property": "ClusterGrid",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Terrain",
+      "property": "ClusterGridV2",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Terrain",
+      "property": "ClusterGridV3",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TriangleMeshPart",
+      "property": "CollisionFidelity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "MeshPart",
+      "deprecated": true,
+      "property": "MeshID",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "PartOperation",
+      "property": "TriangleCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TrussPart",
+      "property": "Style",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Workspace",
+      "property": "CollisionGroups",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Workspace",
+      "property": "StreamingPauseMode",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "PackageLink",
+      "property": "PackageId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "PackageLink",
+      "property": "VersionNumber",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreKeyPages",
+      "property": "Cursor",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataStoreListingPages",
+      "property": "Cursor",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "ParticleEmitter",
+      "deprecated": true,
+      "property": "VelocitySpread",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Path",
+      "property": "Status",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "PathfindingService",
+      "deprecated": true,
+      "property": "EmptyCutoff",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "Player",
+      "deprecated": true,
+      "property": "CharacterAppearance",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Player",
+      "property": "FollowUserId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "PluginMenu",
+      "property": "Icon",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "PluginMenu",
+      "property": "Title",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "PluginToolbarButton",
+      "property": "ClickableWhenViewportHidden",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "PluginToolbarButton",
+      "property": "Enabled",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "PluginToolbarButton",
+      "property": "Icon",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Pose",
+      "deprecated": true,
+      "property": "MaskWeight",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "RenderSettings",
+      "property": "EnableFRM",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "RenderingTest",
+      "property": "Orientation",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "RenderingTest",
+      "property": "Position",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "RotationCurve",
+      "property": "Length",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Selection",
+      "property": "SelectionLineThickness",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataModel",
+      "property": "PrivateServerId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataModel",
+      "property": "PrivateServerOwnerId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataModel",
+      "deprecated": true,
+      "property": "VIPServerId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "DataModel",
+      "deprecated": true,
+      "property": "VIPServerOwnerId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Smoke",
+      "property": "Opacity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Smoke",
+      "property": "RiseVelocity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Smoke",
+      "property": "Size",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "class": "Sound",
+      "deprecated": true,
+      "property": "EmitterSize",
+      "reason": "Deprecated but saveable"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Sound",
+      "deprecated": true,
+      "property": "MinDistance",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Sound",
+      "deprecated": true,
+      "property": "Pitch",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Sound",
+      "property": "xmlRead_MinDistance_3",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Sparkles",
+      "property": "Color",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Studio",
+      "deprecated": true,
+      "property": "UI Theme",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "StudioService",
+      "property": "UseLocalSpace",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TaskScheduler",
+      "property": "SchedulerDutyCycle",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TaskScheduler",
+      "property": "SchedulerRate",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TaskScheduler",
+      "property": "ThreadPoolSize",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Team",
+      "deprecated": true,
+      "property": "AutoColorCharacters",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "Team",
+      "deprecated": true,
+      "property": "Score",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TeleportAsyncResult",
+      "property": "PrivateServerId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TeleportAsyncResult",
+      "property": "ReservedServerAccessCode",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TeleportService",
+      "deprecated": true,
+      "property": "CustomizedTeleportUI",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "TerrainRegion",
+      "property": "GridV3",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TestService",
+      "property": "ErrorCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TestService",
+      "property": "TestCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TestService",
+      "property": "WarnCount",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "Translator",
+      "property": "LocaleId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "TweenBase",
+      "property": "PlaybackState",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UIPageLayout",
+      "property": "CurrentPage",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserGameSettings",
+      "property": "IsUsingCameraYInverted",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserGameSettings",
+      "property": "IsUsingGamepadCameraSensitivity",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserGameSettings",
+      "property": "MicroProfilerWebServerIP",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserGameSettings",
+      "property": "MicroProfilerWebServerPort",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserInputService",
+      "property": "AccelerometerEnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserInputService",
+      "property": "GamepadEnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserInputService",
+      "property": "GyroscopeEnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserInputService",
+      "property": "KeyboardEnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "UserInputService",
+      "property": "MouseDeltaSensitivity",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserInputService",
+      "property": "MouseEnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserInputService",
+      "property": "TouchEnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "UserInputService",
+      "property": "VREnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "VRService",
+      "property": "DidPointerHit",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "VRService",
+      "property": "LaserDistance",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "VRService",
+      "property": "PointerHitCFrame",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "VRService",
+      "property": "VRDeviceAvailable",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "VRService",
+      "property": "VREnabled",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "DoubleConstrainedValue",
+      "property": "ConstrainedValue",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "DoubleConstrainedValue",
+      "property": "Value",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "IntConstrainedValue",
+      "property": "ConstrainedValue",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "IntConstrainedValue",
+      "property": "Value",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "VoiceSource",
+      "property": "UserId",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": false,
+      "canSave": true,
+      "class": "WeldConstraint",
+      "property": "Active",
+      "reason": "CanSave only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "WeldConstraint",
+      "property": "CFrame1",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "WeldConstraint",
+      "property": "Enabled",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "WeldConstraint",
+      "property": "Part0",
+      "reason": "CanLoad only"
+    },
+    {
+      "canLoad": true,
+      "canSave": false,
+      "class": "WeldConstraint",
+      "property": "Part1",
+      "reason": "CanLoad only"
+    }
+  ]
+}

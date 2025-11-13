@@ -1,0 +1,20 @@
+# Python venv exclusion for the internal documentation platform
+.venv
+venv
+
+**.bat
+
+# Luvit dependencies
+parser/deps
+
+# metadata api
+docs/built-info
+
+docs/api/
+
+# Local caching
+.cache/
+
+# macOS hidden files
+**._*
+**.DS_*

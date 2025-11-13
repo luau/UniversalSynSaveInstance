@@ -4,13 +4,13 @@
 --// Imports
 local io = require("@lune/stdio")
 local fs = require("@lune/fs")
-local process = require("@lune/process")
+local Process = require("@lune/process")
 local serde = require("@lune/serde")
 local net = require("@lune/net")
 local dateTime = require("@lune/datetime")
 
 --// Variables
-local config = serde.decode("json", fs.readFile(process.args[1]))
+local config = serde.decode("json", fs.readFile(Process.args[1]))
 
 local buildConfigs = config.buildConfigs
 
@@ -35,7 +35,7 @@ local composerMarkers = {
 }
 
 --// Constants
-local RELEASE_BODY = (process.env.TEMP or process.env.TMP) .. "/RELEASE_BODY.md"
+local RELEASE_BODY = (Process.env.TEMP or Process.env.TMP) .. "/RELEASE_BODY.md"
 
 --// Functions
 local function getBaseName(path)
@@ -72,7 +72,7 @@ local configOptions = buildConfigs[selected]
 
 buildVers = configOptions.promptVersion and io.prompt("text", "Build version (vMAJOR.MINOR.PATCH)") or "v0.0.0"
 
-local srcResult = process.exec("darklua", {
+local srcResult = Process.exec("darklua", {
 	"process",
 	configOptions.input,
 	configOptions.output,
@@ -98,8 +98,8 @@ fs.writeFile(configOptions.output, frame)
 
 print("Build complete: " .. configOptions.output)
 
-if config.openComposedOutput and process.os == "windows" then
-	process.exec("powershell", {
+if config.openComposedOutput and Process.os == "windows" then
+	Process.exec("powershell", {
 		"-ExecutionPolicy",
 		"Bypass",
 		"-NoProfile",
@@ -116,8 +116,8 @@ if configOptions.promptDeploy and config.deployment.enabled then
 		if ghCfg and ghCfg.enabled == true then
 			fs.writeFile(RELEASE_BODY, `# {ghCfg.repo} {buildVers}`)
 
-			if process.os == "windows" then
-				process.exec("powershell", {
+			if Process.os == "windows" then
+				Process.exec("powershell", {
 					"-ExecutionPolicy",
 					"Bypass",
 					"-NoProfile",

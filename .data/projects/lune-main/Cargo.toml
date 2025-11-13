@@ -1,0 +1,64 @@
+[workspace]
+resolver = "2"
+default-members = ["crates/lune"]
+members = [
+    "crates/lune",
+    "crates/lune-roblox",
+    "crates/lune-std",
+    "crates/lune-std-datetime",
+    "crates/lune-std-fs",
+    "crates/lune-std-luau",
+    "crates/lune-std-net",
+    "crates/lune-std-process",
+    "crates/lune-std-regex",
+    "crates/lune-std-roblox",
+    "crates/lune-std-serde",
+    "crates/lune-std-stdio",
+    "crates/lune-std-task",
+    "crates/lune-utils",
+    "crates/mlua-luau-scheduler",
+]
+
+# Profile for building the release binary, with the following options set:
+#
+# 1. Optimize for size
+# 2. Automatically strip symbols from the binary
+# 3. Enable link-time optimization
+#
+# Note that we could abort instead of panicking to cut down on size
+# even more, but because we use the filesystem & some other APIs we
+# need the panic unwinding to properly handle usage of said APIs
+#
+[profile.release]
+opt-level = "z"
+strip = true
+lto = true
+
+# Lints for all crates in the workspace
+#
+# 1. Error on all lints by default, then make cargo + clippy pedantic lints just warn
+# 2. Selectively allow some lints that are _too_ pedantic, such as:
+#    - Casts between number types
+#    - Module naming conventions
+#    - Imports and multiple dependency versions
+[workspace.lints.clippy]
+all = { level = "deny", priority = -3 }
+cargo = { level = "warn", priority = -2 }
+pedantic = { level = "warn", priority = -1 }
+
+cast_lossless = { level = "allow", priority = 1 }
+cast_possible_truncation = { level = "allow", priority = 1 }
+cast_possible_wrap = { level = "allow", priority = 1 }
+cast_precision_loss = { level = "allow", priority = 1 }
+cast_sign_loss = { level = "allow", priority = 1 }
+
+similar_names = { level = "allow", priority = 1 }
+unnecessary_wraps = { level = "allow", priority = 1 }
+unnested_or_patterns = { level = "allow", priority = 1 }
+unreadable_literal = { level = "allow", priority = 1 }
+
+multiple_crate_versions = { level = "allow", priority = 1 }
+module_inception = { level = "allow", priority = 1 }
+module_name_repetitions = { level = "allow", priority = 1 }
+needless_pass_by_value = { level = "allow", priority = 1 }
+wildcard_imports = { level = "allow", priority = 1 }

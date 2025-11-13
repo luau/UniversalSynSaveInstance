@@ -1,0 +1,901 @@
+{
+  "classes": [
+    {
+      "isService": false,
+      "name": "Instance",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "AnimationClip",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "AnimationStreamTrack",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "AnimationTrack",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "AssetImportSession",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "BackpackItem",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PlayerGui",
+      "tags": [
+        "NotCreatable",
+        "PlayerReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "BodyMover",
+      "tags": [
+        "Deprecated",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "CharacterAppearance",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Clothing",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "CommandInstance",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Constraint",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "SlidingBallConstraint",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Controller",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataModelMesh",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "BevelMesh",
+      "tags": [
+        "Deprecated",
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataModelSession",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataStoreInfo",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataStoreKey",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataStoreKeyInfo",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataStoreObjectVersionInfo",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DebuggerBreakpoint",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DebuggerConnection",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "LocalDebuggerConnection",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DebuggerLuaResponse",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DebuggerVariable",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DynamicTextureAlpha",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DynamicTextureLayerAlpha",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "FaceInstance",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Feature",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "File",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "GlobalDataStore",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataStore",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "OrderedDataStore",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "GuiObject",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "GuiButton",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "GuiLabel",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "LayerCollector",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "InstanceAdornment",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PVAdornment",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "HandleAdornment",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PartAdornment",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "SelectionLasso",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "HttpRequest",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "InputObject",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "JointInstance",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DynamicRotate",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ManualSurfaceJointInstance",
+      "tags": [
+        "Deprecated",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Light",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "CloudLocalizationTable",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "LodDataEntity",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "LuaSourceContainer",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "CoreScript",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "MemStorageConnection",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "MemoryStoreQueue",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "MemoryStoreSortedMap",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "MessageBusConnection",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "MetaBreakpoint",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "MetaBreakpointContext",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Mouse",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PlayerMouse",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "MultipleDocumentInterfaceInstance",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "NetworkMarker",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "NetworkPeer",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "NetworkReplicator",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ClientReplicator",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ServerReplicator",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PVInstance",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "FormFactorPart",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Platform",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Terrain",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TriangleMeshPart",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Status",
+      "tags": [
+        "Deprecated",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "WorldRoot",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PackageLink",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Path",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PausedState",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PausedStateBreakpoint",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PausedStateException",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PlayerScripts",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "PostEffect",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ReflectionMetadataItem",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ScreenshotHud",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ScriptBuilder",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "CoreScriptBuilder",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ScriptDebugger",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ScriptDocument",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ServiceProvider",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "DataModel",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "SoundEffect",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "AssetSoundEffect",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "CustomSoundEffect",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "StackFrame",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "StarterPlayerScripts",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "StarterCharacterScripts",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "StatsItem",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "RunningAverageItemDouble",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "RunningAverageItemInt",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "RunningAverageTimeIntervalItem",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TotalCountTimeIntervalItem",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "StudioTheme",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TeleportAsyncResult",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TextChatConfigurations",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "BubbleChatConfiguration",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ChatInputBarConfiguration",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ChatWindowConfiguration",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TextChatMessage",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TextFilterResult",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TextSource",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "ThreadState",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TouchTransmitter",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "TrackerLodController",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "Translator",
+      "tags": [
+        "NotCreatable",
+        "NotReplicated"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "UIComponent",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "UIConstraint",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "UILayout",
+      "tags": [
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "UIGridStyleLayout",
+      "tags": [
+        "NotBrowsable",
+        "NotCreatable"
+      ]
+    },
+    {
+      "isService": false,
+      "name": "VoiceSource",
+      "tags": [
+        "Deprecated",
+        "NotCreatable"
+      ]
+    }
+  ],
+  "count": 118,
+  "metadata": {
+    "timestamp": "2025-11-11T03:27:19",
+    "version": "latest"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "languageMode": "strict",
+  "lint": {
+    "*": true
+  },
+  "lintErrors": false,
+  "typeErrors": true,
+  "globals": [
+    "warn"
+  ],
+  "aliases": {
+    "lune": "./types/",
+    "tests": "./tests",
+    "require-tests": "./tests/require/tests"
+  }
+}

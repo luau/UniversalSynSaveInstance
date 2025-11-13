@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>sUNC Widget Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- this stylesheet is completely irrelevant to your implementation of the widget -->
+    <link href="stylesheet.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <h1>sUNC Widget Example</h1>
+
+    <iframe id="sunc-widget" src="https://sunc.rubis.app/widget/" allowfullscreen></iframe>
+
+    <div class="button-row">
+        <button onclick="setTheme()">Use custom theme, Creamy Pink</button>
+        <button onclick="setTheme2()">Use custom theme, Electric Yellow</button>
+        <button onclick="setThemeDefault()">Use default theme</button>
+
+        <button onclick="loadScrap2()">Load example test</button>
+        <button onclick="loadScrap()">Load spoofed test</button>
+    </div>
+
+    <script>
+        const iframe = document.getElementById("sunc-widget");
+
+        function loadScrap() {
+            iframe.contentWindow.postMessage({
+                type: "sunc-widget:loadScrap",
+
+                payload: {
+                    scrapId: "WEweppeG2InphuKF",
+                    key: "n8zp808cs4lrQGa75Qfidvgt1xq5vy0H"
+                }
+            }, "https://sunc.rubis.app");
+        }
+
+        function loadScrap2() {
+            iframe.contentWindow.postMessage({
+                type: "sunc-widget:loadScrap",
+
+                payload: {
+                    scrapId: "WnzsF1da9RSdn0E2",
+                    key: "DnGSbWzKGM1OQm80fvprp9J3M97siksb"
+                }
+            }, "https://sunc.rubis.app");
+        }
+
+        function setTheme() {
+            iframe.contentWindow.postMessage({
+                type: "sunc-widget:setTheme",
+
+                payload: {
+                    dark: "#fff0f5",
+                    light: "#fffbfc",
+                    lighter: "#ffeeee",
+
+                    sunc: "#ff6aa0",
+                    suncLighter: "#ff9abe",
+
+                    grey: "#888",
+                    lightText: "#444",
+
+                    success: "#44c26a",
+                    failure: "#e74c3c",
+
+                    useDarkLogo: true
+                }
+            }, "https://sunc.rubis.app");
+        }
+
+        function setTheme2() {
+            iframe.contentWindow.postMessage({
+                type: "sunc-widget:setTheme",
+
+                payload: {
+                    dark: "#0f0f12",
+                    light: "#1a1a20",
+                    lighter: "#26262f",
+
+                    sunc: "#ffe600",
+                    suncLighter: "#fff36b",
+
+                    grey: "#999999",
+                    lightText: "#eeeeee",
+
+                    success: "#4caf50",
+                    failure: "#ff4b5c"
+                }
+            }, "https://sunc.rubis.app");
+        }
+
+        function setThemeDefault() {
+            iframe.contentWindow.postMessage({
+                type: "sunc-widget:setTheme",
+                payload: {} // this works because the widget falls back to default colours if some fields are not provided
+            }, "https://sunc.rubis.app");
+        }
+
+    </script>
+
+</body>
+
+</html>

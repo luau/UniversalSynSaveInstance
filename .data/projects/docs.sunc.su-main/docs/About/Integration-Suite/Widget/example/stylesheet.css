@@ -1,0 +1,67 @@
+/*
+this stylesheet is completely irrelevant to the implementation of the sUNC widget on your own site.
+
+this is simply used to make your experience on the example page more pleasant (since youre probably coding at night...)
+*/
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: #12121c;
+  color: #e0e0e0;
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+iframe {
+  width: 100%;
+  max-width: 960px;
+  height: 610px; /* this is the recommended minimum height */
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px #2a2a40, 0 4px 20px rgba(0, 0, 0, 0.5);
+  margin-bottom: 2rem;
+}
+
+.button-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+button {
+  background: #1f1f2f;
+  color: #e0e0e0;
+  border: 1px solid #2a2a40;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: #2a2a40;
+}
+
+button:focus {
+  outline: 2px solid #b7a0f6;
+  outline-offset: 2px;
+}
+
+button:active {
+  transform: scale(0.98);
+}

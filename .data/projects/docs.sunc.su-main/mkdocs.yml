@@ -1,0 +1,122 @@
+site_name: sUNC Documentation
+site_url: https://docs.sunc.su
+
+repo_name: sUNC-Utilities/docs.sunc.su
+repo_url: https://github.com/sUNC-Utilities/docs.sunc.su
+edit_uri: https://github.com/sUNC-Utilities/docs.sunc.su/edit/main/docs
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      type: timeago
+      fallback_to_build_date: true
+      enabled: true
+  - git-committers:
+      enabled: true
+      repository: sUNC-Utilities/docs.sunc.su
+      branch: main
+      exclude_committers:
+        - web-flow
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences:
+
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.details
+  - admonition
+
+theme:
+  logo: assets/sUNC_Full.png
+  favicon: assets/sUNC_FlatSquare.png
+
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+  language: en
+
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    # - navigation.tabs
+    # - navigation.tabs.sticky
+    - navigation.sections
+    #- navigation.expand
+    - navigation.path
+    - navigation.indexes # allows you to provide an index file for each section
+    - navigation.top
+    - navigation.footer
+
+    - toc.follow
+
+    - search.suggest
+    - search.share
+    #- search.highlight
+
+    - content.action.edit
+    - content.action.view
+
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+
+  custom_dir: overrides
+
+  name: material
+  font:
+    text: Nunito Sans
+    code: JetBrains Mono
+
+  palette:
+    - media: "(prefers-color-scheme)"
+
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to Early Bird mode
+
+    - media: "(prefers-color-scheme: light)"
+      scheme: sUNC_Light
+
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to Night Owl mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+
+      toggle:
+        icon: material/weather-night
+        name: Switch to automatic mode
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - stylesheets/extra.js
+
+extra:
+  generator: false
+
+  analytics:
+    provider: custom
+
+  social:
+    - icon: fontawesome/solid/globe
+      link: https://sunc.su/
+
+    - icon: fontawesome/solid/bookmark
+      link: https://numelon.fandom.com/sUNC
+
+    - icon: fontawesome/brands/github
+      link: https://github.com/sUNC-Utilities/docs.sunc.su
+
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/FNNfTUpFYv

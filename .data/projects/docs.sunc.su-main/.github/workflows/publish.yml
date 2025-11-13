@@ -1,0 +1,44 @@
+name: Publish to docs.sunc.su
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+        name: Set Cache ID
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      - name: Build bot and viewer JSON metadata
+        run: |
+          cd parser
+
+          sudo chmod +x ./install.sh
+          ./install.sh
+
+          luvit main.lua
+
+          cd ../
+
+          rm -rf parser
+      - run: pip install mkdocs-material
+      - run: pip install -r requirements.txt
+      - run: mkdocs gh-deploy --force

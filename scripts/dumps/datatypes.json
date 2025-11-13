@@ -1,0 +1,231 @@
+{
+  "count": 37,
+  "metadata": {
+    "timestamp": "2025-11-11T16:05:28",
+    "version": "latest"
+  },
+  "types": [
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Axes"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "BinaryString"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "BrickColor"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "CFrame"
+    },
+    {
+      "canLoad": false,
+      "canSave": false,
+      "hasDescriptor": false,
+      "name": "CSGPropertyData"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Color3"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Color3uint8"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "ColorSequence"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Content"
+    },
+    {
+      "canLoad": false,
+      "canSave": false,
+      "hasDescriptor": false,
+      "name": "DateTime"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Faces"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Font"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "NumberRange"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "NumberSequence"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "OptionalCoordinateFrame"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "PhysicalProperties"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "ProtectedString"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "QDir"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "QFont"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Ray"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Rect"
+    },
+    {
+      "canLoad": false,
+      "canSave": false,
+      "hasDescriptor": false,
+      "name": "Region3int16"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "SharedString"
+    },
+    {
+      "canLoad": false,
+      "canSave": false,
+      "hasDescriptor": false,
+      "name": "SystemAddress"
+    },
+    {
+      "canLoad": false,
+      "canSave": false,
+      "hasDescriptor": false,
+      "name": "TweenInfo"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "UDim"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "UDim2"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "UniqueId"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Vector2"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Vector3"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "Vector3int16"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "bool"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "double"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "float"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "int"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "int64"
+    },
+    {
+      "canLoad": true,
+      "canSave": true,
+      "hasDescriptor": false,
+      "name": "string"
+    }
+  ]
+}

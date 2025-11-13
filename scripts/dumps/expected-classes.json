@@ -1,0 +1,485 @@
+{
+  "byClass": {
+    "Beam": [
+      {
+        "class": "Beam",
+        "expected": "Attachment",
+        "property": "Attachment0"
+      },
+      {
+        "class": "Beam",
+        "expected": "Attachment",
+        "property": "Attachment1"
+      }
+    ],
+    "ChatInputBarConfiguration": [
+      {
+        "class": "ChatInputBarConfiguration",
+        "expected": "TextChannel",
+        "property": "TargetTextChannel"
+      }
+    ],
+    "Constraint": [
+      {
+        "class": "Constraint",
+        "expected": "Attachment",
+        "property": "Attachment0"
+      },
+      {
+        "class": "Constraint",
+        "expected": "Attachment",
+        "property": "Attachment1"
+      }
+    ],
+    "CoreGui": [
+      {
+        "class": "CoreGui",
+        "expected": "GuiObject",
+        "property": "SelectionImageObject"
+      }
+    ],
+    "FloorWire": [
+      {
+        "class": "FloorWire",
+        "expected": "BasePart",
+        "property": "From"
+      },
+      {
+        "class": "FloorWire",
+        "expected": "BasePart",
+        "property": "To"
+      }
+    ],
+    "GuiBase2d": [
+      {
+        "class": "GuiBase2d",
+        "expected": "LocalizationTable",
+        "property": "RootLocalizationTable"
+      }
+    ],
+    "GuiObject": [
+      {
+        "class": "GuiObject",
+        "expected": "GuiObject",
+        "property": "NextSelectionDown"
+      },
+      {
+        "class": "GuiObject",
+        "expected": "GuiObject",
+        "property": "NextSelectionLeft"
+      },
+      {
+        "class": "GuiObject",
+        "expected": "GuiObject",
+        "property": "NextSelectionRight"
+      },
+      {
+        "class": "GuiObject",
+        "expected": "GuiObject",
+        "property": "NextSelectionUp"
+      },
+      {
+        "class": "GuiObject",
+        "expected": "GuiObject",
+        "property": "SelectionImageObject"
+      }
+    ],
+    "GuiService": [
+      {
+        "class": "GuiService",
+        "expected": "GuiObject",
+        "property": "SelectedObject"
+      }
+    ],
+    "JointInstance": [
+      {
+        "class": "JointInstance",
+        "expected": "BasePart",
+        "property": "Part0"
+      },
+      {
+        "class": "JointInstance",
+        "expected": "BasePart",
+        "property": "Part1"
+      }
+    ],
+    "Model": [
+      {
+        "class": "Model",
+        "expected": "BasePart",
+        "property": "PrimaryPart"
+      }
+    ],
+    "NoCollisionConstraint": [
+      {
+        "class": "NoCollisionConstraint",
+        "expected": "BasePart",
+        "property": "Part0"
+      },
+      {
+        "class": "NoCollisionConstraint",
+        "expected": "BasePart",
+        "property": "Part1"
+      }
+    ],
+    "PVAdornment": [
+      {
+        "class": "PVAdornment",
+        "expected": "PVInstance",
+        "property": "Adornee"
+      }
+    ],
+    "PartAdornment": [
+      {
+        "class": "PartAdornment",
+        "expected": "BasePart",
+        "property": "Adornee"
+      }
+    ],
+    "PathfindingLink": [
+      {
+        "class": "PathfindingLink",
+        "expected": "Attachment",
+        "property": "Attachment0"
+      },
+      {
+        "class": "PathfindingLink",
+        "expected": "Attachment",
+        "property": "Attachment1"
+      }
+    ],
+    "Player": [
+      {
+        "class": "Player",
+        "expected": "Model",
+        "property": "Character"
+      },
+      {
+        "class": "Player",
+        "expected": "SpawnLocation",
+        "property": "RespawnLocation"
+      },
+      {
+        "class": "Player",
+        "expected": "Team",
+        "property": "Team"
+      }
+    ],
+    "PlayerGui": [
+      {
+        "class": "PlayerGui",
+        "expected": "GuiObject",
+        "property": "SelectionImageObject"
+      }
+    ],
+    "ProximityPrompt": [
+      {
+        "class": "ProximityPrompt",
+        "expected": "LocalizationTable",
+        "property": "RootLocalizationTable"
+      }
+    ],
+    "RocketPropulsion": [
+      {
+        "class": "RocketPropulsion",
+        "expected": "BasePart",
+        "property": "Target"
+      }
+    ],
+    "SelectionLasso": [
+      {
+        "class": "SelectionLasso",
+        "expected": "Humanoid",
+        "property": "Humanoid"
+      }
+    ],
+    "SelectionPartLasso": [
+      {
+        "class": "SelectionPartLasso",
+        "expected": "BasePart",
+        "property": "Part"
+      }
+    ],
+    "Sound": [
+      {
+        "class": "Sound",
+        "expected": "SoundGroup",
+        "property": "SoundGroup"
+      }
+    ],
+    "Speaker": [
+      {
+        "class": "Speaker",
+        "expected": "SoundGroup",
+        "property": "SoundGroup"
+      }
+    ],
+    "TextChatMessage": [
+      {
+        "class": "TextChatMessage",
+        "expected": "TextChannel",
+        "property": "TextChannel"
+      },
+      {
+        "class": "TextChatMessage",
+        "expected": "TextSource",
+        "property": "TextSource"
+      }
+    ],
+    "Trail": [
+      {
+        "class": "Trail",
+        "expected": "Attachment",
+        "property": "Attachment0"
+      },
+      {
+        "class": "Trail",
+        "expected": "Attachment",
+        "property": "Attachment1"
+      }
+    ],
+    "VelocityMotor": [
+      {
+        "class": "VelocityMotor",
+        "expected": "Hole",
+        "property": "Hole"
+      }
+    ],
+    "WeldConstraint": [
+      {
+        "class": "WeldConstraint",
+        "expected": "BasePart",
+        "property": "Part0Internal"
+      },
+      {
+        "class": "WeldConstraint",
+        "expected": "BasePart",
+        "property": "Part1Internal"
+      }
+    ],
+    "Workspace": [
+      {
+        "class": "Workspace",
+        "expected": "Camera",
+        "property": "CurrentCamera"
+      }
+    ]
+  },
+  "count": 42,
+  "metadata": {
+    "timestamp": "2025-11-11T03:00:18",
+    "version": "latest"
+  },
+  "properties": [
+    {
+      "class": "CoreGui",
+      "expected": "GuiObject",
+      "property": "SelectionImageObject"
+    },
+    {
+      "class": "PlayerGui",
+      "expected": "GuiObject",
+      "property": "SelectionImageObject"
+    },
+    {
+      "class": "Beam",
+      "expected": "Attachment",
+      "property": "Attachment0"
+    },
+    {
+      "class": "Beam",
+      "expected": "Attachment",
+      "property": "Attachment1"
+    },
+    {
+      "class": "RocketPropulsion",
+      "expected": "BasePart",
+      "property": "Target"
+    },
+    {
+      "class": "Constraint",
+      "expected": "Attachment",
+      "property": "Attachment0"
+    },
+    {
+      "class": "Constraint",
+      "expected": "Attachment",
+      "property": "Attachment1"
+    },
+    {
+      "class": "GuiBase2d",
+      "expected": "LocalizationTable",
+      "property": "RootLocalizationTable"
+    },
+    {
+      "class": "GuiObject",
+      "expected": "GuiObject",
+      "property": "NextSelectionDown"
+    },
+    {
+      "class": "GuiObject",
+      "expected": "GuiObject",
+      "property": "NextSelectionLeft"
+    },
+    {
+      "class": "GuiObject",
+      "expected": "GuiObject",
+      "property": "NextSelectionRight"
+    },
+    {
+      "class": "GuiObject",
+      "expected": "GuiObject",
+      "property": "NextSelectionUp"
+    },
+    {
+      "class": "GuiObject",
+      "expected": "GuiObject",
+      "property": "SelectionImageObject"
+    },
+    {
+      "class": "FloorWire",
+      "expected": "BasePart",
+      "property": "From"
+    },
+    {
+      "class": "FloorWire",
+      "expected": "BasePart",
+      "property": "To"
+    },
+    {
+      "class": "PVAdornment",
+      "expected": "PVInstance",
+      "property": "Adornee"
+    },
+    {
+      "class": "PartAdornment",
+      "expected": "BasePart",
+      "property": "Adornee"
+    },
+    {
+      "class": "SelectionLasso",
+      "expected": "Humanoid",
+      "property": "Humanoid"
+    },
+    {
+      "class": "SelectionPartLasso",
+      "expected": "BasePart",
+      "property": "Part"
+    },
+    {
+      "class": "GuiService",
+      "expected": "GuiObject",
+      "property": "SelectedObject"
+    },
+    {
+      "class": "JointInstance",
+      "expected": "BasePart",
+      "property": "Part0"
+    },
+    {
+      "class": "JointInstance",
+      "expected": "BasePart",
+      "property": "Part1"
+    },
+    {
+      "class": "VelocityMotor",
+      "expected": "Hole",
+      "property": "Hole"
+    },
+    {
+      "class": "NoCollisionConstraint",
+      "expected": "BasePart",
+      "property": "Part0"
+    },
+    {
+      "class": "NoCollisionConstraint",
+      "expected": "BasePart",
+      "property": "Part1"
+    },
+    {
+      "class": "Model",
+      "expected": "BasePart",
+      "property": "PrimaryPart"
+    },
+    {
+      "class": "Workspace",
+      "expected": "Camera",
+      "property": "CurrentCamera"
+    },
+    {
+      "class": "PathfindingLink",
+      "expected": "Attachment",
+      "property": "Attachment0"
+    },
+    {
+      "class": "PathfindingLink",
+      "expected": "Attachment",
+      "property": "Attachment1"
+    },
+    {
+      "class": "Player",
+      "expected": "Model",
+      "property": "Character"
+    },
+    {
+      "class": "Player",
+      "expected": "SpawnLocation",
+      "property": "RespawnLocation"
+    },
+    {
+      "class": "Player",
+      "expected": "Team",
+      "property": "Team"
+    },
+    {
+      "class": "ProximityPrompt",
+      "expected": "LocalizationTable",
+      "property": "RootLocalizationTable"
+    },
+    {
+      "class": "Sound",
+      "expected": "SoundGroup",
+      "property": "SoundGroup"
+    },
+    {
+      "class": "Speaker",
+      "expected": "SoundGroup",
+      "property": "SoundGroup"
+    },
+    {
+      "class": "ChatInputBarConfiguration",
+      "expected": "TextChannel",
+      "property": "TargetTextChannel"
+    },
+    {
+      "class": "TextChatMessage",
+      "expected": "TextChannel",
+      "property": "TextChannel"
+    },
+    {
+      "class": "TextChatMessage",
+      "expected": "TextSource",
+      "property": "TextSource"
+    },
+    {
+      "class": "Trail",
+      "expected": "Attachment",
+      "property": "Attachment0"
+    },
+    {
+      "class": "Trail",
+      "expected": "Attachment",
+      "property": "Attachment1"
+    },
+    {
+      "class": "WeldConstraint",
+      "expected": "BasePart",
+      "property": "Part0Internal"
+    },
+    {
+      "class": "WeldConstraint",
+      "expected": "BasePart",
+      "property": "Part1Internal"
+    }
+  ]
+}

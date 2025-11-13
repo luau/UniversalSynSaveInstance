@@ -1,0 +1,85 @@
+[package]
+name = "lune"
+version = "0.10.4"
+edition = "2024"
+license = "MPL-2.0"
+repository = "https://github.com/lune-org/lune"
+description = "A standalone Luau runtime"
+readme = "../../README.md"
+keywords = ["cli", "lua", "luau", "runtime"]
+categories = ["command-line-interface"]
+
+[[bin]]
+name = "lune"
+path = "src/main.rs"
+
+[lib]
+name = "lune"
+path = "src/lib.rs"
+
+[features]
+default = ["std", "cli"]
+
+std-datetime = ["dep:lune-std", "lune-std/datetime"]
+std-fs = ["dep:lune-std", "lune-std/fs"]
+std-luau = ["dep:lune-std", "lune-std/luau"]
+std-net = ["dep:lune-std", "lune-std/net"]
+std-process = ["dep:lune-std", "lune-std/process"]
+std-regex = ["dep:lune-std", "lune-std/regex"]
+std-roblox = ["dep:lune-std", "lune-std/roblox"]
+std-serde = ["dep:lune-std", "lune-std/serde"]
+std-stdio = ["dep:lune-std", "lune-std/stdio"]
+std-task = ["dep:lune-std", "lune-std/task"]
+
+std = [
+    "std-datetime",
+    "std-fs",
+    "std-luau",
+    "std-net",
+    "std-process",
+    "std-regex",
+    "std-roblox",
+    "std-serde",
+    "std-stdio",
+    "std-task",
+]
+
+cli = ["dep:clap", "dep:rustyline", "dep:zip", "dep:lune-std-net"]
+
+[lints]
+workspace = true
+
+[dependencies]
+mlua = { version = "0.11.4", features = ["luau"] }
+mlua-luau-scheduler = { version = "0.2.3", path = "../mlua-luau-scheduler" }
+
+anyhow = "1.0"
+console = "0.16"
+dialoguer = "0.12"
+directories = "6.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+
+async-io = "2.4"
+async-fs = "2.1"
+blocking = "1.6"
+futures-lite = "2.6"
+
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+lune-std = { optional = true, version = "0.3.4", path = "../lune-std" }
+lune-std-net = { optional = true, version = "0.3.4", path = "../lune-std-net" }
+lune-utils = { version = "0.3.4", path = "../lune-utils" }
+
+### CLI
+
+clap = { optional = true, version = "4.1", features = ["derive"] }
+rustyline = { optional = true, version = "17.0" }
+zip = { optional = true, version = "5.1", default-features = false, features = [
+	"bzip2",
+	"deflate",
+	"deflate64",
+	"zstd"
+] }

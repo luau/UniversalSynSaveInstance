@@ -1,0 +1,260 @@
+use std::fmt::Write;
+
+use bstr::BString;
+use md5::Md5;
+use mlua::prelude::*;
+
+use blake3::Hasher as Blake3;
+use sha1::Sha1;
+use sha2::{Sha224, Sha256, Sha384, Sha512};
+use sha3::{Sha3_224, Sha3_256, Sha3_384, Sha3_512};
+
+pub struct HashOptions {
+    algorithm: HashAlgorithm,
+    message: BString,
+    secret: Option<BString>,
+    // seed: Option<BString>,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum HashAlgorithm {
+    Md5,
+    Sha1,
+    // SHA-2 variants
+    Sha2_224,
+    Sha2_256,
+    Sha2_384,
+    Sha2_512,
+    // SHA-3 variants
+    Sha3_224,
+    Sha3_256,
+    Sha3_384,
+    Sha3_512,
+    // Blake3
+    Blake3,
+}
+
+impl HashAlgorithm {
+    pub const ALL: [Self; 11] = [
+        Self::Md5,
+        Self::Sha1,
+        Self::Sha2_224,
+        Self::Sha2_256,
+        Self::Sha2_384,
+        Self::Sha2_512,
+        Self::Sha3_224,
+        Self::Sha3_256,
+        Self::Sha3_384,
+        Self::Sha3_512,
+        Self::Blake3,
+    ];
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Md5 => "md5",
+            Self::Sha1 => "sha1",
+            Self::Sha2_224 => "sha224",
+            Self::Sha2_256 => "sha256",
+            Self::Sha2_384 => "sha384",
+            Self::Sha2_512 => "sha512",
+            Self::Sha3_224 => "sha3-224",
+            Self::Sha3_256 => "sha3-256",
+            Self::Sha3_384 => "sha3-384",
+            Self::Sha3_512 => "sha3-512",
+            Self::Blake3 => "blake3",
+        }
+    }
+}
+
+impl HashOptions {
+    /**
+        Computes the hash for the `message` using whatever `algorithm` is
+        contained within this struct and returns it as a string of hex digits.
+    */
+    #[inline]
+    #[must_use = "hashing a message is useless without using the resulting hash"]
+    pub fn hash(self) -> String {
+        use digest::Digest;
+
+        let message = self.message;
+        let bytes = match self.algorithm {
+            HashAlgorithm::Md5 => Md5::digest(message).to_vec(),
+            HashAlgorithm::Sha1 => Sha1::digest(message).to_vec(),
+            HashAlgorithm::Sha2_224 => Sha224::digest(message).to_vec(),
+            HashAlgorithm::Sha2_256 => Sha256::digest(message).to_vec(),
+            HashAlgorithm::Sha2_384 => Sha384::digest(message).to_vec(),
+            HashAlgorithm::Sha2_512 => Sha512::digest(message).to_vec(),
+
+            HashAlgorithm::Sha3_224 => Sha3_224::digest(message).to_vec(),
+            HashAlgorithm::Sha3_256 => Sha3_256::digest(message).to_vec(),
+            HashAlgorithm::Sha3_384 => Sha3_384::digest(message).to_vec(),
+            HashAlgorithm::Sha3_512 => Sha3_512::digest(message).to_vec(),
+
+            HashAlgorithm::Blake3 => Blake3::digest(message).to_vec(),
+        };
+
+        // We don't want to return raw binary data generally, since that's not
+        // what most people want a hash for. So we have to make a hex string.
+        bytes
+            .iter()
+            .fold(String::with_capacity(bytes.len() * 2), |mut output, b| {
+                let _ = write!(output, "{b:02x}");
+                output
+            })
+    }
+
+    /**
+        Computes the HMAC for the `message` using whatever `algorithm` and
+        `secret` are contained within this struct. The computed value is
+        returned as a string of hex digits.
+
+        # Errors
+
+        If the `secret` is not provided or is otherwise invalid.
+    */
+    #[inline]
+    pub fn hmac(self) -> LuaResult<String> {
+        use hmac::{Hmac, Mac, SimpleHmac};
+
+        let secret = self
+            .secret
+            .ok_or_else(|| LuaError::FromLuaConversionError {
+                from: "nil",
+                to: "string or buffer".to_string(),
+                message: Some("Argument #3 missing or nil".to_string()),
+            })?;
+
+        /*
+            These macros exist to remove what would ultimately be dozens of
+            repeating lines. Essentially, there's several step to processing
+            HMacs, which expands into the 3 lines you see below. However,
+            the Hmac struct is specialized towards eager block-based processes.
+            In order to support anything else, like blake3, there's a second
+            type named `SimpleHmac`. This results in duplicate macros like
+            there are below.
+        */
+        macro_rules! hmac {
+            ($Type:ty) => {{
+                let mut mac: Hmac<$Type> = Hmac::new_from_slice(&secret).into_lua_err()?;
+                mac.update(&self.message);
+                mac.finalize().into_bytes().to_vec()
+            }};
+        }
+        macro_rules! hmac_no_blocks {
+            ($Type:ty) => {{
+                let mut mac: SimpleHmac<$Type> =
+                    SimpleHmac::new_from_slice(&secret).into_lua_err()?;
+                mac.update(&self.message);
+                mac.finalize().into_bytes().to_vec()
+            }};
+        }
+
+        let bytes = match self.algorithm {
+            HashAlgorithm::Md5 => hmac!(Md5),
+            HashAlgorithm::Sha1 => hmac!(Sha1),
+
+            HashAlgorithm::Sha2_224 => hmac!(Sha224),
+            HashAlgorithm::Sha2_256 => hmac!(Sha256),
+            HashAlgorithm::Sha2_384 => hmac!(Sha384),
+            HashAlgorithm::Sha2_512 => hmac!(Sha512),
+
+            HashAlgorithm::Sha3_224 => hmac!(Sha3_224),
+            HashAlgorithm::Sha3_256 => hmac!(Sha3_256),
+            HashAlgorithm::Sha3_384 => hmac!(Sha3_384),
+            HashAlgorithm::Sha3_512 => hmac!(Sha3_512),
+
+            HashAlgorithm::Blake3 => hmac_no_blocks!(Blake3),
+        };
+        Ok(bytes
+            .iter()
+            .fold(String::with_capacity(bytes.len() * 2), |mut output, b| {
+                let _ = write!(output, "{b:02x}");
+                output
+            }))
+    }
+}
+
+impl FromLua for HashAlgorithm {
+    fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
+        if let LuaValue::String(str) = value {
+            /*
+                Casing tends to vary for algorithms, so rather than force
+                people to remember it we'll just accept any casing.
+            */
+            let str = str.to_str()?.to_ascii_lowercase();
+            match str.as_str() {
+                "md5" => Ok(Self::Md5),
+                "sha1" => Ok(Self::Sha1),
+
+                "sha2-224" | "sha2_224" | "sha224" => Ok(Self::Sha2_224),
+                "sha2-256" | "sha2_256" | "sha256" => Ok(Self::Sha2_256),
+                "sha2-384" | "sha2_384" | "sha384" => Ok(Self::Sha2_384),
+                "sha2-512" | "sha2_512" | "sha512" => Ok(Self::Sha2_512),
+
+                "sha3-224" | "sha3_224" => Ok(Self::Sha3_224),
+                "sha3-256" | "sha3_256" => Ok(Self::Sha3_256),
+                "sha3-384" | "sha3_384" => Ok(Self::Sha3_384),
+                "sha3-512" | "sha3_512" => Ok(Self::Sha3_512),
+
+                "blake3" => Ok(Self::Blake3),
+
+                _ => Err(LuaError::FromLuaConversionError {
+                    from: "string",
+                    to: "HashAlgorithm".to_string(),
+                    message: Some(format!(
+                        "Invalid hashing algorithm '{str}', valid kinds are:\n{}",
+                        HashAlgorithm::ALL
+                            .into_iter()
+                            .map(HashAlgorithm::name)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )),
+                }),
+            }
+        } else {
+            Err(LuaError::FromLuaConversionError {
+                from: value.type_name(),
+                to: "HashAlgorithm".to_string(),
+                message: None,
+            })
+        }
+    }
+}
+
+impl FromLuaMulti for HashOptions {
+    fn from_lua_multi(mut values: LuaMultiValue, lua: &Lua) -> LuaResult<Self> {
+        let algorithm = values
+            .pop_front()
+            .map(|value| HashAlgorithm::from_lua(value, lua))
+            .transpose()?
+            .ok_or_else(|| LuaError::FromLuaConversionError {
+                from: "nil",
+                to: "HashOptions".to_string(),
+                message: Some("Argument #1 missing or nil".to_string()),
+            })?;
+        let message = values
+            .pop_front()
+            .map(|value| BString::from_lua(value, lua))
+            .transpose()?
+            .ok_or_else(|| LuaError::FromLuaConversionError {
+                from: "nil",
+                to: "string or buffer".to_string(),
+                message: Some("Argument #2 missing or nil".to_string()),
+            })?;
+        let secret = values
+            .pop_front()
+            .map(|value| BString::from_lua(value, lua))
+            .transpose()?;
+        // let seed = values
+        //     .pop_front()
+        //     .map(|value| BString::from_lua(value, lua))
+        //     .transpose()?;
+
+        Ok(HashOptions {
+            algorithm,
+            message,
+            secret,
+            // seed,
+        })
+    }
+}
