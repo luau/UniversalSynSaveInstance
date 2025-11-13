@@ -1,0 +1,81 @@
+---
+source: src/rules/remove_comments.rs
+expression: code_output
+---
+var , var2 
+= true  
+    , false
+
+ i  -= 1
+do 
+end
+function foo 
+    . var 
+    (param1 , p2 , ...  ) 
+end
+function foo:var 
+    (param1 , p2 , ...  ) 
+    return 0x01  - 0b1 
+end
+
+for key , value   in pairs( variable ) do continue end
+
+if  "value" then
+elseif  'value2'  then
+else 
+
+    return 
+
+end
+
+local  id
+local id2 
+    = .123, function( arg  , ... ) end
+
+local a ,  b, c = id +  id, nil 
+
+local function fn  ( p1, p2 
+    , p3, ... ) end
+
+for i = 10, 1, - 3 do 
+    continue 
+end
+
+repeat 
+    break 
+until  not  -value
+
+while  true 
+do
+    return  result . new  ( value . field 
+), object[  not key  ]
+end
+
+object : method  ({ key  = [[true]], [ true ] = ( nil ) 
+ }, ...  )
+
+object .  field : method 
+{ if   value   then    ok   else   err, {  },  }
+
+local string = `-{ true }-{ object  }={ c + 8 }` 
+
+
+
+
+local var: string | number 
+
+local bvar = var :: number
+
+local function fn2<T , U, R...>(first: T & U, opts: { [number  ]: string }? , ...: R...) : ()
+    return first ::  T
+end
+
+type MyT = {
+    true 
+}
+
+export --[[ this is exported ]] type PublicMyT = (MyT)
+
+type Opt<T> = Module . OtherType 
+
+type Try = (...'a'  ) -> typeof ( fn()  )

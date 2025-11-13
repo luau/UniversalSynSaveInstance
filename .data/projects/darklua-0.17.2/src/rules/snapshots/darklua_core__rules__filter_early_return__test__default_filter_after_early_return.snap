@@ -1,0 +1,7 @@
+---
+source: src/rules/filter_early_return.rs
+assertion_line: 94
+expression: rule
+
+---
+"filter_after_early_return"

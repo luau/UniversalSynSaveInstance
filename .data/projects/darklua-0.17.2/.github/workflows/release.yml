@@ -1,0 +1,165 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'The version to release starting with `v`'
+        required: true
+        type: string
+
+      release_ref:
+        description: 'The branch, tag or SHA to checkout (default to latest)'
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish-crate:
+    name: Publish darklua crate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+
+      - name: Publish crate
+        shell: bash
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  create-release:
+    needs: publish-crate
+
+    name: Create release
+    runs-on: ubuntu-latest
+
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create tag
+        run: |
+          git fetch --tags --no-recurse-submodules
+          if [ ! $(git tag -l ${{ inputs.release_tag }}) ]; then
+            git tag ${{ inputs.release_tag }}
+            git push origin ${{ inputs.release_tag }}
+          fi
+
+      - name: Create release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: ${{ inputs.release_tag }}
+          draft: false
+
+  build:
+    needs: create-release
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact-name: darklua-windows-x86_64
+            cargo-target: x86_64-pc-windows-msvc
+
+          - os: ubuntu-latest
+            artifact-name: darklua-linux-x86_64
+            cargo-target: x86_64-unknown-linux-gnu
+
+          - os: ubuntu-latest
+            artifact-name: darklua-linux-aarch64
+            cargo-target: aarch64-unknown-linux-gnu
+            linker: gcc-aarch64-linux-gnu
+
+          - os: macos-latest
+            artifact-name: darklua-macos-x86_64
+            cargo-target: x86_64-apple-darwin
+
+          - os: macos-latest
+            artifact-name: darklua-macos-aarch64
+            cargo-target: aarch64-apple-darwin
+
+    name: Build darklua (${{ matrix.artifact-name }})
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_ref }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.cargo-target }}
+          override: true
+          profile: minimal
+
+      - name: Install linker
+        if: ${{ matrix.linker != '' }}
+        run: |
+          sudo apt update
+          sudo apt install ${{ matrix.linker }}
+          if [ ! -f ".cargo/config.toml" ]; then
+            mkdir .cargo
+            echo "[target.aarch64-unknown-linux-gnu]" > .cargo/config.toml
+            echo 'linker = "aarch64-linux-gnu-gcc"' >> .cargo/config.toml
+          fi
+
+      - name: Generate Cargo.lock if needed
+        shell: bash
+        run: |
+          if [ ! -f "Cargo.lock" ]; then
+            cargo generate-lockfile
+          fi
+
+      - name: Build darklua binary
+        run: cargo build --locked --release --target ${{ matrix.cargo-target }}
+        env:
+          CARGO_TARGET_DIR: output
+
+      - name: Setup archive
+        shell: bash
+        run: |
+          mkdir -p staging
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp "output/${{ matrix.cargo-target }}/release/darklua.exe" staging/
+            cd staging
+            7z a ../release.zip *
+          else
+            cp "output/${{ matrix.cargo-target }}/release/darklua" staging/
+            cd staging
+            zip ../release.zip *
+          fi
+
+      - name: Upload archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: release.zip
+
+      - name: Upload Binary to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: release.zip
+          asset_name: ${{ matrix.artifact-name }}.zip
+          asset_content_type: application/zip

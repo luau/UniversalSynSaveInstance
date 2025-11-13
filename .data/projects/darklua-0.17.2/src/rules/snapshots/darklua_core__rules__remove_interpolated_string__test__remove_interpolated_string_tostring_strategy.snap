@@ -1,0 +1,8 @@
+---
+source: src/rules/remove_interpolated_string.rs
+expression: rule
+---
+{
+  "rule": "remove_interpolated_string",
+  "strategy": "tostring"
+}

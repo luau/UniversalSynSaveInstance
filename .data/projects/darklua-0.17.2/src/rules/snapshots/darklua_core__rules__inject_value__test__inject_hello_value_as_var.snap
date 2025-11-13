@@ -1,0 +1,10 @@
+---
+source: src/rules/inject_value.rs
+expression: rule
+
+---
+{
+  "rule": "inject_global_value",
+  "identifier": "VAR",
+  "value": "hello"
+}

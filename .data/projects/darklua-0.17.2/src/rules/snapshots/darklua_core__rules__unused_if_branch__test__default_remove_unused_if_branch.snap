@@ -1,0 +1,6 @@
+---
+source: src/rules/unused_if_branch.rs
+expression: rule
+
+---
+"remove_unused_if_branch"

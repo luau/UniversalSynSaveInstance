@@ -1,0 +1,7 @@
+---
+source: tests/rule_tests/convert_require.rs
+expression: "process `tests/test_cases/sourcemap/src/d/d1.lua`"
+---
+local Package1 = require(script.Parent.Parent:FindFirstChild('Packages'):FindFirstChild('Package1'))
+
+return Package1 .. Package1

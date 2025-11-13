@@ -1,0 +1,6 @@
+---
+source: tests/cli.rs
+expression: content
+---
+an error happened: invalid data format 'yoyo' (possible options are: 'json', 'json5', 'yml' or 'toml') [unrecognized file extension]
+

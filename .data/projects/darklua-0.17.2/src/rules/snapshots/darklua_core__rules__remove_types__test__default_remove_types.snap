@@ -1,0 +1,5 @@
+---
+source: src/rules/remove_types.rs
+expression: rule
+---
+"remove_types"

@@ -1,0 +1,6 @@
+---
+source: src/rules/convert_index_to_field.rs
+expression: rule
+
+---
+"convert_index_to_field"

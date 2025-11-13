@@ -1,0 +1,5 @@
+---
+source: src/rules/remove_compound_assign.rs
+expression: rule
+---
+"remove_compound_assignment"

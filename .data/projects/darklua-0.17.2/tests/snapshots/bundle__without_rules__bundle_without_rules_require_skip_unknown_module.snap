@@ -1,0 +1,5 @@
+---
+source: tests/bundle.rs
+expression: main
+---
+local library = require('@lune/library')

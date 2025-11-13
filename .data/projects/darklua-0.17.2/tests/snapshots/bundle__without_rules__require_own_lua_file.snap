@@ -1,0 +1,5 @@
+---
+source: tests/bundle.rs
+expression: "error_display.join(\"\\n\")"
+---
+error processing `src/main.lua` (bundler): cyclic require detected with `src/main.lua` > `src/main.lua`

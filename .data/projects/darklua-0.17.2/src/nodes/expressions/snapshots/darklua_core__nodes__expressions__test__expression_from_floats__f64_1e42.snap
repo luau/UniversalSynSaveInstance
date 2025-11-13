@@ -1,0 +1,18 @@
+---
+source: src/nodes/expressions/mod.rs
+expression: result
+---
+Number(
+    Decimal(
+        DecimalNumber {
+            float: 1e42,
+            exponent: Some(
+                (
+                    42,
+                    true,
+                ),
+            ),
+            token: None,
+        },
+    ),
+)

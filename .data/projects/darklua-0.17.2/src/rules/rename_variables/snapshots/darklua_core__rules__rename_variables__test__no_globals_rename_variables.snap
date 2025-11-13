@@ -1,0 +1,9 @@
+---
+source: src/rules/rename_variables/mod.rs
+expression: "Box::new(RenameVariables::new(empty())) as Box<dyn Rule>"
+
+---
+{
+  "rule": "rename_variables",
+  "globals": []
+}

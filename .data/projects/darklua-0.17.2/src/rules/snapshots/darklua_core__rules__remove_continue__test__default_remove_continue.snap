@@ -1,0 +1,5 @@
+---
+source: src/rules/remove_continue.rs
+expression: rule
+---
+"remove_continue"

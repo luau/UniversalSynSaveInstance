@@ -1,0 +1,5 @@
+---
+source: src/rules/remove_floor_division.rs
+expression: rule
+---
+"remove_floor_division"

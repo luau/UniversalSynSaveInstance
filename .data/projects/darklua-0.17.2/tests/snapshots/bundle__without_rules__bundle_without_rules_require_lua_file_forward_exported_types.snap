@@ -1,0 +1,34 @@
+---
+source: tests/bundle.rs
+expression: main
+---
+type Value__DARKLUA_TYPE_a = string
+
+local __DARKLUA_BUNDLE_MODULES = {
+    cache = {}::any,
+}
+
+do
+    do
+        local function __modImpl()
+            return true
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.a(): typeof(__modImpl())
+            local v = __DARKLUA_BUNDLE_MODULES.cache.a
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.a = v
+            end
+
+            return v.c
+        end
+    end
+end
+
+local value = __DARKLUA_BUNDLE_MODULES.a()
+
+export type Value = Value__DARKLUA_TYPE_a

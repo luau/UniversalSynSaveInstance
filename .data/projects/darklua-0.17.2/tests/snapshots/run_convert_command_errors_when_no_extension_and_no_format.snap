@@ -1,0 +1,6 @@
+---
+source: tests/cli.rs
+expression: content
+---
+an error happened: unable to find data format because the input file 'data' has no extension. Specify the data format using the '--format' option
+

@@ -1,0 +1,122 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-release:
+    name: Run integration tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run tests (release)
+        run: cargo test --locked --release
+
+      - name: Build darklua (release)
+        run: cargo build --release
+
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.1.5"
+
+      - name: Install Lua package manager
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install Lua dependencies
+        run: |
+          luarocks install luafilesystem
+          luarocks install busted
+
+      - name: Run end-to-end tests
+        run: lua ./scripts/test-commands.lua
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Display cargo version
+        run: cargo --version
+
+      - name: Display cargo clippy version
+        run: cargo clippy --version
+
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Run tests
+        run: cargo test --locked
+
+  code-style:
+    name: Verify code style
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify code format
+        run: cargo fmt -- --check
+
+  coverage:
+    name: Generate coverage report
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-llvm-cov-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Run tests
+        run: cargo llvm-cov --lcov --output-path lcov.info
+
+      - name: Create coverage report comment
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: lcov.info
+          delete-old-comments: true
+          filter-changed-files: true

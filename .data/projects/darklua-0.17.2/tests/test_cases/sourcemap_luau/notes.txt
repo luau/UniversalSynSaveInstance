@@ -1,0 +1,6 @@
+Generate the sourcemaps using Rojo:
+
+```sh
+rojo sourcemap tests/test_cases/sourcemap_luau/default.project.json > tests/test_cases/sourcemap_luau/sourcemap.json
+rojo sourcemap tests/test_cases/sourcemap_luau/place.project.json > tests/test_cases/sourcemap_luau/place-sourcemap.json
+```

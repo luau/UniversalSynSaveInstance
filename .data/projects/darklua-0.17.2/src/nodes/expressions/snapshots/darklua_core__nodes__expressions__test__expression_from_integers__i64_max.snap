@@ -1,0 +1,24 @@
+---
+source: src/nodes/expressions/mod.rs
+expression: result
+---
+Unary(
+    UnaryExpression {
+        operator: Minus,
+        expression: Number(
+            Decimal(
+                DecimalNumber {
+                    float: 9.223372036854776e18,
+                    exponent: Some(
+                        (
+                            3,
+                            true,
+                        ),
+                    ),
+                    token: None,
+                },
+            ),
+        ),
+        token: None,
+    },
+)

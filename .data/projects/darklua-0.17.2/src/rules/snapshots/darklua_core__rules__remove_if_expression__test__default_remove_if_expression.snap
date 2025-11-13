@@ -1,0 +1,5 @@
+---
+source: src/rules/remove_if_expression.rs
+expression: rule
+---
+"remove_if_expression"

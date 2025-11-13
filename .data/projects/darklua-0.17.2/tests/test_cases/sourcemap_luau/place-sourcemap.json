@@ -1,0 +1,81 @@
+{
+  "name": "Roblox Place",
+  "className": "DataModel",
+  "filePaths": ["place.project.json"],
+  "children": [
+    {
+      "name": "ReplicatedStorage",
+      "className": "ReplicatedStorage",
+      "children": [
+        {
+          "name": "Project",
+          "className": "ModuleScript",
+          "filePaths": ["src/init.lua"],
+          "children": [
+            {
+              "name": "a",
+              "className": "ModuleScript",
+              "filePaths": ["src/a.lua"]
+            },
+            {
+              "name": "b",
+              "className": "ModuleScript",
+              "filePaths": ["src/b.lua"]
+            },
+            {
+              "name": "c",
+              "className": "ModuleScript",
+              "filePaths": ["src/c.lua"]
+            },
+            {
+              "name": "d",
+              "className": "ModuleScript",
+              "filePaths": ["src/d/init.lua"],
+              "children": [
+                {
+                  "name": "d1",
+                  "className": "ModuleScript",
+                  "filePaths": ["src/d/d1.lua"]
+                },
+                {
+                  "name": "d2",
+                  "className": "ModuleScript",
+                  "filePaths": ["src/d/d2.lua"]
+                }
+              ]
+            },
+            {
+              "name": "Packages",
+              "className": "Folder",
+              "children": [
+                {
+                  "name": "Package1",
+                  "className": "ModuleScript",
+                  "filePaths": ["Packages/Package1/init.lua"],
+                  "children": [
+                    {
+                      "name": "value",
+                      "className": "ModuleScript",
+                      "filePaths": ["Packages/Package1/value.lua"]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ServerScriptService",
+      "className": "ServerScriptService",
+      "children": [
+        {
+          "name": "MainScript",
+          "className": "Script",
+          "filePaths": ["main.server.lua"]
+        }
+      ]
+    }
+  ]
+}

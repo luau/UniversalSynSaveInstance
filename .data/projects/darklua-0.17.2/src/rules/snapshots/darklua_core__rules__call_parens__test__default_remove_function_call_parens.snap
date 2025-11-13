@@ -1,0 +1,6 @@
+---
+source: src/rules/call_parens.rs
+expression: rule
+
+---
+"remove_function_call_parens"

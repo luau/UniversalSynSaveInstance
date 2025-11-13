@@ -1,0 +1,5 @@
+---
+source: tests/utils.rs
+assertion_line: 67
+---
+error processing `src/init.lua` (convert_require [#0]): unable to read json data: EOF while parsing a value at line 1 column 0 (unable to parse Rojo sourcemap at `./sourcemap.json`)

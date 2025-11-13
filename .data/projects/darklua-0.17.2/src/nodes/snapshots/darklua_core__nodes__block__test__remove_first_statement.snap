@@ -1,0 +1,64 @@
+---
+source: src/nodes/block.rs
+expression: block
+---
+Block {
+    statements: [
+        Do(
+            DoStatement {
+                block: Block {
+                    statements: [],
+                    last_statement: None,
+                    tokens: Some(
+                        BlockTokens {
+                            semicolons: [],
+                            last_semicolon: None,
+                            final_token: None,
+                        },
+                    ),
+                },
+                tokens: Some(
+                    DoTokens {
+                        do: Token {
+                            position: LineNumberReference {
+                                start: 20,
+                                end: 22,
+                                line_number: 1,
+                            },
+                            leading_trivia: [],
+                            trailing_trivia: [
+                                Trivia {
+                                    position: LineNumberReference {
+                                        start: 22,
+                                        end: 23,
+                                        line_number: 1,
+                                    },
+                                    kind: Whitespace,
+                                },
+                            ],
+                        },
+                        end: Token {
+                            position: LineNumberReference {
+                                start: 23,
+                                end: 26,
+                                line_number: 1,
+                            },
+                            leading_trivia: [],
+                            trailing_trivia: [],
+                        },
+                    },
+                ),
+            },
+        ),
+    ],
+    last_statement: None,
+    tokens: Some(
+        BlockTokens {
+            semicolons: [
+                None,
+            ],
+            last_semicolon: None,
+            final_token: None,
+        },
+    ),
+}

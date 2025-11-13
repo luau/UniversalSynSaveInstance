@@ -1,0 +1,6 @@
+---
+source: tests/cli.rs
+expression: content
+---
+[2m[32msuccessfully converted data.json[0m [2m(in {{DURATION}})[0m
+

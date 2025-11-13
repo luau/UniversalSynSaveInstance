@@ -1,0 +1,5 @@
+---
+source: tests/frontend.rs
+expression: errors_display
+---
+- unable to find `missing/config.json` (expected to find configuration file as provided by the options)

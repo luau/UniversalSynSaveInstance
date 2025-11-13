@@ -1,0 +1,6 @@
+---
+source: src/rules/no_local_function.rs
+expression: new_rule()
+
+---
+"convert_local_function_to_assign"

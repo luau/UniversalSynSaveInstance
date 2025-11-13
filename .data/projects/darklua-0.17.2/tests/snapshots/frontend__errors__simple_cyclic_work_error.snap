@@ -1,0 +1,9 @@
+---
+source: tests/frontend.rs
+expression: errors_display
+---
+- cyclic work detected:
+    `src/a.lua` needs:
+      - src/b.lua
+    `src/b.lua` needs:
+      - src/a.lua

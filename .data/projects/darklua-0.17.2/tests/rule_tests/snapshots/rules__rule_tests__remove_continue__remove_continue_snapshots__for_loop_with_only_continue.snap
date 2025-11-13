@@ -1,0 +1,7 @@
+---
+source: tests/rule_tests/remove_continue.rs
+expression: lua_code
+---
+    for i = 1, 10 do
+local __DARKLUA_CONTINUE_1=false repeat __DARKLUA_CONTINUE_1=true        break
+until true if not __DARKLUA_CONTINUE_1 then break end    end

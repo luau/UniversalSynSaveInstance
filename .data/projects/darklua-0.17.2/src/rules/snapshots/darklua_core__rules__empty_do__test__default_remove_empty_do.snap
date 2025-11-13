@@ -1,0 +1,6 @@
+---
+source: src/rules/empty_do.rs
+expression: rule
+
+---
+"remove_empty_do"

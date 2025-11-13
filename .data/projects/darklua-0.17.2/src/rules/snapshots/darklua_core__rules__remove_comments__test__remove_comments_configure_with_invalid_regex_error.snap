@@ -1,0 +1,9 @@
+---
+source: src/rules/remove_comments.rs
+expression: result.unwrap_err().to_string()
+---
+unexpected value for field 'except': invalid regex provided `^[0-9`
+  regex parse error:
+    ^[0-9
+     ^
+error: unclosed character class

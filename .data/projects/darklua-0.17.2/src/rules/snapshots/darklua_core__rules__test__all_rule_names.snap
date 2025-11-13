@@ -1,0 +1,36 @@
+---
+source: src/rules/mod.rs
+expression: rule_names
+---
+[
+  "append_text_comment",
+  "compute_expression",
+  "convert_function_to_assignment",
+  "convert_index_to_field",
+  "convert_local_function_to_assign",
+  "convert_luau_number",
+  "convert_require",
+  "convert_square_root_call",
+  "filter_after_early_return",
+  "group_local_assignment",
+  "inject_global_value",
+  "remove_assertions",
+  "remove_comments",
+  "remove_compound_assignment",
+  "remove_debug_profiling",
+  "remove_empty_do",
+  "remove_floor_division",
+  "remove_function_call_parens",
+  "remove_interpolated_string",
+  "remove_method_call",
+  "remove_method_definition",
+  "remove_nil_declaration",
+  "remove_spaces",
+  "remove_types",
+  "remove_unused_if_branch",
+  "remove_unused_variable",
+  "remove_unused_while",
+  "rename_variables",
+  "remove_if_expression",
+  "remove_continue"
+]

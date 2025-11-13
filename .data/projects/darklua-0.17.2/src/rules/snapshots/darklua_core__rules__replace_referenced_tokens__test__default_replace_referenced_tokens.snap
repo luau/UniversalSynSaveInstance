@@ -1,0 +1,5 @@
+---
+source: src/rules/replace_referenced_tokens.rs
+expression: rule
+---
+"replace_referenced_tokens"

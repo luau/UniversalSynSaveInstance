@@ -1,0 +1,6 @@
+---
+source: src/rules/group_local.rs
+expression: rule
+
+---
+"group_local_assignment"

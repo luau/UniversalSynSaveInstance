@@ -1,0 +1,5 @@
+---
+source: src/rules/remove_assertions.rs
+expression: rule
+---
+"remove_assertions"

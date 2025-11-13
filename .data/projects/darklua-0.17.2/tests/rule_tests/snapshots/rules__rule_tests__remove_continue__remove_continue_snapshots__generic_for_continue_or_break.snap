@@ -1,0 +1,12 @@
+---
+source: tests/rule_tests/remove_continue.rs
+expression: lua_code
+---
+    for key, value in array do
+local __DARKLUA_CONTINUE_1=false repeat        if skip(key) then
+__DARKLUA_CONTINUE_1=true            break
+        elseif stop(key) then
+            break
+        end
+        print(value)
+__DARKLUA_CONTINUE_1=true until true if not __DARKLUA_CONTINUE_1 then break end    end

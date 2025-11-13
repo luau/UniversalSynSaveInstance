@@ -1,0 +1,27 @@
+---
+source: tests/cli.rs
+expression: content
+---
+Transform Lua scripts
+
+For specific help about each command, run `darklua <command> --help`
+
+Site: <https://darklua.com>
+
+Usage: darklua [OPTIONS] <COMMAND>
+
+Commands:
+  minify   Minify lua files without applying any transformation
+  process  Process lua files with rules
+  convert  Convert a data file [json, json5, yaml, toml] into a Lua file
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -v, --verbose...
+          Sets verbosity level (can be specified multiple times)
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version

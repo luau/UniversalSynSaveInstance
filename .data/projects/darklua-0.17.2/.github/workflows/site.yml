@@ -1,0 +1,101 @@
+name: Site
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-site:
+    name: Build darklua site
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: "site/package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify code style
+        run: npm run style-check
+
+      - uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          version: "latest"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            site/darklua-wasm/target/
+          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build darklua-wasm for Node
+        run: wasm-pack build darklua-wasm -t nodejs -d pkg
+
+      - name: Install JavaScript wasm tests dependencies
+        working-directory: site/darklua-wasm/javascript-tests
+        run: npm ci
+
+      - name: Run JavaScript wasm tests dependencies
+        working-directory: site/darklua-wasm/javascript-tests
+        run: npm run test
+
+      - name: Build darklua-wasm (release)
+        run: |
+          mv darklua-wasm/pkg darklua-wasm/node-pkg
+          wasm-pack build darklua-wasm -t bundler --release
+
+      - uses: actions/cache@v4
+        if: github.ref != 'refs/heads/main'
+        with:
+          path: |
+            site/public/
+            site/.cache/
+          key: ${{ runner.os }}-gatsby-build-${{ hashFiles('site/package-lock.json') }}
+
+      - name: Get gatsby version
+        run: npx gatsby --version
+
+      - name: Build site
+        run: npx gatsby build
+
+      - name: Archive site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/public
+
+  deploy:
+    name: Deploy darklua site
+    runs-on: ubuntu-latest
+    needs: build-site
+    if: github.ref == 'refs/heads/main'
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy site to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

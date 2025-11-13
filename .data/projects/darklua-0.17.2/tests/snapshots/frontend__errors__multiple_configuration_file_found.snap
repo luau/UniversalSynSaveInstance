@@ -1,0 +1,5 @@
+---
+source: tests/frontend.rs
+expression: errors_display
+---
+- multiple default configuration file found: `.darklua.json`, `.darklua.json5`

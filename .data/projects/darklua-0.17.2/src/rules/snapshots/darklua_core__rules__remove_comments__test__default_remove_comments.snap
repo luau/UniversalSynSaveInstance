@@ -1,0 +1,6 @@
+---
+source: src/rules/remove_comments.rs
+expression: rule
+
+---
+"remove_comments"

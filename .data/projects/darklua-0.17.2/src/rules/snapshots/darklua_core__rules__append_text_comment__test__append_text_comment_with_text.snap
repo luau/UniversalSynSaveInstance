@@ -1,0 +1,8 @@
+---
+source: src/rules/append_text_comment.rs
+expression: rule
+---
+{
+  "rule": "append_text_comment",
+  "text": "content"
+}

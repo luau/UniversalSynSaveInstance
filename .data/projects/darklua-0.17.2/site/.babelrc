@@ -1,0 +1,23 @@
+{
+  "plugins": [
+    [
+      "prismjs",
+      {
+        "languages": ["lua", "json", "json5", "toml", "yaml"],
+        "plugins": ["toolbar"],
+        "theme": "okaidia",
+        "css": true
+      }
+    ]
+  ],
+  "presets": [
+    [
+      "babel-preset-gatsby",
+      {
+        "targets": {
+          "browsers": [">0.25%", "not dead"]
+        }
+      }
+    ]
+  ]
+}

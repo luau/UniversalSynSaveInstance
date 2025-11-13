@@ -1,0 +1,19 @@
+---
+source: src/rules/mod.rs
+expression: rules
+---
+[
+  "remove_spaces",
+  "remove_comments",
+  "compute_expression",
+  "remove_unused_if_branch",
+  "remove_unused_while",
+  "filter_after_early_return",
+  "remove_empty_do",
+  "remove_unused_variable",
+  "remove_method_definition",
+  "convert_index_to_field",
+  "remove_nil_declaration",
+  "rename_variables",
+  "remove_function_call_parens"
+]

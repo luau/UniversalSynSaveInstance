@@ -1,0 +1,5 @@
+---
+source: src/rules/convert_require/mod.rs
+expression: rule
+---
+"convert_require"

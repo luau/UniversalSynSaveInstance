@@ -1,0 +1,16 @@
+---
+source: tests/rule_tests/remove_continue.rs
+expression: lua_code
+---
+    for i = 1, 10 do
+        local element = array[i]
+        function element.call()
+            for j = i, i + 10 do
+local __DARKLUA_CONTINUE_2=false repeat                if j % 2 == 0 then
+__DARKLUA_CONTINUE_2=true                    break
+                else
+                    print(i)
+                end
+__DARKLUA_CONTINUE_2=true until true if not __DARKLUA_CONTINUE_2 then break end            end
+        end
+    end

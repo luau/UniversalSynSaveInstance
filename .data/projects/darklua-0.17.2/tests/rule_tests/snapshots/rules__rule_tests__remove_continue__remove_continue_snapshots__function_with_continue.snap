@@ -1,0 +1,13 @@
+---
+source: tests/rule_tests/remove_continue.rs
+expression: lua_code
+---
+    for i = 1, 10 do
+local __DARKLUA_CONTINUE_1=false repeat        local function shouldSkip(val)
+            return val % 2 == 0
+        end
+        if shouldSkip(i) then
+__DARKLUA_CONTINUE_1=true            break
+        end
+        print(i)
+__DARKLUA_CONTINUE_1=true until true if not __DARKLUA_CONTINUE_1 then break end    end

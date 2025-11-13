@@ -1,0 +1,6 @@
+---
+source: src/rules/method_def.rs
+expression: wrap(new_rule())
+
+---
+"remove_method_definition"

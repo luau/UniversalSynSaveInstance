@@ -1,0 +1,36 @@
+---
+source: tests/bundle.rs
+expression: main
+---
+local __DARKLUA_BUNDLE_MODULES={cache={}::any}do do local function __modImpl()local function initialize()
+end
+
+return initialize
+end function __DARKLUA_BUNDLE_MODULES.a():typeof(__modImpl())local v=__DARKLUA_BUNDLE_MODULES.cache.a if not v then v={c=__modImpl()}__DARKLUA_BUNDLE_MODULES.cache.a=v end return v.c end end do local function __modImpl()
+local function generateNumber()
+    return math.random(1, 9999)
+end
+
+return {
+    zero = 0,
+    one = 1,
+    hex = 0x10,
+    binary = 0b1010,
+    number1 = generateNumber(),
+    number2 = generateNumber(),
+    number3 = generateNumber(),
+}
+end function __DARKLUA_BUNDLE_MODULES.b():typeof(__modImpl())local v=__DARKLUA_BUNDLE_MODULES.cache.b if not v then v={c=__modImpl()}__DARKLUA_BUNDLE_MODULES.cache.b=v end return v.c end end do local function __modImpl()
+local function format(value)
+    return '[' .. tostring(value) .. ']'
+end
+
+return format -- comment after returning format function
+end function __DARKLUA_BUNDLE_MODULES.c():typeof(__modImpl())local v=__DARKLUA_BUNDLE_MODULES.cache.c if not v then v={c=__modImpl()}__DARKLUA_BUNDLE_MODULES.cache.c=v end return v.c end end end
+local initialize = __DARKLUA_BUNDLE_MODULES.a() -- import initialize module
+
+local value = __DARKLUA_BUNDLE_MODULES.b() -- import value module
+
+local format = __DARKLUA_BUNDLE_MODULES.c() --[[ import format module ]]
+
+print(format(value.number1 + value.number2))

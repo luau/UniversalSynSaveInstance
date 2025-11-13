@@ -1,0 +1,5 @@
+---
+source: tests/bundle.rs
+expression: "error_display.join(\"\\n\")"
+---
+error processing `src/main.lua` (bundler): unable to find `src/library` (tried `src/library`, `src/library.luau`, `src/library.lua`, `src/library/init`, `src/library/init.luau`, `src/library/init.lua`)

@@ -1,0 +1,5 @@
+---
+source: src/rules/convert_luau_number.rs
+expression: rule
+---
+"convert_luau_number"

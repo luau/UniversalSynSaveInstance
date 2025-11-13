@@ -1,0 +1,6 @@
+---
+source: tests/cli.rs
+expression: content
+---
+successfully minified 1 file (in {{DURATION}})
+

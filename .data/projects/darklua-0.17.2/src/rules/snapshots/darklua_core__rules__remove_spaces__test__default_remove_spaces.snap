@@ -1,0 +1,6 @@
+---
+source: src/rules/remove_spaces.rs
+expression: rule
+
+---
+"remove_spaces"

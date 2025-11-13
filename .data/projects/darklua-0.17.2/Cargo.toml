@@ -1,0 +1,94 @@
+[package]
+name = "darklua"
+version = "0.17.2"
+authors = ["jeparlefrancais <jeparlefrancais21@gmail.com>"]
+edition = "2018"
+readme = "README.md"
+description = "Transform Lua scripts"
+repository = "https://github.com/seaofvoices/darklua"
+homepage = "https://darklua.com"
+license = "MIT"
+keywords = ["lua", "obsfucation", "minify"]
+exclude = ["site"]
+
+[badges]
+github = { repository = "seaofvoices/darklua" }
+
+[lib]
+name = "darklua_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "darklua"
+path = "src/bin.rs"
+
+[features]
+tracing = ["dep:tracing"]
+
+[dependencies]
+anstyle = "1.0.11"
+bstr = "1.12.0"
+clap = { version = "4.5.48", features = ["derive"] }
+durationfmt = "0.1.1"
+elsa = "1.11.2"
+env_logger = "0.11.8"
+full_moon = { version = "2.0.0", features = ["roblox"] }
+indexmap = "2.11.4"
+json5 = "0.4.1"
+log = "0.4.28"
+num-traits = "0.2.19"
+pathdiff = "0.2.3"
+petgraph = "0.8.2"
+regex = "1.11.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.145"
+serde_yaml = "0.9.33"
+toml = "0.9.7"
+tracing = { version = "0.1", optional = true }
+wax = "0.6.0"
+xxhash-rust = { version = "0.8.15", features = ["xxh3"] }
+
+[dev-dependencies]
+assert_cmd = "2.0.17"
+criterion = { version = "0.5.1", features = ["html_reports"] }
+include_dir = "0.7.4"
+insta = { version = "1.43.2", features = ["json", "filters"] }
+paste = "1.0.15"
+pretty_assertions = "1.4.1"
+rand = "0.9.2"
+rand_distr = "0.5.1"
+serde_bytes = "0.11.19"
+tempfile = "3.23.0"
+tracing-subscriber = "0.3.20"
+tracing-tracy = "0.11.4"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-time = "1.1.0"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ctrlc = { version = "3.5.0", features = ["termination"] }
+notify = "8.2.0"
+notify-debouncer-full = "0.6.0"
+
+# This is needed because when runnin `cargo test`, the library and its
+# dependencies are build with the `dev` profile. To make sure full_moon
+# does not stack overflow when parsing complex code, it needs to be compiled
+# at optimization level 3 (which is what release mode uses)
+# Info about profiles can be found there:
+#     https://doc.rust-lang.org/cargo/reference/profiles.html
+[profile.dev.package.full_moon]
+opt-level = 3
+
+[[bench]]
+name = "process_bench"
+harness = false
+
+[[bench]]
+name = "parse_bench"
+harness = false
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage)'] }
+
+[lints.clippy]
+uninlined_format_args = "allow"

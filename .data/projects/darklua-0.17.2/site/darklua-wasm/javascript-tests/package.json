@@ -1,0 +1,19 @@
+{
+  "name": "darklua-wasm-tests",
+  "private": true,
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "wasm-pack build -t nodejs",
+    "test": "npx jest"
+  },
+  "author": "jeparlefrancais <jeparlefrancais21@gmail.com>",
+  "dependencies": {
+    "darklua-wasm": "file:../pkg"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "type": "module"
+}

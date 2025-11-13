@@ -1,0 +1,36 @@
+---
+source: tests/cli.rs
+expression: content
+---
+Process lua files with rules
+
+Configure the code transformation using a configuration file. If no configuration is passed, darklua will attempt to read `.darklua.json` or `darklua.json5` from the working directory.
+
+Usage: darklua process [OPTIONS] <INPUT_PATH> <OUTPUT_PATH>
+
+Arguments:
+  <INPUT_PATH>
+          Path to the lua file to process
+
+  <OUTPUT_PATH>
+          Where to output the result
+
+Options:
+  -c, --config <CONFIG>
+          Choose a specific configuration file
+
+  -v, --verbose...
+          Sets verbosity level (can be specified multiple times)
+
+      --format <FORMAT>
+          Choose how Lua code is formatted ('dense', 'readable' or 'retain_lines'). This will override the format given by the configuration file
+
+  -w, --watch
+          Watch files and directories for changes and automatically re-run
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+

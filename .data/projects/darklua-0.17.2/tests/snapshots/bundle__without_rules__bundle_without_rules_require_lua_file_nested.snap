@@ -1,0 +1,50 @@
+---
+source: tests/bundle.rs
+expression: main
+---
+local __DARKLUA_BUNDLE_MODULES = {
+    cache = {}::any,
+}
+
+do
+    do
+        local function __modImpl()
+            return 2
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.a(): typeof(__modImpl())
+            local v = __DARKLUA_BUNDLE_MODULES.cache.a
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.a = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local constant = __DARKLUA_BUNDLE_MODULES.a()
+
+            return constant + constant
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.b(): typeof(__modImpl())
+            local v = __DARKLUA_BUNDLE_MODULES.cache.b
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.b = v
+            end
+
+            return v.c
+        end
+    end
+end
+
+local value = __DARKLUA_BUNDLE_MODULES.b()

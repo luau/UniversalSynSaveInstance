@@ -1,0 +1,18 @@
+---
+source: tests/cli.rs
+expression: content
+---
+Convert a data file [json, json5, yaml, toml] into a Lua file
+
+Usage: darklua convert [OPTIONS] <INPUT> [OUTPUT]
+
+Arguments:
+  <INPUT>   Data file to convert to Lua
+  [OUTPUT]  Path where to write the Lua file
+
+Options:
+  -f, --format <FORMAT>  Data format ('json', 'yaml' or 'toml')
+  -v, --verbose...       Sets verbosity level (can be specified multiple times)
+  -h, --help             Print help
+  -V, --version          Print version
+

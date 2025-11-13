@@ -1,0 +1,28 @@
+---
+source: src/nodes/expressions/mod.rs
+expression: result
+---
+Binary(
+    BinaryExpression {
+        operator: Slash,
+        left: Number(
+            Decimal(
+                DecimalNumber {
+                    float: 1.0,
+                    exponent: None,
+                    token: None,
+                },
+            ),
+        ),
+        right: Number(
+            Decimal(
+                DecimalNumber {
+                    float: 0.0,
+                    exponent: None,
+                    token: None,
+                },
+            ),
+        ),
+        token: None,
+    },
+)

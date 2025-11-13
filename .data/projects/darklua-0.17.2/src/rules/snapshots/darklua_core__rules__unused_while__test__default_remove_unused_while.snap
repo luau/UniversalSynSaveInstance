@@ -1,0 +1,6 @@
+---
+source: src/rules/unused_while.rs
+expression: rule
+
+---
+"remove_unused_while"

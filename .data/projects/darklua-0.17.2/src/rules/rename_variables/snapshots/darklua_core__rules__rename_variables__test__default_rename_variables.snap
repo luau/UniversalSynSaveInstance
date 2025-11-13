@@ -1,0 +1,6 @@
+---
+source: src/rules/rename_variables/mod.rs
+expression: new_rule()
+
+---
+"rename_variables"

@@ -1,0 +1,8 @@
+---
+source: tests/cli.rs
+expression: content
+---
+
+return
+1+
+1

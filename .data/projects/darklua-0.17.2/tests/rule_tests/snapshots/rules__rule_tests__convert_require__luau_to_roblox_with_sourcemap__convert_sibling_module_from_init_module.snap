@@ -1,0 +1,8 @@
+---
+source: tests/rule_tests/convert_require.rs
+expression: "process `tests/test_cases/sourcemap_luau/src/d/init.lua`"
+---
+return {
+	d1 = require(script:FindFirstChild('d1')),
+	d2 = require(script:FindFirstChild('d2')),
+}

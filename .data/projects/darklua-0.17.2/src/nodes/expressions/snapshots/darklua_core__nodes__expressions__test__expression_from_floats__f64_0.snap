@@ -1,0 +1,14 @@
+---
+source: src/nodes/expressions/mod.rs
+assertion_line: 332
+expression: result
+---
+Number(
+    Decimal(
+        DecimalNumber {
+            float: 0.0,
+            exponent: None,
+            token: None,
+        },
+    ),
+)

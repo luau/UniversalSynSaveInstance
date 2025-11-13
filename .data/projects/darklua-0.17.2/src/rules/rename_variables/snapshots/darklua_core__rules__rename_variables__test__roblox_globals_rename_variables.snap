@@ -1,0 +1,11 @@
+---
+source: src/rules/rename_variables/mod.rs
+expression: rule as Box<dyn Rule>
+
+---
+{
+  "rule": "rename_variables",
+  "globals": [
+    "$roblox"
+  ]
+}

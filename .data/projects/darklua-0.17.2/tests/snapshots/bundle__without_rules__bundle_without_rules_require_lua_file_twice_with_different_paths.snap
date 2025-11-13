@@ -1,0 +1,79 @@
+---
+source: tests/bundle.rs
+expression: main
+---
+local __DARKLUA_BUNDLE_MODULES = {
+    cache = {}::any,
+}
+
+do
+    do
+        local function __modImpl()
+            print('load constant module')
+
+            return 2
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.a(): typeof(__modImpl())
+            local v = __DARKLUA_BUNDLE_MODULES.cache.a
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.a = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            print('load value a')
+
+            local constant_a = __DARKLUA_BUNDLE_MODULES.a()
+
+            return constant_a
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.b(): typeof(__modImpl())
+            local v = __DARKLUA_BUNDLE_MODULES.cache.b
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.b = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            print('load value b')
+
+            local constant_b = __DARKLUA_BUNDLE_MODULES.a()
+
+            return constant_b
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.c(): typeof(__modImpl())
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.c = v
+            end
+
+            return v.c
+        end
+    end
+end
+
+local value_a = __DARKLUA_BUNDLE_MODULES.b()
+local value_b = __DARKLUA_BUNDLE_MODULES.c()
+
+print(value_a + value_b)

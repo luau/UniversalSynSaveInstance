@@ -1,0 +1,9 @@
+---
+source: src/rules/rename_variables/mod.rs
+expression: rule as Box<dyn Rule>
+
+---
+{
+  "rule": "rename_variables",
+  "include_functions": true
+}

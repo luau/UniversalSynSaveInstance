@@ -1,0 +1,8 @@
+---
+source: src/rules/remove_debug_profiling.rs
+expression: rule
+---
+{
+  "rule": "remove_debug_profiling",
+  "preserve_arguments_side_effects": false
+}

@@ -1,0 +1,7 @@
+---
+source: src/rules/remove_nil_declarations.rs
+assertion_line: 64
+expression: rule
+
+---
+"remove_nil_declaration"

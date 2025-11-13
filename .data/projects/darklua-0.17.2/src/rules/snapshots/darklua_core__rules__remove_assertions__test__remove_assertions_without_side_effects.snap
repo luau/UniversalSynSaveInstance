@@ -1,0 +1,8 @@
+---
+source: src/rules/remove_assertions.rs
+expression: rule
+---
+{
+  "rule": "remove_assertions",
+  "preserve_arguments_side_effects": false
+}

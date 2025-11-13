@@ -1,0 +1,14 @@
+---
+source: tests/rule_tests/remove_continue.rs
+expression: lua_code
+---
+    for key, value in array do
+        if type(key) == 'number' then
+            repeat
+                key -= 1
+            until key == 0
+        elseif stop(key) then
+            break
+        end
+        print(value)
+    end
