@@ -1,0 +1,33 @@
+{
+	"generator": "retain_lines",
+	"bundle": {
+		"modules_identifier": "__DIST",
+		"excludes": ["@lune/**"],
+		"require_mode": {
+			"name": "path",
+			"use_luau_configuration": true
+		}
+	},
+	"rules": [
+		"remove_types",
+		"compute_expression",
+		"remove_unused_if_branch",
+		"filter_after_early_return",
+		"remove_empty_do",
+		"remove_nil_declaration",
+		"remove_unused_variable",
+		"remove_unused_while",
+		"group_local_assignment",
+		"convert_local_function_to_assign",
+		"convert_index_to_field",
+		{
+			"rule": "remove_comments",
+			"except": ["^--!", "^--@", "^--\\[=\\[", "^-- License:", "^-- Copyright:"]
+		},
+		"remove_debug_profiling",
+		{
+			"rule": "remove_assertions",
+			"preserve_arguments_side_effects": true
+		}
+	]
+}

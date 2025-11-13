@@ -1,63 +1,120 @@
 {
-  "openComposedOutput": true,
+  "version": "2.0",
+  "verbose": false,
+  "ciMode": false,
 
-  "deployment": {
-    "enabled": true,
-    "github": {
-      "enabled": true,
-      "owner": "Axp3cter",
-      "repo": "UniversalSynSaveInstance"
-    }
+  "output": {
+    "directory": "generated",
+    "openInEditor": true,
+    "editor": "code"
   },
 
-  "buildConfigs": [
-    {
-      "name": "Test",
+  "builds": {
+    "Test": {
+      "description": "Test build for development",
+      "type": "standard",
 
-      "promptVersion": false,
-      "promptDeploy": false,
-
-      "frame": "pipeline/frame.luau",
-      "darkluaConfig": "pipeline/.darklua_debug.json",
       "input": "tests/test.luau",
-      "output": "generated/test.client.luau"
+      "output": "generated/test.client.luau",
+
+      "darklua": {
+        "enabled": true,
+        "stages": [
+          {
+            "name": "bundle",
+            "config": "pipeline/.darklua/debug.json"
+          }
+        ]
+      },
+
+      "template": {
+        "enabled": true,
+        "source": "pipeline/templates/frame.luau"
+      },
+
+      "stylua": {
+        "enabled": false
+      },
+
+      "prompts": {
+        "version": false,
+        "deploy": false
+      },
+
+      "deployment": {
+        "enabled": false
+      }
     },
 
-    {
-      "name": "Debug",
+    "Debug": {
+      "description": "Debug build with full source",
+      "extends": "Test",
 
-      "promptVersion": false,
-      "promptDeploy": false,
-
-      "frame": "pipeline/frame.luau",
-      "darkluaConfig": "pipeline/.darklua_debug.json",
       "input": "src/init.luau",
       "output": "generated/debug.luau"
     },
 
-    {
-      "name": "Beta",
+    "Beta": {
+      "description": "Beta release build with minification",
+      "type": "standard",
 
-      "promptVersion": true,
-      "promptDeploy": true,
-      "prerelease": true,
-
-      "frame": "pipeline/frame.luau",
-      "darkluaConfig": "pipeline/.darklua.json",
       "input": "src/init.luau",
-      "output": "generated/dist.luau"
+      "output": "generated/dist.luau",
+
+      "darklua": {
+        "enabled": true,
+        "stages": [
+          {
+            "name": "bundle-optimize",
+            "config": "pipeline/.darklua/production.json"
+          },
+          {
+            "name": "minify",
+            "config": "pipeline/.darklua/minify.json"
+          }
+        ]
+      },
+
+      "template": {
+        "enabled": true,
+        "source": "pipeline/templates/frame.luau"
+      },
+
+      "stylua": {
+        "enabled": false
+      },
+
+      "prompts": {
+        "version": true,
+        "deploy": true
+      },
+
+      "deployment": {
+        "enabled": true,
+        "prerelease": true,
+        "github": {
+          "enabled": true,
+          "owner": "Axp3cter",
+          "repo": "UniversalSynSaveInstance",
+          "apiKeyEnv": "GITHUB_API_KEY"
+        }
+      }
     },
 
-    {
-      "name": "Release",
+    "Release": {
+      "description": "Production release build with full optimization",
+      "extends": "Beta",
 
-      "promptVersion": true,
-      "promptDeploy": true,
-
-      "frame": "pipeline/frame.luau",
-      "darkluaConfig": "pipeline/.darklua.json",
-      "input": "src/init.luau",
-      "output": "generated/dist.luau"
+      "deployment": {
+        "enabled": true,
+        "prerelease": false,
+        "github": {
+          "enabled": true,
+          "owner": "Axp3cter",
+          "repo": "UniversalSynSaveInstance",
+          "apiKeyEnv": "GITHUB_API_KEY"
+        }
+      }
     }
-  ]
+  }
 }

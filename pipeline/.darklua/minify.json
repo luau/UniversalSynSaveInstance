@@ -1,0 +1,16 @@
+{
+	"generator": {
+		"name": "dense",
+		"column_span": 120
+	},
+	"rules": [
+		"remove_spaces",
+		"remove_function_call_parens",
+		"remove_method_definition",
+		{
+			"rule": "rename_variables",
+			"include_functions": true,
+			"globals": ["$default", "$roblox"]
+		}
+	]
+}
