@@ -107,7 +107,9 @@ local function processNotScriptableProperty(
 	props: { NotScriptableProperty },
 	enums: { [string]: string }
 )
-	local valueType = member.ValueType
+	local valueType: lib.ValueType
+
+	valueType = member.ValueType
 	if not valueType then
 		return
 	end
