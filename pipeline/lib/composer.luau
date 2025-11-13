@@ -40,10 +40,13 @@ export type ComposeResult = {
 local Composer = {}
 
 --[=[
-	Escapes special pattern characters for use in Lua pattern matching.
+	Escapes special pattern characters for safe Lua pattern matching.
 
-	@param str The string to escape
-	@return Escaped string safe for pattern matching
+	Converts characters like %, +, -, *, ?, [, ], ^, $, (, ) to their escaped
+	forms so they can be matched literally in string.gsub patterns.
+
+	@param str String to escape
+	@return Escaped string safe for use in Lua patterns
 ]=]
 local function escapePattern(str: string): string
 	return str:gsub("([%%%+%-%*%?%[%]%^%$%(%)%%])", "%%%1")
@@ -52,29 +55,29 @@ end
 --[=[
 	Resolves a marker value to a string.
 
-	If the value is a function, calls it and returns the result.
-	If the value is a string, returns it directly.
+	If value is a function, invokes it and returns the result. If value is
+	already a string, returns it directly.
 
-	@param value The marker value (string or function)
+	@param value Marker value (string literal or generator function)
 	@return Resolved string value
 ]=]
 local function resolveMarkerValue(value: MarkerValue): string
 	if type(value) == "function" then
 		return (value :: () -> string)()
-	else
-		return value :: string
 	end
+	return value :: string
 end
 
 --[=[
 	Composes a template by replacing markers with values.
 
-	Markers in the template should follow the pattern: __COMPOSER.Insert(__COMPOSER.{key})
-	For example: __COMPOSER.Insert(__COMPOSER.build)
+	Searches for patterns like __COMPOSER.Insert(__COMPOSER.{key}) and replaces
+	them with the corresponding marker value. Supports both static strings and
+	dynamic function-based values.
 
-	@param template The template string
-	@param markers Dictionary of marker names to replacement values
-	@return Composed string with all markers replaced
+	@param template Template string containing composer markers
+	@param markers Dictionary mapping marker names to values or generators
+	@return ComposeResult with success status, output, and replacement count
 ]=]
 function Composer.compose(template: string, markers: Markers): ComposeResult
 	local output: string = template
@@ -84,7 +87,6 @@ function Composer.compose(template: string, markers: Markers): ComposeResult
 		local markerPattern: string = `__COMPOSER.Insert(__COMPOSER.{key})`
 		local escapedPattern: string = escapePattern(markerPattern)
 
-		-- Count occurrences before replacement
 		local count: number = 0
 		for _ in output:gmatch(escapedPattern) do
 			count += 1
@@ -102,7 +104,7 @@ function Composer.compose(template: string, markers: Markers): ComposeResult
 				return {
 					success = false,
 					output = nil,
-					error = `Failed to resolve marker '{key}': {result}`,
+					error = `Marker '{key}' resolution failed: {result}`,
 					replacements = replacementCount,
 				}
 			end
@@ -123,9 +125,11 @@ end
 --[=[
 	Loads a template from a file and composes it with markers.
 
-	@param templatePath The path to the template file
+	Reads template file and replaces all markers in a single operation.
+
+	@param templatePath Path to template file
 	@param markers Dictionary of marker names to replacement values
-	@return ComposeResult with success status and output or error
+	@return ComposeResult with success status, output, and replacement count
 ]=]
 function Composer.composeFromFile(templatePath: string, markers: Markers): ComposeResult
 	local template: string?, err: string? = FsUtils.safeReadFile(templatePath)
@@ -133,7 +137,7 @@ function Composer.composeFromFile(templatePath: string, markers: Markers): Compo
 		return {
 			success = false,
 			output = nil,
-			error = `Failed to load template: {err}`,
+			error = `Template load failed: {err}`,
 			replacements = 0,
 		}
 	end
@@ -142,16 +146,18 @@ function Composer.composeFromFile(templatePath: string, markers: Markers): Compo
 end
 
 --[=[
-	Validates that all expected markers in a template are provided.
+	Validates that all markers in template are provided.
 
-	@param template The template string
-	@param markers Dictionary of provided markers
-	@return True if all markers are provided, or false and list of missing markers
+	Extracts all __COMPOSER.Insert(__COMPOSER.{key}) patterns from template
+	and checks if corresponding values exist in the markers dictionary.
+
+	@param template Template string to check
+	@param markers Dictionary of available markers
+	@return True if valid, or false and list of missing marker names
 ]=]
 function Composer.validateMarkers(template: string, markers: Markers): (boolean, { string }?)
 	local missing: { string } = {}
 
-	-- Find all markers in the template
 	for markerKey in template:gmatch("__COMPOSER%.Insert%(__COMPOSER%.([%w_]+)%)") do
 		if not markers[markerKey] then
 			table.insert(missing, markerKey)
@@ -166,10 +172,12 @@ function Composer.validateMarkers(template: string, markers: Markers): (boolean,
 end
 
 --[=[
-	Extracts all marker names from a template.
+	Extracts all unique marker names from a template.
 
-	@param template The template string
-	@return List of marker names found in the template
+	Returns each marker name only once even if it appears multiple times.
+
+	@param template Template string to scan
+	@return List of unique marker names found
 ]=]
 function Composer.extractMarkers(template: string): { string }
 	local found: { string } = {}
@@ -188,10 +196,13 @@ end
 --[=[
 	Creates default marker generators for common build metadata.
 
-	@param buildCode The compiled build code
-	@param version The build version string
-	@param configName The build configuration name
-	@return Markers dictionary with standard build markers
+	Generates markers for: build code, generation date, config name, and version.
+	Date/config/version markers use string.format %q for proper Lua string escaping.
+
+	@param buildCode Compiled build code to inject
+	@param version Build version string
+	@param configName Build configuration name
+	@return Markers dictionary with standard build metadata
 ]=]
 function Composer.createDefaultMarkers(buildCode: string, version: string, configName: string): Markers
 	local DateTime = require("@lune/datetime")

@@ -29,7 +29,6 @@ local Stylua = require("./stages/stylua")
 local EXIT_SUCCESS: number = 0
 local EXIT_FAILURE: number = 1
 local DEFAULT_CONFIG_PATH: string = "pipeline/.pcmp.json"
-local PIPELINE_VERSION: string = "2.0.0"
 
 -- Types
 type BuildContext = {
@@ -43,7 +42,9 @@ type BuildContext = {
 --[=[
 	Parses command-line arguments.
 
-	@param args Command-line arguments
+	Recognizes --ci, --verbose/-v, --config=path, and a positional build name.
+
+	@param args Command-line arguments array
 	@return Parsed arguments with build name, flags, and config path
 ]=]
 local function parseArgs(args: { string }): {
@@ -62,8 +63,11 @@ local function parseArgs(args: { string }): {
 			ciMode = true
 		elseif arg == "--verbose" or arg == "-v" then
 			verbose = true
-		elseif arg:match("^%-%-config=(.+)$") then
-			configPath = arg:match("^%-%-config=(.+)$") :: string
+		elseif arg:match("^%-%-config=") then
+			local extractedPath: string? = arg:match("^%-%-config=(.+)$")
+			if extractedPath then
+				configPath = extractedPath
+			end
 		elseif not arg:match("^%-%-") and not buildName then
 			buildName = arg
 		end
@@ -95,12 +99,15 @@ end
 --[=[
 	Executes darklua processing stage.
 
-	@param ctx Build context
-	@return Success boolean
+	Skips execution if darklua is disabled in configuration. Logs detailed
+	progress including stage count and duration.
+
+	@param ctx Build context with config and I/O paths
+	@return True if processing succeeded or was skipped, false on error
 ]=]
 local function executeDarkluaStage(ctx: BuildContext): boolean
 	if not Config.isDarkluaEnabled(ctx.config) then
-		Logger.verbose("Darklua processing disabled, skipping")
+		Logger.verbose("Darklua disabled, skipping")
 		return true
 	end
 
@@ -113,13 +120,13 @@ local function executeDarkluaStage(ctx: BuildContext): boolean
 	)
 
 	if not result.success then
-		Logger.error(`Darklua processing failed: {result.error}`)
+		Logger.error(`Darklua failed: {result.error}`)
 		return false
 	end
 
-	Logger.success(`Darklua processing completed ({Logger.formatDuration(result.duration)})`)
+	Logger.success(`Darklua completed ({Logger.formatDuration(result.duration)})`)
 	if result.stagesCompleted > 0 then
-		Logger.detail(`Completed {result.stagesCompleted} stage(s)`)
+		Logger.detail(`Processed {result.stagesCompleted} stage(s)`)
 	end
 
 	return true
@@ -249,8 +256,11 @@ end
 --[=[
 	Validates build environment and tool availability.
 
+	Checks that required tools (darklua, wax, stylua) are available and that
+	template files exist before starting the build process.
+
 	@param buildConfig Build configuration
-	@return Success boolean
+	@return True if all required tools are available, false otherwise
 ]=]
 local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 	local hasErrors: boolean = false
@@ -262,7 +272,7 @@ local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 			hasErrors = true
 		else
 			local version: string? = Darklua.getVersion()
-			Logger.verbose(`darklua version: {version or "unknown"}`)
+			Logger.verbose(`darklua: {version or "unknown"}`)
 		end
 	end
 
@@ -273,7 +283,7 @@ local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 			hasErrors = true
 		else
 			local version: string? = Wax.getVersion()
-			Logger.verbose(`wax version: {version or "unknown"}`)
+			Logger.verbose(`wax: {version or "unknown"}`)
 		end
 	end
 
@@ -281,10 +291,9 @@ local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 	if Config.isStyluaEnabled(buildConfig) then
 		if not Stylua.isAvailable() then
 			Logger.warn("stylua is not available (formatting will be skipped)")
-			-- Not a fatal error
 		else
 			local version: string? = Stylua.getVersion()
-			Logger.verbose(`stylua version: {version or "unknown"}`)
+			Logger.verbose(`stylua: {version or "unknown"}`)
 		end
 	end
 
@@ -324,10 +333,10 @@ local function displaySummary(ctx: BuildContext)
 end
 
 --[=[
-	Opens the output file in the configured editor.
+	Opens the output file in the configured editor (Windows only).
 
 	@param output Output file path
-	@param outputConfig Output configuration
+	@param outputConfig Output configuration with editor settings
 ]=]
 local function openInEditor(output: string, outputConfig: Config.OutputConfig?)
 	if not outputConfig or not outputConfig.openInEditor then
@@ -339,7 +348,6 @@ local function openInEditor(output: string, outputConfig: Config.OutputConfig?)
 	end
 
 	local editor: string = outputConfig.editor or "code"
-
 	local result = Process.exec("powershell", {
 		"-ExecutionPolicy",
 		"Bypass",
@@ -349,7 +357,7 @@ local function openInEditor(output: string, outputConfig: Config.OutputConfig?)
 	})
 
 	if not result.ok then
-		Logger.warn(`Failed to open editor: {result.stderr}`)
+		Logger.warn(`Failed to open in {editor}: {result.stderr}`)
 	end
 end
 
@@ -360,9 +368,6 @@ end
 	@return Exit code
 ]=]
 local function run(args: { string }): number
-	-- Print header
-	Logger.section(`UniversalSynSaveInstance Build Pipeline v{PIPELINE_VERSION}`)
-
 	-- Parse arguments
 	local parsedArgs = parseArgs(args)
 	Logger.setVerbose(parsedArgs.verbose)

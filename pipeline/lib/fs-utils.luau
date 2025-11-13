@@ -24,10 +24,10 @@ local FsUtils = {}
 --[=[
 	Extracts the base filename from a file path.
 
-	Handles both forward slashes and backslashes for cross-platform compatibility.
+	Handles both forward and back slashes for cross-platform compatibility.
 
-	@param path The file path
-	@return The base filename without directory path
+	@param path File path with optional directory components
+	@return Base filename without directory prefix
 ]=]
 function FsUtils.getBaseName(path: string): string
 	return path:match("^.+[\\/](.+)$") or path
@@ -36,8 +36,8 @@ end
 --[=[
 	Gets the directory portion of a file path.
 
-	@param path The file path
-	@return The directory path without the filename
+	@param path File path
+	@return Directory path, or "." if no directory component exists
 ]=]
 function FsUtils.getDirName(path: string): string
 	return path:match("^(.+)[\\/][^\\/]+$") or "."
@@ -46,8 +46,8 @@ end
 --[=[
 	Ensures a directory exists, creating it if necessary.
 
-	@param path The directory path to ensure exists
-	@return True if directory exists or was created successfully
+	@param path Directory path to create
+	@return True if directory exists or was created
 	@error Throws if directory creation fails
 ]=]
 function FsUtils.ensureDir(path: string): boolean
@@ -62,25 +62,23 @@ end
 --[=[
 	Ensures the parent directory of a file path exists.
 
-	@param filePath The file path whose parent directory should exist
-	@return True if parent directory exists or was created successfully
+	Extracts directory from file path and creates it if needed.
+
+	@param filePath File path whose parent should exist
+	@return True if parent directory exists or was created
 ]=]
 function FsUtils.ensureParentDir(filePath: string): boolean
-	local dirName: string = FsUtils.getDirName(filePath)
-	return FsUtils.ensureDir(dirName)
+	return FsUtils.ensureDir(FsUtils.getDirName(filePath))
 end
 
 --[=[
-	Checks if a file needs to be rebuilt based on source and target timestamps.
+	Checks if a file needs rebuilding based on source timestamps.
 
-	Returns true if:
-	- Target file doesn't exist
-	- Any source file is newer than target file
-	- Any source file doesn't exist (error condition)
+	Returns true if target doesn't exist or any source is newer than target.
 
-	@param sources List of source file paths
-	@param target The target output file path
-	@return True if rebuild is needed, false if target is up-to-date
+	@param sources List of source file paths to check
+	@param target Target output file path
+	@return True if rebuild needed, false if target is current
 	@error Throws if any source file doesn't exist
 ]=]
 function FsUtils.needsRebuild(sources: { string }, target: string): boolean
@@ -94,7 +92,7 @@ function FsUtils.needsRebuild(sources: { string }, target: string): boolean
 	for _, source in sources do
 		local sourceMeta = fs.metadata(source)
 		if not sourceMeta.exists then
-			error(`Source file does not exist: {source}`)
+			error(`Source missing: {source}`)
 		end
 
 		if sourceMeta.modifiedAt.unixTimestamp > targetTime then
@@ -108,8 +106,8 @@ end
 --[=[
 	Gets the size of a file in bytes.
 
-	@param path The file path
-	@return File size in bytes, or nil if file doesn't exist
+	@param path File path to measure
+	@return File size in bytes, or nil if not a file
 ]=]
 function FsUtils.getFileSize(path: string): number?
 	local meta = fs.metadata(path)
@@ -122,19 +120,17 @@ end
 --[=[
 	Checks if a file exists and is readable.
 
-	@param path The file path to check
-	@return True if file exists and is readable
+	Tests actual readability by attempting to read the file.
+
+	@param path File path to check
+	@return True if file exists and can be read
 ]=]
 function FsUtils.isReadableFile(path: string): boolean
 	if not fs.isFile(path) then
 		return false
 	end
 
-	local success: boolean = pcall(function()
-		fs.readFile(path)
-	end)
-
-	return success
+	return pcall(fs.readFile, path)
 end
 
 --[=[

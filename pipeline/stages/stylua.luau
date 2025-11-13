@@ -39,34 +39,33 @@ local Stylua = {}
 --[=[
 	Formats a file using stylua.
 
-	@param filePath Path to file to format (formatted in-place)
+	Formats file in-place using specified or default configuration.
+
+	@param filePath Path to file to format
 	@param config Optional stylua configuration
 	@return FormatResult with success status and timing
 ]=]
 function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
-	-- Validate file exists
 	if not FsUtils.isReadableFile(filePath) then
 		return {
 			success = false,
 			output = nil,
-			error = `File not found or unreadable: {filePath}`,
+			error = `File not found: {filePath}`,
 			duration = 0,
 			formatted = false,
 		}
 	end
 
-	-- Build stylua arguments
 	local args: { string } = {}
 
-	-- Add config path if specified
 	if config and config.configPath then
 		if not FsUtils.isReadableFile(config.configPath) then
 			return {
 				success = false,
 				output = nil,
-				error = `Stylua config not found: {config.configPath}`,
+				error = `Config not found: {config.configPath}`,
 				duration = 0,
 				formatted = false,
 			}
@@ -74,26 +73,22 @@ function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatRe
 		table.insert(args, "--config-path")
 		table.insert(args, config.configPath)
 	elseif FsUtils.isReadableFile(DEFAULT_CONFIG_PATH) then
-		-- Use default config if it exists
 		table.insert(args, "--config-path")
 		table.insert(args, DEFAULT_CONFIG_PATH)
 	end
 
-	-- Add file to format
 	table.insert(args, filePath)
 
 	Logger.verbose(`Executing: stylua {table.concat(args, " ")}`)
 
-	-- Execute stylua
 	local result = Process.exec("stylua", args)
-
 	local duration: number = DateTime.now().unixTimestampMillis - startTime
 
 	if not result.ok then
 		return {
 			success = false,
 			output = nil,
-			error = `Stylua formatting failed: {result.stderr}`,
+			error = `Format failed: {result.stderr}`,
 			duration = duration,
 			formatted = false,
 		}
@@ -111,6 +106,8 @@ end
 --[=[
 	Formats multiple files using stylua.
 
+	Processes each file sequentially and collects results.
+
 	@param filePaths List of file paths to format
 	@param config Optional stylua configuration
 	@return List of FormatResults for each file
@@ -119,8 +116,7 @@ function Stylua.formatMultiple(filePaths: { string }, config: Config.StyluaConfi
 	local results: { FormatResult } = {}
 
 	for _, filePath: string in filePaths do
-		local result: FormatResult = StyluaFormatter.format(filePath, config)
-		table.insert(results, result)
+		table.insert(results, Stylua.format(filePath, config))
 	end
 
 	return results
@@ -139,7 +135,7 @@ end
 --[=[
 	Gets the installed stylua version.
 
-	@return Version string, or nil if stylua is not available
+	@return Version string like "0.20.0", or nil if unavailable
 ]=]
 function Stylua.getVersion(): string?
 	local result = Process.exec("stylua", { "--version" })
@@ -147,31 +143,29 @@ function Stylua.getVersion(): string?
 		return nil
 	end
 
-	-- Extract version from output (format: "stylua 0.20.0")
-	local version: string? = result.stdout:match("stylua ([%d%.]+)")
-	return version
+	return result.stdout:match("stylua ([%d%.]+)")
 end
 
 --[=[
 	Validates a stylua configuration file.
 
-	@param configPath Path to stylua configuration file
-	@return True if valid, or false and error message
+	Attempts to run stylua with the config to check for errors.
+
+	@param configPath Path to config TOML file
+	@return True if valid, false and error message otherwise
 ]=]
 function Stylua.validateConfig(configPath: string): (boolean, string?)
 	if not FsUtils.isReadableFile(configPath) then
-		return false, `Config file not found: {configPath}`
+		return false, `Config not found: {configPath}`
 	end
 
-	-- Try to run stylua with the config to validate it
 	local result = Process.exec("stylua", {
 		"--config-path",
 		configPath,
 		"--check",
-		configPath, -- Check the config file itself
+		configPath,
 	})
 
-	-- If it fails with a config error, we'll see it in stderr
 	if not result.ok and result.stderr:find("config") then
 		return false, `Invalid config: {result.stderr}`
 	end
@@ -182,9 +176,11 @@ end
 --[=[
 	Checks if a file needs formatting without modifying it.
 
+	Uses stylua --check to test formatting without changing file.
+
 	@param filePath Path to file to check
 	@param config Optional stylua configuration
-	@return True if file needs formatting, false if already formatted
+	@return True if needs formatting, false if already formatted
 ]=]
 function Stylua.needsFormatting(filePath: string, config: Config.StyluaConfig?): (boolean, string?)
 	if not FsUtils.isReadableFile(filePath) then
@@ -204,8 +200,6 @@ function Stylua.needsFormatting(filePath: string, config: Config.StyluaConfig?):
 	table.insert(args, filePath)
 
 	local result = Process.exec("stylua", args)
-
-	-- Exit code 1 means file needs formatting, 0 means already formatted
 	return not result.ok, nil
 end
 

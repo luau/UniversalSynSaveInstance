@@ -35,10 +35,13 @@ local Wax = {}
 --[=[
 	Builds wax command-line arguments from configuration.
 
+	Constructs key=value pairs for wax bundle command with optional minify,
+	env-name, and darklua-config-path parameters.
+
 	@param input Input file path (.rbxm/.rbxmx/.project.json)
 	@param output Output file path
 	@param config Wax configuration
-	@return Array of command-line arguments
+	@return Array of command-line argument strings
 ]=]
 local function buildWaxArgs(input: string, output: string, config: Config.WaxConfig): { string }
 	local args: { string } = {
@@ -47,7 +50,6 @@ local function buildWaxArgs(input: string, output: string, config: Config.WaxCon
 		`output={output}`,
 	}
 
-	-- Add optional parameters
 	if config.minify then
 		table.insert(args, "minify=true")
 	end
@@ -60,7 +62,6 @@ local function buildWaxArgs(input: string, output: string, config: Config.WaxCon
 		table.insert(args, `darklua-config-path={config.darklua.config}`)
 	end
 
-	-- Always use CI mode for automated builds
 	table.insert(args, "ci-mode=true")
 	table.insert(args, "verbose=true")
 
@@ -70,25 +71,25 @@ end
 --[=[
 	Bundles a Roblox model or Rojo project using wax.
 
+	Validates input file type, executes wax via lune, and verifies output creation.
+
 	@param input Input file path (.rbxm, .rbxmx, or .project.json)
-	@param output Output file path
+	@param output Output Luau file path
 	@param config Wax configuration
-	@return BundleResult with success status, output path, and timing
+	@return BundleResult with success, output, duration
 ]=]
 function Wax.bundle(input: string, output: string, config: Config.WaxConfig): BundleResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
-	-- Validate input file exists
 	if not FsUtils.isReadableFile(input) then
 		return {
 			success = false,
 			output = nil,
-			error = `Input file not found or unreadable: {input}`,
+			error = `Input not found: {input}`,
 			duration = 0,
 		}
 	end
 
-	-- Validate input file type
 	local validExtensions: { string } = { ".rbxm", ".rbxmx", ".project.json" }
 	local hasValidExtension: boolean = false
 
@@ -103,39 +104,34 @@ function Wax.bundle(input: string, output: string, config: Config.WaxConfig): Bu
 		return {
 			success = false,
 			output = nil,
-			error = `Invalid input file type. Expected .rbxm, .rbxmx, or .project.json`,
+			error = "Invalid input type (expected .rbxm, .rbxmx, or .project.json)",
 			duration = 0,
 		}
 	end
 
-	-- Ensure output directory exists
 	FsUtils.ensureParentDir(output)
 
-	-- Build wax arguments
 	local args: { string } = buildWaxArgs(input, output, config)
 
 	Logger.verbose(`Executing: lune run wax {table.concat(args, " ")}`)
 
-	-- Execute wax via lune
 	local result = Process.exec("lune", { "run", "wax", table.unpack(args) })
-
 	local duration: number = DateTime.now().unixTimestampMillis - startTime
 
 	if not result.ok then
 		return {
 			success = false,
 			output = nil,
-			error = `Wax bundling failed: {result.stderr}`,
+			error = `Bundle failed: {result.stderr}`,
 			duration = duration,
 		}
 	end
 
-	-- Verify output was created
 	if not FsUtils.isReadableFile(output) then
 		return {
 			success = false,
 			output = nil,
-			error = `Wax completed but output file was not created: {output}`,
+			error = `Output not created: {output}`,
 			duration = duration,
 		}
 	end
@@ -151,17 +147,16 @@ end
 --[=[
 	Checks if wax is available via lune.
 
-	@return True if wax can be executed
+	@return True if wax command exists
 ]=]
 function Wax.isAvailable(): boolean
-	local result = Process.exec("lune", { "run", "wax", "version" })
-	return result.ok
+	return Process.exec("lune", { "run", "wax", "version" }).ok
 end
 
 --[=[
 	Gets the installed wax version.
 
-	@return Version string, or nil if wax is not available
+	@return Version like "0.4.2", or nil if unavailable
 ]=]
 function Wax.getVersion(): string?
 	local result = Process.exec("lune", { "run", "wax", "version" })
@@ -169,16 +164,14 @@ function Wax.getVersion(): string?
 		return nil
 	end
 
-	-- Extract version from output (format: "wax v0.4.2")
-	local version: string? = result.stdout:match("wax v([%d%.]+)")
-	return version
+	return result.stdout:match("wax v([%d%.]+)")
 end
 
 --[=[
 	Detects if the input file is a Rojo project.
 
 	@param input Input file path
-	@return True if input is a Rojo project file
+	@return True if ends with .project.json
 ]=]
 function Wax.isRojoProject(input: string): boolean
 	return input:match("%.project%.json$") ~= nil
@@ -188,7 +181,7 @@ end
 	Detects if the input file is a Roblox model.
 
 	@param input Input file path
-	@return True if input is a Roblox model file
+	@return True if ends with .rbxm or .rbxmx
 ]=]
 function Wax.isRobloxModel(input: string): boolean
 	return input:match("%.rbxmx?$") ~= nil

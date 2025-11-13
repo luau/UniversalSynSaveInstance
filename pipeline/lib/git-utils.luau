@@ -22,9 +22,11 @@ local serde = require("@lune/serde")
 local task = require("@lune/task")
 local Process = require("@lune/process")
 
--- Constants
+-- Network retry configuration
 local MAX_RETRIES: number = 3
 local INITIAL_RETRY_DELAY: number = 2.0
+
+-- Environment file location for API keys
 local ENV_FILE_PATH: string = ".env"
 
 -- Types
@@ -46,25 +48,22 @@ export type ApiError = {
 local GitUtils = {}
 
 --[=[
-	Reads the GitHub API key from .env file or environment variable.
+	Reads the GitHub API key from environment variable or .env file.
 
-	Checks in order:
-	1. GITHUB_API_KEY environment variable
-	2. .env file in current directory
+	Checks environment variable first, then falls back to .env file. Strips
+	quotes from .env values if present.
 
-	@param envVarName Optional custom environment variable name (default: "GITHUB_API_KEY")
+	@param envVarName Custom variable name (default: "GITHUB_API_KEY")
 	@return API key string, or nil if not found
 ]=]
 function GitUtils.getApiKey(envVarName: string?): string?
 	local varName: string = envVarName or "GITHUB_API_KEY"
 
-	-- Check environment variable first
 	local envKey: string? = Process.env[varName]
 	if envKey and envKey ~= "" then
 		return envKey
 	end
 
-	-- Check .env file
 	if not fs.isFile(ENV_FILE_PATH) then
 		return nil
 	end
@@ -73,9 +72,7 @@ function GitUtils.getApiKey(envVarName: string?): string?
 	for line in envContents:gmatch("[^\r\n]+") do
 		local key: string?, val: string? = line:match("^%s*([%w_]+)%s*=%s*(.-)%s*$")
 		if key == varName and val then
-			-- Remove quotes if present
-			val = val:gsub('^"(.*)"$', "%1")
-			val = val:gsub("^'(.*)'$", "%1")
+			val = val:gsub('^["\'](.-)["\'"]$', "%1")
 			return val
 		end
 	end
@@ -86,11 +83,12 @@ end
 --[=[
 	Performs an HTTP request with retry logic and exponential backoff.
 
-	Retries on network errors and 5xx status codes. Does not retry on 4xx errors.
+	Retries on network errors and 5xx server errors using exponential backoff
+	starting at 2s. Client errors (4xx) are not retried.
 
 	@param config Request configuration (url, method, headers, body)
-	@param maxRetries Maximum retry attempts (default: MAX_RETRIES)
-	@return Response object, or nil and error message
+	@param maxRetries Maximum retry attempts (default: 3)
+	@return Response, or nil and error message on failure
 ]=]
 function GitUtils.requestWithRetry(config: any, maxRetries: number?): (any?, string?)
 	local retriesLeft: number = maxRetries or MAX_RETRIES
@@ -100,25 +98,21 @@ function GitUtils.requestWithRetry(config: any, maxRetries: number?): (any?, str
 		local success: boolean, response: any = pcall(net.request, config)
 
 		if success then
-			-- Check for server errors (5xx) that should be retried
 			if response.statusCode and response.statusCode >= 500 and retriesLeft > 0 then
 				task.wait(delay)
-				delay = delay * 2
+				delay *= 2
 				retriesLeft -= 1
 				continue
 			end
 
 			return response, nil
+		elseif retriesLeft > 0 then
+			task.wait(delay)
+			delay *= 2
+			retriesLeft -= 1
+			continue
 		else
-			-- Network error occurred
-			if retriesLeft > 0 then
-				task.wait(delay)
-				delay = delay * 2
-				retriesLeft -= 1
-				continue
-			else
-				return nil, `Network error: {response}`
-			end
+			return nil, `Network error: {response}`
 		end
 	end
 
@@ -128,15 +122,18 @@ end
 --[=[
 	Creates a GitHub release.
 
-	@param owner Repository owner
+	Posts release data to GitHub API with retry logic. Returns full release
+	object including ID needed for asset uploads.
+
+	@param owner Repository owner username
 	@param repo Repository name
-	@param apiKey GitHub API key
-	@param tagName Release tag (e.g., "v1.0.0")
-	@param releaseName Release name
-	@param body Release notes body
-	@param prerelease Whether this is a prerelease
-	@param draft Whether this is a draft release
-	@return GitHubRelease object, or nil and error message
+	@param apiKey GitHub API authentication token
+	@param tagName Git tag for release (e.g., "v1.0.0")
+	@param releaseName Human-readable release title
+	@param body Markdown release notes
+	@param prerelease Mark as prerelease (default: false)
+	@param draft Mark as draft (default: false)
+	@return GitHubRelease with id and upload_url, or nil and error
 ]=]
 function GitUtils.createRelease(
 	owner: string,
@@ -189,15 +186,18 @@ function GitUtils.createRelease(
 end
 
 --[=[
-	Uploads an asset to an existing GitHub release.
+	Uploads an asset file to an existing GitHub release.
 
-	@param owner Repository owner
+	Reads file and posts to GitHub uploads API with retry logic. Asset name
+	defaults to the file basename if not specified.
+
+	@param owner Repository owner username
 	@param repo Repository name
-	@param apiKey GitHub API key
-	@param releaseId Release ID
-	@param filePath Path to file to upload
-	@param assetName Optional custom asset name (defaults to filename)
-	@return True on success, or false and error message
+	@param apiKey GitHub API authentication token
+	@param releaseId Numeric release ID from createRelease
+	@param filePath Path to file to upload as asset
+	@param assetName Optional custom display name (default: basename)
+	@return True on success, false and error message on failure
 ]=]
 function GitUtils.uploadAsset(
 	owner: string,

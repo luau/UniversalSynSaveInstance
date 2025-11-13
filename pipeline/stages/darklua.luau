@@ -37,11 +37,13 @@ local Darklua = {}
 --[=[
 	Executes darklua process command with given parameters.
 
+	Runs darklua with custom environment variables merged into process env.
+
 	@param input Input file path
 	@param output Output file path
-	@param configPath Path to darklua configuration file
+	@param configPath Path to darklua config JSON file
 	@param env Optional environment variables to inject
-	@return Success boolean and stderr string
+	@return True if succeeded, stderr string
 ]=]
 local function executeDarklua(
 	input: string,
@@ -49,7 +51,6 @@ local function executeDarklua(
 	configPath: string,
 	env: { [string]: string }?
 ): (boolean, string)
-	-- Merge environment variables
 	local processEnv: { [string]: string } = table.clone(Process.env)
 	if env then
 		for key: string, value: string in env do
@@ -57,15 +58,13 @@ local function executeDarklua(
 		end
 	end
 
-	local args: { string } = {
+	local result = Process.exec("darklua", {
 		"process",
 		input,
 		output,
 		"-c",
 		configPath,
-	}
-
-	local result = Process.exec("darklua", args, {
+	}, {
 		env = processEnv,
 	})
 
@@ -75,13 +74,13 @@ end
 --[=[
 	Processes a file through multiple darklua stages.
 
-	Each stage runs darklua with a different configuration, enabling
-	multi-pass optimization pipelines (e.g., bundle → optimize → minify).
+	Runs sequential transformation passes with different configs. Intermediate
+	results are stored in temporary files and cleaned up automatically.
 
 	@param input Initial input file path
 	@param finalOutput Final output file path
-	@param darkluaConfig Darklua configuration from build config
-	@return ProcessResult with success status, output path, and timing
+	@param darkluaConfig Darklua configuration with stages array
+	@return ProcessResult with success, output, duration, and stage count
 ]=]
 function Darklua.process(
 	input: string,
@@ -90,30 +89,27 @@ function Darklua.process(
 ): ProcessResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
-	-- Validate input file exists
 	if not FsUtils.isReadableFile(input) then
 		return {
 			success = false,
 			output = nil,
-			error = `Input file not found or unreadable: {input}`,
+			error = `Input not found: {input}`,
 			duration = 0,
 			stagesCompleted = 0,
 		}
 	end
 
-	-- Get stages
 	local stages: { Config.DarkluaStage } = darkluaConfig.stages or {}
 
 	if #stages == 0 then
-		-- No stages defined, run a single default stage
-		Logger.verbose("No darklua stages defined, running default configuration")
+		Logger.verbose("No stages defined, using default config")
 
 		local configPath: string = "pipeline/.darklua.json"
 		if not FsUtils.isReadableFile(configPath) then
 			return {
 				success = false,
 				output = nil,
-				error = `Darklua config not found: {configPath}`,
+				error = `Config not found: {configPath}`,
 				duration = 0,
 				stagesCompleted = 0,
 			}
@@ -126,7 +122,7 @@ function Darklua.process(
 			return {
 				success = false,
 				output = nil,
-				error = `Darklua processing failed: {stderr}`,
+				error = `Processing failed: {stderr}`,
 				duration = DateTime.now().unixTimestampMillis - startTime,
 				stagesCompleted = 0,
 			}
@@ -218,19 +214,18 @@ function Darklua.process(
 end
 
 --[=[
-	Checks if darklua is available in the system PATH.
+	Checks if darklua is available in system PATH.
 
-	@return True if darklua command is available
+	@return True if darklua command exists
 ]=]
 function Darklua.isAvailable(): boolean
-	local result = Process.exec("darklua", { "--version" })
-	return result.ok
+	return Process.exec("darklua", { "--version" }).ok
 end
 
 --[=[
 	Gets the installed darklua version.
 
-	@return Version string, or nil if darklua is not available
+	@return Version string like "0.17.2", or nil if unavailable
 ]=]
 function Darklua.getVersion(): string?
 	local result = Process.exec("darklua", { "--version" })
@@ -238,8 +233,7 @@ function Darklua.getVersion(): string?
 		return nil
 	end
 
-	local version: string? = result.stdout:match("darklua ([%d%.]+)")
-	return version
+	return result.stdout:match("darklua ([%d%.]+)")
 end
 
 return Darklua

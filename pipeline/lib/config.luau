@@ -94,7 +94,6 @@ export type OutputConfig = {
 }
 
 export type ConfigFile = {
-	version: string?,
 	verbose: boolean?,
 	ciMode: boolean?,
 	output: OutputConfig?,
@@ -105,55 +104,77 @@ export type ConfigFile = {
 local Config = {}
 
 --[=[
+	Merges a base build config with an override config.
+
+	All fields from override replace base fields except 'extends' which is removed.
+
+	@param base Base configuration to extend
+	@param override Override configuration with new values
+	@return Merged configuration
+]=]
+local function mergeBuilds(base: BuildConfig, override: BuildConfig): BuildConfig
+	local merged: BuildConfig = table.clone(base) :: any
+
+	for key: string, value: any in override :: any do
+		if key ~= "extends" then
+			merged[key] = value
+		end
+	end
+
+	return merged
+end
+
+--[=[
 	Loads a configuration file from the specified path.
 
-	Supports JSON and JSON5 formats. Returns nil and error message on failure.
+	Reads, parses, validates, and resolves inheritance for build configurations.
+	Supports JSON format with inheritance via extends pattern.
 
-	@param path The configuration file path
-	@return Configuration object, or nil and error message
+	@param path Path to .pcmp.json configuration file
+	@return Resolved configuration, or nil and error message on failure
 ]=]
 function Config.load(path: string): (ConfigFile?, string?)
 	if not fs.isFile(path) then
-		return nil, `Configuration file not found: {path}`
+		return nil, `Config not found: {path}`
 	end
 
 	local success: boolean, contents: string = pcall(fs.readFile, path)
 	if not success then
-		return nil, `Failed to read configuration file: {contents}`
+		return nil, `Read failed: {contents}`
 	end
 
 	local parseSuccess: boolean, parsed: any = pcall(serde.decode, "json", contents)
 	if not parseSuccess then
-		return nil, `Failed to parse configuration file: {parsed}`
+		return nil, `Parse failed: {parsed}`
 	end
 
 	local config: ConfigFile = parsed :: ConfigFile
 
-	-- Validate basic structure
 	local valid: boolean, err: string? = Config.validate(config)
 	if not valid then
 		return nil, err
 	end
 
-	-- Apply inheritance (extends)
 	local resolvedConfig: ConfigFile = Config.resolveInheritance(config)
-
 	return resolvedConfig, nil
 end
 
 --[=[
 	Validates a configuration object against the expected schema.
 
-	@param config The configuration object to validate
-	@return True if valid, or false and error message
+	Checks that config is a table with a builds dictionary containing at least
+	one valid build entry with required input and output fields.
+
+	@param config Configuration object to validate
+	@return True if valid, false and error message otherwise
 ]=]
 function Config.validate(config: any): (boolean, string?)
 	if type(config) ~= "table" then
-		return false, "Configuration must be a table"
+		return false, "Config must be a table"
 	end
 
 	if not config.builds or type(config.builds) ~= "table" then
-		return false, "Configuration must have a 'builds' table"
+		return false, "Config must have 'builds' table"
 	end
 
 	local buildCount: number = 0
@@ -161,20 +182,20 @@ function Config.validate(config: any): (boolean, string?)
 		buildCount += 1
 
 		if type(buildCfg) ~= "table" then
-			return false, `Build config '{name}' must be a table`
+			return false, `Build '{name}' must be a table`
 		end
 
 		if not buildCfg.input or type(buildCfg.input) ~= "string" then
-			return false, `Build config '{name}' must have a string 'input' field`
+			return false, `Build '{name}' missing 'input' string`
 		end
 
 		if not buildCfg.output or type(buildCfg.output) ~= "string" then
-			return false, `Build config '{name}' must have a string 'output' field`
+			return false, `Build '{name}' missing 'output' string`
 		end
 	end
 
 	if buildCount == 0 then
-		return false, "Configuration must have at least one build configuration"
+		return false, "Config must have at least one build"
 	end
 
 	return true, nil
@@ -183,26 +204,16 @@ end
 --[=[
 	Resolves configuration inheritance (extends pattern).
 
-	Builds can extend other builds by specifying an 'extends' field.
+	Builds can extend other builds by specifying an 'extends' field pointing
+	to another build name. The base build's fields are merged with overrides.
 
-	@param config The configuration with potential inheritance
-	@return Configuration with inheritance resolved
+	@param config Configuration with potential extends references
+	@return Configuration with all inheritance resolved
+	@error Throws if a build extends a non-existent base config
 ]=]
 function Config.resolveInheritance(config: ConfigFile): ConfigFile
 	local resolved: ConfigFile = table.clone(config)
 	resolved.builds = {}
-
-	local function mergeBuilds(base: BuildConfig, override: BuildConfig): BuildConfig
-		local merged: BuildConfig = table.clone(base) :: any
-
-		for key: string, value: any in override :: any do
-			if key ~= "extends" then
-				merged[key] = value
-			end
-		end
-
-		return merged
-	end
 
 	for name: string, buildCfg: BuildConfig in config.builds do
 		if buildCfg.extends then
@@ -210,7 +221,7 @@ function Config.resolveInheritance(config: ConfigFile): ConfigFile
 			local baseConfig: BuildConfig? = config.builds[baseName]
 
 			if not baseConfig then
-				error(`Build config '{name}' extends unknown config '{baseName}'`)
+				error(`Build '{name}' extends unknown config '{baseName}'`)
 			end
 
 			resolved.builds[name] = mergeBuilds(baseConfig, buildCfg)
@@ -218,7 +229,6 @@ function Config.resolveInheritance(config: ConfigFile): ConfigFile
 			resolved.builds[name] = table.clone(buildCfg)
 		end
 
-		-- Ensure name is set
 		resolved.builds[name].name = name
 	end
 
@@ -228,45 +238,36 @@ end
 --[=[
 	Selects a build configuration interactively or by name.
 
-	@param config The configuration file
-	@param buildName Optional build name (skips prompt if provided)
-	@param ciMode Whether in CI mode (no prompts)
-	@return Selected build configuration, or nil if cancelled/not found
+	If buildName is provided, returns that config. Otherwise prompts user
+	interactively unless in CI mode.
+
+	@param config Configuration file with builds
+	@param buildName Optional build name to select directly
+	@param ciMode Whether in CI mode (prevents prompts)
+	@return Selected build, or nil if not found or cancelled
 ]=]
 function Config.selectBuildConfig(config: ConfigFile, buildName: string?, ciMode: boolean?): BuildConfig?
 	local isCiMode: boolean = ciMode or config.ciMode or false
 
-	-- If build name provided, find it directly
 	if buildName then
-		local buildCfg: BuildConfig? = config.builds[buildName]
-		if not buildCfg then
-			return nil
-		end
-		return buildCfg
+		return config.builds[buildName]
 	end
 
-	-- In CI mode without build name, error
 	if isCiMode then
 		return nil
 	end
 
-	-- Interactive selection
 	local buildNames: { string } = {}
 	local buildDescriptions: { string } = {}
 
 	for name: string, buildCfg: BuildConfig in config.builds do
 		table.insert(buildNames, name)
-		if buildCfg.description then
-			table.insert(buildDescriptions, `{name} - {buildCfg.description}`)
-		else
-			table.insert(buildDescriptions, name)
-		end
+		local description: string = if buildCfg.description then `{name} - {buildCfg.description}` else name
+		table.insert(buildDescriptions, description)
 	end
 
-	local selectedIndex: number = stdio.prompt("select", "Select build configuration:", buildDescriptions)
-	local selectedName: string = buildNames[selectedIndex]
-
-	return config.builds[selectedName]
+	local selectedIndex: number = stdio.prompt("select", "Select build:", buildDescriptions)
+	return config.builds[buildNames[selectedIndex]]
 end
 
 --[=[

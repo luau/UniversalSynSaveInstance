@@ -19,7 +19,7 @@
 -- Imports
 local stdio = require("@lune/stdio")
 
--- Constants
+-- ANSI color codes for terminal output
 local COLOR_RESET: string = stdio.color("reset")
 local COLOR_CYAN: string = stdio.color("cyan")
 local COLOR_GREEN: string = stdio.color("green")
@@ -28,11 +28,11 @@ local COLOR_RED: string = stdio.color("red")
 local STYLE_BOLD: string = stdio.style("bold")
 local STYLE_DIM: string = stdio.style("dim")
 
+-- Unicode symbols for log message prefixes
 local SYMBOL_INFO: string = "▶"
 local SYMBOL_SUCCESS: string = "✓"
 local SYMBOL_WARNING: string = "⚠"
 local SYMBOL_ERROR: string = "✗"
-local SYMBOL_FATAL: string = "✗"
 
 -- Module state
 local verboseEnabled: boolean = false
@@ -91,12 +91,12 @@ end
 --[=[
 	Prints a fatal error message with bold red color.
 
-	Used for unrecoverable errors that require immediate termination.
+	Used for unrecoverable errors requiring immediate termination.
 
-	@param message The fatal error message to display
+	@param message Fatal error message
 ]=]
 function Logger.fatal(message: string)
-	print(`{COLOR_RED}{STYLE_BOLD}{SYMBOL_FATAL} {message}{COLOR_RESET}`)
+	print(`{COLOR_RED}{STYLE_BOLD}{SYMBOL_ERROR} {message}{COLOR_RESET}`)
 end
 
 --[=[
@@ -161,22 +161,26 @@ end
 --[=[
 	Formats a duration in milliseconds to a human-readable string.
 
+	Returns seconds with 2 decimal places if >= 1000ms, otherwise milliseconds.
+
 	@param ms Duration in milliseconds
-	@return Formatted duration string (e.g., "1.23s", "456ms")
+	@return Formatted string like "1.23s" or "456ms"
 ]=]
 function Logger.formatDuration(ms: number): string
 	if ms >= 1000 then
 		return string.format("%.2fs", ms / 1000)
-	else
-		return string.format("%dms", math.floor(ms))
 	end
+	return string.format("%dms", math.floor(ms))
 end
 
 --[=[
 	Formats a file size in bytes to a human-readable string.
 
+	Automatically selects appropriate unit (B, KB, MB, GB) and formats with
+	2 decimal places for units larger than bytes.
+
 	@param bytes File size in bytes
-	@return Formatted size string (e.g., "1.23 MB", "456 KB")
+	@return Formatted string like "1.23 MB" or "456 B"
 ]=]
 function Logger.formatSize(bytes: number): string
 	local units: { string } = { "B", "KB", "MB", "GB" }
@@ -184,15 +188,14 @@ function Logger.formatSize(bytes: number): string
 	local unitIndex: number = 1
 
 	while size >= 1024 and unitIndex < #units do
-		size = size / 1024
+		size /= 1024
 		unitIndex += 1
 	end
 
 	if unitIndex == 1 then
 		return string.format("%d %s", size, units[unitIndex])
-	else
-		return string.format("%.2f %s", size, units[unitIndex])
 	end
+	return string.format("%.2f %s", size, units[unitIndex])
 end
 
 return Logger
