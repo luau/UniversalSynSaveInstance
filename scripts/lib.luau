@@ -134,9 +134,15 @@ end
 	@return boolean -- Success status
 ]=]
 local function tryVersion(hash: string): (ApiDump?, boolean)
-	local url = `https://setup.rbxcdn.com/{hash}-Full-API-Dump.json`
+	local url: string
+	local ok: boolean
+	local response: any
+	local decodeOk: boolean
+	local decoded: any
 
-	local ok, response = pcall(net.request, url)
+	url = `https://setup.rbxcdn.com/{hash}-Full-API-Dump.json`
+
+	ok, response = pcall(net.request, url)
 	if not ok then
 		return nil, false
 	end
@@ -145,7 +151,7 @@ local function tryVersion(hash: string): (ApiDump?, boolean)
 		return nil, false
 	end
 
-	local decodeOk, decoded = pcall(serde.decode, "json", response.body)
+	decodeOk, decoded = pcall(serde.decode, "json", response.body)
 	if not decodeOk then
 		return nil, false
 	end
@@ -162,17 +168,24 @@ end
 	@error Throws if no valid dump found
 ]=]
 local function findLatest(): ApiDump
-	local ok, response = pcall(net.request, "https://setup.rbxcdn.com/DeployHistory.txt")
+	local ok: boolean
+	local response: any
+	local history: string
+	local hash: string?
+	local api: ApiDump?
+	local success: boolean
+
+	ok, response = pcall(net.request, "https://setup.rbxcdn.com/DeployHistory.txt")
 	if not ok then
 		error("Failed to fetch deployment history")
 	end
 
-	local history = response.body
+	history = response.body
 
 	for line in string.gmatch(history, "[^\r\n]+") do
-		local hash = string.match(line, "(version%-[^%s]+)")
+		hash = string.match(line, "(version%-[^%s]+)")
 		if hash then
-			local api, success = tryVersion(hash)
+			api, success = tryVersion(hash)
 			if success and api then
 				return api
 			end
@@ -193,16 +206,18 @@ end
 	@error Throws if fetch fails
 ]=]
 function Lib.fetch(hash: string?): ApiDump
-	local cacheKey = hash or "latest"
+	local cacheKey: string
+	local api: ApiDump?
+	local ok: boolean
+
+	cacheKey = hash or "latest"
 
 	-- Return cached result if available
 	if fetchCache[cacheKey] then
 		return fetchCache[cacheKey]
 	end
 
-	local api: ApiDump
 	if hash then
-		local ok
 		api, ok = tryVersion(hash)
 		if not ok or not api then
 			error(`Failed to fetch version {hash}`)
@@ -226,11 +241,13 @@ end
 	@return { [string]: any } -- Normalized tag dictionary
 ]=]
 function Lib.tags(raw: { any }?): { [string]: any }
+	local result: { [string]: any }
+
 	if not raw then
 		return {}
 	end
 
-	local result = {}
+	result = {}
 
 	for key, value in raw do
 		if type(key) == "number" then
@@ -262,9 +279,16 @@ end
 	@error Throws if write fails
 ]=]
 function Lib.write(name: string, content: string)
-	local dir = "scripts/dumps"
+	local dir: string
+	local ok: boolean
+	local err: any
+	local path: string
+	local writeOk: boolean
+	local writeErr: any
 
-	local ok, err = pcall(function()
+	dir = "scripts/dumps"
+
+	ok, err = pcall(function()
 		if not fs.isDir(dir) then
 			fs.writeDir(dir)
 		end
@@ -274,8 +298,8 @@ function Lib.write(name: string, content: string)
 		error(`Failed to create directory {dir}: {err}`)
 	end
 
-	local path = `{dir}/{name}`
-	local writeOk, writeErr = pcall(fs.writeFile, path, content)
+	path = `{dir}/{name}`
+	writeOk, writeErr = pcall(fs.writeFile, path, content)
 
 	if not writeOk then
 		error(`Failed to write file {path}: {writeErr}`)
@@ -347,10 +371,13 @@ end
 	@error Throws if serialization or write fails
 ]=]
 function Lib.json(name: string, data: any)
-	local encoded = serde.encode("json", data, true)
+	local encoded: string
+	local filename: string
+
+	encoded = serde.encode("json", data, true)
 
 	-- Include hash in filename if available
-	local filename = name
+	filename = name
 	if data.metadata and data.metadata.version and data.metadata.version ~= "latest" then
 		filename = `{name}-{data.metadata.version}`
 	end
@@ -405,7 +432,9 @@ end
 	@return boolean -- True if class inherits from base
 ]=]
 function Lib.inherits(name: string, base: string, map: ClassMap): boolean
-	local current = map[name]
+	local current: Class?
+
+	current = map[name]
 
 	while current do
 		if current.Name == base then
@@ -431,7 +460,9 @@ end
 	@return ClassMap -- Class lookup map
 ]=]
 function Lib.classes(list: { Class }): ClassMap
-	local result = {}
+	local result: ClassMap
+
+	result = {}
 	for _, class in list do
 		result[class.Name] = class
 	end
@@ -451,12 +482,17 @@ end
 	@error Exits with code 1 on failure
 ]=]
 function Lib.runCli(fn: (string?) -> (), args: { string })
-	local hash = args[1]
+	local hash: string?
+	local ok: boolean
+	local err: any
+	local Process: any
 
-	local ok, err = pcall(fn, hash)
+	hash = args[1]
+
+	ok, err = pcall(fn, hash)
 	if not ok then
 		Lib.error(`Fatal: {err}`)
-		local Process = require("@lune/process")
+		Process = require("@lune/process")
 		Process.exit(1)
 	end
 end

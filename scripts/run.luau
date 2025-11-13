@@ -46,7 +46,6 @@ local Runner = {}
 	@error Throws if directory read fails
 ]=]
 local function discoverScripts(): { string }
-
 	local ok: boolean
 	local entries: any
 	local files: { string }
@@ -74,7 +73,6 @@ end
 	@param text -- Header text
 ]=]
 local function printHeader(text: string)
-
 	local separator: string
 
 	separator = string.rep("=", 70)
@@ -99,7 +97,6 @@ end
 	@param elapsed -- Elapsed time in seconds
 ]=]
 local function printSummary(result: Result, total: number, elapsed: number)
-
 	local separator: string
 	local color: string
 
@@ -138,7 +135,6 @@ end
 	@return boolean -- True if script succeeded
 ]=]
 local function executeScript(file: string, hash: string?): boolean
-
 	local args: { string }
 	local path: string
 	local ok: boolean
@@ -179,7 +175,6 @@ end
 	@param file -- Script filename
 ]=]
 local function printScriptName(index: number, total: number, file: string)
-
 	local scriptName: string
 
 	scriptName = string.gsub(file, "%.luau$", "")
@@ -198,7 +193,6 @@ end
 	@error Exits with code 1 if any dumper fails or no scripts found
 ]=]
 function Runner.run(hash: string?)
-
 	local files: { string }
 	local result: Result
 	local startTime: number
