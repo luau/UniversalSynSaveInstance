@@ -74,7 +74,9 @@ end
 	@return { string } -- Sorted array of tag names
 ]=]
 local function extractTagNames(tags: { [string]: any }): { string }
-	local result = {}
+	local result: { string }
+
+	result = {}
 	for tag, value in tags do
 		if value == true then
 			table.insert(result, tag)
@@ -92,10 +94,14 @@ end
 	@return { ClassInfo } -- Class info list sorted by name
 ]=]
 local function collectClasses(api: lib.ApiDump): { ClassInfo }
-	local result: { ClassInfo } = {}
+	local result: { ClassInfo }
+	local ok: boolean
+	local tags: any
+
+	result = {}
 
 	for _, class in api.Classes do
-		local ok, tags = pcall(lib.tags, class.Tags)
+		ok, tags = pcall(lib.tags, class.Tags)
 		if not ok then
 			lib.warn(`Error processing {class.Name}: {tags}`)
 			continue
@@ -127,8 +133,11 @@ end
 	@error Throws if analysis fails
 ]=]
 function NotCreatable.run(hash: string?)
-	local api = lib.fetch(hash)
-	local classes = collectClasses(api)
+	local api: lib.ApiDump
+	local classes: { ClassInfo }
+
+	api = lib.fetch(hash)
+	classes = collectClasses(api)
 
 	lib.json("not-creatable", lib.output(hash, classes))
 
