@@ -216,21 +216,26 @@ local function processClass(
 	serProps: { SerializationProperty },
 	proxies: { ProxyProperty }
 )
+	local enums: { [string]: string }
+	local ok: boolean
+	local tags: any
+	local ser: lib.Serialization
+
 	-- Track enum types from NotScriptable properties for proxy detection
-	local enums: { [string]: string } = {}
+	enums = {}
 
 	for _, member in class.Members do
 		if member.MemberType ~= "Property" or not member.ValueType or not member.Serialization then
 			continue
 		end
 
-		local ok, tags = pcall(lib.tags, member.Tags)
+		ok, tags = pcall(lib.tags, member.Tags)
 		if not ok then
 			lib.warn(`Error processing {class.Name}.{member.Name}: {tags}`)
 			continue
 		end
 
-		local ser = member.Serialization
+		ser = member.Serialization
 
 		-- Check NotScriptable + serializable
 		if tags.NotScriptable and ser.CanLoad and ser.CanSave then
@@ -259,12 +264,18 @@ end
 local function collectProperties(
 	api: lib.ApiDump
 ): ({ NotScriptableProperty }, { SerializationProperty }, { ProxyProperty })
-	local props: { NotScriptableProperty } = {}
-	local serProps: { SerializationProperty } = {}
-	local proxies: { ProxyProperty } = {}
+	local props: { NotScriptableProperty }
+	local serProps: { SerializationProperty }
+	local proxies: { ProxyProperty }
+	local ok: boolean
+	local err: any
+
+	props = {}
+	serProps = {}
+	proxies = {}
 
 	for _, class in api.Classes do
-		local ok, err = pcall(processClass, class, props, serProps, proxies)
+		ok, err = pcall(processClass, class, props, serProps, proxies)
 		if not ok then
 			lib.warn(`Error processing {class.Name}: {err}`)
 		end
@@ -287,7 +298,9 @@ local function buildOutput(
 	serProps: { SerializationProperty },
 	proxies: { ProxyProperty }
 ): { Property }
-	local combined: { Property } = {}
+	local combined: { Property }
+
+	combined = {}
 
 	for _, prop in props do
 		table.insert(combined, prop)
