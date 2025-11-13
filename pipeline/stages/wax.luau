@@ -18,7 +18,7 @@
 local Process = require("@lune/process")
 local DateTime = require("@lune/datetime")
 local Logger = require("../lib/logger")
-local FsUtils = require("../lib/fs-utils")
+local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
 -- Types
@@ -81,7 +81,7 @@ end
 function Wax.bundle(input: string, output: string, config: Config.WaxConfig): BundleResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
-	if not FsUtils.isReadableFile(input) then
+	if not Fs.exists(input) then
 		return {
 			success = false,
 			output = nil,
@@ -109,7 +109,7 @@ function Wax.bundle(input: string, output: string, config: Config.WaxConfig): Bu
 		}
 	end
 
-	FsUtils.ensureParentDir(output)
+	Fs.ensureParent(output)
 
 	local args: { string } = buildWaxArgs(input, output, config)
 
@@ -127,7 +127,7 @@ function Wax.bundle(input: string, output: string, config: Config.WaxConfig): Bu
 		}
 	end
 
-	if not FsUtils.isReadableFile(output) then
+	if not Fs.exists(output) then
 		return {
 			success = false,
 			output = nil,

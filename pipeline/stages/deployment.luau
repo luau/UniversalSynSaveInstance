@@ -20,8 +20,8 @@ local stdio = require("@lune/stdio")
 local Process = require("@lune/process")
 local DateTime = require("@lune/datetime")
 local Logger = require("../lib/logger")
-local GitUtils = require("../lib/git-utils")
-local FsUtils = require("../lib/fs-utils")
+local Git = require("../lib/git")
+local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
 -- Constants
@@ -104,7 +104,7 @@ function Deployment.deploy(
 
 	local githubConfig: Config.GitHubConfig = deployConfig.github
 
-	local apiKey: string? = GitUtils.getApiKey(githubConfig.apiKeyEnv)
+	local apiKey: string? = Git.getApiKey(githubConfig.apiKeyEnv)
 	if not apiKey then
 		return {
 			success = false,
@@ -114,7 +114,7 @@ function Deployment.deploy(
 		}
 	end
 
-	if not FsUtils.isReadableFile(outputPath) then
+	if not Fs.exists(outputPath) then
 		return {
 			success = false,
 			releaseUrl = nil,
@@ -165,7 +165,7 @@ function Deployment.deploy(
 
 	-- Check if release already exists
 	Logger.verbose(`Checking if release {version} already exists...`)
-	local exists: boolean?, existsErr: string? = GitUtils.releaseExists(
+	local exists: boolean?, existsErr: string? = Git.releaseExists(
 		githubConfig.owner,
 		githubConfig.repo,
 		apiKey,
@@ -192,7 +192,7 @@ function Deployment.deploy(
 
 	-- Create release
 	Logger.detail(`Creating release: {version}`)
-	local release: GitUtils.GitHubRelease?, releaseErr: string? = GitUtils.createRelease(
+	local release: Git.GitHubRelease?, releaseErr: string? = Git.createRelease(
 		githubConfig.owner,
 		githubConfig.repo,
 		apiKey,
@@ -218,10 +218,10 @@ function Deployment.deploy(
 	end
 
 	-- Upload asset
-	local assetName: string = FsUtils.getBaseName(outputPath)
+	local assetName: string = Fs.basename(outputPath)
 	Logger.detail(`Uploading asset: {assetName}`)
 
-	local uploadSuccess: boolean, uploadErr: string? = GitUtils.uploadAsset(
+	local uploadSuccess: boolean, uploadErr: string? = Git.uploadAsset(
 		githubConfig.owner,
 		githubConfig.repo,
 		apiKey,
@@ -263,12 +263,12 @@ function Deployment.validate(deployConfig: Config.DeploymentConfig): (boolean, s
 		return false, "GitHub config missing"
 	end
 
-	local apiKey: string? = GitUtils.getApiKey(deployConfig.github.apiKeyEnv)
+	local apiKey: string? = Git.getApiKey(deployConfig.github.apiKeyEnv)
 	if not apiKey then
 		return false, "API key not found"
 	end
 
-	local valid: boolean, err: string? = GitUtils.validateApiKey(apiKey)
+	local valid: boolean, err: string? = Git.validateApiKey(apiKey)
 	if not valid then
 		return false, `API key validation failed: {err}`
 	end

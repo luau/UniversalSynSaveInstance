@@ -18,7 +18,7 @@
 local Process = require("@lune/process")
 local DateTime = require("@lune/datetime")
 local Logger = require("../lib/logger")
-local FsUtils = require("../lib/fs-utils")
+local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
 -- Constants
@@ -48,7 +48,7 @@ local Stylua = {}
 function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
-	if not FsUtils.isReadableFile(filePath) then
+	if not Fs.exists(filePath) then
 		return {
 			success = false,
 			output = nil,
@@ -61,7 +61,7 @@ function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatRe
 	local args: { string } = {}
 
 	if config and config.configPath then
-		if not FsUtils.isReadableFile(config.configPath) then
+		if not Fs.exists(config.configPath) then
 			return {
 				success = false,
 				output = nil,
@@ -72,7 +72,7 @@ function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatRe
 		end
 		table.insert(args, "--config-path")
 		table.insert(args, config.configPath)
-	elseif FsUtils.isReadableFile(DEFAULT_CONFIG_PATH) then
+	elseif Fs.exists(DEFAULT_CONFIG_PATH) then
 		table.insert(args, "--config-path")
 		table.insert(args, DEFAULT_CONFIG_PATH)
 	end
@@ -155,7 +155,7 @@ end
 	@return True if valid, false and error message otherwise
 ]=]
 function Stylua.validateConfig(configPath: string): (boolean, string?)
-	if not FsUtils.isReadableFile(configPath) then
+	if not Fs.exists(configPath) then
 		return false, `Config not found: {configPath}`
 	end
 
@@ -183,7 +183,7 @@ end
 	@return True if needs formatting, false if already formatted
 ]=]
 function Stylua.needsFormatting(filePath: string, config: Config.StyluaConfig?): (boolean, string?)
-	if not FsUtils.isReadableFile(filePath) then
+	if not Fs.exists(filePath) then
 		return false, `File not found: {filePath}`
 	end
 
@@ -192,7 +192,7 @@ function Stylua.needsFormatting(filePath: string, config: Config.StyluaConfig?):
 	if config and config.configPath then
 		table.insert(args, "--config-path")
 		table.insert(args, config.configPath)
-	elseif FsUtils.isReadableFile(DEFAULT_CONFIG_PATH) then
+	elseif Fs.exists(DEFAULT_CONFIG_PATH) then
 		table.insert(args, "--config-path")
 		table.insert(args, DEFAULT_CONFIG_PATH)
 	end

@@ -18,10 +18,10 @@ local DateTime = require("@lune/datetime")
 local stdio = require("@lune/stdio")
 local Logger = require("./lib/logger")
 local Config = require("./lib/config")
-local FsUtils = require("./lib/fs-utils")
+local Fs = require("./lib/fs")
 local Darklua = require("./stages/darklua")
 local Wax = require("./stages/wax")
-local Composer = require("./stages/composer")
+local Compose = require("./stages/composer")
 local Deployment = require("./stages/deployment")
 local Stylua = require("./stages/stylua")
 
@@ -174,8 +174,8 @@ local function executeComposer(ctx: BuildContext): boolean
 
 	local templateConfig: Config.TemplateConfig = ctx.config.template :: Config.TemplateConfig
 
-	local result: Composer.ComposeStageResult =
-		Composer.compose(ctx.config.output, templateConfig, ctx.version, ctx.config.name)
+	local result: Compose.ComposeResult =
+		Compose.compose(ctx.config.output, templateConfig, ctx.version, ctx.config.name)
 
 	if not result.success then
 		Logger.error(`Template composition failed: {result.error}`)
@@ -300,7 +300,7 @@ local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 	-- Check template
 	if Config.isTemplateEnabled(buildConfig) then
 		local templateConfig: Config.TemplateConfig = buildConfig.template :: Config.TemplateConfig
-		local valid: boolean, err: string? = Composer.validateTemplate(templateConfig.source)
+		local valid: boolean, err: string? = Compose.validateTemplate(templateConfig.source)
 		if not valid then
 			Logger.error(`Template validation failed: {err}`)
 			hasErrors = true
@@ -324,7 +324,7 @@ local function displaySummary(ctx: BuildContext)
 	Logger.detail(`Output: {ctx.config.output}`)
 
 	-- Get file size
-	local size: number? = FsUtils.getFileSize(ctx.config.output)
+	local size: number? = Fs.size(ctx.config.output)
 	if size then
 		Logger.detail(`Size: {Logger.formatSize(size)}`)
 	end

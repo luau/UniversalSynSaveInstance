@@ -1,6 +1,6 @@
 --!strict
 --[=[
-	@class ComposerStage
+	@class Compose
 	Template composition stage for build output framing.
 
 	Wraps compiled build output in a template frame, injecting metadata like
@@ -18,11 +18,11 @@
 local DateTime = require("@lune/datetime")
 local Logger = require("../lib/logger")
 local Composer = require("../lib/composer")
-local FsUtils = require("../lib/fs-utils")
+local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
 -- Types
-export type ComposeStageResult = {
+export type ComposeResult = {
 	success: boolean,
 	output: string?,
 	error: string?,
@@ -31,7 +31,7 @@ export type ComposeStageResult = {
 }
 
 -- Module
-local ComposerStage = {}
+local Compose = {}
 
 --[=[
 	Composes a build output with a template frame.
@@ -43,17 +43,17 @@ local ComposerStage = {}
 	@param templateConfig Template configuration with source path
 	@param version Build version string
 	@param configName Build configuration name
-	@return ComposeStageResult with success, timing, replacement count
+	@return ComposeResult with success, timing, replacement count
 ]=]
-function ComposerStage.compose(
+function Compose.compose(
 	outputPath: string,
 	templateConfig: Config.TemplateConfig,
 	version: string,
 	configName: string
-): ComposeStageResult
+): ComposeResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
-	local buildCode: string?, readErr: string? = FsUtils.safeReadFile(outputPath)
+	local buildCode: string?, readErr: string? = Fs.read(outputPath)
 	if not buildCode then
 		return {
 			success = false,
@@ -84,7 +84,7 @@ function ComposerStage.compose(
 		}
 	end
 
-	local writeSuccess: boolean, writeErr: string? = FsUtils.safeWriteFile(outputPath, composeResult.output :: string)
+	local writeSuccess: boolean, writeErr: string? = Fs.write(outputPath, composeResult.output :: string)
 	if not writeSuccess then
 		return {
 			success = false,
@@ -112,12 +112,12 @@ end
 	@param templatePath Path to template file
 	@return True if valid, false and error message otherwise
 ]=]
-function ComposerStage.validateTemplate(templatePath: string): (boolean, string?)
-	if not FsUtils.isReadableFile(templatePath) then
+function Compose.validateTemplate(templatePath: string): (boolean, string?)
+	if not Fs.exists(templatePath) then
 		return false, `Template not found: {templatePath}`
 	end
 
-	local template: string?, err: string? = FsUtils.safeReadFile(templatePath)
+	local template: string?, err: string? = Fs.read(templatePath)
 	if not template then
 		return false, `Read failed: {err}`
 	end
@@ -138,8 +138,8 @@ end
 
 	@return Default template file path
 ]=]
-function ComposerStage.getDefaultTemplatePath(): string
+function Compose.getDefaultTemplatePath(): string
 	return "pipeline/templates/frame.luau"
 end
 
-return ComposerStage
+return Compose

@@ -19,7 +19,7 @@
 local Process = require("@lune/process")
 local DateTime = require("@lune/datetime")
 local Logger = require("../lib/logger")
-local FsUtils = require("../lib/fs-utils")
+local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
 -- Types
@@ -89,7 +89,7 @@ function Darklua.process(
 ): ProcessResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
-	if not FsUtils.isReadableFile(input) then
+	if not Fs.exists(input) then
 		return {
 			success = false,
 			output = nil,
@@ -105,7 +105,7 @@ function Darklua.process(
 		Logger.verbose("No stages defined, using default config")
 
 		local configPath: string = "pipeline/.darklua.json"
-		if not FsUtils.isReadableFile(configPath) then
+		if not Fs.exists(configPath) then
 			return {
 				success = false,
 				output = nil,
@@ -115,7 +115,7 @@ function Darklua.process(
 			}
 		end
 
-		FsUtils.ensureParentDir(finalOutput)
+		Fs.ensureParent(finalOutput)
 		local success: boolean, stderr: string = executeDarklua(input, finalOutput, configPath, nil)
 
 		if not success then
@@ -145,10 +145,10 @@ function Darklua.process(
 		local isLastStage: boolean = index == #stages
 		local stageOutput: string = if isLastStage then finalOutput else `{finalOutput}.stage{index}.tmp`
 
-		Logger.detail(`Stage {index}/{#stages}: {stage.name} ({FsUtils.getBaseName(stage.config)})`)
+		Logger.detail(`Stage {index}/{#stages}: {stage.name} ({Fs.basename(stage.config)})`)
 
 		-- Validate stage config exists
-		if not FsUtils.isReadableFile(stage.config) then
+		if not Fs.exists(stage.config) then
 			if stage.optional then
 				Logger.warn(`Skipping optional stage '{stage.name}': config not found`)
 				continue
@@ -164,7 +164,7 @@ function Darklua.process(
 		end
 
 		-- Ensure output directory exists
-		FsUtils.ensureParentDir(stageOutput)
+		Fs.ensureParent(stageOutput)
 
 		-- Execute darklua for this stage
 		local success: boolean, stderr: string = executeDarklua(currentInput, stageOutput, stage.config, stage.env)
@@ -187,8 +187,8 @@ function Darklua.process(
 		stagesCompleted += 1
 
 		-- Clean up previous temporary file
-		if currentInput ~= input and FsUtils.isReadableFile(currentInput) then
-			FsUtils.safeRemoveFile(currentInput)
+		if currentInput ~= input and Fs.exists(currentInput) then
+			Fs.remove(currentInput)
 		end
 
 		currentInput = stageOutput
@@ -197,8 +197,8 @@ function Darklua.process(
 	-- Clean up any remaining temporary files
 	for i = 1, #stages - 1 do
 		local tmpFile: string = `{finalOutput}.stage{i}.tmp`
-		if FsUtils.isReadableFile(tmpFile) then
-			FsUtils.safeRemoveFile(tmpFile)
+		if Fs.exists(tmpFile) then
+			Fs.remove(tmpFile)
 		end
 	end
 

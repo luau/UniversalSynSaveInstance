@@ -132,7 +132,7 @@ end
 	@return ComposeResult with success status, output, and replacement count
 ]=]
 function Composer.composeFromFile(templatePath: string, markers: Markers): ComposeResult
-	local template: string?, err: string? = FsUtils.safeReadFile(templatePath)
+	local template: string?, err: string? = Fs.read(templatePath)
 	if not template then
 		return {
 			success = false,
