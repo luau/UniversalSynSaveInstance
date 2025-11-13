@@ -95,7 +95,6 @@ local function processMember(
 	seen: { [string]: true },
 	types: { string }
 )
-
 	local valueType: lib.ValueType
 	local typeName: string
 
@@ -129,7 +128,6 @@ end
 	@return SerializationFlags -- Load flags
 ]=]
 local function collectTypes(api: lib.ApiDump): ({ string }, SerializationFlags, SerializationFlags)
-
 	local types: { string }
 	local seen: { [string]: true }
 	local save: SerializationFlags
@@ -164,7 +162,6 @@ end
 	@return { TypeInfo } -- Structured type info
 ]=]
 local function buildTypeInfo(types: { string }, save: SerializationFlags, load: SerializationFlags): { TypeInfo }
-
 	local result: { TypeInfo }
 	local hasSave: boolean
 	local hasLoad: boolean
@@ -197,7 +194,6 @@ end
 	@error Throws if analysis fails
 ]=]
 function Datatypes.run(hash: string?)
-
 	local api: lib.ApiDump
 	local types: { string }
 	local save: SerializationFlags

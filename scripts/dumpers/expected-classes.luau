@@ -83,7 +83,6 @@ end
 	@return { Property } -- Property list sorted by class then property
 ]=]
 local function collectProperties(api: lib.ApiDump): { Property }
-
 	local props: { Property }
 	local ok: boolean
 	local err: any
@@ -119,7 +118,6 @@ end
 	@error Throws if analysis fails
 ]=]
 function ExpectedClasses.run(hash: string?)
-
 	local api: lib.ApiDump
 	local props: { Property }
 

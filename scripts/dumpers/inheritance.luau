@@ -51,7 +51,6 @@ end
 	@return { ClassInfo } -- Non-Instance classes sorted by name
 ]=]
 local function collectClasses(api: lib.ApiDump): { ClassInfo }
-
 	local map: lib.ClassMap
 	local result: { ClassInfo }
 	local ok: boolean
@@ -92,7 +91,6 @@ end
 	@error Throws if analysis fails
 ]=]
 function Inheritance.run(hash: string?)
-
 	local api: lib.ApiDump
 	local classes: { ClassInfo }
 
