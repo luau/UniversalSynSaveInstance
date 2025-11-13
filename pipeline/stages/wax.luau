@@ -9,8 +9,8 @@
 
 	@usage
 	```lua
-	local WaxBundler = require("./stages/wax-bundler")
-	local result = WaxBundler.bundle(input, output, waxConfig)
+	local Wax = require("./stages/wax")
+	local result = Wax.bundle(input, output, waxConfig)
 	```
 ]=]
 
@@ -31,6 +31,8 @@ export type BundleResult = {
 
 -- Module
 local Wax = {}
+
+-- Helper functions
 
 --[=[
 	Builds wax command-line arguments from configuration.
@@ -90,6 +92,7 @@ function Wax.bundle(input: string, output: string, config: Config.WaxConfig): Bu
 		}
 	end
 
+	-- Supported Roblox file extensions for wax bundling
 	local validExtensions: { string } = { ".rbxm", ".rbxmx", ".project.json" }
 	local hasValidExtension: boolean = false
 
@@ -116,14 +119,13 @@ function Wax.bundle(input: string, output: string, config: Config.WaxConfig): Bu
 	Logger.verbose(`Executing: lune run wax {table.concat(args, " ")}`)
 
 	local result = Process.exec("lune", { "run", "wax", table.unpack(args) })
-	local duration: number = DateTime.now().unixTimestampMillis - startTime
 
 	if not result.ok then
 		return {
 			success = false,
 			output = nil,
 			error = `Bundle failed: {result.stderr}`,
-			duration = duration,
+			duration = DateTime.now().unixTimestampMillis - startTime,
 		}
 	end
 
@@ -132,7 +134,7 @@ function Wax.bundle(input: string, output: string, config: Config.WaxConfig): Bu
 			success = false,
 			output = nil,
 			error = `Output not created: {output}`,
-			duration = duration,
+			duration = DateTime.now().unixTimestampMillis - startTime,
 		}
 	end
 
@@ -140,7 +142,7 @@ function Wax.bundle(input: string, output: string, config: Config.WaxConfig): Bu
 		success = true,
 		output = output,
 		error = nil,
-		duration = duration,
+		duration = DateTime.now().unixTimestampMillis - startTime,
 	}
 end
 

@@ -9,8 +9,8 @@
 
 	@usage
 	```lua
-	local StyluaFormatter = require("./stages/stylua-formatter")
-	local result = StyluaFormatter.format(filePath, config)
+	local Stylua = require("./stages/stylua")
+	local result = Stylua.format(filePath, config)
 	```
 ]=]
 
@@ -21,7 +21,7 @@ local Logger = require("../lib/logger")
 local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
--- Constants
+-- Default configuration file path used when no custom config is specified
 local DEFAULT_CONFIG_PATH: string = "stylua.toml"
 
 -- Types
@@ -47,6 +47,7 @@ local Stylua = {}
 ]=]
 function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatResult
 	local startTime: number = DateTime.now().unixTimestampMillis
+	local args: { string } = {}
 
 	if not Fs.exists(filePath) then
 		return {
@@ -57,8 +58,6 @@ function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatRe
 			formatted = false,
 		}
 	end
-
-	local args: { string } = {}
 
 	if config and config.configPath then
 		if not Fs.exists(config.configPath) then
@@ -82,14 +81,13 @@ function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatRe
 	Logger.verbose(`Executing: stylua {table.concat(args, " ")}`)
 
 	local result = Process.exec("stylua", args)
-	local duration: number = DateTime.now().unixTimestampMillis - startTime
 
 	if not result.ok then
 		return {
 			success = false,
 			output = nil,
 			error = `Format failed: {result.stderr}`,
-			duration = duration,
+			duration = DateTime.now().unixTimestampMillis - startTime,
 			formatted = false,
 		}
 	end
@@ -98,7 +96,7 @@ function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatRe
 		success = true,
 		output = filePath,
 		error = nil,
-		duration = duration,
+		duration = DateTime.now().unixTimestampMillis - startTime,
 		formatted = true,
 	}
 end
@@ -109,8 +107,7 @@ end
 	@return True if stylua command is available
 ]=]
 function Stylua.isAvailable(): boolean
-	local result = Process.exec("stylua", { "--version" })
-	return result.ok
+	return Process.exec("stylua", { "--version" }).ok
 end
 
 --[=[

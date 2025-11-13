@@ -9,8 +9,8 @@
 
 	@usage
 	```lua
-	local ComposerStage = require("./stages/composer")
-	local result = ComposerStage.compose(outputPath, templateConfig, version, configName)
+	local Compose = require("./stages/composer")
+	local result = Compose.compose(outputPath, templateConfig, version, configName)
 	```
 ]=]
 
@@ -52,7 +52,6 @@ function Compose.compose(
 	configName: string
 ): ComposeResult
 	local startTime: number = DateTime.now().unixTimestampMillis
-
 	local buildCode: string?, readErr: string? = Fs.read(outputPath)
 	if not buildCode then
 		return {
@@ -66,6 +65,7 @@ function Compose.compose(
 
 	local markers: Composer.Markers = Composer.createDefaultMarkers(buildCode, version, configName)
 
+	-- Merge custom markers from config if present
 	if templateConfig.markers then
 		for key: string, value: string in templateConfig.markers do
 			markers[key] = value
@@ -84,6 +84,7 @@ function Compose.compose(
 		}
 	end
 
+	-- Type assertion needed since composeResult.output is string? but we know it's string after success check
 	local writeSuccess: boolean, writeErr: string? = Fs.write(outputPath, composeResult.output :: string)
 	if not writeSuccess then
 		return {

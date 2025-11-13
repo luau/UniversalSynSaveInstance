@@ -25,9 +25,10 @@ local Compose = require("./stages/composer")
 local Deployment = require("./stages/deployment")
 local Stylua = require("./stages/stylua")
 
--- Constants
+-- Process exit codes for success and failure states
 local EXIT_SUCCESS: number = 0
 local EXIT_FAILURE: number = 1
+-- Default path to pipeline configuration file
 local DEFAULT_CONFIG_PATH: string = "pipeline/.pcmp.json"
 
 -- Types
@@ -38,6 +39,8 @@ type BuildContext = {
 	verbose: boolean,
 	startTime: number,
 }
+
+-- Helper functions
 
 --[=[
 	Parses command-line arguments.
@@ -173,9 +176,7 @@ local function executeComposer(ctx: BuildContext): boolean
 	Logger.info("Stage: Template Composition")
 
 	local templateConfig: Config.TemplateConfig = ctx.config.template :: Config.TemplateConfig
-
-	local result: Compose.ComposeResult =
-		Compose.compose(ctx.config.output, templateConfig, ctx.version, ctx.config.name)
+	local result: Compose.ComposeResult = Compose.compose(ctx.config.output, templateConfig, ctx.version, ctx.config.name)
 
 	if not result.success then
 		Logger.error(`Template composition failed: {result.error}`)
@@ -236,9 +237,7 @@ local function executeDeployment(ctx: BuildContext): boolean
 	Logger.info("Stage: GitHub Deployment")
 
 	local deployConfig: Config.DeploymentConfig = ctx.config.deployment :: Config.DeploymentConfig
-
-	local result: Deployment.DeployResult =
-		Deployment.deploy(deployConfig, ctx.version, ctx.config.name, ctx.config.output, ctx.ciMode)
+	local result: Deployment.DeployResult = Deployment.deploy(deployConfig, ctx.version, ctx.config.name, ctx.config.output, ctx.ciMode)
 
 	if not result.success then
 		Logger.error(`Deployment failed: {result.error}`)
@@ -311,7 +310,7 @@ local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 end
 
 --[=[
-	Displays build summary.
+	Displays build summary with configuration, version, output path, file size, and duration.
 
 	@param ctx Build context
 ]=]

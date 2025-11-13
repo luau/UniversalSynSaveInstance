@@ -9,13 +9,12 @@
 
 	@usage
 	```lua
-	local DeploymentStage = require("./stages/deployment-stage")
-	local result = DeploymentStage.deploy(deployConfig, version, outputPath)
+	local Deployment = require("./stages/deployment")
+	local result = Deployment.deploy(deployConfig, version, outputPath)
 	```
 ]=]
 
 -- Imports
-local fs = require("@lune/fs")
 local stdio = require("@lune/stdio")
 local Process = require("@lune/process")
 local DateTime = require("@lune/datetime")
@@ -24,7 +23,7 @@ local Git = require("../lib/git")
 local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
--- Constants
+-- Temporary file path for interactive release note editing
 local RELEASE_BODY_FILE: string = (Process.env.TEMP or Process.env.TMP or "/tmp") .. "/RELEASE_BODY.md"
 
 -- Types
@@ -37,6 +36,8 @@ export type DeployResult = {
 
 -- Module
 local Deployment = {}
+
+-- Helper functions
 
 --[=[
 	Opens a file in the user's editor and waits for confirmation.
@@ -141,13 +142,13 @@ function Deployment.deploy(
 
 	if not isCiMode then
 		-- Write initial release notes and allow editing
-		fs.writeFile(RELEASE_BODY_FILE, releaseBody)
+		Fs.write(RELEASE_BODY_FILE, releaseBody)
 
 		local editConfirmed: boolean = editFileInteractive(RELEASE_BODY_FILE, nil)
 		if not editConfirmed then
 			-- Clean up and cancel
-			if fs.isFile(RELEASE_BODY_FILE) then
-				fs.removeFile(RELEASE_BODY_FILE)
+			if Fs.exists(RELEASE_BODY_FILE) then
+				Fs.remove(RELEASE_BODY_FILE)
 			end
 			return {
 				success = false,
@@ -158,8 +159,11 @@ function Deployment.deploy(
 		end
 
 		-- Read edited release notes
-		if fs.isFile(RELEASE_BODY_FILE) then
-			releaseBody = fs.readFile(RELEASE_BODY_FILE)
+		if Fs.exists(RELEASE_BODY_FILE) then
+			local notes: string? = Fs.read(RELEASE_BODY_FILE)
+			if notes then
+				releaseBody = notes
+			end
 		end
 	end
 
@@ -205,8 +209,8 @@ function Deployment.deploy(
 
 	if not release then
 		-- Clean up temp file
-		if fs.isFile(RELEASE_BODY_FILE) then
-			fs.removeFile(RELEASE_BODY_FILE)
+		if Fs.exists(RELEASE_BODY_FILE) then
+			Fs.remove(RELEASE_BODY_FILE)
 		end
 
 		return {
@@ -231,8 +235,8 @@ function Deployment.deploy(
 	)
 
 	-- Clean up temp file
-	if fs.isFile(RELEASE_BODY_FILE) then
-		fs.removeFile(RELEASE_BODY_FILE)
+	if Fs.exists(RELEASE_BODY_FILE) then
+		Fs.remove(RELEASE_BODY_FILE)
 	end
 
 	if not uploadSuccess then
@@ -240,13 +244,11 @@ function Deployment.deploy(
 		Logger.warn(`You may need to manually upload the asset to: {release.html_url}`)
 	end
 
-	local duration: number = DateTime.now().unixTimestampMillis - startTime
-
 	return {
 		success = true,
 		releaseUrl = release.html_url,
 		error = nil,
-		duration = duration,
+		duration = DateTime.now().unixTimestampMillis - startTime,
 	}
 end
 

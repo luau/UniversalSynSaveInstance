@@ -19,8 +19,8 @@
 ]=]
 
 -- Imports
-local fs = require("@lune/fs")
-local FsUtils = require("./fs-utils")
+local DateTime = require("@lune/datetime")
+local Fs = require("./fs")
 
 -- Types
 export type MarkerValue = string | () -> string
@@ -38,6 +38,8 @@ export type ComposeResult = {
 
 -- Module
 local Composer = {}
+
+-- Helper functions
 
 --[=[
 	Escapes special pattern characters for safe Lua pattern matching.
@@ -86,8 +88,8 @@ function Composer.compose(template: string, markers: Markers): ComposeResult
 	for key: string, value: MarkerValue in markers do
 		local markerPattern: string = `__COMPOSER.Insert(__COMPOSER.{key})`
 		local escapedPattern: string = escapePattern(markerPattern)
-
 		local count: number = 0
+
 		for _ in output:gmatch(escapedPattern) do
 			count += 1
 		end
@@ -179,8 +181,6 @@ end
 	@return Markers dictionary with standard build metadata
 ]=]
 function Composer.createDefaultMarkers(buildCode: string, version: string, configName: string): Markers
-	local DateTime = require("@lune/datetime")
-
 	return {
 		build = buildCode,
 		genDate = function()

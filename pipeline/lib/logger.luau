@@ -19,7 +19,7 @@
 -- Imports
 local stdio = require("@lune/stdio")
 
--- ANSI color codes for terminal output
+-- ANSI color codes and styles for formatted terminal output
 local COLOR_RESET: string = stdio.color("reset")
 local COLOR_CYAN: string = stdio.color("cyan")
 local COLOR_GREEN: string = stdio.color("green")
@@ -28,17 +28,17 @@ local COLOR_RED: string = stdio.color("red")
 local STYLE_BOLD: string = stdio.style("bold")
 local STYLE_DIM: string = stdio.style("dim")
 
--- Unicode symbols for log message prefixes
+-- Unicode symbols used as visual prefixes for different log levels
 local SYMBOL_INFO: string = "▶"
 local SYMBOL_SUCCESS: string = "✓"
 local SYMBOL_WARNING: string = "⚠"
 local SYMBOL_ERROR: string = "✗"
 
--- Module state
-local verboseEnabled: boolean = false
-
 -- Types
 export type LogLevel = "info" | "success" | "warn" | "error" | "fatal"
+
+-- Tracks whether verbose logging is enabled via setVerbose()
+local verboseEnabled: boolean = false
 
 -- Module
 local Logger = {}
@@ -118,11 +118,13 @@ end
 function Logger.progress(current: number, total: number, message: string?)
 	local percent: number = math.floor((current / total) * 100)
 	local progressText: string = `[{percent}%] ({current}/{total})`
-	if message then
-		print(`{COLOR_CYAN}{SYMBOL_INFO}{COLOR_RESET} {progressText} {message}`)
-	else
+
+	if not message then
 		print(`{COLOR_CYAN}{SYMBOL_INFO}{COLOR_RESET} {progressText}`)
+		return
 	end
+
+	print(`{COLOR_CYAN}{SYMBOL_INFO}{COLOR_RESET} {progressText} {message}`)
 end
 
 --[=[

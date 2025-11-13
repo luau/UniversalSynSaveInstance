@@ -22,6 +22,9 @@ local Logger = require("../lib/logger")
 local Fs = require("../lib/fs")
 local Config = require("../lib/config")
 
+-- Default configuration path used when no stages are explicitly defined
+local DEFAULT_CONFIG = "pipeline/.darklua.json"
+
 -- Types
 export type ProcessResult = {
 	success: boolean,
@@ -33,6 +36,8 @@ export type ProcessResult = {
 
 -- Module
 local Darklua = {}
+
+-- Helper functions
 
 --[=[
 	Executes darklua process command with given parameters.
@@ -104,19 +109,18 @@ function Darklua.process(
 	if #stages == 0 then
 		Logger.verbose("No stages defined, using default config")
 
-		local configPath: string = "pipeline/.darklua.json"
-		if not Fs.exists(configPath) then
+		if not Fs.exists(DEFAULT_CONFIG) then
 			return {
 				success = false,
 				output = nil,
-				error = `Config not found: {configPath}`,
+				error = `Config not found: {DEFAULT_CONFIG}`,
 				duration = 0,
 				stagesCompleted = 0,
 			}
 		end
 
 		Fs.ensureParent(finalOutput)
-		local success: boolean, stderr: string = executeDarklua(input, finalOutput, configPath, nil)
+		local success: boolean, stderr: string = executeDarklua(input, finalOutput, DEFAULT_CONFIG, nil)
 
 		if not success then
 			return {
@@ -195,20 +199,18 @@ function Darklua.process(
 	end
 
 	-- Clean up any remaining temporary files
-	for i = 1, #stages - 1 do
-		local tmpFile: string = `{finalOutput}.stage{i}.tmp`
+	for stageIndex = 1, #stages - 1 do
+		local tmpFile: string = `{finalOutput}.stage{stageIndex}.tmp`
 		if Fs.exists(tmpFile) then
 			Fs.remove(tmpFile)
 		end
 	end
 
-	local duration: number = DateTime.now().unixTimestampMillis - startTime
-
 	return {
 		success = true,
 		output = finalOutput,
 		error = nil,
-		duration = duration,
+		duration = DateTime.now().unixTimestampMillis - startTime,
 		stagesCompleted = stagesCompleted,
 	}
 end

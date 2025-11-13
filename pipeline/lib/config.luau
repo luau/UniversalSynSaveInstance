@@ -106,7 +106,8 @@ local Config = {}
 --[=[
 	Merges a base build config with an override config.
 
-	All fields from override replace base fields except 'extends' which is removed.
+	All fields from override replace base fields. The 'extends' field is
+	excluded from the merge since it's only used for inheritance resolution.
 
 	@param base Base configuration to extend
 	@param override Override configuration with new values
@@ -116,6 +117,7 @@ local function mergeBuilds(base: BuildConfig, override: BuildConfig): BuildConfi
 	local merged: BuildConfig = table.clone(base) :: any
 
 	for key: string, value: any in override :: any do
+		-- Skip 'extends' field since it's metadata for inheritance only
 		if key ~= "extends" then
 			merged[key] = value
 		end
@@ -155,8 +157,7 @@ function Config.load(path: string): (ConfigFile?, string?)
 		return nil, err
 	end
 
-	local resolvedConfig: ConfigFile = Config.resolveInheritance(config)
-	return resolvedConfig, nil
+	return Config.resolveInheritance(config), nil
 end
 
 --[=[
@@ -178,6 +179,7 @@ function Config.validate(config: any): (boolean, string?)
 	end
 
 	local buildCount: number = 0
+
 	for name: string, buildCfg: any in config.builds do
 		buildCount += 1
 
@@ -216,6 +218,8 @@ function Config.resolveInheritance(config: ConfigFile): ConfigFile
 	resolved.builds = {}
 
 	for name: string, buildCfg: BuildConfig in config.builds do
+		local finalBuild: BuildConfig
+
 		if buildCfg.extends then
 			local baseName: string = buildCfg.extends
 			local baseConfig: BuildConfig? = config.builds[baseName]
@@ -224,12 +228,13 @@ function Config.resolveInheritance(config: ConfigFile): ConfigFile
 				error(`Build '{name}' extends unknown config '{baseName}'`)
 			end
 
-			resolved.builds[name] = mergeBuilds(baseConfig, buildCfg)
+			finalBuild = mergeBuilds(baseConfig, buildCfg)
 		else
-			resolved.builds[name] = table.clone(buildCfg)
+			finalBuild = table.clone(buildCfg)
 		end
 
-		resolved.builds[name].name = name
+		finalBuild.name = name
+		resolved.builds[name] = finalBuild
 	end
 
 	return resolved
@@ -262,8 +267,7 @@ function Config.selectBuildConfig(config: ConfigFile, buildName: string?, ciMode
 
 	for name: string, buildCfg: BuildConfig in config.builds do
 		table.insert(buildNames, name)
-		local description: string = if buildCfg.description then `{name} - {buildCfg.description}` else name
-		table.insert(buildDescriptions, description)
+		table.insert(buildDescriptions, if buildCfg.description then `{name} - {buildCfg.description}` else name)
 	end
 
 	local selectedIndex: number = stdio.prompt("select", "Select build:", buildDescriptions)
