@@ -166,6 +166,10 @@ end
 	@param proxies -- Proxies list
 ]=]
 local function detectProxies(class: lib.Class, enums: { [string]: string }, proxies: { ProxyProperty })
+	local valueType: lib.ValueType
+	local tags: { [string]: any }
+	local ser: lib.Serialization
+
 	for enumType, realName in enums do
 		for _, member in class.Members do
 			if member.MemberType ~= "Property" or not member.ValueType or not member.Serialization then
@@ -177,10 +181,10 @@ local function detectProxies(class: lib.Class, enums: { [string]: string }, prox
 				continue
 			end
 
-			local valueType = member.ValueType
+			valueType = member.ValueType
 			if valueType.Category == "Enum" and valueType.Name == enumType then
-				local tags = lib.tags(member.Tags)
-				local ser = member.Serialization
+				tags = lib.tags(member.Tags)
+				ser = member.Serialization
 
 				-- Only flag scriptable, serializable properties as proxies
 				if not tags.NotScriptable and ser.CanLoad and ser.CanSave then
