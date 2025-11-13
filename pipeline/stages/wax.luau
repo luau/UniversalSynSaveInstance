@@ -1,6 +1,6 @@
 --!strict
 --[=[
-	@class WaxBundler
+	@class Wax
 	Wax bundling stage for Roblox model and Rojo project bundling.
 
 	Executes wax to bundle Roblox models (.rbxm/.rbxmx) or Rojo projects
@@ -30,7 +30,7 @@ export type BundleResult = {
 }
 
 -- Module
-local WaxBundler = {}
+local Wax = {}
 
 --[=[
 	Builds wax command-line arguments from configuration.
@@ -75,7 +75,7 @@ end
 	@param config Wax configuration
 	@return BundleResult with success status, output path, and timing
 ]=]
-function WaxBundler.bundle(input: string, output: string, config: Config.WaxConfig): BundleResult
+function Wax.bundle(input: string, output: string, config: Config.WaxConfig): BundleResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
 	-- Validate input file exists
@@ -153,7 +153,7 @@ end
 
 	@return True if wax can be executed
 ]=]
-function WaxBundler.isAvailable(): boolean
+function Wax.isAvailable(): boolean
 	local result = Process.exec("lune", { "run", "wax", "version" })
 	return result.ok
 end
@@ -163,7 +163,7 @@ end
 
 	@return Version string, or nil if wax is not available
 ]=]
-function WaxBundler.getVersion(): string?
+function Wax.getVersion(): string?
 	local result = Process.exec("lune", { "run", "wax", "version" })
 	if not result.ok then
 		return nil
@@ -180,7 +180,7 @@ end
 	@param input Input file path
 	@return True if input is a Rojo project file
 ]=]
-function WaxBundler.isRojoProject(input: string): boolean
+function Wax.isRojoProject(input: string): boolean
 	return input:match("%.project%.json$") ~= nil
 end
 
@@ -190,8 +190,8 @@ end
 	@param input Input file path
 	@return True if input is a Roblox model file
 ]=]
-function WaxBundler.isRobloxModel(input: string): boolean
+function Wax.isRobloxModel(input: string): boolean
 	return input:match("%.rbxmx?$") ~= nil
 end
 
-return WaxBundler
+return Wax

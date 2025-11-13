@@ -1,6 +1,6 @@
 --!strict
 --[=[
-	@class DeploymentStage
+	@class Deployment
 	GitHub release deployment stage.
 
 	Creates GitHub releases and uploads build artifacts with interactive
@@ -36,7 +36,7 @@ export type DeployResult = {
 }
 
 -- Module
-local DeploymentStage = {}
+local Deployment = {}
 
 --[=[
 	Opens a file in the user's editor and waits for confirmation.
@@ -81,7 +81,7 @@ end
 	@param ciMode Whether in CI mode (skips prompts)
 	@return DeployResult with success status and release URL
 ]=]
-function DeploymentStage.deploy(
+function Deployment.deploy(
 	deployConfig: Config.DeploymentConfig,
 	version: string,
 	configName: string,
@@ -257,7 +257,7 @@ end
 	@param deployConfig Deployment configuration to validate
 	@return True if valid and ready, or false and error message
 ]=]
-function DeploymentStage.validate(deployConfig: Config.DeploymentConfig): (boolean, string?)
+function Deployment.validate(deployConfig: Config.DeploymentConfig): (boolean, string?)
 	if not deployConfig.github then
 		return false, "GitHub deployment configuration missing"
 	end
@@ -276,4 +276,4 @@ function DeploymentStage.validate(deployConfig: Config.DeploymentConfig): (boole
 	return true, nil
 end
 
-return DeploymentStage
+return Deployment

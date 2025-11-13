@@ -1,6 +1,6 @@
 --!strict
 --[=[
-	@class ComposerStage
+	@class Composer
 	Template composition stage for build output framing.
 
 	Wraps compiled build output in a template frame, injecting metadata like
@@ -31,7 +31,7 @@ export type ComposeStageResult = {
 }
 
 -- Module
-local ComposerStage = {}
+local Composer = {}
 
 --[=[
 	Composes a build output with a template frame.
@@ -45,7 +45,7 @@ local ComposerStage = {}
 	@param configName Build configuration name
 	@return ComposeStageResult with success status and timing
 ]=]
-function ComposerStage.compose(
+function Composer.compose(
 	outputPath: string,
 	templateConfig: Config.TemplateConfig,
 	version: string,
@@ -117,7 +117,7 @@ end
 	@param templatePath Path to template file
 	@return True if valid, or false and error message
 ]=]
-function ComposerStage.validateTemplate(templatePath: string): (boolean, string?)
+function Composer.validateTemplate(templatePath: string): (boolean, string?)
 	if not FsUtils.isReadableFile(templatePath) then
 		return false, `Template file not found or unreadable: {templatePath}`
 	end
@@ -144,8 +144,8 @@ end
 
 	@return Default template path
 ]=]
-function ComposerStage.getDefaultTemplatePath(): string
+function Composer.getDefaultTemplatePath(): string
 	return "pipeline/templates/frame.luau"
 end
 
-return ComposerStage
+return Composer

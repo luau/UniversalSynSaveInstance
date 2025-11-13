@@ -19,11 +19,11 @@ local stdio = require("@lune/stdio")
 local Logger = require("./lib/logger")
 local Config = require("./lib/config")
 local FsUtils = require("./lib/fs-utils")
-local DarkluaProcessor = require("./stages/darklua-processor")
-local WaxBundler = require("./stages/wax-bundler")
-local ComposerStage = require("./stages/composer-stage")
-local DeploymentStage = require("./stages/deployment-stage")
-local StyluaFormatter = require("./stages/stylua-formatter")
+local Darklua = require("./stages/darklua")
+local Wax = require("./stages/wax")
+local Composer = require("./stages/composer")
+local Deployment = require("./stages/deployment")
+local Stylua = require("./stages/stylua")
 
 -- Constants
 local EXIT_SUCCESS: number = 0
@@ -106,7 +106,7 @@ local function executeDarkluaStage(ctx: BuildContext): boolean
 
 	Logger.info("Stage: Darklua Processing")
 
-	local result: DarkluaProcessor.ProcessResult = DarkluaProcessor.process(
+	local result: Darklua.ProcessResult = Darklua.process(
 		ctx.config.input,
 		ctx.config.output,
 		ctx.config.darklua :: Config.DarkluaConfig
@@ -140,7 +140,7 @@ local function executeWaxStage(ctx: BuildContext): boolean
 
 	local waxConfig: Config.WaxConfig = ctx.config.wax :: Config.WaxConfig
 
-	local result: WaxBundler.BundleResult = WaxBundler.bundle(ctx.config.input, ctx.config.output, waxConfig)
+	local result: Wax.BundleResult = Wax.bundle(ctx.config.input, ctx.config.output, waxConfig)
 
 	if not result.success then
 		Logger.error(`Wax bundling failed: {result.error}`)
@@ -158,7 +158,7 @@ end
 	@param ctx Build context
 	@return Success boolean
 ]=]
-local function executeComposerStage(ctx: BuildContext): boolean
+local function executeComposer(ctx: BuildContext): boolean
 	if not Config.isTemplateEnabled(ctx.config) then
 		return true
 	end
@@ -167,8 +167,8 @@ local function executeComposerStage(ctx: BuildContext): boolean
 
 	local templateConfig: Config.TemplateConfig = ctx.config.template :: Config.TemplateConfig
 
-	local result: ComposerStage.ComposeStageResult =
-		ComposerStage.compose(ctx.config.output, templateConfig, ctx.version, ctx.config.name)
+	local result: Composer.ComposeStageResult =
+		Composer.compose(ctx.config.output, templateConfig, ctx.version, ctx.config.name)
 
 	if not result.success then
 		Logger.error(`Template composition failed: {result.error}`)
@@ -194,7 +194,7 @@ local function executeStyluaStage(ctx: BuildContext): boolean
 
 	Logger.info("Stage: Stylua Formatting")
 
-	local result: StyluaFormatter.FormatResult = StyluaFormatter.format(ctx.config.output, ctx.config.stylua)
+	local result: Stylua.FormatResult = Stylua.format(ctx.config.output, ctx.config.stylua)
 
 	if not result.success then
 		Logger.error(`Stylua formatting failed: {result.error}`)
@@ -212,7 +212,7 @@ end
 	@param ctx Build context
 	@return Success boolean
 ]=]
-local function executeDeploymentStage(ctx: BuildContext): boolean
+local function executeDeployment(ctx: BuildContext): boolean
 	if not Config.isDeploymentEnabled(ctx.config) then
 		return true
 	end
@@ -230,8 +230,8 @@ local function executeDeploymentStage(ctx: BuildContext): boolean
 
 	local deployConfig: Config.DeploymentConfig = ctx.config.deployment :: Config.DeploymentConfig
 
-	local result: DeploymentStage.DeployResult =
-		DeploymentStage.deploy(deployConfig, ctx.version, ctx.config.name, ctx.config.output, ctx.ciMode)
+	local result: Deployment.DeployResult =
+		Deployment.deploy(deployConfig, ctx.version, ctx.config.name, ctx.config.output, ctx.ciMode)
 
 	if not result.success then
 		Logger.error(`Deployment failed: {result.error}`)
@@ -257,33 +257,33 @@ local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 
 	-- Check darklua
 	if Config.isDarkluaEnabled(buildConfig) then
-		if not DarkluaProcessor.isAvailable() then
+		if not Darklua.isAvailable() then
 			Logger.error("darklua is not available (required for this build)")
 			hasErrors = true
 		else
-			local version: string? = DarkluaProcessor.getVersion()
+			local version: string? = Darklua.getVersion()
 			Logger.verbose(`darklua version: {version or "unknown"}`)
 		end
 	end
 
 	-- Check wax
 	if Config.isWaxEnabled(buildConfig) then
-		if not WaxBundler.isAvailable() then
+		if not Wax.isAvailable() then
 			Logger.error("wax is not available (required for this build)")
 			hasErrors = true
 		else
-			local version: string? = WaxBundler.getVersion()
+			local version: string? = Wax.getVersion()
 			Logger.verbose(`wax version: {version or "unknown"}`)
 		end
 	end
 
 	-- Check stylua
 	if Config.isStyluaEnabled(buildConfig) then
-		if not StyluaFormatter.isAvailable() then
+		if not Stylua.isAvailable() then
 			Logger.warn("stylua is not available (formatting will be skipped)")
 			-- Not a fatal error
 		else
-			local version: string? = StyluaFormatter.getVersion()
+			local version: string? = Stylua.getVersion()
 			Logger.verbose(`stylua version: {version or "unknown"}`)
 		end
 	end
@@ -291,7 +291,7 @@ local function validateEnvironment(buildConfig: Config.BuildConfig): boolean
 	-- Check template
 	if Config.isTemplateEnabled(buildConfig) then
 		local templateConfig: Config.TemplateConfig = buildConfig.template :: Config.TemplateConfig
-		local valid: boolean, err: string? = ComposerStage.validateTemplate(templateConfig.source)
+		local valid: boolean, err: string? = Composer.validateTemplate(templateConfig.source)
 		if not valid then
 			Logger.error(`Template validation failed: {err}`)
 			hasErrors = true
@@ -435,7 +435,7 @@ local function run(args: { string }): number
 	end
 
 	-- Common stages for both build types
-	if not executeComposerStage(ctx) then
+	if not executeComposer(ctx) then
 		Logger.fatal("Build failed at composer stage")
 		return EXIT_FAILURE
 	end
@@ -445,7 +445,7 @@ local function run(args: { string }): number
 		return EXIT_FAILURE
 	end
 
-	if not executeDeploymentStage(ctx) then
+	if not executeDeployment(ctx) then
 		Logger.fatal("Build failed at deployment stage")
 		return EXIT_FAILURE
 	end

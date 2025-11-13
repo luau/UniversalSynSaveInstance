@@ -1,6 +1,6 @@
 --!strict
 --[=[
-	@class DarkluaProcessor
+	@class Darklua
 	Darklua transformation stage for code bundling and optimization.
 
 	Executes darklua transformations with support for multiple processing stages,
@@ -32,7 +32,7 @@ export type ProcessResult = {
 }
 
 -- Module
-local DarkluaProcessor = {}
+local Darklua = {}
 
 --[=[
 	Executes darklua process command with given parameters.
@@ -83,7 +83,7 @@ end
 	@param darkluaConfig Darklua configuration from build config
 	@return ProcessResult with success status, output path, and timing
 ]=]
-function DarkluaProcessor.process(
+function Darklua.process(
 	input: string,
 	finalOutput: string,
 	darkluaConfig: Config.DarkluaConfig
@@ -222,7 +222,7 @@ end
 
 	@return True if darklua command is available
 ]=]
-function DarkluaProcessor.isAvailable(): boolean
+function Darklua.isAvailable(): boolean
 	local result = Process.exec("darklua", { "--version" })
 	return result.ok
 end
@@ -232,7 +232,7 @@ end
 
 	@return Version string, or nil if darklua is not available
 ]=]
-function DarkluaProcessor.getVersion(): string?
+function Darklua.getVersion(): string?
 	local result = Process.exec("darklua", { "--version" })
 	if not result.ok then
 		return nil
@@ -242,4 +242,4 @@ function DarkluaProcessor.getVersion(): string?
 	return version
 end
 
-return DarkluaProcessor
+return Darklua

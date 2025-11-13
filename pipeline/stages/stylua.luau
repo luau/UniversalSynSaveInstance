@@ -1,6 +1,6 @@
 --!strict
 --[=[
-	@class StyluaFormatter
+	@class Stylua
 	Stylua code formatting stage.
 
 	Formats Lua/Luau code using stylua with configurable style settings.
@@ -34,7 +34,7 @@ export type FormatResult = {
 }
 
 -- Module
-local StyluaFormatter = {}
+local Stylua = {}
 
 --[=[
 	Formats a file using stylua.
@@ -43,7 +43,7 @@ local StyluaFormatter = {}
 	@param config Optional stylua configuration
 	@return FormatResult with success status and timing
 ]=]
-function StyluaFormatter.format(filePath: string, config: Config.StyluaConfig?): FormatResult
+function Stylua.format(filePath: string, config: Config.StyluaConfig?): FormatResult
 	local startTime: number = DateTime.now().unixTimestampMillis
 
 	-- Validate file exists
@@ -115,7 +115,7 @@ end
 	@param config Optional stylua configuration
 	@return List of FormatResults for each file
 ]=]
-function StyluaFormatter.formatMultiple(filePaths: { string }, config: Config.StyluaConfig?): { FormatResult }
+function Stylua.formatMultiple(filePaths: { string }, config: Config.StyluaConfig?): { FormatResult }
 	local results: { FormatResult } = {}
 
 	for _, filePath: string in filePaths do
@@ -131,7 +131,7 @@ end
 
 	@return True if stylua command is available
 ]=]
-function StyluaFormatter.isAvailable(): boolean
+function Stylua.isAvailable(): boolean
 	local result = Process.exec("stylua", { "--version" })
 	return result.ok
 end
@@ -141,7 +141,7 @@ end
 
 	@return Version string, or nil if stylua is not available
 ]=]
-function StyluaFormatter.getVersion(): string?
+function Stylua.getVersion(): string?
 	local result = Process.exec("stylua", { "--version" })
 	if not result.ok then
 		return nil
@@ -158,7 +158,7 @@ end
 	@param configPath Path to stylua configuration file
 	@return True if valid, or false and error message
 ]=]
-function StyluaFormatter.validateConfig(configPath: string): (boolean, string?)
+function Stylua.validateConfig(configPath: string): (boolean, string?)
 	if not FsUtils.isReadableFile(configPath) then
 		return false, `Config file not found: {configPath}`
 	end
@@ -186,7 +186,7 @@ end
 	@param config Optional stylua configuration
 	@return True if file needs formatting, false if already formatted
 ]=]
-function StyluaFormatter.needsFormatting(filePath: string, config: Config.StyluaConfig?): (boolean, string?)
+function Stylua.needsFormatting(filePath: string, config: Config.StyluaConfig?): (boolean, string?)
 	if not FsUtils.isReadableFile(filePath) then
 		return false, `File not found: {filePath}`
 	end
@@ -209,4 +209,4 @@ function StyluaFormatter.needsFormatting(filePath: string, config: Config.Stylua
 	return not result.ok, nil
 end
 
-return StyluaFormatter
+return Stylua
