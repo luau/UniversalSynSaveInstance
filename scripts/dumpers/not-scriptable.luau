@@ -336,9 +336,15 @@ end
 	@error Throws if analysis fails
 ]=]
 function NotScriptable.run(hash: string?)
-	local api = lib.fetch(hash)
-	local props, serProps, proxies = collectProperties(api)
-	local combined = buildOutput(props, serProps, proxies)
+	local api: lib.ApiDump
+	local props: { NotScriptableProperty }
+	local serProps: { SerializationProperty }
+	local proxies: { ProxyProperty }
+	local combined: { Property }
+
+	api = lib.fetch(hash)
+	props, serProps, proxies = collectProperties(api)
+	combined = buildOutput(props, serProps, proxies)
 
 	lib.json("not-scriptable", lib.output(hash, combined, {
 		notScriptable = #props,
