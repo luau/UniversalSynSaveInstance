@@ -1,0 +1,14 @@
+# Build files etc
+/build
+/*.rbxm
+/*.rbxmx
+/*.rbxl
+/*.rbxlx
+
+/tests/**/*.wax.lua
+/tests/**/*.wax.luau
+
+# Misc
+/junk
+/sourcemap.json
+/.vscode

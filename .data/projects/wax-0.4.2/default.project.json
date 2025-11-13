@@ -1,0 +1,10 @@
+{
+    "name": "Wax",
+    "tree": {
+        "$path": "lune/wax.luau",
+
+        "lib": {
+            "$path": "lune/lib"
+        }
+    }
+}

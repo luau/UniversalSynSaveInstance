@@ -1,0 +1,5 @@
+print("wax.version: ", wax.version)
+print("wax.envname: ", wax.envname)
+print("wax.shared: ", wax.shared)
+print("wax.script: ", wax.script)
+print("wax.require: ", wax.require)

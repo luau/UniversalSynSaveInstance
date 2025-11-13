@@ -1,0 +1,1 @@
+print(require("FolderWithInit/init"))
