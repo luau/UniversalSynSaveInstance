@@ -339,7 +339,7 @@ local CAPABILITY_BITS = {
 }
 
 local function __COUNT_CAPABILITY_BITS(raw)
-	-- TODO tostring & string.split aren't ideal but this is the only way until the feature is out of the experimental phase (SecurityCapabilities.Contains exists but the Enums that it accepts lacks some hidden bits)
+	-- TODO tostring & string.split aren't ideal but this is the only way until the feature is out of the experimental phase (SecurityCapabilities.Contains exists but the Enums that it accepts lacks some hidden bits) - NotAccessible, Unknown, Restricted
 
 	local result = 0
 	for _, flag in string.split(tostring(raw), " | ") do
@@ -390,16 +390,16 @@ Binary_Descriptors = {
 	end,
 	__construct_Sequence = function(keypoint_handler, keypointSize)
 		return function(raw)
-		local Keypoints = raw.Keypoints
-		local Keypoints_n = #Keypoints
+			local Keypoints = raw.Keypoints
+			local Keypoints_n = #Keypoints
 
 			local len = 4 + keypointSize * Keypoints_n
-		local b = buffer.create(len)
+			local b = buffer.create(len)
 
 			buffer.writeu32(b, 0, Keypoints_n)
 
 			local offset = 4
-		for _, keypoint in Keypoints do
+			for _, keypoint in Keypoints do
 				keypoint_handler(keypoint, b, offset)
 				offset += keypointSize
 			end
@@ -423,9 +423,9 @@ Binary_Descriptors = {
 			writeFunc(b, elementSize, Y)
 			if Z then
 				writeFunc(b, elementSize * 2, Z)
-		end
+			end
 
-		return b, len
+			return b, len
 		end
 	end,
 	--------------------------------------------------------------
@@ -777,13 +777,13 @@ XML_Descriptors = {
 		-- tostring(raw) also works (but way slower rn)
 		-- ? Trailing whitespace after Envelope is needed for lune compatibility
 		return function(raw)
-		local sequence = ""
+			local sequence = ""
 
-		for _, keypoint in raw.Keypoints do
+			for _, keypoint in raw.Keypoints do
 				sequence ..= keypoint_handler(keypoint)
-		end
+			end
 
-		return sequence
+			return sequence
 		end
 	end,
 	__VECTOR = function(X, Y, Z) -- Each element is a <float>
@@ -858,18 +858,18 @@ XML_Descriptors = {
 	end,
 	ColorSequence = nil,
 	ColorSequenceKeypoint = function(keypoint)
-			local __NORMALIZE_RANGE = XML_Descriptors.__NORMALIZE_RANGE
+		local __NORMALIZE_RANGE = XML_Descriptors.__NORMALIZE_RANGE
 
 		local color3 = keypoint.Value
 
 		return __NORMALIZE_RANGE(keypoint.Time)
 			.. " "
 			.. __NORMALIZE_RANGE(color3.R)
-				.. " "
-				.. __NORMALIZE_RANGE(color3.G)
-				.. " "
-				.. __NORMALIZE_RANGE(color3.B)
-				.. " 0 "
+			.. " "
+			.. __NORMALIZE_RANGE(color3.G)
+			.. " "
+			.. __NORMALIZE_RANGE(color3.B)
+			.. " 0 "
 	end,
 	Content = function(raw) -- TODO Not sure about Object & Opaque, run tests when possible
 		local SourceType = raw.SourceType
@@ -1155,6 +1155,58 @@ do
 		},
 	}
 
+	local function AttributesSerialize(attrs)
+		-- * There are certain restrictions for names of attributes
+		-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
+		-- But it seems like even if those are present, Studio still opens the file just fine
+		-- So there is no need to check for them currently
+
+		-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
+
+		local attrs_n = 0
+		local buffer_size = 4
+		local attrs_sorted = {}
+		local attrs_formatted = table.clone(attrs)
+		for attr, val in attrs do
+			attrs_n += 1
+			attrs_sorted[attrs_n] = attr
+
+			local Type = typeof(val)
+
+			local Descriptor = Binary_Descriptors[Type]
+			local attr_size
+
+			attrs_formatted[attr], attr_size = Descriptor(val)
+
+			buffer_size += 5 + #attr + attr_size
+		end
+
+		table.sort(attrs_sorted)
+
+		local b = buffer.create(buffer_size)
+
+		buffer.writeu32(b, 0, attrs_n)
+
+		local string__descriptor = Binary_Descriptors.string
+		local offset = 4
+		for _, attr in attrs_sorted do
+			local b_Name, Name_size = string__descriptor(attr)
+
+			buffer.copy(b, offset, b_Name)
+			offset += Name_size
+
+			buffer.writeu8(b, offset, attr_Type_IDs[typeof(attrs[attr])])
+			offset += 1
+
+			local bb = attrs_formatted[attr]
+
+			buffer.copy(b, offset, bb)
+			offset += buffer.len(bb)
+		end
+
+		return buffer.tostring(b)
+	end
+
 	local NotScriptableFixes = { --[[
 		For more info:
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
@@ -1162,64 +1214,13 @@ do
 		]]
 		Instance = {
 			AttributesSerialize = function(instance)
-				-- * There are certain restrictions for names of attributes
-				-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
-				-- But it seems like even if those are present, Studio still opens the file just fine
-				-- So there is no need to check for them currently
-
-				-- TODO: merge sequence Descriptors and some other descriptors where possible (check xml descriptors)
-				-- ? Return early for empty tags (this proved equally as fast when done using counter/next)
-
 				local attrs = instance:GetAttributes()
 
 				if not next(attrs) then
 					return ""
 				end
 
-				local attrs_n = 0
-				local buffer_size = 4
-				local attrs_sorted = {}
-				local attrs_formatted = table.clone(attrs)
-				for attr, val in attrs do
-					attrs_n += 1
-					attrs_sorted[attrs_n] = attr
-
-					local Type = typeof(val)
-
-					local Descriptor = Binary_Descriptors[Type]
-					local attr_size
-
-					attrs_formatted[attr], attr_size = Descriptor(val)
-
-					buffer_size += 5 + #attr + attr_size
-				end
-
-				table.sort(attrs_sorted)
-
-				local b = buffer.create(buffer_size)
-
-				local offset = 0
-
-				buffer.writeu32(b, offset, attrs_n)
-				offset += 4
-
-				local string__descriptor = Binary_Descriptors.string
-				for _, attr in attrs_sorted do
-					local b_Name, Name_size = string__descriptor(attr)
-
-					buffer.copy(b, offset, b_Name)
-					offset += Name_size
-
-					buffer.writeu8(b, offset, attr_Type_IDs[typeof(attrs[attr])])
-					offset += 1
-
-					local bb = attrs_formatted[attr]
-
-					buffer.copy(b, offset, bb)
-					offset += buffer.len(bb)
-				end
-
-				return buffer.tostring(b)
+				return AttributesSerialize(attrs)
 			end,
 			DefinesCapabilities = "Sandboxed",
 			Tags = function(instance)
@@ -1234,7 +1235,101 @@ do
 				return table.concat(tags, "\0")
 			end,
 		},
+		Path2D = {
+			PropertiesSerialize = function(instance)
+				local control_points = instance:GetControlPoints()
+				local control_points_n = #control_points
 
+				if control_points_n == 0 then
+					return "\0\0\0\0"
+				end
+
+				local b = buffer.create(4 + control_points_n * 49)
+				buffer.writeu32(b, 0, control_points_n)
+
+				local TypeID_Path2DControlPoint = attr_Type_IDs["Path2DControlPoint"]
+				local offset = 4
+				for i, point in control_points do
+					local buf = Binary_Descriptors.Path2DControlPoint(point)
+
+					buffer.writeu8(b, offset, TypeID_Path2DControlPoint)
+					offset += 1
+
+					buffer.copy(b, offset, buf)
+					offset += 48
+				end
+
+				return buffer.tostring(b)
+			end,
+		},
+		StyleRule = {
+			PropertiesSerialize = function(instance)
+				local props = instance:GetProperties()
+
+				if not next(props) then
+					return "\0\0\0\0"
+				end
+
+				return AttributesSerialize(props)
+			end,
+		},
+		StyleQuery = { -- ? Not sure about this as this class doesn't serialize as of 699
+			ConditionsSerialize = function(instance)
+				local props = instance:GetConditions()
+
+				if not next(props) then
+					return "\0\0\0\0"
+				end
+
+				return AttributesSerialize(props)
+			end,
+		},
+		MarkerCurve = {
+			ValuesAndTimes = function(instance)
+				local markers = instance:GetMarkers()
+				local markers_n = #markers
+
+				if markers_n == 0 then
+					return "\2\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0"
+				end
+
+				local strings_size = 0
+				for i, marker in markers do
+					strings_size += #marker.Value + 1
+				end
+
+				local b = buffer.create(8 + strings_size + 8 + (markers_n * 4))
+				local offset = 0
+
+				-- Values section
+				buffer.writeu32(b, offset, 2) -- Constant
+				offset += 4
+				buffer.writeu32(b, offset, markers_n)
+				offset += 4
+
+				for i, marker in markers do
+					local value = marker.Value
+					buffer.writestring(b, offset, value)
+					offset += #value
+					buffer.writeu8(b, offset, 0) -- Null terminator
+					offset += 1
+				end
+
+				-- Times section (as 2400x scaled integers)
+				buffer.writeu32(b, offset, 1) -- Constant
+				offset += 4
+				buffer.writeu32(b, offset, markers_n)
+				offset += 4
+
+				for i, marker in markers do
+					local scaled_time = math.round(marker.Time * 2400)
+					buffer.writeu32(b, offset, scaled_time)
+					offset += 4
+				end
+
+				return buffer.tostring(b)
+			end,
+		},
 		-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
 		BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
 		BasePart = {
@@ -1384,13 +1479,11 @@ do
 
 				local b = buffer.create(buffer_size)
 
-				local offset = 0
+				buffer.writeu8(b, 0, 1) -- ? [CONSTANT] Version byte (likely)
+				buffer.writeu8(b, 1, col_groups_n) -- Group count
 
-				buffer.writeu8(b, offset, 1) -- ? [CONSTANT] Version byte (likely)
-				offset += 1
-				buffer.writeu8(b, offset, col_groups_n) -- Group count
-				offset += 1
-
+				local TypeID_int32 = attr_Type_IDs["int32"]
+				local offset = 2
 				for i, group in collision_groups do
 					local name, id, mask = group.name, i - 1, group.mask
 					local name_len = #name
@@ -1398,7 +1491,7 @@ do
 					buffer.writeu8(b, offset, id) -- ID
 					offset += 1
 
-					buffer.writeu8(b, offset, 4) -- ? [CONSTANT] Not sure what this is (also not sure about u8, could be i8)
+					buffer.writeu8(b, offset, TypeID_int32) -- ? Type ID for int32 (0x04)
 					offset += 1
 
 					buffer.writei32(b, offset, mask) -- Mask value as signed 32-bit integer
