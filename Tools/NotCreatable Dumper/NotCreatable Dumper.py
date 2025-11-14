@@ -3,6 +3,7 @@ import os
 import re
 import sys
 
+
 def array_to_dictionary(table, hybrid_mode=None):
     tmp = {}
     if hybrid_mode == "adjust":
@@ -21,6 +22,7 @@ def array_to_dictionary(table, hybrid_mode=None):
 
 
 s = "\n"
+
 
 def api(version_hash=None):
     if version_hash:
@@ -44,19 +46,23 @@ def api(version_hash=None):
             match = re.search(r"(version-[^\s]+)", line)
             if match:
                 version_hash = match.group(1)
-                api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
+                api_dump_url = (
+                    f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
+                )
                 try:
                     response = requests.get(api_dump_url)
                     response.raise_for_status()
-                    return response
+                    return response, version_hash
                 except requests.RequestException as e:
                     print(f"Error fetching API dump for {version_hash}: {e}")
 
+
 def fetch_api(version_hash=None):
-    response = api(version_hash)
+    response, version_hash = api(version_hash)
     api_classes = response.json()["Classes"]
 
     global s
+    s = version_hash + "\n\n"
     class_list = {}
 
     for api_class in api_classes:
@@ -97,12 +103,13 @@ def fetch_api(version_hash=None):
 
     return class_list
 
+
 if __name__ == "__main__":
     # Check if version hash was passed as a command line argument
     version_hash = None
     if len(sys.argv) > 1:
         version_hash = sys.argv[1]
-    
+
     try:
         fetch_api(version_hash)
         print(s)

@@ -1,3 +1,4 @@
+version-874602c66c70451a
 
 EditableImage.ImageData {BinaryString}
 
@@ -232,12 +233,15 @@ Smoke.size_xml {float}
 SoundService.VolumetricAudio {VolumetricAudio}
 
 StarterPlayer.AvatarJointUpgrade_SerializedRollout {RolloutState}
+StarterPlayer.CreateDefaultPlayerModule {bool}
 StarterPlayer.EnableDynamicHeads {LoadDynamicHeads}
 StarterPlayer.LoadCharacterLayeredClothing {LoadCharacterLayeredClothing}
 AvatarJointUpgrade_SerializedRollout -> AvatarJointUpgrade {POTENTIAL PROXY}
 LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing  {POTENTIAL PROXY}
 
 StyleRule.PropertiesSerialize {BinaryString}
+
+StyleQuery.ConditionsSerialize {BinaryString}
 
 TerrainDetail.TexturePack {ContentId}
 
@@ -335,6 +339,7 @@ Studio.Enable Internal Beta Features {Scriptable}
 Studio.Enable Internal Features {Scriptable}
 Studio.LoadInternalPlugins {Scriptable}
 StyleRule.PropertiesSerialize
+StyleQuery.ConditionsSerialize
 TextSource.UserIdReplicated {Serialize: False}
 VideoPlayer.PlayingReplicating {Serialize: False}
 WeldConstraint.Part0Internal

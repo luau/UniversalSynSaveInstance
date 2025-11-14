@@ -43,17 +43,18 @@ def api():
             try:
                 response = requests.get(api_dump_url)
                 response.raise_for_status()
-                return response
+                return response, version_hash
 
             except requests.RequestException as e:
                 print(f"Error fetching API dump for {version_hash}: {e}")
 
 
 def fetch_api():
-    response = api()
+    response, version_hash = api()
     api_classes = response.json()["Classes"]
 
     global s, filtered_properties
+    s = version_hash + "\n\n"
     for api_class in api_classes:
         class_name = api_class["Name"]
         class_members = api_class["Members"]

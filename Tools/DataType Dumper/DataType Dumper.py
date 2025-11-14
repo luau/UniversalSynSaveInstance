@@ -55,13 +55,13 @@ def api(version_hash=None):
                 try:
                     response = requests.get(api_dump_url)
                     response.raise_for_status()
-                    return response
+                    return response, version_hash
                 except requests.RequestException as e:
                     print(f"Error fetching API dump for {version_hash}: {e}")
 
 
 def fetch_api(version_hash=None):
-    response = api(version_hash)
+    response, version_hash = api(version_hash)
     api_classes = response.json()["Classes"]
 
     global datatypes
@@ -105,6 +105,7 @@ def fetch_api(version_hash=None):
                     if value_type_name not in datatypes_set:
                         datatypes_set.add(value_type_name)
                         datatypes.append(value_type_name)
+    return version_hash
 
 
 if __name__ == "__main__":
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         version_hash = sys.argv[1]
     try:
-        fetch_api(version_hash)
+        version_hash = fetch_api(version_hash)
         datatypes.sort()
 
         output_lines = []
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
         s = "\n".join(output_lines) + "\n"
         print(s)
-
+        s = version_hash + "\n\n" + s
         script_dir = os.path.dirname(os.path.realpath(__file__))
         output_file_path = os.path.join(script_dir, "Dump")
         with open(output_file_path, "w") as file:

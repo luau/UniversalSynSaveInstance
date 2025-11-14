@@ -1,3 +1,4 @@
+version-874602c66c70451a
 
 Capture.CaptureTime {CanSave Only}
 Capture.CaptureType {CanSave Only}
@@ -592,6 +593,7 @@ TextChatService is NotCreatable but TextChatService.ChatTranslationEnabled has a
 TextSource is NotCreatable but TextSource.CanSend has a default value: true
 
 ThirdPartyUserService.FriendCommunicationRestrictionStatus {CanSave Only}
+ThirdPartyUserService.HasActiveUser {CanSave Only}
 
 Translator.LocaleId {CanSave Only}
 
