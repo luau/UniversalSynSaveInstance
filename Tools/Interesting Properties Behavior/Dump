@@ -19,6 +19,7 @@ EditableMesh.FixedSize {CanSave Only}
 EditableMesh.SkinningEnabled {Deprecated} {CanSave}
 
 Instance.Parent {CanLoad Only}
+Instance.UniqueId {Uses NotScriptable Type without the tag - UniqueId }
 Instance.archivable {CanLoad Only} {Deprecated}
 
 AdPortal.PortalVersion {CanSave Only}
@@ -49,6 +50,8 @@ AudioCompressor.Editor {CanLoad Only}
 
 AudioDeviceInput.IsReady {CanSave Only}
 
+AudioEmitter.AngleAttenuation {Uses NotScriptable Type without the tag - BinaryString }
+AudioEmitter.DistanceAttenuation {Uses NotScriptable Type without the tag - BinaryString }
 AudioEmitter.SimulationFidelity {Deprecated} {CanSave}
 
 AudioEqualizer.Editor {CanLoad Only}
@@ -57,6 +60,8 @@ AudioFilter.Editor {CanLoad Only}
 
 AudioLimiter.Editor {CanLoad Only}
 
+AudioListener.AngleAttenuation {Uses NotScriptable Type without the tag - BinaryString }
+AudioListener.DistanceAttenuation {Uses NotScriptable Type without the tag - BinaryString }
 AudioListener.SimulationFidelity {Deprecated} {CanSave}
 
 AudioPlayer.AssetId {CanLoad Only} {Deprecated}
@@ -331,9 +336,14 @@ LocalizationTable.DevelopmentLanguage {CanLoad Only} {Deprecated}
 
 LodDataEntity is NotCreatable but LodDataEntity.EntityLodEnabled has a default value: true
 
+AuroraScript.Source {Uses NotScriptable Type without the tag - ProtectedString }
+
 BaseScript.LinkedSource {Deprecated} {CanSave}
 
+Script.Source {Uses NotScriptable Type without the tag - ProtectedString }
+
 ModuleScript.LinkedSource {Deprecated} {CanSave}
+ModuleScript.Source {Uses NotScriptable Type without the tag - ProtectedString }
 
 MarkerCurve.Length {CanSave Only}
 
@@ -426,6 +436,7 @@ Workspace.CollisionGroups {CanLoad Only}
 Workspace.StreamingPauseMode {CanLoad Only}
 
 PackageLink.PackageId {CanSave Only}
+PackageLink.SerializedDefaultAttributes {Uses NotScriptable Type without the tag - BinaryString }
 PackageLink.VersionNumber {CanLoad Only}
 PackageLink is NotCreatable but PackageLink.AutoUpdate has a default value: false
 
@@ -464,6 +475,7 @@ PlayerDataRecordConfig is NotCreatable but PlayerDataRecordConfig.RecordName has
 
 PlayerDataService is NotCreatable but PlayerDataService.LoadFailureBehavior has a default value: Failure
 
+PlayerEmulatorService.SerializedEmulatedPolicyInfo {Uses NotScriptable Type without the tag - BinaryString }
 PlayerEmulatorService is NotCreatable but PlayerEmulatorService.CustomPoliciesEnabled has a default value: false
 
 PluginAction.Text {CanLoad Only}
@@ -481,6 +493,7 @@ Pose.MaskWeight {CanLoad Only} {Deprecated}
 
 RenderSettings.EnableFRM {CanLoad Only}
 
+RobloxSerializableInstance.Data {Uses NotScriptable Type without the tag - BinaryString }
 RobloxSerializableInstance is NotCreatable but RobloxSerializableInstance.Data has a default value: 
 
 RotationCurve.Length {CanSave Only}
@@ -516,6 +529,8 @@ DataModel.PrivateServerOwnerId {CanSave Only}
 DataModel.VIPServerId {CanSave Only} {Deprecated} {CanSave}
 DataModel.VIPServerOwnerId {CanSave Only} {Deprecated} {CanSave}
 
+ServiceVisibilityService.HiddenServices {Uses NotScriptable Type without the tag - BinaryString }
+ServiceVisibilityService.VisibleServices {Uses NotScriptable Type without the tag - BinaryString }
 ServiceVisibilityService is NotCreatable but ServiceVisibilityService.HiddenServices has a default value: 
 
 Smoke.Opacity {CanLoad Only}
@@ -659,3 +674,114 @@ VideoSampler.VideoContent {CanSave Only}
 
 WebStreamClient.ConnectionState {CanSave Only}
 
+
+==================================================
+NOTSCRIPTABLE VALUE TYPE ANALYSIS
+==================================================
+
+ValueTypes found exclusively in NotScriptable properties: 12
+  - BinaryString
+  - CSGPropertyData
+  - Color3uint8
+  - FacsReplicationData
+  - NetAssetRef
+  - OptionalCoordinateFrame
+  - ProtectedString
+  - ReplicationPV
+  - SharedString
+  - SystemAddress
+  - UniqueId
+  - Vector3int16
+
+Properties with NotScriptable tag: 65
+  - AnimationClip.GuidBinaryString
+  - AnimationNodeDefinition.InputPinData
+  - AnimationRigData.label
+  - AnimationRigData.name
+  - AnimationRigData.parent
+  - AnimationRigData.postTransform
+  - AnimationRigData.preTransform
+  - AnimationRigData.transform
+  - Animator.FacsReplicationData
+  - AudioDeviceInput.AccessList
+  - AuroraScript.AuroraScriptBindingsSerialize
+  - BasePart.Color3uint8
+  - BasePart.NetworkOwnerV3
+  - BasePart.ReplicationPV
+  - BaseWrap.HSRData
+  - BaseWrap.HSRMeshIdData
+  - BinaryStringValue.Value
+  - EditableImage.ImageData
+  - EditableMesh.MeshData
+  - FloatCurve.ValuesAndTimes
+  - HapticEffect.WaveformData
+  - HiddenSurfaceRemovalAsset.HSRData
+  - HiddenSurfaceRemovalAsset.HSRMeshIdData
+  - Instance.AttributesSerialize
+  - Instance.HistoryId
+  - Instance.Tags
+  - LodDataEntity.EntityData
+  - LuaSourceContainer.CachedRemoteSource
+  - LuaSourceContainer.SandboxedSource
+  - MarkerCurve.ValuesAndTimes
+  - MeshPart.PhysicsData
+  - MeshPart.SolidMeshHolder
+  - Model.ModelMeshData
+  - Model.SlimHash
+  - Model.WorldPivotData
+  - PartOperation.ChildData
+  - PartOperation.ChildData2
+  - PartOperation.DCDPropertyData
+  - PartOperation.ManifoldMesh_DEPRECATED
+  - PartOperation.MeshData
+  - PartOperation.MeshData2
+  - PartOperation.PhysicsData
+  - PartOperation.SerializedOperationGraph
+  - PartOperation.SolidMeshHolder
+  - PartOperationAsset.ChildData
+  - PartOperationAsset.MeshData
+  - Path2D.PropertiesSerialize
+  - Player.RawJoinData
+  - PlayerGui.InputBindingMappingsRaw
+  - RotationCurve.ValuesAndTimes
+  - StyleQuery.ConditionsSerialize
+  - StyleRule.PropertiesSerialize
+  - Terrain.ClusterGridV3
+  - Terrain.MaterialColors
+  - Terrain.PhysicsGrid
+  - Terrain.SmoothGrid
+  - TerrainRegion.ExtentsMax
+  - TerrainRegion.ExtentsMin
+  - TerrainRegion.GridV3
+  - TerrainRegion.SmoothGrid
+  - TriangleMeshPart.AeroMeshData
+  - TriangleMeshPart.ConvexDecompHolder
+  - TriangleMeshPart.PhysicalConfigData
+  - ValueCurve.ValuesAndTimes
+  - Workspace.CollisionGroupData
+
+Blacklisted types (excluded from analysis): 24
+  - Axes
+  - BrickColor
+  - CFrame
+  - Color3
+  - ColorSequence
+  - Content
+  - ContentId
+  - Faces
+  - Font
+  - NumberRange
+  - NumberSequence
+  - PhysicalProperties
+  - Ray
+  - Rect
+  - UDim
+  - UDim2
+  - Vector2
+  - Vector3
+  - bool
+  - double
+  - float
+  - int
+  - int64
+  - string

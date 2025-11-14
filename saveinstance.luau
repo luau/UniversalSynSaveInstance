@@ -1207,6 +1207,35 @@ do
 		return buffer.tostring(b)
 	end
 
+	local function AttenuationSerialize(attenuations)
+		if not next(attenuations) then
+			return "\0" -- ? [CONSTANT] Version byte (likely)
+		end
+
+		local attenuations_n = 0
+
+		local attenuations_sorted = {}
+
+		for key in attenuations do
+			attenuations_n += 1
+			attenuations_sorted[attenuations_n] = key
+		end
+
+		table.sort(attenuations_sorted) -- ? Seems to be sorted by default, just in case
+
+		local b = buffer.create(1 + attenuations_n * 8)
+
+		local offset = 1
+		for _, key in attenuations_sorted do
+			buffer.writef32(b, offset, key)
+			offset += 4
+			buffer.writef32(b, offset, attenuations[key]) -- volume
+			offset += 4
+		end
+
+		return buffer.tostring(b)
+	end
+
 	local NotScriptableFixes = { --[[
 		For more info:
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
@@ -1299,20 +1328,18 @@ do
 				end
 
 				local b = buffer.create(8 + strings_size + 8 + (markers_n * 4))
-				local offset = 0
 
 				-- Values section
-				buffer.writeu32(b, offset, 2) -- Constant
-				offset += 4
-				buffer.writeu32(b, offset, markers_n)
-				offset += 4
+				buffer.writeu32(b, 0, 2) -- Constant
+				buffer.writeu32(b, 4, markers_n)
 
+				local offset = 8
 				for i, marker in markers do
 					local value = marker.Value
 					buffer.writestring(b, offset, value)
-					offset += #value
-					buffer.writeu8(b, offset, 0) -- Null terminator
-					offset += 1
+					offset += #value + 1
+					-- buffer.writeu8(b, offset, 0) -- Null terminator
+					-- offset += 1
 				end
 
 				-- Times section (as 2400x scaled integers)
@@ -1328,6 +1355,22 @@ do
 				end
 
 				return buffer.tostring(b)
+			end,
+		},
+		AudioEmitter = {
+			AngleAttenuation = function(instance)
+				return AttenuationSerialize(instance:GetAngleAttenuation())
+			end,
+			DistanceAttenuation = function(instance)
+				return AttenuationSerialize(instance:GetDistanceAttenuation())
+			end,
+		},
+		AudioListener = {
+			AngleAttenuation = function(instance)
+				return AttenuationSerialize(instance:GetAngleAttenuation())
+			end,
+			DistanceAttenuation = function(instance)
+				return AttenuationSerialize(instance:GetDistanceAttenuation())
 			end,
 		},
 		-- DebuggerBreakpoint = {line="Line"}, -- ? This shouldn't appear in live games (try to prove this wrong)
@@ -2862,6 +2905,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 						if
 							default_instance
+							and Property.CanRead ~= false
 							and not Property.Special -- TODO: .Special is checked more than once (because it might be updated during ReadProperty)
 							and not (PropertyName == "Source" and isLuaSourceContainer(instance))
 						then -- ? Could be not just "Source" in the future

@@ -56,13 +56,67 @@ def fetch_api():
     s = version_hash + "\n\n"
     class_list = {}
 
+    # Blacklist of common types that shouldn't trigger the warning
+    NOTSCRIPTABLE_BLACKLIST = {
+        "Axes",
+        "bool",
+        "BrickColor",
+        "CFrame",
+        "Color3",
+        "ColorSequence",
+        "Content",
+        "ContentId",
+        "double",
+        "Faces",
+        "float",
+        "Font",
+        "int",
+        "int64",
+        "NumberRange",
+        "NumberSequence",
+        "PhysicalProperties",
+        "Ray",
+        "Rect",
+        "string",
+        "UDim",
+        "UDim2",
+        "Vector2",
+        "Vector3",
+    }
+
+    not_scriptable_types = set()
+    not_scriptable_properties = []
+
+    # First pass: collect NotScriptable data
+    for api_class in api_classes:
+        class_name = api_class["Name"]
+        class_members = api_class["Members"]
+
+        for member in class_members:
+            if member["MemberType"] == "Property":
+                member_tags = member.get("Tags")
+                if member_tags:
+                    member_tags = array_to_dictionary(member_tags)
+                    if member_tags.get("NotScriptable"):
+                        value_type = member["ValueType"]
+                        value_type_name = value_type["Name"]
+                        value_type_cat = value_type["Category"]
+                        if (
+                            value_type_cat not in ["Enum", "Class"]
+                            and value_type_name not in NOTSCRIPTABLE_BLACKLIST
+                        ):
+                            not_scriptable_types.add(value_type_name)
+                            not_scriptable_properties.append(
+                                f"{class_name}.{member['Name']}"
+                            )
+
+    # Second pass: original data collection + NotScriptable type checking
     for api_class in api_classes:
         class_name = api_class["Name"]
         class_members = api_class["Members"]
         class_tags = api_class.get("Tags")
 
         if class_tags:
-            # print(class_tags)
             if len(class_tags) == 0:
                 print("tagsempty")
             class_tags = array_to_dictionary(class_tags)
@@ -89,10 +143,27 @@ def fetch_api():
                         member_tags = array_to_dictionary(member_tags)
 
                     serialization = member["Serialization"]
+
+                    # Check if this property uses a ValueType from NotScriptable properties
+                    value_type = member["ValueType"]
+                    value_type_name = value_type["Name"]
+                    value_type_cat = value_type["Category"]
+                    uses_notscriptable_type = (
+                        value_type_name in not_scriptable_types
+                        and value_type_cat not in ["Enum", "Class"]
+                        and (not member_tags or not member_tags.get("NotScriptable"))
+                        and value_type_name not in NOTSCRIPTABLE_BLACKLIST
+                    )
+                    tags = []
+
+                    if uses_notscriptable_type:
+                        tags.append(
+                            f"{{Uses NotScriptable Type without the tag - {value_type_name} }}"
+                        )
+
                     if (
                         serialization["CanLoad"] or serialization["CanSave"]
                     ):  # Check if at least one is true
-                        tags = []
 
                         # Add CanLoad/CanSave conditions
                         if serialization["CanLoad"] and not serialization["CanSave"]:
@@ -131,6 +202,22 @@ def fetch_api():
             s += "\n"
 
         class_list[class_name] = class_info
+
+    s += "\n" + "=" * 50 + "\n"
+    s += "NOTSCRIPTABLE VALUE TYPE ANALYSIS\n"
+    s += "=" * 50 + "\n\n"
+
+    s += f"ValueTypes found exclusively in NotScriptable properties: {len(not_scriptable_types)}\n"
+    for type_name in sorted(not_scriptable_types):
+        s += f"  - {type_name}\n"
+
+    s += f"\nProperties with NotScriptable tag: {len(not_scriptable_properties)}\n"
+    for prop in sorted(not_scriptable_properties):
+        s += f"  - {prop}\n"
+
+    s += f"\nBlacklisted types (excluded from analysis): {len(NOTSCRIPTABLE_BLACKLIST)}\n"
+    for type_name in sorted(NOTSCRIPTABLE_BLACKLIST):
+        s += f"  - {type_name}\n"
 
     return class_list
 
