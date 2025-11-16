@@ -1866,99 +1866,109 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local StatusText
 
-	local OPTIONS = {
-		mode = "optimized",
-		noscripts = false,
-		scriptcache = true,
-		-- decomptype = "",
-		timeout = 10,
-		-- * New:
-		__DEBUG_MODE = false,
+local function ArrayToDict(array)
+	local dict = {}
+	for _, v in ipairs(array) do
+		dict[v] = true
+	end
+	return dict
+end
 
-		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
-		Callback = false,
-		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models. (Binary Only)
-		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
-		-- DisableCompression = false, --Description: Disables compression in the binary output
+local EXECUTOR_NAME = EXECUTOR_NAME or ""
 
-		DecompileJobless = false,
-		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
-			-- "Chat",
-			"TextChatService",
-			ModuleScript = nil,
-		},
-		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
-		SaveBytecode = false,
+local OPTIONS = {
+	mode = "optimized",
+	noscripts = false,
+	scriptcache = true,
+	-- decomptype = "",
+	timeout = 10,
+	-- * New:
+	__DEBUG_MODE = false,
 
-		IgnoreProperties = {},
+	-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
+	Callback = false,
+	--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models. (Binary Only)
+	-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
+	-- DisableCompression = false, --Description: Disables compression in the binary output
 
-		IgnoreList = { "CoreGui", "CorePackages" },
+	DecompileJobless = false,
+	DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
+		-- "Chat",
+		"TextChatService",
+		ModuleScript = nil,
+	},
+	IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true or false,
+	SaveBytecode = false,
 
-		ExtraInstances = {},
-		NilInstances = false,
-		NilInstancesFixes = {},
+	IgnoreProperties = {},
 
-		SaveCacheInterval = 0x1600 * 10,
-		ShowStatus = true,
-		SafeMode = false,
-		ShutdownWhenDone = false,
-		AntiIdle = true,
-		Anonymous = false,
-		ReadMe = true,
-		FilePath = false,
-		Object = false,
-		IsModel = false,
+	IgnoreList = { "CoreGui", "CorePackages" },
 
-		IgnoreDefaultProperties = true,
-		IgnoreNotArchivable = true,
-		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
-		IgnoreSpecialProperties = ArrayToDict({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
+	ExtraInstances = {},
+	NilInstances = false,
+	NilInstancesFixes = {},
 
-		IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
-		IsolateLocalPlayerCharacter = false,
-		IsolatePlayers = false,
-		IsolateStarterPlayer = false,
-		RemovePlayerCharacters = true,
+	SaveCacheInterval = 0x1600 * 10,
+	ShowStatus = true,
+	SafeMode = false,
+	ShutdownWhenDone = false,
+	AntiIdle = true,
+	Anonymous = false,
+	ReadMe = true,
+	FilePath = false,
+	Object = false,
+	IsModel = false,
 
-		SaveNotCreatable = false,
-		NotCreatableFixes = {
-			-- "InputObject",
-			-- "LodDataEntity",
-			-- "Path",
-			"", -- * FilteredSelection
-			"AdvancedDragger",
-			"AnimationTrack",
-			"Dragger",
-			"Player",
-			"PlayerGui",
-			"PlayerMouse",
-			"PlayerMouse",
-			"PlayerScripts",
-			"ScreenshotHud",
-			"StudioData",
-			"TextChatMessage",
-			"TextSource",
-			"TouchTransmitter",
-			"Translator",
-			CloudLocalizationTable = "LocalizationTable",
-		},
+	IgnoreDefaultProperties = true,
+	IgnoreNotArchivable = true,
+	IgnorePropertiesOfNotScriptsOnScriptsMode = false,
+	IgnoreSpecialProperties = ArrayToDict({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
 
-		-- ! Risky
+	IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
+	IsolateLocalPlayerCharacter = false,
+	IsolatePlayers = false,
+	IsolateStarterPlayer = false,
+	RemovePlayerCharacters = true,
 
-		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
-		SharedStringOverwrite = false,
-		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
-		AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
+	SaveNotCreatable = false,
+	NotCreatableFixes = {
+		-- "InputObject",
+		-- "LodDataEntity",
+		-- "Path",
+		"", -- * FilteredSelection
+		"AdvancedDragger",
+		"AnimationTrack",
+		"Dragger",
+		"Player",
+		"PlayerGui",
+		"PlayerMouse",
+		"PlayerMouse",
+		"PlayerScripts",
+		"ScreenshotHud",
+		"StudioData",
+		"TextChatMessage",
+		"TextSource",
+		"TouchTransmitter",
+		"Translator",
+		CloudLocalizationTable = "LocalizationTable",
+	},
 
-		OptionsAliases = { -- You can't really modify these as a user
-			DecompileTimeout = "timeout",
-			FileName = "FilePath",
-			IgnoreArchivable = "IgnoreNotArchivable",
-			IgnoreDefaultProps = "IgnoreDefaultProperties",
-			SaveNonCreatable = "SaveNotCreatable",
-			SavePlayers = "IsolatePlayers",
-		},
-	}
+	-- ! Risky
+
+	IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true or false,
+	SharedStringOverwrite = false,
+	TreatUnionsAsParts = EXECUTOR_NAME == "Solara",
+	AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
+
+	OptionsAliases = { -- You can't really modify these as a user
+		DecompileTimeout = "timeout",
+		FileName = "FilePath",
+		IgnoreArchivable = "IgnoreNotArchivable",
+		IgnoreDefaultProps = "IgnoreDefaultProperties",
+		SaveNonCreatable = "SaveNotCreatable",
+		SavePlayers = "IsolatePlayers",
+	},
+}
 
 	local OPTIONS_lowercase, CustomOptions_valid = {}, {}
 	for option_name in OPTIONS do
