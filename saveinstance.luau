@@ -1887,7 +1887,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			"TextChatService",
 			ModuleScript = nil,
 		},
-		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
+		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave",
 		SaveBytecode = false,
 
 		IgnoreProperties = {},
@@ -1945,7 +1945,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- ! Risky
 
-		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
+		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave",
 		SharedStringOverwrite = false,
 		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
 		AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
