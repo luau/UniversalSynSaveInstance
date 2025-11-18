@@ -114,9 +114,9 @@ do -- * Load Region of Déjà Vu
 			end
 		end
 	end
-	local function benchmark(f1, f2, ...)
+	local function benchmark(funcs, ...)
 		local ranking = table.create(2)
-		for i, f in { f1, f2 } do
+		for i, f in funcs do
 			local start = os.clock()
 			for _ = 1, 50 do
 				f(...)
@@ -181,10 +181,16 @@ do -- * Load Region of Déjà Vu
 			end
 		end)
 
+		local EncodingService = game:GetService("EncodingService")
+		local EncodingService_base64encode = function(raw)
+			return buffer.tostring(EncodingService:Base64Encode(buffer.fromstring(raw)))
+		end
+
 		-- * Tests if base64encode exists and works properly then benchmark it
 		if base64encode and base64encode("\1\0\0\0\1") == "AQAAAAE=" then
 			if rbxcrypt_base64encode then
-				base64encode = benchmark(base64encode, rbxcrypt_base64encode, test_str)
+				base64encode =
+					benchmark({ base64encode, rbxcrypt_base64encode, EncodingService_base64encode }, test_str)
 			end
 		else
 			base64encode = rbxcrypt_base64encode
@@ -340,6 +346,7 @@ local CAPABILITY_BITS = {
 
 local function __COUNT_CAPABILITY_BITS(raw)
 	-- TODO tostring & string.split aren't ideal but this is the only way until the feature is out of the experimental phase (SecurityCapabilities.Contains exists but the Enums that it accepts lacks some hidden bits) - NotAccessible, Unknown, Restricted
+	-- ! Seems like both tostring & .Contains ignore high / internal bits (anything above CapabilityControl): RemoteCommand, InternalTest, PluginOrOpenCloud, Assistant. They're present when created & saved by Studio but can't be read through current means
 
 	local result = 0
 	for _, flag in string.split(tostring(raw), " | ") do
@@ -407,6 +414,13 @@ Binary_Descriptors = {
 			return b, len
 		end
 	end,
+	__writei64 = function(b, offset, raw)
+		local low = bit32.band(raw, 0xFFFFFFFF)
+		local high = (raw - low) / 0x100000000
+
+		buffer.writei32(b, offset, low)
+		buffer.writei32(b, offset + 4, high)
+	end,
 	__PACK_F32 = nil,
 	__PACK_I16 = nil,
 	__construct__PACKER = function(float)
@@ -465,10 +479,10 @@ Binary_Descriptors = {
 		return b, 8
 	end,
 	["UDim2"] = function(raw)
-		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors.UDim, raw.X, raw.Y)
+		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors["UDim"], raw.X, raw.Y)
 	end,
 	["Ray"] = function(raw)
-		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors.Vector3, raw.Origin, raw.Direction)
+		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors["Vector3"], raw.Origin, raw.Direction)
 	end,
 	["Faces"] = function(raw)
 		local b = buffer.create(4)
@@ -529,8 +543,8 @@ Binary_Descriptors = {
 		local b = buffer.create(len)
 
 		local __PACK_F32 = Binary_Descriptors.__PACK_F32
-		local pos = __PACK_F32(X, Y, Z)
-		buffer.copy(b, 0, pos)
+		local position = __PACK_F32(X, Y, Z)
+		buffer.copy(b, 0, position)
 		-- buffer.writef32(b, 0, X)
 		-- buffer.writef32(b, 4, Y)
 		-- buffer.writef32(b, 8, Z)
@@ -563,7 +577,7 @@ Binary_Descriptors = {
 		return b, len
 	end,
 	["EnumItem"] = function(raw)
-		local b_Name, Name_size = Binary_Descriptors.string(tostring(raw.EnumType))
+		local b_Name, Name_size = Binary_Descriptors["string"](tostring(raw.EnumType))
 
 		local len = Name_size + 4
 		local b = buffer.create(len)
@@ -587,7 +601,7 @@ Binary_Descriptors = {
 	end,
 	["ColorSequence"] = nil,
 	["ColorSequenceKeypoint"] = function(keypoint, b, offset)
-		local Value = Binary_Descriptors.Color3(keypoint.Value)
+		local Value = Binary_Descriptors["Color3"](keypoint.Value)
 
 		if not b then
 			b = buffer.create(20)
@@ -606,7 +620,7 @@ Binary_Descriptors = {
 		return Binary_Descriptors.__PACK_F32(raw.Min, raw.Max)
 	end,
 	["Rect"] = function(raw)
-		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors.Vector2, raw.Min, raw.Max)
+		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors["Vector2"], raw.Min, raw.Max)
 	end,
 	["PhysicalProperties"] = function(raw) -- ? Not sure yet (https://github.com/RobloxAPI/spec/blob/master/properties/drafts/AttributesSerializeFull.md#physicalproperties)
 		local len = 1
@@ -633,16 +647,16 @@ Binary_Descriptors = {
 		local HalfSize = raw.Size * 0.5
 
 		return Binary_Descriptors.__PACK_MULTIPLE(
-			Binary_Descriptors.Vector3,
+			Binary_Descriptors["Vector3"],
 			Translation - HalfSize, -- /App/util/Region3.cpp#L38
 			Translation + HalfSize -- /App/util/Region3.cpp#L42
 		)
 	end,
 	["Region3int16"] = function(raw)
-		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors.Vector3int16, raw.Min, raw.Max)
+		return Binary_Descriptors.__PACK_MULTIPLE(Binary_Descriptors["Vector3int16"], raw.Min, raw.Max)
 	end,
 	["Font"] = 636 < CLIENT_VERSION and function(raw)
-		local string__descriptor = Binary_Descriptors.string
+		local string__descriptor = Binary_Descriptors["string"]
 
 		local b_Family, Family_size = string__descriptor(raw.Family)
 		local b_CachedFaceId, CachedFaceId_size = string__descriptor("")
@@ -661,7 +675,7 @@ Binary_Descriptors = {
 
 		return b, len
 	end or function(raw)
-		local string__descriptor = Binary_Descriptors.string
+		local string__descriptor = Binary_Descriptors["string"]
 
 		local b_Family, Family_size = string__descriptor(raw.Family)
 		local b_CachedFaceId, CachedFaceId_size = string__descriptor("")
@@ -689,19 +703,13 @@ Binary_Descriptors = {
 			return b, 8
 		end
 
-		local capabilities = __COUNT_CAPABILITY_BITS(raw)
-
-		local low = bit32.band(capabilities, 0xFFFFFFFF)
-		local high = (capabilities - low) / 0x100000000
-
-		buffer.writei32(b, 0, low)
-		buffer.writei32(b, 4, high)
+		Binary_Descriptors.__writei64(b, 0, __COUNT_CAPABILITY_BITS(raw))
 
 		return b, 8
 	end,
 	["Path2DControlPoint"] = function(raw)
 		return Binary_Descriptors.__PACK_MULTIPLE(
-			Binary_Descriptors.UDim2,
+			Binary_Descriptors["UDim2"],
 			raw.Position,
 			raw.LeftTangent,
 			raw.RightTangent
@@ -711,10 +719,10 @@ Binary_Descriptors = {
 
 do -- Sequences
 	Binary_Descriptors["NumberSequence"] =
-		Binary_Descriptors.__construct_Sequence(Binary_Descriptors.NumberSequenceKeypoint, 12)
+		Binary_Descriptors.__construct_Sequence(Binary_Descriptors["NumberSequenceKeypoint"], 12)
 
 	Binary_Descriptors["ColorSequence"] =
-		Binary_Descriptors.__construct_Sequence(Binary_Descriptors.ColorSequenceKeypoint, 20)
+		Binary_Descriptors.__construct_Sequence(Binary_Descriptors["ColorSequenceKeypoint"], 20)
 end
 
 do -- Vectors
@@ -804,7 +812,6 @@ XML_Descriptors = {
 		return "<axes>" .. __COUNT_BITS(raw.X, raw.Y, raw.Z) .. "</axes>"
 	end,
 
-	-- ? Roblox uses CDATA only for these (try to prove this wrong): CollisionGroupData, SmoothGrid, MaterialColors, PhysicsGrid
 	-- ! Assuming all base64 encoded strings won't have newlines
 
 	BinaryString = function(raw)
@@ -1187,7 +1194,7 @@ do
 
 		buffer.writeu32(b, 0, attrs_n)
 
-		local string__descriptor = Binary_Descriptors.string
+		local string__descriptor = Binary_Descriptors["string"]
 		local offset = 4
 		for _, attr in attrs_sorted do
 			local b_Name, Name_size = string__descriptor(attr)
@@ -1236,6 +1243,44 @@ do
 		return buffer.tostring(b)
 	end
 
+	local function TransformsSerialize(transforms)
+		local transforms_n = #transforms
+
+		if transforms_n == 0 then
+			return "\1\0\0\0\0\0\0\0"
+		end
+
+		local b = buffer.create(8 + transforms_n * 48)
+
+		buffer.writeu32(b, 0, 1) -- ? [CONSTANT] Version byte (likely)
+		buffer.writeu32(b, 4, transforms_n)
+
+		local __PACK_F32 = Binary_Descriptors.__PACK_F32
+
+		local offset = 8
+		for _, transform in transforms do
+			local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = transform:GetComponents()
+
+			local xBasis = __PACK_F32(R00, R01, R02)
+			buffer.copy(b, offset, xBasis)
+			offset += 12
+
+			local yBasis = __PACK_F32(R10, R11, R12)
+			buffer.copy(b, offset, yBasis)
+			offset += 12
+
+			local zBasis = __PACK_F32(R20, R21, R22)
+			buffer.copy(b, offset, zBasis)
+			offset += 12
+
+			local position = __PACK_F32(X, Y, Z)
+			buffer.copy(b, offset, position)
+			offset += 12
+		end
+
+		return buffer.tostring(b)
+	end
+
 	local NotScriptableFixes = { --[[
 		For more info:
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
@@ -1277,9 +1322,11 @@ do
 				buffer.writeu32(b, 0, control_points_n)
 
 				local TypeID_Path2DControlPoint = attr_Type_IDs["Path2DControlPoint"]
+				local Path2DControlPoint_descriptor = Binary_Descriptors["Path2DControlPoint"]
+
 				local offset = 4
 				for i, point in control_points do
-					local buf = Binary_Descriptors.Path2DControlPoint(point)
+					local buf = Path2DControlPoint_descriptor(point)
 
 					buffer.writeu8(b, offset, TypeID_Path2DControlPoint)
 					offset += 1
@@ -1291,18 +1338,29 @@ do
 				return buffer.tostring(b)
 			end,
 		},
+		PlayerEmulatorService = {
+			SerializedEmulatedPolicyInfo = function(instance)
+				local EmulatedPolicyInfo = instance:GetEmulatedPolicyInfo()
+
+				if not next(EmulatedPolicyInfo) then
+					return ""
+				end
+
+				return AttributesSerialize(EmulatedPolicyInfo)
+			end,
+		},
 		StyleRule = {
 			PropertiesSerialize = function(instance)
 				local props = instance:GetProperties()
 
 				if not next(props) then
-					return "\0\0\0\0"
+					return "\0\0\0\0" -- ! Essential
 				end
 
 				return AttributesSerialize(props)
 			end,
 		},
-		StyleQuery = { -- ? Not sure about this as this class doesn't serialize as of 699
+		StyleQuery = {
 			ConditionsSerialize = function(instance)
 				local props = instance:GetConditions()
 
@@ -1319,6 +1377,7 @@ do
 				local markers_n = #markers
 
 				if markers_n == 0 then
+					-- return "" -- Seems to also work
 					return "\2\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0"
 				end
 
@@ -1352,6 +1411,149 @@ do
 					local scaled_time = math.round(marker.Time * 2400)
 					buffer.writeu32(b, offset, scaled_time)
 					offset += 4
+				end
+
+				return buffer.tostring(b)
+			end,
+		},
+		AnimationNodeDefinition = {
+			InputPinData = function(instance)
+				local input_pins = instance:GetInputPins()
+
+				local input_pins_n = #input_pins
+
+				if input_pins_n == 0 then
+					return "\1\0\0\0\0\0\0\0"
+				end
+
+				local buffer_size = 8
+
+				for _, pin in input_pins do
+					buffer_size += 4 + #pin
+				end
+
+				local b = buffer.create(buffer_size)
+
+				buffer.writeu32(b, 0, 1) -- ? [CONSTANT] Version byte (likely)
+				buffer.writeu32(b, 4, input_pins_n)
+
+				local string__descriptor = Binary_Descriptors["string"]
+				local offset = 8
+				for _, pin in input_pins do
+					local b_pin, pin_size = string__descriptor(pin)
+
+					buffer.copy(b, offset, b_pin)
+					offset += pin_size
+				end
+
+				return buffer.tostring(b)
+			end,
+		},
+		AnimationRigData = {
+			label = function(instance)
+				local labels = instance:GetLabels() -- RobloxScriptSecurity
+				local labels_n = #labels
+
+				if labels_n == 0 then
+					return "\1\0\0\0\0\0\0\0"
+				end
+
+				local b = buffer.create(8 + labels_n * 4)
+
+				buffer.writeu32(b, 0, 1) -- ? [CONSTANT] Version byte (likely)
+				buffer.writeu32(b, 4, labels_n)
+
+				local offset = 8
+
+				for _, label in labels do
+					buffer.writeu32(b, offset, label)
+					offset += 4
+				end
+
+				return buffer.tostring(b)
+			end,
+			name = function(instance)
+				local names = instance:GetNames() -- RobloxScriptSecurity
+				local names_n = #names
+
+				if names_n == 0 then
+					return "\1\0\0\0\0\0\0\0"
+				end
+
+				local buffer_size = 8
+
+				for _, name in names do
+					buffer_size += 4 + #name
+				end
+
+				local b = buffer.create(buffer_size)
+
+				buffer.writeu32(b, 0, 1) -- ? [CONSTANT] Version byte (likely)
+				buffer.writeu32(b, 4, names_n)
+
+				local offset = 8
+
+				for _, name in names do
+					buffer.writeu32(b, offset, #name)
+					offset += 4
+				end
+				for _, name in names do
+					buffer.writestring(b, offset, name)
+					offset += #name
+				end
+
+				return buffer.tostring(b)
+			end,
+			parent = function(instance)
+				local parents = instance:GetParents() -- RobloxScriptSecurity
+				local parents_n = #parents
+
+				if parents_n == 0 then
+					return "\1\0\0\0\0\0\0\0"
+				end
+
+				local b = buffer.create(8 + #parents * 2)
+
+				buffer.writeu32(b, 0, 1) -- ? [CONSTANT] Version byte (likely)
+				buffer.writeu32(b, 4, parents_n)
+
+				local offset = 8
+
+				for _, parent in parents do
+					buffer.writeu16(b, offset, parent) -- ? likely u8 with \0 (Null) terminators but this is safer in case they overflow beyond 255 values
+					offset += 2
+				end
+
+				return buffer.tostring(b)
+			end,
+			postTransform = function(instance)
+				return TransformsSerialize(instance:GetPostTransforms()) -- RobloxScriptSecurity
+			end,
+			preTransform = function(instance)
+				return TransformsSerialize(instance:GetPreTransforms()) -- RobloxScriptSecurity
+			end,
+			transform = function(instance)
+				return TransformsSerialize(instance:GetTransforms()) -- RobloxScriptSecurity
+			end,
+		},
+		AudioDeviceInput = {
+			AccessList = function(instance) -- CanSave & CanLoad false
+				local userid_accesslist = instance:GetUserIdAccessList()
+
+				local uid_n = #userid_accesslist
+
+				if uid_n == 0 then
+					return ""
+				end
+
+				local b = buffer.create(uid_n * 8)
+
+				local __writei64 = Binary_Descriptors.__writei64
+
+				local offset = 0
+				for _, user_id in userid_accesslist do
+					__writei64(b, offset, user_id)
+					offset += 8
 				end
 
 				return buffer.tostring(b)
@@ -1392,7 +1594,7 @@ do
 		-- 	end
 		-- end},
 		Terrain = {
-			AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure
+			AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure, RobloxScriptSecurity
 			MaterialColors = function(instance) -- https://github.com/RobloxAPI/spec/blob/master/properties/MaterialColors.md
 				local TERRAIN_MATERIAL_COLORS =
 					{ --https://github.com/rojo-rbx/rbx-dom/blob/master/rbx_dom_lua/src/customProperties.lua#L5
@@ -1468,7 +1670,7 @@ do
 				return instance:GetContents() --service.HttpService:JSONEncode(instance:GetEntries())
 			end,
 		},
-		MaterialService = { Use2022MaterialsXml = "Use2022Materials" },
+		MaterialService = { Use2022MaterialsXml = "Use2022Materials" }, -- RobloxScriptSecurity
 
 		Model = {
 			ScaleFactor = function(instance)
@@ -1816,10 +2018,12 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 
 --- @interface OptionsAliases
 --- @within SynSaveInstance
---- Aliases for the [SynSaveInstance.CustomOptions table].
+--- Aliases for the [SynSaveInstance.CustomOptions table]. Format: {Option -- Alias1, Alias2}
 --- @field FilePath string -- FileName
 --- @field IgnoreDefaultProperties string -- IgnoreDefaultProps
 --- @field SaveNotCreatable string -- SaveNonCreatable
+--- @field InstancesBlacklist string -- IgnoreList
+--- @field IsolatePlayerGui string -- IsolateLocalPlayer
 --- @field IsolatePlayers string -- SavePlayers
 --- @field scriptcache string -- DecompileJobless
 --- @field timeout string -- DecompileTimeout
@@ -1887,7 +2091,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			"TextChatService",
 			ModuleScript = nil,
 		},
-		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave",
+		IgnoreDefaultPlayerScripts = true,
 		SaveBytecode = false,
 
 		IgnoreProperties = {},
@@ -1955,6 +2159,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			FileName = "FilePath",
 			IgnoreArchivable = "IgnoreNotArchivable",
 			IgnoreDefaultProps = "IgnoreDefaultProperties",
+			InstancesBlacklist = "IgnoreList",
+			IsolatePlayerGui = "IsolateLocalPlayer",
 			SaveNonCreatable = "SaveNotCreatable",
 			SavePlayers = "IsolatePlayers",
 		},
@@ -2885,9 +3091,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									if ok then
 										raw = result
 									else
+										Property.Fallback = nil -- Low level execs might fail due to lack of some Capabilities
 										if __DEBUG_MODE then
-											-- TODO Maybe remove the fix during runtime if it fails to avoid re-trying
-											__DEBUG_MODE("Fix Failed", PropertyName)
+											__DEBUG_MODE("Fix Failed", PropertyName, result)
 										end
 										continue
 									end
