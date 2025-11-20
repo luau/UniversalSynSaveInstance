@@ -22,7 +22,7 @@ def run_python_files_in_directories(directory, script_name, version_hash=None):
                     print(f"Executed: {file_path}")
                 except subprocess.CalledProcessError as e:
                     print(f"Error running {file_path}: {e}")
-            else:
+            elif file.endswith(".luau") or file.endswith(".lua"):
                 _, ext = os.path.splitext(file)
                 if ext and ext.lower() != ".py":
                     file_path = os.path.join(root, file)

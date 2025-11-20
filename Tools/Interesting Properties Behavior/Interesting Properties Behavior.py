@@ -1,58 +1,51 @@
-import requests
 import os
-import re
+import sys
 
 
-def array_to_dictionary(table, hybrid_mode=None):
-    tmp = {}
-    if hybrid_mode == "adjust":
-        for key, value in table.items():
-            if isinstance(key, int):
-                tmp[value] = True
-            elif isinstance(value, dict):
-                tmp[key] = array_to_dictionary(value, "adjust")
-            else:
-                tmp[key] = value
-    else:
-        for value in table:
-            if isinstance(value, str):
-                tmp[value] = True
-    return tmp
+def import_dump_utils():
+    """Smart function to find and import dump_utils from common directory"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # Search up the directory tree
+    search_dir = current_dir
+    max_depth = 10
 
-s = "\n"
+    for _ in range(max_depth):
+        common_path = os.path.join(search_dir, "common")
+        dump_utils_path = os.path.join(common_path, "dump_utils.py")
 
-
-def api():
-
-    deploy_history_url = "https://setup.rbxcdn.com/DeployHistory.txt"
-    deploy_history = requests.get(deploy_history_url).text
-
-    lines = deploy_history.splitlines()
-
-    for line in reversed(lines):
-
-        match = re.search(r"(version-[^\s]+)", line)
-
-        if match:
-            version_hash = match.group(1)
-
-            api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
-
+        if os.path.exists(dump_utils_path):
+            if common_path not in sys.path:
+                sys.path.append(common_path)
             try:
-                response = requests.get(api_dump_url)
-                response.raise_for_status()
-                return response, version_hash
+                from dump_utils import (
+                    write_dump_file,
+                    get_api_response,
+                    array_to_dictionary,
+                )
 
-            except requests.RequestException as e:
-                print(f"Error fetching API dump for {version_hash}: {e}")
+                print(f"Found dump_utils at: {common_path}")
+                return write_dump_file, get_api_response, array_to_dictionary
+            except ImportError as e:
+                print(f"Failed to import from {common_path}: {e}")
+                break
+
+        parent_dir = os.path.dirname(search_dir)
+        if parent_dir == search_dir:
+            break
+        search_dir = parent_dir
+
+    raise ImportError("Could not find common/dump_utils.py in any parent directory")
 
 
-def fetch_api():
-    response, version_hash = api()
+# Import utilities
+write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
+
+
+def fetch_api(version_hash=None):
+    response, version_hash = get_api_response(version_hash)
     api_classes = response.json()["Classes"]
 
-    global s
     s = version_hash + "\n\n"
     class_list = {}
 
@@ -117,8 +110,6 @@ def fetch_api():
         class_tags = api_class.get("Tags")
 
         if class_tags:
-            if len(class_tags) == 0:
-                print("tagsempty")
             class_tags = array_to_dictionary(class_tags)
         else:
             print(class_name, "notags")
@@ -134,59 +125,61 @@ def fetch_api():
         for member in class_members:
             if member["MemberType"] == "Property":
                 property_name = member["Name"]
-                ignored = False
+                member_tags = member.get("Tags")
 
-                if not ignored:
-                    member_tags = member.get("Tags")
+                if member_tags:
+                    member_tags = array_to_dictionary(member_tags)
+                else:
+                    member_tags = {}
 
-                    if member_tags:
-                        member_tags = array_to_dictionary(member_tags)
+                serialization = member["Serialization"]
 
-                    serialization = member["Serialization"]
+                # Check if this property uses a ValueType from NotScriptable properties
+                value_type = member["ValueType"]
+                value_type_name = value_type["Name"]
+                value_type_cat = value_type["Category"]
+                uses_notscriptable_type = (
+                    value_type_name in not_scriptable_types
+                    and value_type_cat not in ["Enum", "Class"]
+                    and not member_tags.get("NotScriptable")
+                    and value_type_name not in NOTSCRIPTABLE_BLACKLIST
+                )
+                tags = []
 
-                    # Check if this property uses a ValueType from NotScriptable properties
-                    value_type = member["ValueType"]
-                    value_type_name = value_type["Name"]
-                    value_type_cat = value_type["Category"]
-                    uses_notscriptable_type = (
-                        value_type_name in not_scriptable_types
-                        and value_type_cat not in ["Enum", "Class"]
-                        and (not member_tags or not member_tags.get("NotScriptable"))
-                        and value_type_name not in NOTSCRIPTABLE_BLACKLIST
+                if uses_notscriptable_type:
+                    tags.append(
+                        f"{{Uses NotScriptable Type without the tag - {value_type_name} }}"
                     )
-                    tags = []
 
-                    if uses_notscriptable_type:
-                        tags.append(
-                            f"{{Uses NotScriptable Type without the tag - {value_type_name} }}"
-                        )
+                if member_tags.get("WriteOnly"):
+                    if member_tags.get("NotScriptable"):
+                        tags.append("{WriteOnly}")
+                    else:
+                        tags.append("{Has WriteOnly without NotScriptable}")
 
-                    if (
-                        serialization["CanLoad"] or serialization["CanSave"]
-                    ):  # Check if at least one is true
+                if serialization["CanLoad"] or serialization["CanSave"]:
+                    # Add CanLoad/CanSave conditions
+                    if serialization["CanLoad"] and not serialization["CanSave"]:
+                        tags.append("{CanLoad Only}")
+                    elif serialization["CanSave"] and not serialization["CanLoad"]:
+                        tags.append("{CanSave Only}")
 
-                        # Add CanLoad/CanSave conditions
-                        if serialization["CanLoad"] and not serialization["CanSave"]:
-                            tags.append("{CanLoad Only}")
-                        elif serialization["CanSave"] and not serialization["CanLoad"]:
-                            tags.append("{CanSave Only}")
+                    # Add Deprecated tag if present
+                    if member_tags.get("Deprecated"):
+                        deprecated_tag = "{Deprecated}"
+                        if serialization["CanSave"]:
+                            deprecated_tag += " {CanSave}"
+                        tags.append(deprecated_tag)
 
-                        # Add Deprecated tag if present
-                        if member_tags and member_tags.get("Deprecated"):
-                            deprecated_tag = "{Deprecated}"
-                            if serialization["CanSave"]:
-                                deprecated_tag += " {CanSave}"
-                            tags.append(deprecated_tag)
+                    # Combine tags into one line, each tag in separate brackets
+                    if tags:
+                        s += f"{class_name}.{property_name} {' '.join(tags)}\n"
 
-                        # Combine tags into one line, each tag in separate brackets
-                        if tags:
-                            s += f"{class_name}.{property_name} {' '.join(tags)}\n"
-
-                    class_info["Properties"][property_name] = {
-                        "Serialization": serialization,
-                        "Tags": member_tags,
-                        "Default": member.get("Default"),
-                    }
+                class_info["Properties"][property_name] = {
+                    "Serialization": serialization,
+                    "Tags": member_tags,
+                    "Default": member.get("Default"),
+                }
 
         if class_tags and class_tags.get("NotCreatable"):
             for property_name, property_info in class_info["Properties"].items():
@@ -203,6 +196,7 @@ def fetch_api():
 
         class_list[class_name] = class_info
 
+    # Add analysis section
     s += "\n" + "=" * 50 + "\n"
     s += "NOTSCRIPTABLE VALUE TYPE ANALYSIS\n"
     s += "=" * 50 + "\n\n"
@@ -219,15 +213,17 @@ def fetch_api():
     for type_name in sorted(NOTSCRIPTABLE_BLACKLIST):
         s += f"  - {type_name}\n"
 
-    return class_list
+    return s
 
 
-try:
-    fetch_api()
-    print(s)
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    output_file_path = os.path.join(script_dir, "Dump")
-    with open(output_file_path, "w") as file:
-        file.write(s)
-except Exception as e:
-    print(f"Error: {e}")
+if __name__ == "__main__":
+    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
+    try:
+        content = fetch_api(version_hash)
+        print(content)
+
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        write_dump_file(content, "Dump", script_dir)
+
+    except Exception as e:
+        print(f"Error: {e}")

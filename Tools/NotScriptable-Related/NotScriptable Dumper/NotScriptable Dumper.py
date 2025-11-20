@@ -1,60 +1,55 @@
-import requests
 import os
+import sys
 import re
 
 
-def array_to_dictionary(table, hybrid_mode=None):
-    tmp = {}
-    if hybrid_mode == "adjust":
-        for key, value in table.items():
-            if isinstance(key, int):
-                tmp[value] = True
-            elif isinstance(value, dict):
-                tmp[key] = array_to_dictionary(value, "adjust")
-            else:
-                tmp[key] = value
-    else:
-        for value in table:
-            if isinstance(value, str):
-                tmp[value] = True
-    return tmp
+def import_dump_utils():
+    """Smart function to find and import dump_utils from common directory"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # Search up the directory tree
+    search_dir = current_dir
+    max_depth = 10
 
-s = "\n"
-filtered_properties = []
+    for _ in range(max_depth):
+        common_path = os.path.join(search_dir, "common")
+        dump_utils_path = os.path.join(common_path, "dump_utils.py")
 
-
-def api():
-
-    deploy_history_url = "https://setup.rbxcdn.com/DeployHistory.txt"
-    deploy_history = requests.get(deploy_history_url).text
-
-    lines = deploy_history.splitlines()
-
-    for line in reversed(lines):
-
-        match = re.search(r"(version-[^\s]+)", line)
-
-        if match:
-            version_hash = match.group(1)
-
-            api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
-
+        if os.path.exists(dump_utils_path):
+            if common_path not in sys.path:
+                sys.path.append(common_path)
             try:
-                response = requests.get(api_dump_url)
-                response.raise_for_status()
-                return response, version_hash
+                from dump_utils import (
+                    write_dump_file,
+                    get_api_response,
+                    array_to_dictionary,
+                )
 
-            except requests.RequestException as e:
-                print(f"Error fetching API dump for {version_hash}: {e}")
+                print(f"Found dump_utils at: {common_path}")
+                return write_dump_file, get_api_response, array_to_dictionary
+            except ImportError as e:
+                print(f"Failed to import from {common_path}: {e}")
+                break
+
+        parent_dir = os.path.dirname(search_dir)
+        if parent_dir == search_dir:
+            break
+        search_dir = parent_dir
+
+    raise ImportError("Could not find common/dump_utils.py in any parent directory")
 
 
-def fetch_api():
-    response, version_hash = api()
+# Import utilities
+write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
+
+
+def fetch_api(version_hash=None):
+    response, version_hash = get_api_response(version_hash)
     api_classes = response.json()["Classes"]
 
-    global s, filtered_properties
     s = version_hash + "\n\n"
+    filtered_properties = []
+
     for api_class in api_classes:
         class_name = api_class["Name"]
         class_members = api_class["Members"]
@@ -82,24 +77,22 @@ def fetch_api():
                     s += f"{class_name}.{member_name} {{{value_type}}}"
                     for item in original_tags:
                         if isinstance(item, dict):
-
-                            s += f"{'{PreferredDescriptorName: '+item.get('PreferredDescriptorName')+'}'}"
+                            s += f"{{PreferredDescriptorName: {item.get('PreferredDescriptorName')}}}"
                     s += "\n"
 
                 if re.search(
                     r"xml|internal|serial|replica", member_name, re.IGNORECASE
                 ):
-
-                    str = f"{class_name}.{member_name}"
+                    prop_str = f"{class_name}.{member_name}"
                     if not special:
-                        str += " {Scriptable}"
+                        prop_str += " {Scriptable}"
                     if not (
                         serialization.get("CanLoad", True)
                         and serialization.get("CanSave", True)
                     ):
-                        str += " {Serialize: False}"
+                        prop_str += " {Serialize: False}"
 
-                    filtered_properties.append(str)
+                    filtered_properties.append(prop_str)
 
         for enum_type, real_member_name in enum_members.items():
             for member in class_members:
@@ -119,13 +112,17 @@ def fetch_api():
         s += "\nPotential Proxy Properties:\n"
         s += "\n".join(filtered_properties) + "\n"
 
+    return s
 
-try:
-    fetch_api()
-    print(s)
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    output_file_path = os.path.join(script_dir, "Dump")
-    with open(output_file_path, "w") as file:
-        file.write(s)
-except Exception as e:
-    print(f"Error: {e}")
+
+if __name__ == "__main__":
+    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
+    try:
+        content = fetch_api(version_hash)
+        print(content)
+
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        write_dump_file(content, "Dump", script_dir)
+
+    except Exception as e:
+        print(f"Error: {e}")

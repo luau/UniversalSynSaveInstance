@@ -1,5 +1,6 @@
-version-874602c66c70451a
+version-d638b440a9224bb2
 
+=== DATATYPES ===
 Axes {CanSave} {CanLoad}
 BinaryString {CanSave} {CanLoad}
 BrickColor {CanSave} {CanLoad}
@@ -43,3 +44,53 @@ float {CanSave} {CanLoad}
 int {CanSave} {CanLoad}
 int64 {CanSave} {CanLoad}
 string {CanSave} {CanLoad}
+
+=== MEMBER TAGS ===
+Total unique tags: 11
+  CanYield
+  CustomLuaState
+  Deprecated
+  Hidden
+  NoYield
+  NotBrowsable
+  NotReplicated
+  NotScriptable
+  ReadOnly
+  WriteOnly
+  Yields
+
+=== CAPABILITIES ===
+Total unique capabilities: 33
+  AccessOutsideWrite
+  Animation
+  AssetRequire
+  Assistant
+  Audio
+  Avatar
+  Basic
+  CSG
+  CapabilityControl
+  Chat
+  CreateInstances
+  DataStore
+  Environment
+  Input
+  InternalTest
+  LegacySound
+  LoadString
+  LocalUser
+  Network
+  Physics
+  Players
+  Plugin
+  PluginOrOpenCloud
+  RemoteCommand
+  RemoteEvent
+  RobloxEngine
+  RobloxScript
+  RunClientScript
+  RunServerScript
+  ScriptGlobals
+  UI
+  Unassigned
+  WritePlayer

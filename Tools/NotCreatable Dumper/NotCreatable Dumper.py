@@ -1,67 +1,51 @@
-import requests
 import os
-import re
 import sys
 
 
-def array_to_dictionary(table, hybrid_mode=None):
-    tmp = {}
-    if hybrid_mode == "adjust":
-        for key, value in table.items():
-            if isinstance(key, int):
-                tmp[value] = True
-            elif isinstance(value, dict):
-                tmp[key] = array_to_dictionary(value, "adjust")
-            else:
-                tmp[key] = value
-    else:
-        for value in table:
-            if isinstance(value, str):
-                tmp[value] = True
-    return tmp
+def import_dump_utils():
+    """Smart function to find and import dump_utils from common directory"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # Search up the directory tree
+    search_dir = current_dir
+    max_depth = 10
 
-s = "\n"
+    for _ in range(max_depth):
+        common_path = os.path.join(search_dir, "common")
+        dump_utils_path = os.path.join(common_path, "dump_utils.py")
 
-
-def api(version_hash=None):
-    if version_hash:
-        # Use the provided version hash
-        api_dump_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
-        try:
-            response = requests.get(api_dump_url)
-            response.raise_for_status()
-            return response
-        except requests.RequestException as e:
-            print(f"Error fetching API dump for {version_hash}: {e}")
-            sys.exit(1)
-    else:
-        # Fall back to the original method of finding the latest version
-        deploy_history_url = "https://setup.rbxcdn.com/DeployHistory.txt"
-        deploy_history = requests.get(deploy_history_url).text
-
-        lines = deploy_history.splitlines()
-
-        for line in reversed(lines):
-            match = re.search(r"(version-[^\s]+)", line)
-            if match:
-                version_hash = match.group(1)
-                api_dump_url = (
-                    f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
+        if os.path.exists(dump_utils_path):
+            if common_path not in sys.path:
+                sys.path.append(common_path)
+            try:
+                from dump_utils import (
+                    write_dump_file,
+                    get_api_response,
+                    array_to_dictionary,
                 )
-                try:
-                    response = requests.get(api_dump_url)
-                    response.raise_for_status()
-                    return response, version_hash
-                except requests.RequestException as e:
-                    print(f"Error fetching API dump for {version_hash}: {e}")
+
+                print(f"Found dump_utils at: {common_path}")
+                return write_dump_file, get_api_response, array_to_dictionary
+            except ImportError as e:
+                print(f"Failed to import from {common_path}: {e}")
+                break
+
+        parent_dir = os.path.dirname(search_dir)
+        if parent_dir == search_dir:
+            break
+        search_dir = parent_dir
+
+    raise ImportError("Could not find common/dump_utils.py in any parent directory")
+
+
+# Import utilities
+write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
 
 
 def fetch_api(version_hash=None):
-    response, version_hash = api(version_hash)
+    response, version_hash = get_api_response(version_hash)
     api_classes = response.json()["Classes"]
 
-    global s
     s = version_hash + "\n\n"
     class_list = {}
 
@@ -70,9 +54,6 @@ def fetch_api(version_hash=None):
         class_tags = api_class.get("Tags")
 
         if class_tags:
-            # print(class_tags)
-            if len(class_tags) == 0:
-                print("tagsempty")
             class_tags = array_to_dictionary(class_tags)
         else:
             print(class_name, "notags")
@@ -101,21 +82,19 @@ def fetch_api(version_hash=None):
 
         class_list[class_name] = class_info
 
-    return class_list
+    return s
 
 
 if __name__ == "__main__":
     # Check if version hash was passed as a command line argument
-    version_hash = None
-    if len(sys.argv) > 1:
-        version_hash = sys.argv[1]
+    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
 
     try:
-        fetch_api(version_hash)
-        print(s)
+        content = fetch_api(version_hash)
+        print(content)
+
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        output_file_path = os.path.join(script_dir, "Dump")
-        with open(output_file_path, "w") as file:
-            file.write(s)
+        write_dump_file(content, "Dump", script_dir)
+
     except Exception as e:
         print(f"Error: {e}")

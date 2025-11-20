@@ -1,4 +1,4 @@
-version-874602c66c70451a
+version-d638b440a9224bb2
 
 Capture.CaptureTime {CanSave Only}
 Capture.CaptureType {CanSave Only}
@@ -217,7 +217,7 @@ FunctionalTest.Is30FpsThrottleEnabled {CanLoad Only}
 FunctionalTest.PhysicsEnvironmentalThrottle {CanLoad Only}
 FunctionalTest.Timeout {CanLoad Only}
 
-GameSettings.VideoRecording {CanLoad Only}
+GameSettings.VideoCaptureEnabled {Deprecated} {CanSave}
 
 GamepadService is NotCreatable but GamepadService.GamepadCursorEnabled has a default value: false
 
@@ -400,17 +400,17 @@ BasePart.TopParamB {Deprecated} {CanSave}
 BasePart.TopSurfaceInput {Deprecated} {CanSave}
 BasePart.Velocity {Deprecated} {CanSave}
 BasePart.brickColor {CanLoad Only} {Deprecated}
-BasePart.siz {CanLoad Only}
+BasePart.siz {WriteOnly} {CanLoad Only}
 
 FormFactorPart.FormFactor {CanLoad Only} {Deprecated}
 FormFactorPart.formFactor {CanLoad Only} {Deprecated}
 
 Part.Shape {CanLoad Only}
-Part.shap {CanLoad Only}
+Part.shap {WriteOnly} {CanLoad Only}
 
-Terrain.ClusterGrid {CanLoad Only}
-Terrain.ClusterGridV2 {CanLoad Only}
-Terrain.ClusterGridV3 {CanLoad Only}
+Terrain.ClusterGrid {WriteOnly} {CanLoad Only}
+Terrain.ClusterGridV2 {WriteOnly} {CanLoad Only}
+Terrain.ClusterGridV3 {WriteOnly} {CanLoad Only}
 Terrain is NotCreatable but Terrain.AcquisitionMethod has a default value: None
 
 TriangleMeshPart.CollisionFidelity {CanLoad Only}
@@ -429,10 +429,10 @@ Camera.NearPlaneZ {CanSave Only}
 Camera.ViewportSize {CanSave Only}
 Camera.focus {CanLoad Only} {Deprecated}
 
-HopperBin.Command {CanLoad Only}
-HopperBin.TextureName {CanLoad Only}
+HopperBin.Command {WriteOnly} {CanLoad Only}
+HopperBin.TextureName {WriteOnly} {CanLoad Only}
 
-Workspace.CollisionGroups {CanLoad Only}
+Workspace.CollisionGroups {WriteOnly} {CanLoad Only}
 Workspace.StreamingPauseMode {CanLoad Only}
 
 PackageLink.PackageId {CanSave Only}
@@ -582,7 +582,7 @@ TeleportAsyncResult.ReservedServerAccessCode {CanSave Only}
 
 TeleportService.CustomizedTeleportUI {CanLoad Only} {Deprecated}
 
-TerrainRegion.GridV3 {CanLoad Only}
+TerrainRegion.GridV3 {WriteOnly} {CanLoad Only}
 
 TestService.ErrorCount {CanSave Only}
 TestService.Is30FpsThrottleEnabled {CanLoad Only} {Deprecated}
@@ -609,6 +609,7 @@ TextSource is NotCreatable but TextSource.CanSend has a default value: true
 
 ThirdPartyUserService.FriendCommunicationRestrictionStatus {CanSave Only}
 ThirdPartyUserService.HasActiveUser {CanSave Only}
+ThirdPartyUserService.VoiceChatRestrictionStatus {CanSave Only}
 
 Translator.LocaleId {CanSave Only}
 
