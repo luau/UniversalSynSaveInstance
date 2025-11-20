@@ -67,6 +67,7 @@ local gethiddenproperty = global_container.gethiddenproperty
 
 -- These should be universal enough
 local appendfile = appendfile
+local isfile = isfile
 local readfile = readfile
 local writefile = writefile
 
@@ -341,7 +342,7 @@ local CAPABILITY_BITS = {
 	InternalTest = 2 ^ 60, ---------  60 (0x3c), Related to TestingGameScript
 	PluginOrOpenCloud = 2 ^ 61, ----  61 (0x3d)
 	Assistant = 2 ^ 62, ------------  62 (0x3e)
-	-- Restricted = 2 ^ 64, -----------  for negative (highest bit for signed integers)
+	-- Restricted = 2 ^ 63, --------  for negative (highest bit for i64)
 }
 
 local function __COUNT_CAPABILITY_BITS(raw)
@@ -1075,7 +1076,7 @@ XML_Descriptors = {
 	-- 		account for anyway. They generate diff noise, so we shouldn't serialize
 	-- 		them until we have to.
 	-- 	]]
-	-- 	-- https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/roblox/LuaPackages/Packages/_Index/ApolloClientTesting/ApolloClientTesting/utilities/common/makeUniqueId.lua#L62
+	-- 	-- https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/master/LuaPackages/Packages/_Index/ApolloClient/ApolloClient/utilities/common/makeUniqueId.lua#L68
 	-- 	return raw -- seems to be string type by default
 	-- end,
 
@@ -1812,8 +1813,9 @@ do
 					end
 				end
 			end
-
+			if writefile then
 			writefile(CLIENT_VERSION_str, API_Dump)
+			end
 		end)
 
 		if not ok or not API_Dump then
@@ -1995,6 +1997,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
 --- @field FilePath string -- Must only contain the name of the file, no file extension. ___Default:___ false
+--- @field AvoidFileOverwrite boolean -- Prevents writing to place file that already exists. ___Default:___ true
 --- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
 --- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
 --- @field NilInstances boolean -- Save instances that aren't Parented (Parented to nil). ___Default:___ false
@@ -2110,6 +2113,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		Anonymous = false,
 		ReadMe = true,
 		FilePath = false,
+		AvoidFileOverwrite = true,
 		Object = false,
 		IsModel = false,
 
@@ -2284,6 +2288,45 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
+	if not writefile and not OPTIONS.Callback then
+		-- appendfile could be used a fallback but what kind of exec has appendfile without writefile
+		local function coreCall(method, ...)
+			local StarterGui = service.StarterGui
+			method = StarterGui[method]
+			if not method then
+				return
+			end
+
+			for _ = 1, 10 do -- maxtries
+				local success, result = pcall(method, StarterGui, ...)
+				if success then
+					return result
+				end
+				task.wait(1)
+			end
+		end
+
+		local text = 'Function "writefile" is NOT available\nUse the Option "Callback" instead for now (check docs)'
+
+		coreCall("SetCore", "SendNotification", {
+			Title = "SAVEINSTANCE ERROR",
+			Text = text,
+			Duration = 15,
+			Icon = "rbxassetid://9072920609",
+		})
+		coreCall("SetCore", "SendNotification", {
+			Title = "SAVEINSTANCE ERROR",
+			Text = "Please ask your executor's developers to add writefile",
+			Duration = 15,
+			Icon = "rbxassetid://9072920609",
+		})
+
+		warn(text)
+
+		GLOBAL_ENV.USSI = nil
+		return
+	end
+
 	if OPTIONS.IgnoreDefaultPlayerScripts then
 		-- TODO This is a bad workaround, find a better automatic way
 		-- TODO Look into https://robloxapi.github.io/ref/class/LuaSourceContainer.html#member-isPlayerScript
@@ -2425,13 +2468,29 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		if IsModel then
-			placename = (
-				FilePath
-				or sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1] or game):GetFullName())
-			) .. ".rbxmx"
+		local filetype = IsModel and ".rbxmx" or ".rbxlx"
+
+		if FilePath then
+			placename = FilePath
+		elseif IsModel then
+			placename =
+				sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1] or game):GetFullName())
 		else
-			placename = (FilePath or sanitizeFileName("place " .. PlaceName)) .. ".rbxlx"
+			placename = sanitizeFileName("place " .. PlaceName)
+		end
+
+		if OPTIONS.AvoidFileOverwrite and isfile then
+			local counter = 0
+			local temp = placename
+
+			while isfile(temp .. filetype) do
+				counter += 1
+				temp = placename .. "(" .. counter .. ")"
+			end
+
+			placename = temp .. filetype
+		else
+			placename = placename .. filetype
 		end
 
 		if GLOBAL_ENV[placename] then
@@ -2441,6 +2500,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		GLOBAL_ENV[placename] = true
 		GLOBAL_ENV.USSI = nil
+
 		if mode ~= "scripts" then
 			IgnorePropertiesOfNotScriptsOnScriptsMode = nil
 		end
@@ -2660,18 +2720,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	do
-		local Decompiler = decompile --OPTIONS.decomptype == "custom" and custom_decompiler or decompile or custom_decompiler
-
-		-- if Decompiler == custom_decompiler then -- Cope
-		-- 	local key = "DecompileTimeout"
-		-- 	if CustomOptions[key] == nil then
-		-- 		local Option = GetAlias(key)
-		-- 		if CustomOptions[Option] == nil then
-		-- 			Timeout = 1
-		-- 		end
-		-- 	end
-
-		-- end
+		local Decompiler = decompile
 
 		if OPTIONS.noscripts then
 			ldecompile = function()
