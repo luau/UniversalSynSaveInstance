@@ -1814,7 +1814,7 @@ do
 				end
 			end
 			if writefile then
-			writefile(CLIENT_VERSION_str, API_Dump)
+				writefile(CLIENT_VERSION_str, API_Dump)
 			end
 		end)
 
@@ -2994,73 +2994,76 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local function save_hierarchy(hierarchy)
 		for _, instance in hierarchy do
-			if IgnoreNotArchivable and not instance.Archivable then
-				continue
-			end
+			local InstanceOverride, ClassTagOverride, ClassNameOverride
 
-			local SkipEntirely = IgnoreList[instance]
-			if SkipEntirely then
-				continue
+			if not InstanceOverride then
+				InstanceOverride = InstancesOverrides[instance]
+				if InstanceOverride then
+					ClassTagOverride = InstanceOverride.__ClassName
+				end
 			end
-
 			local ClassName = instance.ClassName
 
 			local InstanceName = instance.Name
 
-			do
-				local OnIgnoredList = IgnoreList[ClassName]
-				if OnIgnoredList and (OnIgnoredList == true or OnIgnoredList[InstanceName]) then
+			if not ClassTagOverride then -- ! Assuming anything that has __ClassName comes from save_extra
+				if IgnoreNotArchivable and not instance.Archivable then
 					continue
 				end
-			end
 
-			if not DecompileIgnoring then
-				DecompileIgnoring = DecompileIgnore[instance]
+				local SkipEntirely = IgnoreList[instance]
+				if SkipEntirely then
+					continue
+				end
 
-				if DecompileIgnoring == nil then
-					local DecompileIgnored = DecompileIgnore[ClassName]
-					if DecompileIgnored then
-						DecompileIgnoring = DecompileIgnored == true or DecompileIgnored[InstanceName]
+				do
+					local OnIgnoredList = IgnoreList[ClassName]
+					if OnIgnoredList and (OnIgnoredList == true or OnIgnoredList[InstanceName]) then
+						continue
 					end
 				end
 
-				if DecompileIgnoring then
-					DecompileIgnoring = instance
-				elseif DecompileIgnoring == false then
-					DecompileIgnoring = 1 -- Ignore one instance
-				end
-			end
+				if not DecompileIgnoring then
+					DecompileIgnoring = DecompileIgnore[instance]
 
-			local InstanceOverride, ClassNameOverride, ClassTagOverride
-
-			do
-				local Fix = NotCreatableFixes[ClassName]
-
-				if Fix then
-					if SaveNotCreatable then
-						ClassName, InstanceOverride = Fix, replaceClassName(instance, InstanceName, ClassName)
-					else
-						continue -- They won't show up in Studio anyway (Enable SaveNotCreatable if you wish to bypass this)
-					end
-				else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
-					if TreatUnionsAsParts and instance:IsA("PartOperation") then
-						ClassName, InstanceOverride = "Part", replaceClassName(instance, InstanceName, ClassName)
-						ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
-					elseif not ClassList[ClassName] then -- ? API Dump is outdated then
-						if __DEBUG_MODE then
-							__DEBUG_MODE("Class not Found", ClassName)
+					if DecompileIgnoring == nil then
+						local DecompileIgnored = DecompileIgnore[ClassName]
+						if DecompileIgnored then
+							DecompileIgnoring = DecompileIgnored == true or DecompileIgnored[InstanceName]
 						end
+					end
 
-						ClassTagOverride = ClassName -- ? To at least retain .ClassName unlike the rest of the class-specific properties
-						ClassName = "Folder" -- ? replaceClassName is not needed because of the ClassTagOverride
+					if DecompileIgnoring then
+						DecompileIgnoring = instance
+					elseif DecompileIgnoring == false then
+						DecompileIgnoring = 1 -- Ignore one instance
+					end
+				end
+
+				do
+					local Fix = NotCreatableFixes[ClassName]
+
+					if Fix then
+						if SaveNotCreatable then
+							ClassName, InstanceOverride = Fix, replaceClassName(instance, InstanceName, ClassName)
+						else
+							continue -- They won't show up in Studio anyway (Enable SaveNotCreatable if you wish to bypass this)
+						end
+					else -- ! Assuming nothing that is a PartOperation or inherits from it is in NotCreatableFixes
+						if TreatUnionsAsParts and instance:IsA("PartOperation") then
+							ClassName, InstanceOverride = "Part", replaceClassName(instance, InstanceName, ClassName)
+							ClassNameOverride = "BasePart" -- * Mutual Superclass for PartOperation and Part; For properties only
+						elseif not ClassList[ClassName] then -- ? API Dump is outdated then
+							if __DEBUG_MODE then
+								__DEBUG_MODE("Class not Found", ClassName)
+							end
+
+							ClassTagOverride = ClassName -- ? To at least retain .ClassName unlike the rest of the class-specific properties
+							ClassName = "Folder" -- ? replaceClassName is not needed because of the ClassTagOverride
+						end
 					end
 				end
 			end
-
-			if not InstanceOverride then
-				InstanceOverride = InstancesOverrides[instance]
-			end
-
 			-- ? The reason we only save .Name (and few other props in save_specific) is because
 			-- ? we can be sure this is a custom container (ex. NilInstancesFixes)
 			-- ? However, in case of NotCreatableFixes, the Instance might have Tags, Attributes etc. that can potentially be saved (even though it's a Folder)
@@ -3350,14 +3353,43 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local function save_extra(name, hierarchy, customClassName, source)
-		savebuffer[savebuffer_size] = save_specific((customClassName or "Folder"), { Name = name, Source = source })
-		savebuffer_size += 1
-		if hierarchy then
-			save_hierarchy(hierarchy)
+	local function save_extra(name, instanceOrTable, saveProps, customClassName, source)
+		if not customClassName then
+			customClassName = "Folder"
 		end
-		savebuffer[savebuffer_size] = "</Item>"
-		savebuffer_size += 1
+
+		local properties = { Name = name, Source = source }
+		local hierarchy
+
+		if instanceOrTable then
+			if type(instanceOrTable) == "table" then
+				hierarchy = instanceOrTable
+			else
+				hierarchy = instanceOrTable:GetChildren()
+				if saveProps then
+					-- IgnoreList[instanceOrTable] = nil
+					-- IgnoreNotArchivable = false
+
+					InstancesOverrides[instanceOrTable] = {
+						__ClassName = customClassName,
+						__Children = hierarchy,
+						Properties = properties,
+					}
+
+					save_hierarchy({ instanceOrTable })
+				end
+			end
+		end
+
+		if not saveProps then
+			savebuffer[savebuffer_size] = save_specific(customClassName, properties)
+			savebuffer_size += 1
+			if hierarchy then
+				save_hierarchy(hierarchy)
+			end
+			savebuffer[savebuffer_size] = "</Item>"
+			savebuffer_size += 1
+		end
 	end
 
 	local function save_game()
@@ -3387,12 +3419,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			if LocalPlayer then
 				if IsolateLocalPlayer then
 					SaveNotCreatable = true
-					save_extra("LocalPlayer", LocalPlayer:GetChildren())
+					save_extra("LocalPlayer", LocalPlayer, true)
 				end
 				if IsolateLocalPlayerCharacter then
 					local LocalPlayerCharacter = LocalPlayer.Character
 					if LocalPlayerCharacter then
-						save_extra("LocalPlayer Character", LocalPlayerCharacter:GetChildren())
+						save_extra("LocalPlayer Character", LocalPlayerCharacter, true, "Model")
 					end
 				end
 			end
@@ -3400,12 +3432,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		if IsolateStarterPlayer then
 			-- SaveNotCreatable = true -- TODO: Enable if StarterPlayerScripts or StarterCharacterScripts stop showing up in isolated folder in Studio
-			save_extra("StarterPlayer", service.StarterPlayer:GetChildren())
+			save_extra("StarterPlayer", service.StarterPlayer) -- no reason to saveprops as you can see the props on the original instance
 		end
 
 		if IsolatePlayers then
 			SaveNotCreatable = true
-			save_extra("Players", service.Players:GetChildren())
+			save_extra("Players", service.Players) -- no reason to saveprops as you can see the props on the original instance
 		end
 
 		if NilInstances and global_container.getnilinstances then
@@ -3449,6 +3481,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if OPTIONS.ReadMe then
 			save_extra(
 				"README",
+				nil,
 				nil,
 				"Script",
 				"--[[\n"
