@@ -3410,7 +3410,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				header ..= '<Meta name="ExplicitAutoJoints">true</Meta>'
 			end
 			if writefile and not OPTIONS.Callback then
-			writefile(placename, header) -- TODO This is sort of useless if writefile will be used at the end (like if AlternativeWritefile and Callback are unused)
+				writefile(placename, header) -- TODO This is sort of useless if writefile will be used at the end (like if AlternativeWritefile and Callback are unused)
 			end
 		end
 
@@ -3866,11 +3866,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 		GLOBAL_ENV[placename] = nil
+
+		elapse_t = os.clock() - elapse_t
+		local Log10 = math.log10(elapse_t)
+		local ExtraTime = 10
+
 		if StatusText then
 			task.spawn(function()
-				elapse_t = os.clock() - elapse_t
-				local Log10 = math.log10(elapse_t)
-				local ExtraTime = 10
 				if ok then
 					StatusText.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, get_size_format())
 					StatusText.TextColor3 = Color3.new(0, 1)
@@ -3891,6 +3893,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if OPTIONS.ShutdownWhenDone and ok then
+			task.wait(Log10 * 2 + ExtraTime)
 			game:Shutdown()
 		end
 	end
