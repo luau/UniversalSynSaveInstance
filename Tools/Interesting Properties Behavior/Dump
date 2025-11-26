@@ -786,3 +786,167 @@ Blacklisted types (excluded from analysis): 24
   - int
   - int64
   - string
+
+==================================================
+NOTCREATABLE INHERITANCE ANALYSIS
+==================================================
+
+NotCreatable classes that inherit from creatable classes: 7
+  - BackpackItem (inheritance: BackpackItem -> Model -> PVInstance -> Instance -> Object)
+  - ChatWindowMessageProperties (inheritance: ChatWindowMessageProperties -> TextChatMessageProperties -> Instance -> Object)
+  - CloudLocalizationTable (inheritance: CloudLocalizationTable -> LocalizationTable -> Instance -> Object)
+  - Platform (inheritance: Platform -> Part -> FormFactorPart -> BasePart -> PVInstance -> Instance -> Object)
+  - Status (inheritance: Status -> Model -> PVInstance -> Instance -> Object)
+  - Workspace (inheritance: Workspace -> WorldRoot -> Model -> PVInstance -> Instance -> Object)
+  - WorldRoot (inheritance: WorldRoot -> Model -> PVInstance -> Instance -> Object)
+
+==================================================
+CREATABLE SIBLINGS OF NOTCREATABLE CLASSES
+==================================================
+
+NotCreatable classes that have creatable siblings: 33
+  - BackpackItem (parent: Model) has creatable siblings:
+      - Actor
+  - BasePart (parent: PVInstance) has creatable siblings:
+      - Camera
+      - Model
+  - BaseScript (parent: LuaSourceContainer) has creatable siblings:
+      - AuroraScript
+      - ModuleScript
+  - BevelMesh (parent: DataModelMesh) has creatable siblings:
+      - FileMesh
+  - ChatWindowMessageProperties (parent: TextChatMessageProperties) has creatable siblings:
+      - BubbleChatMessageProperties
+  - Clothing (parent: CharacterAppearance) has creatable siblings:
+      - BodyColors
+      - CharacterMesh
+      - ShirtGraphic
+      - Skin
+  - ControllerSensor (parent: SensorBase) has creatable siblings:
+      - AtmosphereSensor
+      - BuoyancySensor
+      - FluidForceSensor
+  - CoreScript (parent: BaseScript) has creatable siblings:
+      - Script
+  - CustomSoundEffect (parent: SoundEffect) has creatable siblings:
+      - ChorusSoundEffect
+      - CompressorSoundEffect
+      - DistortionSoundEffect
+      - EchoSoundEffect
+      - EqualizerSoundEffect
+      - FlangeSoundEffect
+      - PitchShiftSoundEffect
+      - ReverbSoundEffect
+      - TremoloSoundEffect
+  - DynamicRotate (parent: JointInstance) has creatable siblings:
+      - Glue
+      - Motor
+      - Rotate
+      - Snap
+      - VelocityMotor
+      - Weld
+  - FormFactorPart (parent: BasePart) has creatable siblings:
+      - CornerWedgePart
+      - TrussPart
+      - VehicleSeat
+  - GuiBase2d (parent: GuiBase) has creatable siblings:
+      - Path2D
+  - GuiBase3d (parent: GuiBase) has creatable siblings:
+      - Path2D
+  - GuiButton (parent: GuiObject) has creatable siblings:
+      - CanvasGroup
+      - Frame
+      - RelativeGui
+      - ScrollingFrame
+      - TextBox
+      - VideoDisplay
+      - VideoFrame
+      - ViewportFrame
+  - GuiLabel (parent: GuiObject) has creatable siblings:
+      - CanvasGroup
+      - Frame
+      - RelativeGui
+      - ScrollingFrame
+      - TextBox
+      - VideoDisplay
+      - VideoFrame
+      - ViewportFrame
+  - HandleAdornment (parent: PVAdornment) has creatable siblings:
+      - ParabolaAdornment
+      - SelectionSphere
+  - HandlesBase (parent: PartAdornment) has creatable siblings:
+      - SurfaceSelection
+  - InstanceAdornment (parent: GuiBase3d) has creatable siblings:
+      - FloorWire
+  - ManualSurfaceJointInstance (parent: JointInstance) has creatable siblings:
+      - Glue
+      - Motor
+      - Rotate
+      - Snap
+      - VelocityMotor
+      - Weld
+  - PVAdornment (parent: GuiBase3d) has creatable siblings:
+      - FloorWire
+  - PartAdornment (parent: GuiBase3d) has creatable siblings:
+      - FloorWire
+  - Platform (parent: Part) has creatable siblings:
+      - FlagStand
+      - Seat
+      - SkateboardPlatform
+      - SpawnLocation
+  - PluginGui (parent: LayerCollector) has creatable siblings:
+      - BillboardGui
+      - ScreenGui
+  - SelectionLasso (parent: GuiBase3d) has creatable siblings:
+      - FloorWire
+  - SlidingBallConstraint (parent: Constraint) has creatable siblings:
+      - AlignOrientation
+      - AlignPosition
+      - AngularVelocity
+      - AnimationConstraint
+      - BallSocketConstraint
+      - HingeConstraint
+      - LineForce
+      - LinearVelocity
+      - PlaneConstraint
+      - RigidConstraint
+      - RodConstraint
+      - RopeConstraint
+      - SpringConstraint
+      - Torque
+      - TorsionSpringConstraint
+      - UniversalConstraint
+      - VectorForce
+  - Status (parent: Model) has creatable siblings:
+      - Actor
+  - SurfaceGuiBase (parent: LayerCollector) has creatable siblings:
+      - BillboardGui
+      - ScreenGui
+  - Terrain (parent: BasePart) has creatable siblings:
+      - CornerWedgePart
+      - TrussPart
+      - VehicleSeat
+  - TriangleMeshPart (parent: BasePart) has creatable siblings:
+      - CornerWedgePart
+      - TrussPart
+      - VehicleSeat
+  - UIConstraint (parent: UIComponent) has creatable siblings:
+      - UICorner
+      - UIDragDetector
+      - UIFlexItem
+      - UIGradient
+      - UIPadding
+      - UIScale
+      - UIStroke
+  - UILayout (parent: UIComponent) has creatable siblings:
+      - UICorner
+      - UIDragDetector
+      - UIFlexItem
+      - UIGradient
+      - UIPadding
+      - UIScale
+      - UIStroke
+  - Workspace (parent: WorldRoot) has creatable siblings:
+      - WorldModel
+  - WorldRoot (parent: Model) has creatable siblings:
+      - Actor

@@ -1,49 +1,86 @@
 version-d638b440a9224bb2
 
 === DATATYPES ===
-Axes {CanSave} {CanLoad}
-BinaryString {CanSave} {CanLoad}
-BrickColor {CanSave} {CanLoad}
-CFrame {CanSave} {CanLoad}
-CSGPropertyData
-Color3 {CanSave} {CanLoad}
-Color3uint8 {CanSave} {CanLoad}
-ColorSequence {CanSave} {CanLoad}
-Content {CanSave} {CanLoad}
-ContentId {CanSave} {CanLoad}
-DateTime {CanSave} -> Probably has a descriptor
-Faces {CanSave} {CanLoad}
-FacsReplicationData
-Font {CanSave} {CanLoad}
-NetAssetRef {CanSave} {CanLoad}
-NumberRange {CanSave} {CanLoad}
-NumberSequence {CanSave} {CanLoad}
-OptionalCoordinateFrame {CanSave} {CanLoad}
-Path2DControlPoint {CanLoad} -> Probably has a descriptor
-PhysicalProperties {CanSave} {CanLoad}
-ProtectedString {CanSave} {CanLoad}
-QDir {CanSave} {CanLoad}
-QFont {CanSave} {CanLoad}
-Ray {CanSave} {CanLoad}
-Rect {CanSave} {CanLoad}
-Region3int16
-ReplicationPV
-SecurityCapabilities {CanSave} {CanLoad}
-SharedString {CanSave} {CanLoad}
-SystemAddress
-TweenInfo
-UDim {CanSave} {CanLoad}
-UDim2 {CanSave} {CanLoad}
-UniqueId {CanSave} {CanLoad}
-Vector2 {CanSave} {CanLoad}
-Vector3 {CanSave} {CanLoad}
-Vector3int16 {CanSave} {CanLoad}
-bool {CanSave} {CanLoad}
-double {CanSave} {CanLoad}
-float {CanSave} {CanLoad}
-int {CanSave} {CanLoad}
-int64 {CanSave} {CanLoad}
-string {CanSave} {CanLoad}
+Axes [BOTH] {CanSave} {CanLoad}
+BinaryString [API] {CanSave} {CanLoad}
+BrickColor [BOTH] {CanSave} {CanLoad}
+CFrame [BOTH] {CanSave} {CanLoad}
+CSGPropertyData [API]
+CatalogSearchParams [DOCS]
+Color3 [BOTH] {CanSave} {CanLoad}
+Color3uint8 [API] {CanSave} {CanLoad}
+ColorSequence [BOTH] {CanSave} {CanLoad}
+ColorSequenceKeypoint [DOCS]
+Content [BOTH] {CanSave} {CanLoad}
+ContentId [API] {CanSave} {CanLoad}
+DateTime [BOTH] {CanSave} -> Probably has a descriptor
+DockWidgetPluginGuiInfo [DOCS]
+Enum [DOCS]
+EnumItem [DOCS]
+Enums [DOCS]
+Faces [BOTH] {CanSave} {CanLoad}
+FacsReplicationData [API]
+FloatCurveKey [DOCS]
+Font [BOTH] {CanSave} {CanLoad}
+Instance [DOCS]
+NetAssetRef [API] {CanSave} {CanLoad}
+NumberRange [BOTH] {CanSave} {CanLoad}
+NumberSequence [BOTH] {CanSave} {CanLoad}
+NumberSequenceKeypoint [DOCS]
+OptionalCoordinateFrame [API] {CanSave} {CanLoad}
+OverlapParams [DOCS]
+Path2DControlPoint [BOTH] {CanLoad} -> Probably has a descriptor
+PathWaypoint [DOCS]
+PhysicalProperties [BOTH] {CanSave} {CanLoad}
+ProtectedString [API] {CanSave} {CanLoad}
+QDir [API] {CanSave} {CanLoad}
+QFont [API] {CanSave} {CanLoad}
+RBXScriptConnection [DOCS]
+RBXScriptSignal [DOCS]
+Random [DOCS]
+Ray [BOTH] {CanSave} {CanLoad}
+RaycastParams [DOCS]
+RaycastResult [DOCS]
+Rect [BOTH] {CanSave} {CanLoad}
+Region3 [DOCS]
+Region3int16 [BOTH]
+ReplicationPV [API]
+RotationCurveKey [DOCS]
+Secret [DOCS]
+SecurityCapabilities [API] {CanSave} {CanLoad}
+SharedString [API] {CanSave} {CanLoad}
+SharedTable [DOCS]
+SystemAddress [API]
+TweenInfo [BOTH]
+UDim [BOTH] {CanSave} {CanLoad}
+UDim2 [BOTH] {CanSave} {CanLoad}
+UniqueId [API] {CanSave} {CanLoad}
+ValueCurveKey [DOCS]
+Vector2 [BOTH] {CanSave} {CanLoad}
+Vector2int16 [DOCS]
+Vector3 [BOTH] {CanSave} {CanLoad}
+Vector3int16 [BOTH] {CanSave} {CanLoad}
+bool [API] {CanSave} {CanLoad}
+double [API] {CanSave} {CanLoad}
+float [API] {CanSave} {CanLoad}
+int [API] {CanSave} {CanLoad}
+int64 [API] {CanSave} {CanLoad}
+string [API] {CanSave} {CanLoad}
+
+=== DATATYPES ANALYSIS ===
+Total unique datatypes: 65
+From API only: 21
+From Docs only: 22
+In both sources: 22
+
+=== CLASS TAGS ===
+Total unique class tags: 6
+  Deprecated
+  NotBrowsable
+  NotCreatable
+  NotReplicated
+  PlayerReplicated
+  Service
 
 === MEMBER TAGS ===
 Total unique tags: 11

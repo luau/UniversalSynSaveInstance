@@ -80,10 +80,30 @@ def fetch_api(version_hash=None):
     not_scriptable_types = set()
     not_scriptable_properties = []
 
-    # First pass: collect NotScriptable data
+    # First pass: collect NotScriptable data and build class hierarchy
+    class_hierarchy = {}
+    not_creatable_classes = set()
+    creatable_classes = set()
+
     for api_class in api_classes:
         class_name = api_class["Name"]
         class_members = api_class["Members"]
+        class_tags = api_class.get("Tags")
+
+        if class_tags:
+            class_tags = array_to_dictionary(class_tags)
+            if class_tags.get("NotCreatable"):
+                not_creatable_classes.add(class_name)
+            else:
+                creatable_classes.add(class_name)
+        else:
+            creatable_classes.add(class_name)  # Assume creatable if no tags
+
+        superclass = api_class["Superclass"]
+        class_hierarchy[class_name] = {
+            "superclass": superclass,
+            "tags": class_tags or {},
+        }
 
         for member in class_members:
             if member["MemberType"] == "Property":
@@ -103,6 +123,108 @@ def fetch_api(version_hash=None):
                                 f"{class_name}.{member['Name']}"
                             )
 
+    not_creatable_with_creatable_ancestors = []
+
+    def has_creatable_ancestor(class_name, visited=None):
+        """Check if a class has any creatable ancestor in its inheritance chain"""
+        if visited is None:
+            visited = set()
+
+        if class_name in visited:
+            return False
+        visited.add(class_name)
+
+        if class_name not in class_hierarchy:
+            return False
+
+        superclass = class_hierarchy[class_name]["superclass"]
+        if not superclass:  # No superclass
+            return False
+
+        # Skip if directly inheriting from Instance or Object
+        if superclass in ["Instance", "Object"]:
+            return False
+
+        if superclass in creatable_classes:
+            return True
+
+        # Recursively check superclass
+        return has_creatable_ancestor(superclass, visited)
+
+    for class_name in not_creatable_classes:
+        if has_creatable_ancestor(class_name):
+            not_creatable_with_creatable_ancestors.append(class_name)
+
+    creatable_with_notcreatable_ancestors = []
+
+    def has_notcreatable_ancestor(class_name, visited=None):
+        """Check if a class has any NotCreatable ancestor in its inheritance chain"""
+        if visited is None:
+            visited = set()
+
+        if class_name in visited:
+            return False
+        visited.add(class_name)
+
+        if class_name not in class_hierarchy:
+            return False
+
+        superclass = class_hierarchy[class_name]["superclass"]
+        if not superclass:  # No superclass
+            return False
+
+        # Skip if directly inheriting from Instance or Object
+        if superclass in ["Instance", "Object"]:
+            return False
+
+        if superclass in not_creatable_classes:
+            return True
+
+        # Recursively check superclass
+        return has_notcreatable_ancestor(superclass, visited)
+
+    for class_name in creatable_classes:
+        if has_notcreatable_ancestor(class_name):
+            creatable_with_notcreatable_ancestors.append(class_name)
+
+    # Find creatable siblings of NotCreatable classes
+    creatable_siblings_of_notcreatable = {}
+
+    # Build a dictionary of parent -> children relationships
+    parent_to_children = {}
+    for class_name in class_hierarchy:
+        parent = class_hierarchy[class_name]["superclass"]
+        if parent:
+            if parent not in parent_to_children:
+                parent_to_children[parent] = []
+            parent_to_children[parent].append(class_name)
+
+    # Find parents that have both creatable and NotCreatable children
+    for parent_class in parent_to_children:
+        if parent_class in ["Instance", "Object"]:
+            continue
+
+        children = parent_to_children[parent_class]
+        notcreatable_children = [
+            child for child in children if child in not_creatable_classes
+        ]
+        creatable_children = [child for child in children if child in creatable_classes]
+
+        # If parent has both creatable and NotCreatable children
+        if notcreatable_children and creatable_children:
+            for notcreatable_child in notcreatable_children:
+                if notcreatable_child not in creatable_siblings_of_notcreatable:
+                    creatable_siblings_of_notcreatable[notcreatable_child] = []
+                creatable_siblings_of_notcreatable[notcreatable_child].extend(
+                    creatable_children
+                )
+
+    # Remove duplicates from sibling lists
+    for notcreatable_child in creatable_siblings_of_notcreatable:
+        creatable_siblings_of_notcreatable[notcreatable_child] = list(
+            set(creatable_siblings_of_notcreatable[notcreatable_child])
+        )
+
     # Second pass: original data collection + NotScriptable type checking
     for api_class in api_classes:
         class_name = api_class["Name"]
@@ -111,8 +233,6 @@ def fetch_api(version_hash=None):
 
         if class_tags:
             class_tags = array_to_dictionary(class_tags)
-        else:
-            print(class_name, "notags")
 
         class_info = {
             "Tags": class_tags,
@@ -212,6 +332,54 @@ def fetch_api(version_hash=None):
     s += f"\nBlacklisted types (excluded from analysis): {len(NOTSCRIPTABLE_BLACKLIST)}\n"
     for type_name in sorted(NOTSCRIPTABLE_BLACKLIST):
         s += f"  - {type_name}\n"
+
+    s += "\n" + "=" * 50 + "\n"
+    s += "NOTCREATABLE INHERITANCE ANALYSIS\n"
+    s += "=" * 50 + "\n\n"
+
+    s += f"NotCreatable classes that inherit from creatable classes: {len(not_creatable_with_creatable_ancestors)}\n"
+    for class_name in sorted(not_creatable_with_creatable_ancestors):
+        chain = []
+        current_class = class_name
+        while current_class in class_hierarchy:
+            chain.append(current_class)
+            superclass = class_hierarchy[current_class]["superclass"]
+            if not superclass:
+                break
+            current_class = superclass
+
+        s += f"  - {class_name} (inheritance: {' -> '.join(chain)})\n"
+
+    # ! Useless until there is a NotCreatable class that appears on its own naturally, so a fix using one of it's children (inheritors) should be applied
+    # s += f"\nCreatable classes that inherit from NotCreatable classes: {len(creatable_with_notcreatable_ancestors)}\n"
+    # for class_name in sorted(creatable_with_notcreatable_ancestors):
+    #     chain = []
+    #     current_class = class_name
+    #     while current_class in class_hierarchy:
+    #         chain.append(current_class)
+    #         superclass = class_hierarchy[current_class]["superclass"]
+    #         if not superclass:
+    #             break
+    #         current_class = superclass
+
+    #     s += f"  - {class_name} (inheritance: {' -> '.join(chain)})\n"
+
+    s += "\n" + "=" * 50 + "\n"
+    s += "CREATABLE SIBLINGS OF NOTCREATABLE CLASSES\n"
+    s += "=" * 50 + "\n\n"
+
+    if creatable_siblings_of_notcreatable:
+        s += f"NotCreatable classes that have creatable siblings: {len(creatable_siblings_of_notcreatable)}\n"
+        for notcreatable_class in sorted(creatable_siblings_of_notcreatable.keys()):
+            siblings = creatable_siblings_of_notcreatable[notcreatable_class]
+            parent = class_hierarchy[notcreatable_class]["superclass"]
+            s += (
+                f"  - {notcreatable_class} (parent: {parent}) has creatable siblings:\n"
+            )
+            for sibling in sorted(siblings):
+                s += f"      - {sibling}\n"
+    else:
+        s += "No NotCreatable classes found with creatable siblings.\n"
 
     return s
 

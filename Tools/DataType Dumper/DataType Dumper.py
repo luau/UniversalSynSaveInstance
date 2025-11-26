@@ -1,5 +1,6 @@
 import os
 import sys
+import requests
 
 
 def import_dump_utils():
@@ -46,6 +47,7 @@ can_load_tracker = {}
 
 all_member_tags = set()
 all_capabilities = set()
+all_class_tags = set()
 
 
 def extract_capabilities(capabilities_data):
@@ -70,6 +72,31 @@ def extract_capabilities(capabilities_data):
     return capabilities
 
 
+def get_roblox_datatype_names():
+    """Fetch Roblox datatype names from GitHub creator docs"""
+    url = "https://api.github.com/repos/Roblox/creator-docs/contents/content/en-us/reference/engine/datatypes"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        data = response.json()
+        names = [
+            item["name"][:-5]
+            for item in data
+            if item["type"] == "file" and item["name"].endswith(".yaml")
+        ]
+
+        return names
+
+    except requests.RequestException as e:
+        print(f"Error fetching Roblox datatypes from GitHub: {e}")
+        return []
+    except ValueError as e:
+        print(f"Error parsing GitHub API response: {e}")
+        return []
+
+
 def fetch_api(version_hash=None):
     response, version_hash = get_api_response(version_hash)
     api_data = response.json()
@@ -77,10 +104,16 @@ def fetch_api(version_hash=None):
     api_enums = api_data["Enums"]
 
     global datatypes, datatypes_set, can_save_tracker, can_load_tracker
-    global all_member_tags, all_capabilities
+    global all_member_tags, all_capabilities, all_class_tags
 
     # Process Classes
     for api_class in api_classes:
+        class_tags = api_class.get("Tags")
+        if class_tags:
+            for tag in class_tags:
+                if isinstance(tag, str):
+                    all_class_tags.add(tag)
+
         class_members = api_class["Members"]
 
         for member in class_members:
@@ -140,26 +173,62 @@ if __name__ == "__main__":
         version_hash = fetch_api(version_hash)
         datatypes.sort()
 
+        # Get Roblox datatype names from GitHub
+        roblox_datatypes = get_roblox_datatype_names()
+        roblox_datatypes.sort()
+
+        # Merge API datatypes and documentation datatypes
+        all_datatypes_set = set(datatypes) | set(roblox_datatypes)
+        all_datatypes = sorted(list(all_datatypes_set))
+
+        # Find datatypes that are in one source but not the other
+        api_only = set(datatypes) - set(roblox_datatypes)
+        docs_only = set(roblox_datatypes) - set(datatypes)
+        in_both = set(datatypes) & set(roblox_datatypes)
+
         output_lines = []
 
         output_lines.append("=== DATATYPES ===")
-        for value_type in datatypes:
-            can_save_status = can_save_tracker.get(value_type, False)
-            can_load_status = can_load_tracker.get(value_type, False)
+        for datatype in all_datatypes:
+            source_indicators = []
 
-            verdict_text = ""
-            if (can_save_status and not can_load_status) or (
-                can_load_status and not can_save_status
-            ):
-                verdict_text = "-> Probably has a descriptor"
+            if datatype in api_only:
+                source_indicators.append("[API]")
+            elif datatype in docs_only:
+                source_indicators.append("[DOCS]")
+            else:  # in both
+                source_indicators.append("[BOTH]")
 
-            parts = [value_type]
-            if can_save_status:
-                parts.append("{CanSave}")
-            if can_load_status:
-                parts.append("{CanLoad}")
-            parts.append(verdict_text)
-            output_lines.append(" ".join(parts).strip())
+            if datatype in datatypes_set:
+                can_save_status = can_save_tracker.get(datatype, False)
+                can_load_status = can_load_tracker.get(datatype, False)
+
+                if can_save_status:
+                    source_indicators.append("{CanSave}")
+                if can_load_status:
+                    source_indicators.append("{CanLoad}")
+
+                if (can_save_status and not can_load_status) or (
+                    can_load_status and not can_save_status
+                ):
+                    source_indicators.append("-> Probably has a descriptor")
+
+            output_lines.append(f"{datatype} {' '.join(source_indicators)}")
+
+        output_lines.append("")
+        output_lines.append("=== DATATYPES ANALYSIS ===")
+        output_lines.append(f"Total unique datatypes: {len(all_datatypes)}")
+        output_lines.append(f"From API only: {len(api_only)}")
+        output_lines.append(f"From Docs only: {len(docs_only)}")
+        output_lines.append(f"In both sources: {len(in_both)}")
+        output_lines.append("")
+
+        output_lines.append("=== CLASS TAGS ===")
+        output_lines.append(f"Total unique class tags: {len(all_class_tags)}")
+        sorted_class_tags = sorted(list(all_class_tags))
+
+        for tag in sorted_class_tags:
+            output_lines.append(f"  {tag}")
 
         output_lines.append("")
 
