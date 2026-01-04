@@ -1,4 +1,4 @@
-version-874602c66c70451a
+version-523a50bddf034d9a
 
 EditableImage.ImageData {BinaryString}
 
@@ -186,10 +186,12 @@ Workspace.IKControlConstraintSupport {IKControlConstraintSupport}
 Workspace.MeshPartHeadsAndAccessories {MeshPartHeadsAndAccessories}
 Workspace.ModelStreamingBehavior {ModelStreamingBehavior}
 Workspace.MoverConstraintRootBehavior {MoverConstraintRootBehaviorMode}
+Workspace.NextGenerationReplication {RolloutState}
 Workspace.PathfindingUseImprovedSearch {PathfindingUseImprovedSearch}
 Workspace.PhysicsImprovedSleep {RolloutState}
 Workspace.PhysicsSteppingMethod {PhysicsSteppingMethod}
 Workspace.PlayerCharacterDestroyBehavior {PlayerCharacterDestroyBehavior}
+Workspace.PlayerScriptsUseInputActionSystem {RolloutState}
 Workspace.PrimalPhysicsSolver {PrimalPhysicsSolver}
 Workspace.RejectCharacterDeletions {RejectCharacterDeletions}
 Workspace.RenderingCacheOptimizations {RenderingCacheOptimizationMode}
@@ -203,9 +205,13 @@ Workspace.StreamingTargetRadius {int}
 Workspace.TerrainWeldsFixed {bool}
 Workspace.TouchEventsUseCollisionGroups {RolloutState}
 Workspace.TouchesUseCollisionGroups {bool}
+Workspace.UseFixedSimulation {RolloutState}
 Workspace.UseNewLuauTypeSolver {RolloutState}
+UseNewLuauTypeSolver -> NextGenerationReplication {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> PhysicsImprovedSleep {POTENTIAL PROXY}
+UseNewLuauTypeSolver -> PlayerScriptsUseInputActionSystem {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> TouchEventsUseCollisionGroups {POTENTIAL PROXY}
+UseNewLuauTypeSolver -> UseFixedSimulation {POTENTIAL PROXY}
 SignalBehavior2 -> SignalBehavior {POTENTIAL PROXY}
 
 PackageLink.PackageIdSerialize {ContentId}
@@ -312,6 +318,7 @@ BasePart.ReplicationPV {Serialize: False}
 TriangleMeshPart.FluidFidelityInternal
 MeshPart.RenderFidelityReplicate {Serialize: False}
 PartOperation.SerializedOperationGraph {Serialize: False}
+Workspace.NextGenerationReplication
 Workspace.ReplicateInstanceDestroySetting
 PackageLink.PackageIdSerialize
 PackageLink.SerializedDefaultAttributes {Scriptable}

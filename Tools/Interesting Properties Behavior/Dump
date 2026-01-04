@@ -1,4 +1,6 @@
-version-d638b440a9224bb2
+version-34c9847319974d28
+
+Object.className {PreferredDescriptorName: ClassName}
 
 Capture.CaptureTime {CanSave Only}
 Capture.CaptureType {CanSave Only}
@@ -20,7 +22,7 @@ EditableMesh.SkinningEnabled {Deprecated} {CanSave}
 
 Instance.Parent {CanLoad Only}
 Instance.UniqueId {Uses NotScriptable Type without the tag - UniqueId }
-Instance.archivable {CanLoad Only} {Deprecated}
+Instance.archivable {CanLoad Only} {Deprecated} {PreferredDescriptorName: Archivable}
 
 AdPortal.PortalVersion {CanSave Only}
 
@@ -36,9 +38,11 @@ AssetDeliveryProxy is NotCreatable but AssetDeliveryProxy.Interface has a defaul
 AssetPatchSettings is NotCreatable but AssetPatchSettings.ContentId has a default value: 
 
 Attachment.Axis {CanLoad Only}
+Attachment.Rotation {PreferredDescriptorName: Orientation}
 Attachment.SecondaryAxis {CanLoad Only}
 Attachment.WorldAxis {CanLoad Only}
 Attachment.WorldCFrame {CanLoad Only}
+Attachment.WorldRotation {PreferredDescriptorName: WorldOrientation}
 Attachment.WorldSecondaryAxis {CanLoad Only}
 
 Bone.Transform {CanLoad Only}
@@ -52,7 +56,7 @@ AudioDeviceInput.IsReady {CanSave Only}
 
 AudioEmitter.AngleAttenuation {Uses NotScriptable Type without the tag - BinaryString }
 AudioEmitter.DistanceAttenuation {Uses NotScriptable Type without the tag - BinaryString }
-AudioEmitter.SimulationFidelity {Deprecated} {CanSave}
+AudioEmitter.SimulationFidelity {Deprecated} {CanSave} {PreferredDescriptorName: AcousticSimulationEnabled}
 
 AudioEqualizer.Editor {CanLoad Only}
 
@@ -62,15 +66,15 @@ AudioLimiter.Editor {CanLoad Only}
 
 AudioListener.AngleAttenuation {Uses NotScriptable Type without the tag - BinaryString }
 AudioListener.DistanceAttenuation {Uses NotScriptable Type without the tag - BinaryString }
-AudioListener.SimulationFidelity {Deprecated} {CanSave}
+AudioListener.SimulationFidelity {Deprecated} {CanSave} {PreferredDescriptorName: AcousticSimulationEnabled}
 
-AudioPlayer.AssetId {CanLoad Only} {Deprecated}
+AudioPlayer.AssetId {CanLoad Only} {Deprecated} {PreferredDescriptorName: Asset}
 AudioPlayer.IsReady {CanSave Only}
 AudioPlayer.TimeLength {CanSave Only}
 
 AudioRecorder.TimeLength {CanSave Only}
 
-AudioSearchParams.AudioSubtype {CanLoad Only} {Deprecated}
+AudioSearchParams.AudioSubtype {CanLoad Only} {Deprecated} {PreferredDescriptorName: AudioSubType}
 
 AudioSpeechToText.VoiceDetected {CanSave Only}
 
@@ -104,22 +108,22 @@ PlayerGui is NotCreatable but PlayerGui.CurrentScreenOrientation has a default v
 
 StarterGui.ResetPlayerGuiOnSpawn {Deprecated} {CanSave}
 
-BodyAngularVelocity.angularvelocity {CanLoad Only} {Deprecated}
-BodyAngularVelocity.maxTorque {CanLoad Only} {Deprecated}
+BodyAngularVelocity.angularvelocity {CanLoad Only} {Deprecated} {PreferredDescriptorName: AngularVelocity}
+BodyAngularVelocity.maxTorque {CanLoad Only} {Deprecated} {PreferredDescriptorName: MaxTorque}
 
-BodyForce.force {CanLoad Only} {Deprecated}
+BodyForce.force {CanLoad Only} {Deprecated} {PreferredDescriptorName: Force}
 
-BodyGyro.cframe {CanLoad Only} {Deprecated}
-BodyGyro.maxTorque {CanLoad Only} {Deprecated}
+BodyGyro.cframe {CanLoad Only} {Deprecated} {PreferredDescriptorName: CFrame}
+BodyGyro.maxTorque {CanLoad Only} {Deprecated} {PreferredDescriptorName: MaxTorque}
 
-BodyPosition.maxForce {CanLoad Only} {Deprecated}
-BodyPosition.position {CanLoad Only} {Deprecated}
+BodyPosition.maxForce {CanLoad Only} {Deprecated} {PreferredDescriptorName: MaxForce}
+BodyPosition.position {CanLoad Only} {Deprecated} {PreferredDescriptorName: Position}
 
-BodyThrust.force {CanLoad Only} {Deprecated}
-BodyThrust.location {CanLoad Only} {Deprecated}
+BodyThrust.force {CanLoad Only} {Deprecated} {PreferredDescriptorName: Force}
+BodyThrust.location {CanLoad Only} {Deprecated} {PreferredDescriptorName: Location}
 
-BodyVelocity.maxForce {CanLoad Only} {Deprecated}
-BodyVelocity.velocity {CanLoad Only} {Deprecated}
+BodyVelocity.maxForce {CanLoad Only} {Deprecated} {PreferredDescriptorName: MaxForce}
+BodyVelocity.velocity {CanLoad Only} {Deprecated} {PreferredDescriptorName: Velocity}
 
 BodyColors.HeadColor {CanLoad Only}
 BodyColors.LeftArmColor {CanLoad Only}
@@ -138,7 +142,8 @@ DragDetector.SecondaryAxis {CanLoad Only}
 DragDetector.WorldAxis {CanLoad Only}
 DragDetector.WorldSecondaryAxis {CanLoad Only}
 
-Collaborator is NotCreatable but Collaborator.CollaboratorColor has a default value: 0
+Collaborator.CollaboratorColor {PreferredDescriptorName: CollaboratorColor3}
+Collaborator is NotCreatable but Collaborator.CFrame has a default value: 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1
 
 ConnectivityService.NetworkStatus {CanSave Only}
 ConnectivityService is NotCreatable but ConnectivityService.NetworkStatus has a default value: Unknown
@@ -160,7 +165,7 @@ CylindricalConstraint.WorldRotationAxis {CanSave Only}
 SpringConstraint.CurrentLength {CanSave Only}
 
 TorsionSpringConstraint.CurrentAngle {CanSave Only}
-TorsionSpringConstraint.LimitEnabled {Deprecated} {CanSave}
+TorsionSpringConstraint.LimitEnabled {Deprecated} {CanSave} {PreferredDescriptorName: LimitsEnabled}
 
 ContentProvider.BaseUrl {CanSave Only}
 ContentProvider.RequestQueueSize {CanSave Only}
@@ -208,7 +213,7 @@ FacialAnimationStreamingServiceV2 is NotCreatable but FacialAnimationStreamingSe
 
 Fire.Heat {CanLoad Only}
 Fire.Size {CanLoad Only}
-Fire.size {CanLoad Only} {Deprecated}
+Fire.size {CanLoad Only} {Deprecated} {PreferredDescriptorName: Size}
 
 FloatCurve.Length {CanSave Only}
 
@@ -221,7 +226,7 @@ GameSettings.VideoCaptureEnabled {Deprecated} {CanSave}
 
 GamepadService is NotCreatable but GamepadService.GamepadCursorEnabled has a default value: false
 
-GuiBase2d.Localize {CanLoad Only} {Deprecated}
+GuiBase2d.Localize {CanLoad Only} {Deprecated} {PreferredDescriptorName: AutoLocalize}
 
 GuiObject.BackgroundColor {CanLoad Only} {Deprecated}
 GuiObject.BorderColor {CanLoad Only} {Deprecated}
@@ -230,27 +235,27 @@ GuiObject.GuiState {CanSave Only}
 GuiObject.Transparency {CanLoad Only}
 
 TextButton.Font {CanLoad Only}
-TextButton.FontSize {CanLoad Only} {Deprecated}
+TextButton.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
 TextButton.LocalizedText {CanSave Only}
 TextButton.OpenTypeFeaturesError {CanSave Only}
 TextButton.TextColor {CanLoad Only} {Deprecated}
-TextButton.TextWrap {CanLoad Only} {Deprecated}
+TextButton.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
 
 TextLabel.Font {CanLoad Only}
-TextLabel.FontSize {CanLoad Only} {Deprecated}
+TextLabel.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
 TextLabel.LocalizedText {CanSave Only}
 TextLabel.OpenTypeFeaturesError {CanSave Only}
 TextLabel.TextColor {CanLoad Only} {Deprecated}
-TextLabel.TextWrap {CanLoad Only} {Deprecated}
+TextLabel.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
 
 ScrollingFrame.AbsoluteCanvasSize {CanSave Only}
 ScrollingFrame.AbsoluteWindowSize {CanSave Only}
 
 TextBox.Font {CanLoad Only}
-TextBox.FontSize {CanLoad Only} {Deprecated}
+TextBox.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
 TextBox.OpenTypeFeaturesError {CanSave Only}
 TextBox.TextColor {CanLoad Only} {Deprecated}
-TextBox.TextWrap {CanLoad Only} {Deprecated}
+TextBox.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
 
 ViewportFrame.CurrentCamera {CanLoad Only}
 
@@ -263,11 +268,11 @@ DockWidgetPluginGui is NotCreatable but DockWidgetPluginGui.HostWidgetWasRestore
 
 ScreenGui.IgnoreGuiInset {CanLoad Only}
 
-GuiBase3d.Color {CanLoad Only} {Deprecated}
+GuiBase3d.Color {CanLoad Only} {Deprecated} {PreferredDescriptorName: Color3}
 
-SelectionBox.SurfaceColor {CanLoad Only} {Deprecated}
+SelectionBox.SurfaceColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: SurfaceColor3}
 
-SelectionSphere.SurfaceColor {CanLoad Only} {Deprecated}
+SelectionSphere.SurfaceColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: SurfaceColor3}
 
 Path2D.SelectedControlPoint {CanLoad Only}
 Path2D.SelectedControlPointData {CanLoad Only}
@@ -285,7 +290,7 @@ Humanoid.LeftLeg {CanLoad Only} {Deprecated}
 Humanoid.RightLeg {CanLoad Only} {Deprecated}
 Humanoid.RootPart {CanSave Only}
 Humanoid.Torso {CanLoad Only} {Deprecated}
-Humanoid.maxHealth {CanLoad Only} {Deprecated}
+Humanoid.maxHealth {CanLoad Only} {Deprecated} {PreferredDescriptorName: MaxHealth}
 
 HumanoidDescription.AccessoryBlob {CanLoad Only}
 HumanoidDescription.BackAccessory {CanLoad Only}
@@ -318,6 +323,8 @@ InsertService is NotCreatable but InsertService.AllowClientInsertModels has a de
 
 InternalSyncItem.Target {CanLoad Only}
 
+JointInstance.part1 {PreferredDescriptorName: Part1}
+
 Motor.CurrentAngle {CanLoad Only}
 
 Lighting.ClockTime {CanLoad Only}
@@ -332,7 +339,8 @@ LiveSyncService is NotCreatable but LiveSyncService.HasSyncedInstances has a def
 
 LocalizationService is NotCreatable but LocalizationService.ForcePlayModeGameLocaleId has a default value: 
 
-LocalizationTable.DevelopmentLanguage {CanLoad Only} {Deprecated}
+LocalizationTable.DevelopmentLanguage {CanLoad Only} {Deprecated} {PreferredDescriptorName: SourceLocaleId}
+LocalizationTable.Root {PreferredDescriptorName: RootLocalizationTable (NOT FOUND IN SAME CLASS)}
 
 LodDataEntity is NotCreatable but LodDataEntity.EntityLodEnabled has a default value: true
 
@@ -367,6 +375,8 @@ Mouse.ViewSizeX {CanSave Only}
 Mouse.ViewSizeY {CanSave Only}
 Mouse.X {CanSave Only}
 Mouse.Y {CanSave Only}
+Mouse.hit {PreferredDescriptorName: Hit}
+Mouse.target {PreferredDescriptorName: Target}
 
 NotificationService.SelectedTheme {CanLoad Only}
 
@@ -379,7 +389,7 @@ BasePart.BottomParamA {Deprecated} {CanSave}
 BasePart.BottomParamB {Deprecated} {CanSave}
 BasePart.BottomSurfaceInput {Deprecated} {CanSave}
 BasePart.BrickColor {CanLoad Only}
-BasePart.CollisionGroupId {Deprecated} {CanSave}
+BasePart.CollisionGroupId {Deprecated} {CanSave} {PreferredDescriptorName: CollisionGroup}
 BasePart.Color {CanLoad Only}
 BasePart.Elasticity {CanLoad Only} {Deprecated}
 BasePart.Friction {CanLoad Only} {Deprecated}
@@ -392,14 +402,15 @@ BasePart.LeftSurfaceInput {Deprecated} {CanSave}
 BasePart.RightParamA {Deprecated} {CanSave}
 BasePart.RightParamB {Deprecated} {CanSave}
 BasePart.RightSurfaceInput {Deprecated} {CanSave}
-BasePart.RotVelocity {Deprecated} {CanSave}
+BasePart.RotVelocity {Deprecated} {CanSave} {PreferredDescriptorName: AssemblyAngularVelocity}
 BasePart.Rotation {CanLoad Only}
 BasePart.Size {CanLoad Only}
+BasePart.SpecificGravity {PreferredDescriptorName: SpecificGravity}
 BasePart.TopParamA {Deprecated} {CanSave}
 BasePart.TopParamB {Deprecated} {CanSave}
 BasePart.TopSurfaceInput {Deprecated} {CanSave}
-BasePart.Velocity {Deprecated} {CanSave}
-BasePart.brickColor {CanLoad Only} {Deprecated}
+BasePart.Velocity {Deprecated} {CanSave} {PreferredDescriptorName: AssemblyLinearVelocity}
+BasePart.brickColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: BrickColor}
 BasePart.siz {WriteOnly} {CanLoad Only}
 
 FormFactorPart.FormFactor {CanLoad Only} {Deprecated}
@@ -418,16 +429,16 @@ TriangleMeshPart.FluidFidelity {CanLoad Only}
 
 MeshPart.HasJointOffset {Deprecated} {CanSave}
 MeshPart.JointOffset {Deprecated} {CanSave}
-MeshPart.MeshID {CanLoad Only} {Deprecated}
+MeshPart.MeshID {CanLoad Only} {Deprecated} {PreferredDescriptorName: MeshId}
 
 PartOperation.TriangleCount {CanSave Only}
 
 TrussPart.Style {CanLoad Only}
 
-Camera.CoordinateFrame {CanLoad Only} {Deprecated}
+Camera.CoordinateFrame {CanLoad Only} {Deprecated} {PreferredDescriptorName: CFrame}
 Camera.NearPlaneZ {CanSave Only}
 Camera.ViewportSize {CanSave Only}
-Camera.focus {CanLoad Only} {Deprecated}
+Camera.focus {CanLoad Only} {Deprecated} {PreferredDescriptorName: Focus}
 
 HopperBin.Command {WriteOnly} {CanLoad Only}
 HopperBin.TextureName {WriteOnly} {CanLoad Only}
@@ -444,7 +455,7 @@ DataStoreKeyPages.Cursor {CanSave Only}
 
 DataStoreListingPages.Cursor {CanSave Only}
 
-ParticleEmitter.VelocitySpread {CanLoad Only} {Deprecated}
+ParticleEmitter.VelocitySpread {CanLoad Only} {Deprecated} {PreferredDescriptorName: SpreadAngle}
 
 PatchMapping is NotCreatable but PatchMapping.FlattenTree has a default value: false
 
@@ -453,9 +464,10 @@ Path.Status {CanSave Only}
 PathfindingService.EmptyCutoff {CanLoad Only} {Deprecated}
 PathfindingService is NotCreatable but PathfindingService.EmptyCutoff has a default value: 0
 
-Player.CharacterAppearance {Deprecated} {CanSave}
+Player.CharacterAppearance {Deprecated} {CanSave} {PreferredDescriptorName: CharacterAppearanceId}
 Player.FollowUserId {CanSave Only}
 Player.ThirdPartyTextChatRestrictionStatus {CanSave Only}
+Player.userId {PreferredDescriptorName: UserId}
 
 PlayerDataRecord.CreatedTime {CanSave Only}
 PlayerDataRecord.DefaultRecordName {CanSave Only}
@@ -477,6 +489,10 @@ PlayerDataService is NotCreatable but PlayerDataService.LoadFailureBehavior has 
 
 PlayerEmulatorService.SerializedEmulatedPolicyInfo {Uses NotScriptable Type without the tag - BinaryString }
 PlayerEmulatorService is NotCreatable but PlayerEmulatorService.CustomPoliciesEnabled has a default value: false
+
+Players.NumPlayers {PreferredDescriptorName: GetPlayers (NOT FOUND IN SAME CLASS)}
+Players.localPlayer {PreferredDescriptorName: LocalPlayer}
+Players.numPlayers {PreferredDescriptorName: NumPlayers}
 
 PluginAction.Text {CanLoad Only}
 
@@ -504,7 +520,7 @@ ScreenshotHud.ExperienceNameOverlayEnabled {Deprecated} {CanSave}
 ScreenshotHud.OverlayFont {Deprecated} {CanSave}
 ScreenshotHud.UsernameOverlayEnabled {Deprecated} {CanSave}
 
-SyncScriptBuilder.RawBytecode {Deprecated} {CanSave}
+SyncScriptBuilder.RawBytecode {Deprecated} {CanSave} {PreferredDescriptorName: CompileTarget}
 SyncScriptBuilder is NotCreatable but SyncScriptBuilder.CompileTarget has a default value: CoreScript
 
 ScriptContext is NotCreatable but ScriptContext.ScriptsDisabled has a default value: false
@@ -526,22 +542,27 @@ ServerScriptService is NotCreatable but ServerScriptService.LoadStringEnabled ha
 DataModel.MatchmakingType {CanSave Only}
 DataModel.PrivateServerId {CanSave Only}
 DataModel.PrivateServerOwnerId {CanSave Only}
-DataModel.VIPServerId {CanSave Only} {Deprecated} {CanSave}
-DataModel.VIPServerOwnerId {CanSave Only} {Deprecated} {CanSave}
+DataModel.VIPServerId {CanSave Only} {Deprecated} {CanSave} {PreferredDescriptorName: PrivateServerId}
+DataModel.VIPServerOwnerId {CanSave Only} {Deprecated} {CanSave} {PreferredDescriptorName: PrivateServerOwnerId}
+DataModel.workspace {PreferredDescriptorName: Workspace}
 
 ServiceVisibilityService.HiddenServices {Uses NotScriptable Type without the tag - BinaryString }
 ServiceVisibilityService.VisibleServices {Uses NotScriptable Type without the tag - BinaryString }
 ServiceVisibilityService is NotCreatable but ServiceVisibilityService.HiddenServices has a default value: 
 
+SlimAnimationDataEntity is NotCreatable but SlimAnimationDataEntity.Handle has a default value: -1
+
 Smoke.Opacity {CanLoad Only}
 Smoke.RiseVelocity {CanLoad Only}
 Smoke.Size {CanLoad Only}
 
-Sound.EmitterSize {CanLoad Only} {Deprecated}
-Sound.MinDistance {CanLoad Only} {Deprecated}
-Sound.Pitch {CanLoad Only} {Deprecated}
-Sound.xmlRead_MaxDistance_3 {CanLoad Only} {Deprecated}
-Sound.xmlRead_MinDistance_3 {CanLoad Only} {Deprecated}
+Sound.EmitterSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: RollOffMinDistance}
+Sound.MaxDistance {PreferredDescriptorName: RollOffMaxDistance}
+Sound.MinDistance {CanLoad Only} {Deprecated} {PreferredDescriptorName: RollOffMinDistance}
+Sound.Pitch {CanLoad Only} {Deprecated} {PreferredDescriptorName: PlaybackSpeed}
+Sound.isPlaying {PreferredDescriptorName: IsPlaying}
+Sound.xmlRead_MaxDistance_3 {CanLoad Only} {Deprecated} {PreferredDescriptorName: RollOffMaxDistance}
+Sound.xmlRead_MinDistance_3 {CanLoad Only} {Deprecated} {PreferredDescriptorName: RollOffMinDistance}
 
 ChannelSelectorSoundEffect is NotCreatable but ChannelSelectorSoundEffect.Channel has a default value: 1
 
@@ -577,6 +598,8 @@ TaskScheduler.ThreadPoolSize {CanSave Only}
 Team.AutoColorCharacters {CanLoad Only} {Deprecated}
 Team.Score {CanLoad Only} {Deprecated}
 
+TeamCreateData is NotCreatable but TeamCreateData.InitialCameraCFrame has a default value: 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1
+
 TeleportAsyncResult.PrivateServerId {CanSave Only}
 TeleportAsyncResult.ReservedServerAccessCode {CanSave Only}
 
@@ -585,7 +608,7 @@ TeleportService.CustomizedTeleportUI {CanLoad Only} {Deprecated}
 TerrainRegion.GridV3 {WriteOnly} {CanLoad Only}
 
 TestService.ErrorCount {CanSave Only}
-TestService.Is30FpsThrottleEnabled {CanLoad Only} {Deprecated}
+TestService.Is30FpsThrottleEnabled {CanLoad Only} {Deprecated} {PreferredDescriptorName: ThrottlePhysicsToRealtime}
 TestService.TestCount {CanSave Only}
 TestService.WarnCount {CanSave Only}
 
@@ -632,6 +655,7 @@ UserInputService.GamepadEnabled {CanSave Only}
 UserInputService.GyroscopeEnabled {CanSave Only}
 UserInputService.KeyboardEnabled {CanSave Only}
 UserInputService.LegacyInputEventsEnabled {Deprecated} {CanSave}
+UserInputService.ModalEnabled {PreferredDescriptorName: TouchControlsEnabled (NOT FOUND IN SAME CLASS)}
 UserInputService.MouseDeltaSensitivity {CanLoad Only}
 UserInputService.MouseEnabled {CanSave Only}
 UserInputService.PreferredInput {CanSave Only}
@@ -786,6 +810,18 @@ Blacklisted types (excluded from analysis): 24
   - int
   - int64
   - string
+
+==================================================
+PREFERREDDESCRIPTORNAME ANALYSIS
+==================================================
+
+Properties using PreferredDescriptorName: 65
+Properties with PreferredDescriptorName pointing to non-existent property in same class: 3
+
+Detailed list of invalid PreferredDescriptorName references:
+  - LocalizationTable.Root -> RootLocalizationTable
+  - Players.NumPlayers -> GetPlayers
+  - UserInputService.ModalEnabled -> TouchControlsEnabled
 
 ==================================================
 NOTCREATABLE INHERITANCE ANALYSIS

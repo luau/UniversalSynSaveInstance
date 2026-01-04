@@ -1,3 +1,5 @@
+! AuroraScript: This type can not be instantiated
+! CustomLog: The current thread cannot create 'CustomLog' (lacking capability InternalTest)
 ! InternalSyncItem: Internal Permission is required for this feature.
 AdPortal: AdPortal must be parented to a Part.
 Animator: Animator has to be placed under Humanoid or AnimationController!

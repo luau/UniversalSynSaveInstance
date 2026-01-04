@@ -1,4 +1,4 @@
-version-874602c66c70451a
+version-4d26fb450bb44305
 
 Object
 
@@ -233,6 +233,8 @@ ControllerSensor
 ServiceProvider
 
 DataModel
+
+SlimAnimationDataEntity
 
 SoundEffect
 

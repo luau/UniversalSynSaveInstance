@@ -19,6 +19,7 @@ Fire.Heat - heat_xml
 Fire.size_xml - Size
 Fire.size - size_xml
 
+HopperBin.TextureName - TextureContent
 HopperBin.TextureName - TextureId
 
 Humanoid.Jump - JumpReplicate
@@ -45,6 +46,8 @@ Part.shape - Shape
 Part.shape - AssemblyMass
 Part.shape - AssemblyCenterOfMass
 
+PartOperation.InitialSize - MeshSize
+
 Player.AccountAgeReplicate - AccountAge
 
 Smoke.Opacity - opacity_xml
@@ -55,6 +58,8 @@ Smoke.size_xml - Size
 Sound.xmlRead_MaxDistance_3 - MaxDistance
 Sound.xmlRead_MaxDistance_3 - RollOffMaxDistance
 Sound.PlayingReplicator - Playing
+Sound.xmlRead_MinDistance_3 - MinDistance
+Sound.xmlRead_MinDistance_3 - RollOffMinDistance
 Sound.TimePositionReplicator - TimePosition
 
 StyleRule.Index - Priority
@@ -65,6 +70,8 @@ VideoFrame.TimePositionReplicating - TimePosition
 VideoFrame.TimePosition - TimePositionReplicating
 VideoFrame.PlayingReplicating - Playing
 VideoFrame.Playing - PlayingReplicating
+
+VideoPlayer.PlayingReplicating - IsPlaying
 
 WeldConstraint.Enabled - State
 WeldConstraint.Part1 - Part1Internal

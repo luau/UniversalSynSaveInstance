@@ -18,4 +18,10 @@ ScriptDebugger.CoreScriptIdentifier {NotCreatable Class}
 
 Model.WorldPivotData  Unable to get property WorldPivotData, type OptionalCoordinateFrame
 
-GoogleAnalyticsConfiguration.gaID {NotCreatable Class} 
+PartOperation.SolidMeshHolder  Unable to get property SolidMeshHolder, type NetAssetRef
+
+AuroraScript.AuroraScriptBindingsSerialize {NotCreatable Class} 
+
+PackageLink.PackageIdSerialize {NotCreatable Class} 
+PackageLink.VersionIdSerialize {NotCreatable Class} 
+

@@ -80,10 +80,12 @@ def fetch_api(version_hash=None):
     not_scriptable_types = set()
     not_scriptable_properties = []
 
-    # First pass: collect NotScriptable data and build class hierarchy
+    # First pass: collect NotScriptable data, build class hierarchy, and collect all properties
     class_hierarchy = {}
     not_creatable_classes = set()
     creatable_classes = set()
+
+    class_properties_dict = {}
 
     for api_class in api_classes:
         class_name = api_class["Name"]
@@ -105,8 +107,11 @@ def fetch_api(version_hash=None):
             "tags": class_tags or {},
         }
 
+        property_names = set()
         for member in class_members:
             if member["MemberType"] == "Property":
+                property_names.add(member["Name"])
+
                 member_tags = member.get("Tags")
                 if member_tags:
                     member_tags = array_to_dictionary(member_tags)
@@ -122,6 +127,8 @@ def fetch_api(version_hash=None):
                             not_scriptable_properties.append(
                                 f"{class_name}.{member['Name']}"
                             )
+
+        class_properties_dict[class_name] = property_names
 
     not_creatable_with_creatable_ancestors = []
 
@@ -246,13 +253,32 @@ def fetch_api(version_hash=None):
             if member["MemberType"] == "Property":
                 property_name = member["Name"]
                 member_tags = member.get("Tags")
+                original_tags = member_tags
 
                 if member_tags:
                     member_tags = array_to_dictionary(member_tags)
                 else:
+                    original_tags = {}
                     member_tags = {}
 
                 serialization = member["Serialization"]
+
+                preferred_descriptor = None
+                invalid_preferred_descriptor = False
+
+                # Extract PreferredDescriptorName from tags
+                for tag_value in original_tags:
+                    if isinstance(tag_value, dict):
+                        preferred_descriptor = tag_value["PreferredDescriptorName"]
+
+                        # Check if the PreferredDescriptorName exists in this class's properties
+                        if (
+                            preferred_descriptor
+                            and preferred_descriptor
+                            not in class_properties_dict.get(class_name, set())
+                        ):
+                            invalid_preferred_descriptor = True
+                        break
 
                 # Check if this property uses a ValueType from NotScriptable properties
                 value_type = member["ValueType"]
@@ -292,8 +318,18 @@ def fetch_api(version_hash=None):
                         tags.append(deprecated_tag)
 
                     # Combine tags into one line, each tag in separate brackets
-                    if tags:
-                        s += f"{class_name}.{property_name} {' '.join(tags)}\n"
+                if preferred_descriptor:
+                    if invalid_preferred_descriptor:
+                        tags.append(
+                            f"{{PreferredDescriptorName: {preferred_descriptor} (NOT FOUND IN SAME CLASS)}}"
+                        )
+                    else:
+                        tags.append(
+                            f"{{PreferredDescriptorName: {preferred_descriptor}}}"
+                        )
+
+                if tags:
+                    s += f"{class_name}.{property_name} {' '.join(tags)}\n"
 
                 class_info["Properties"][property_name] = {
                     "Serialization": serialization,
@@ -333,6 +369,53 @@ def fetch_api(version_hash=None):
     for type_name in sorted(NOTSCRIPTABLE_BLACKLIST):
         s += f"  - {type_name}\n"
 
+    # NEW: Summary of PreferredDescriptorName issues
+    s += "\n" + "=" * 50 + "\n"
+    s += "PREFERREDDESCRIPTORNAME ANALYSIS\n"
+    s += "=" * 50 + "\n\n"
+
+    # Count PreferredDescriptorName usage
+    preferred_descriptor_count = 0
+    invalid_preferred_descriptor_count = 0
+
+    for api_class in api_classes:
+        class_name = api_class["Name"]
+        for member in api_class["Members"]:
+            if member["MemberType"] == "Property":
+                member_tags = member.get("Tags")
+                if member_tags:
+                    for tag_value in member_tags:
+                        if isinstance(tag_value, dict):
+                            preferred_descriptor_count += 1
+                            preferred_descriptor = tag_value["PreferredDescriptorName"]
+                            if preferred_descriptor not in class_properties_dict.get(
+                                class_name, set()
+                            ):
+                                invalid_preferred_descriptor_count += 1
+
+    s += f"Properties using PreferredDescriptorName: {preferred_descriptor_count}\n"
+    s += f"Properties with PreferredDescriptorName pointing to non-existent property in same class: {invalid_preferred_descriptor_count}\n"
+
+    if invalid_preferred_descriptor_count > 0:
+        s += "\nDetailed list of invalid PreferredDescriptorName references:\n"
+        for api_class in api_classes:
+            class_name = api_class["Name"]
+            for member in api_class["Members"]:
+                if member["MemberType"] == "Property":
+                    property_name = member["Name"]
+                    member_tags = member.get("Tags")
+                    if member_tags:
+                        for tag_value in member_tags:
+                            if isinstance(tag_value, dict):
+                                preferred_descriptor = tag_value[
+                                    "PreferredDescriptorName"
+                                ]
+                                if (
+                                    preferred_descriptor
+                                    not in class_properties_dict.get(class_name, set())
+                                ):
+                                    s += f"  - {class_name}.{property_name} -> {preferred_descriptor}\n"
+
     s += "\n" + "=" * 50 + "\n"
     s += "NOTCREATABLE INHERITANCE ANALYSIS\n"
     s += "=" * 50 + "\n\n"
@@ -349,20 +432,6 @@ def fetch_api(version_hash=None):
             current_class = superclass
 
         s += f"  - {class_name} (inheritance: {' -> '.join(chain)})\n"
-
-    # ! Useless until there is a NotCreatable class that appears on its own naturally, so a fix using one of it's children (inheritors) should be applied
-    # s += f"\nCreatable classes that inherit from NotCreatable classes: {len(creatable_with_notcreatable_ancestors)}\n"
-    # for class_name in sorted(creatable_with_notcreatable_ancestors):
-    #     chain = []
-    #     current_class = class_name
-    #     while current_class in class_hierarchy:
-    #         chain.append(current_class)
-    #         superclass = class_hierarchy[current_class]["superclass"]
-    #         if not superclass:
-    #             break
-    #         current_class = superclass
-
-    #     s += f"  - {class_name} (inheritance: {' -> '.join(chain)})\n"
 
     s += "\n" + "=" * 50 + "\n"
     s += "CREATABLE SIBLINGS OF NOTCREATABLE CLASSES\n"

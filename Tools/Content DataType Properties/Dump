@@ -1,4 +1,4 @@
-version-874602c66c70451a
+version-523a50bddf034d9a
 
 AudioPlayer.AudioContent
 
@@ -39,6 +39,15 @@ MeshPart.MeshContent
 MeshPart.TextureContent
 
 BackpackItem.TextureContent
+
+Sky.MoonTextureContent
+Sky.SkyboxBackContent
+Sky.SkyboxDownContent
+Sky.SkyboxFrontContent
+Sky.SkyboxLeftContent
+Sky.SkyboxRightContent
+Sky.SkyboxUpContent
+Sky.SunTextureContent
 
 Sound.AudioContent
 

@@ -102,7 +102,7 @@ def fetch_api(version_hash=None):
                     value_category = member["ValueType"]["Category"]
                     if value_category == "Enum":
                         value_type = member["ValueType"]["Name"]
-                        if value_type == enum_type:
+                        if value_type == enum_type: # value_type != "RolloutState" and 
                             s += f"{real_member_name} -> {member_name} {{POTENTIAL PROXY}}\n"
 
         if len(s) != prev_len:
