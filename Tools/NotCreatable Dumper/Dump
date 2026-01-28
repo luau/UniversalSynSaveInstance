@@ -1,4 +1,4 @@
-version-4d26fb450bb44305
+version-53373454f7df4478
 
 Object
 
@@ -27,6 +27,12 @@ AnimationStreamTrack
 AnimationTrack
 
 AuroraScriptObject
+
+CapturesViewConfiguration
+
+PlayerListConfiguration
+
+SelfViewConfiguration
 
 AnimationImportData
 

@@ -41,13 +41,13 @@ def import_dump_utils():
 # Import utilities
 write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
 
-Class = "Instance"
+Class = ["Object", "Instance"]
 
 
-def check_superclass_inheritance(class_name, class_list):
+def check_superclass_inheritance(class_name, class_list, target_class):
     current_class = class_list.get(class_name)
     while current_class:
-        if current_class["Name"] == Class:
+        if current_class["Name"] == target_class:
             return True
         current_class = class_list.get(current_class["Superclass"])
     return False
@@ -59,12 +59,25 @@ def fetch_api(version_hash=None):
     class_list = {cls["Name"]: cls for cls in api_classes}
 
     s = version_hash + "\n\n"
-    for api_class in api_classes:
-        class_name = api_class["Name"]
 
-        # Check for superclass inheritance
-        if not check_superclass_inheritance(class_name, class_list):
-            s += f"{class_name} does not inherit from {Class}\n"
+    for tracked_class in Class:
+        s += f"Classes that do NOT inherit from {tracked_class}:\n"
+        s += (
+            "-" * (len(f"Classes that do NOT inherit from {tracked_class}:") + 5) + "\n"
+        )
+
+        found_any = False
+        for api_class in api_classes:
+            class_name = api_class["Name"]
+
+            if not check_superclass_inheritance(class_name, class_list, tracked_class):
+                s += f"{class_name} does not inherit from {tracked_class}\n"
+                found_any = True
+
+        if not found_any:
+            s += f"All classes inherit from {tracked_class}\n"
+
+        s += "\n"
 
     return s
 

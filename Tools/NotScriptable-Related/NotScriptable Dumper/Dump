@@ -1,4 +1,4 @@
-version-523a50bddf034d9a
+version-53373454f7df4478
 
 EditableImage.ImageData {BinaryString}
 
@@ -308,6 +308,7 @@ IncrementalPatchBuilder.SerializePatch {Scriptable}
 Motor.ReplicateCurrentAngle {Serialize: False}
 Motor6D.ReplicateCurrentAngle6D {Serialize: False}
 Motor6D.ReplicateCurrentOffset6D {Serialize: False}
+LodDataEntity.SlimReplicationTimestampSec {Serialize: False}
 AuroraScript.AuroraScriptBindingsSerialize
 MaterialService.Use2022MaterialsXml
 MetaBreakpointContext.ContextDataInternal
@@ -334,6 +335,7 @@ Player.SuperSafeChatReplicate {Serialize: False}
 PlayerEmulatorService.SerializedEmulatedPolicyInfo {Scriptable}
 Players.MaxPlayersInternal {Scriptable}
 Players.PreferredPlayersInternal {Scriptable}
+SlimAnimationDataEntity.SlimReplicationTimestampSec {Serialize: False}
 Smoke.opacity_xml
 Smoke.riseVelocity_xml
 Smoke.size_xml

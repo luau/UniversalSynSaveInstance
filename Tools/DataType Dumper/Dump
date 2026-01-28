@@ -1,4 +1,4 @@
-version-d638b440a9224bb2
+version-584e174a14ff41ef
 
 === DATATYPES ===
 Axes [BOTH] {CanSave} {CanLoad}
@@ -97,30 +97,44 @@ Total unique tags: 11
   Yields
 
 === CAPABILITIES ===
-Total unique capabilities: 33
+Total unique capabilities: 51
   AccessOutsideWrite
   Animation
+  AssetCreateUpdate
+  AssetManagement
+  AssetRead
   AssetRequire
   Assistant
   Audio
   Avatar
+  AvatarBehavior
   Basic
   CSG
   CapabilityControl
+  Capture
   Chat
+  Consequences
   CreateInstances
   DataStore
+  DynamicGeneration
   Environment
+  Groups
   Input
   InternalTest
   LegacySound
+  LoadOwnedAsset
   LoadString
   LocalUser
+  Logging
+  Material
+  Monetization
   Network
   Physics
+  PlatformAvatarEditing
   Players
   Plugin
   PluginOrOpenCloud
+  PromptExternalPurchase
   RemoteCommand
   RemoteEvent
   RobloxEngine
@@ -128,6 +142,10 @@ Total unique capabilities: 33
   RunClientScript
   RunServerScript
   ScriptGlobals
+  SensitiveInput
+  ServerCommunication
+  Social
+  Teleport
   UI
   Unassigned
   WritePlayer

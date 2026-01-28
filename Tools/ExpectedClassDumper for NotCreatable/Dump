@@ -1,4 +1,4 @@
-version-874602c66c70451a
+version-53373454f7df4478
 
 AudioDeviceInput.Player {Player}
 
@@ -25,6 +25,10 @@ ControllerManager.ActiveController {ControllerBase}
 ControllerManager.ClimbSensor {ControllerSensor}
 ControllerManager.GroundSensor {ControllerSensor}
 ControllerManager.RootPart {BasePart}
+
+CoreGuiConfiguration.CapturesViewConfiguration {CapturesViewConfiguration}
+CoreGuiConfiguration.PlayerListConfiguration {PlayerListConfiguration}
+CoreGuiConfiguration.SelfViewConfiguration {SelfViewConfiguration}
 
 GuiBase2d.RootLocalizationTable {LocalizationTable}
 

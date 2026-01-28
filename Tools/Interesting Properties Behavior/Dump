@@ -1,4 +1,4 @@
-version-34c9847319974d28
+version-714c9d90ea76471f
 
 Object.className {PreferredDescriptorName: ClassName}
 
@@ -84,6 +84,12 @@ AudioTextToSpeech.TimeLength {CanSave Only}
 AvatarChatService is NotCreatable but AvatarChatService.ClientFeatures has a default value: 0
 
 AvatarSettings is NotCreatable but AvatarSettings.Loaded has a default value: false
+
+CapturesViewConfiguration is NotCreatable but CapturesViewConfiguration.Open has a default value: false
+
+PlayerListConfiguration is NotCreatable but PlayerListConfiguration.Open has a default value: true
+
+SelfViewConfiguration is NotCreatable but SelfViewConfiguration.Open has a default value: false
 
 BaseImportData.Id {CanSave Only}
 

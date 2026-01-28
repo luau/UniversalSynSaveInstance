@@ -1,5 +1,11 @@
-version-874602c66c70451a
+version-714c9d90ea76471f
 
+Classes that do NOT inherit from Object:
+---------------------------------------------
+All classes inherit from Object
+
+Classes that do NOT inherit from Instance:
+-----------------------------------------------
 Object does not inherit from Instance
 AnimationNode does not inherit from Instance
 Capture does not inherit from Instance
@@ -16,3 +22,4 @@ TerrainReadOperation does not inherit from Instance
 TerrainWriteOperation does not inherit from Instance
 VideoSampler does not inherit from Instance
 WebStreamClient does not inherit from Instance
+
