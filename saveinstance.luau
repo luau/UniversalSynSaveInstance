@@ -310,10 +310,15 @@ local CAPABILITY_BITS = {
 	RobloxScript = 2 ^ 3, ------------- 3
 	RobloxEngine = 2 ^ 4, ------------- 4
 	NotAccessible = 2 ^ 5, ------------ 5
+	----------------------------------- 6
+	----------------------------------- 7
 	RunClientScript = 2 ^ 8, ---------- 8
 	RunServerScript = 2 ^ 9, ---------- 9
 	Unknown = 2 ^ 10, ----------------- 10 (0xa)
 	AccessOutsideWrite = 2 ^ 11, ------ 11 (0xb)
+	----------------------------------- 12
+	----------------------------------- 13
+	----------------------------------- 14
 	Unassigned = 2 ^ 15, -------------- 15 (0xf)
 	AssetRequire = 2 ^ 16, ------------ 16 (0x10)
 	LoadString = 2 ^ 17, -------------- 17 (0x11)
@@ -353,11 +358,16 @@ local CAPABILITY_BITS = {
 	Consequences = 2 ^ 51, ------------ 51 (0x33)
 	Material = 2 ^ 52, ---------------- 52 (0x34)
 	AvatarBehavior = 2 ^ 53, ---------- 53 (0x35)
-	RemoteCommand = 2 ^ 59, ----------  59 (0x3b)
-	InternalTest = 2 ^ 60, -----------  60 (0x3c), Related to TestingGameScript
-	PluginOrOpenCloud = 2 ^ 61, ------  61 (0x3d)
-	Assistant = 2 ^ 62, --------------  62 (0x3e)
-	-- Restricted = 2 ^ 63, ----------  63 (0x3f) - special case for negative values (highest bit for i64)
+	----------------------------------- 54
+	----------------------------------- 55
+	----------------------------------- 56
+	----------------------------------- 57
+	----------------------------------- 58
+	RemoteCommand = 2 ^ 59, ----------- 59 (0x3b)
+	InternalTest = 2 ^ 60, ------------ 60 (0x3c), Related to TestingGameScript
+	PluginOrOpenCloud = 2 ^ 61, ------- 61 (0x3d)
+	Assistant = 2 ^ 62, --------------- 62 (0x3e)
+	-- Restricted = 2 ^ 63, ----------- 63 (0x3f) - special case for negative values (highest bit for i64)
 }
 
 local function __COUNT_CAPABILITY_BITS(raw)
@@ -2579,7 +2589,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local PlaceName = game.PlaceId
 
 		pcall(function()
-			PlaceName ..= " " .. service.MarketplaceService:GetProductInfo(PlaceName).Name
+			PlaceName ..= " " .. service.MarketplaceService:GetProductInfoAsync(PlaceName).Name
 		end)
 
 		local function sanitizeFileName(str)
