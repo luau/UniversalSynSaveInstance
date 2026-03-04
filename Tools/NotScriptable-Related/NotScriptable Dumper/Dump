@@ -1,4 +1,4 @@
-version-53373454f7df4478
+version-19073b5104cb45df
 
 EditableImage.ImageData {BinaryString}
 
@@ -38,6 +38,8 @@ BevelMesh.Bevel Roundness {float}
 BevelMesh.Bulge {float}
 
 DebuggerBreakpoint.line {int}
+
+FaceControls.InternalOverrideFACSData {BinaryString}
 
 Decal.TexturePackMetadata {string}
 
@@ -180,9 +182,11 @@ Model.WorldPivotData {OptionalCoordinateFrame}
 
 Workspace.AvatarUnificationMode {AvatarUnificationMode}
 Workspace.CollisionGroupData {BinaryString}
+Workspace.EnableSLIMAvatars {RolloutState}
 Workspace.ExplicitAutoJoints {bool}
 Workspace.FluidForces {FluidForces}
 Workspace.IKControlConstraintSupport {IKControlConstraintSupport}
+Workspace.LayeredClothingCacheOptimizations {RolloutState}
 Workspace.MeshPartHeadsAndAccessories {MeshPartHeadsAndAccessories}
 Workspace.ModelStreamingBehavior {ModelStreamingBehavior}
 Workspace.MoverConstraintRootBehavior {MoverConstraintRootBehaviorMode}
@@ -207,6 +211,8 @@ Workspace.TouchEventsUseCollisionGroups {RolloutState}
 Workspace.TouchesUseCollisionGroups {bool}
 Workspace.UseFixedSimulation {RolloutState}
 Workspace.UseNewLuauTypeSolver {RolloutState}
+UseNewLuauTypeSolver -> EnableSLIMAvatars {POTENTIAL PROXY}
+UseNewLuauTypeSolver -> LayeredClothingCacheOptimizations {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> NextGenerationReplication {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> PhysicsImprovedSleep {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> PlayerScriptsUseInputActionSystem {POTENTIAL PROXY}
@@ -224,6 +230,24 @@ Player.RawJoinData {BinaryString}
 
 Players.BanningEnabled {bool}
 Players.UseStrafingAnimations {bool}
+
+RolloutValidation.AdditionalFluffOne {int}
+RolloutValidation.AdditionalFluffThree {float}
+RolloutValidation.AdditionalFluffTwo {bool}
+RolloutValidation.CreationVersion {int}
+RolloutValidation.FirstBinaryExpectedValue {string}
+RolloutValidation.FirstBinaryString {BinaryString}
+RolloutValidation.FirstSharedExpectedValue {string}
+RolloutValidation.FirstSharedString {SharedString}
+RolloutValidation.GenerationStrategy {int}
+RolloutValidation.SecondBinaryExpectedValue {string}
+RolloutValidation.SecondBinaryString {BinaryString}
+RolloutValidation.SecondSharedExpectedValue {string}
+RolloutValidation.SecondSharedString {SharedString}
+RolloutValidation.ThirdBinaryExpectedValue {string}
+RolloutValidation.ThirdBinaryString {BinaryString}
+RolloutValidation.ThirdSharedExpectedValue {string}
+RolloutValidation.ThirdSharedString {SharedString}
 
 RotationCurve.ValuesAndTimes {BinaryString}
 
@@ -246,6 +270,7 @@ AvatarJointUpgrade_SerializedRollout -> AvatarJointUpgrade {POTENTIAL PROXY}
 LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing  {POTENTIAL PROXY}
 
 StyleRule.PropertiesSerialize {BinaryString}
+StyleRule.PropertyTransitionsSerialize {BinaryString}
 
 StyleQuery.ConditionsSerialize {BinaryString}
 
@@ -288,6 +313,7 @@ Instance.AttributesReplicate {Serialize: False}
 Instance.AttributesSerialize
 Animator.FacsReplicationData {Serialize: False}
 BallSocketConstraint.MaxFrictionTorqueXml
+FaceControls.InternalOverrideFACSData
 Fire.heat_xml
 Fire.size_xml
 Folder.ReplicatedGuiInsertionOrder {Serialize: False}
@@ -348,6 +374,7 @@ Studio.Enable Internal Beta Features {Scriptable}
 Studio.Enable Internal Features {Scriptable}
 Studio.LoadInternalPlugins {Scriptable}
 StyleRule.PropertiesSerialize
+StyleRule.PropertyTransitionsSerialize
 StyleQuery.ConditionsSerialize
 TextSource.UserIdReplicated {Serialize: False}
 VideoPlayer.PlayingReplicating {Serialize: False}

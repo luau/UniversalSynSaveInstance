@@ -1,10 +1,14 @@
-version-523a50bddf034d9a
+version-bb326014c89c4d27
 
 AudioPlayer.AudioContent
 
 BaseWrap.CageMeshContent
 
 WrapLayer.ReferenceMeshContent
+
+CharacterMesh.BaseTextureContent
+CharacterMesh.MeshContent
+CharacterMesh.OverlayTextureContent
 
 ClickDetector.CursorIconContent
 

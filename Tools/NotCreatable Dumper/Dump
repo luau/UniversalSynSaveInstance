@@ -1,8 +1,10 @@
-version-53373454f7df4478
+version-19073b5104cb45df
 
 Object
 
 AnimationNode
+
+AuroraHandle
 
 Capture
 
@@ -222,6 +224,8 @@ ReflectionMetadataItem
 
 RobloxSerializableInstance
 
+RolloutValidation
+
 ScreenshotHud
 
 ScriptBuilder
@@ -325,6 +329,8 @@ TerrainReadOperation
 TerrainWriteOperation
 
 VideoSampler
+
+VoxelBuffer
 
 WebStreamClient
 

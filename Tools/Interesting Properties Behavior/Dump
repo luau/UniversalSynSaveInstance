@@ -1,4 +1,4 @@
-version-714c9d90ea76471f
+version-19073b5104cb45df
 
 Object.className {PreferredDescriptorName: ClassName}
 
@@ -518,6 +518,8 @@ RenderSettings.EnableFRM {CanLoad Only}
 RobloxSerializableInstance.Data {Uses NotScriptable Type without the tag - BinaryString }
 RobloxSerializableInstance is NotCreatable but RobloxSerializableInstance.Data has a default value: 
 
+RolloutValidation is NotCreatable but RolloutValidation.AdditionalFluffOne has a default value: 0
+
 RotationCurve.Length {CanSave Only}
 
 SafetyService is NotCreatable but SafetyService.IsCaptureModeForReport has a default value: false
@@ -580,7 +582,7 @@ StarterPlayer is NotCreatable but StarterPlayer.AllowCustomAnimations has a defa
 
 Studio.UI Theme {CanSave Only} {Deprecated} {CanSave}
 
-StudioCameraService is NotCreatable but StudioCameraService.LockCameraSpeed has a default value: false
+StudioCameraService is NotCreatable but StudioCameraService.FocusDistance has a default value: 50
 
 StudioData is NotCreatable but StudioData.EnableScriptCollabByDefaultOnLoad has a default value: false
 
@@ -628,7 +630,7 @@ ChatInputBarConfiguration is NotCreatable but ChatInputBarConfiguration.Absolute
 
 ChatWindowConfiguration is NotCreatable but ChatWindowConfiguration.AbsolutePosition has a default value: 0, 0
 
-TextChatMessage is NotCreatable but TextChatMessage.MessageId has a default value: 
+TextChatMessage is NotCreatable but TextChatMessage.ForModeration has a default value: false
 
 ChatWindowMessageProperties is NotCreatable but ChatWindowMessageProperties.TextColor3 has a default value: 1, 1, 1
 
@@ -724,7 +726,7 @@ ValueTypes found exclusively in NotScriptable properties: 12
   - UniqueId
   - Vector3int16
 
-Properties with NotScriptable tag: 65
+Properties with NotScriptable tag: 73
   - AnimationClip.GuidBinaryString
   - AnimationNodeDefinition.InputPinData
   - AnimationRigData.label
@@ -744,6 +746,7 @@ Properties with NotScriptable tag: 65
   - BinaryStringValue.Value
   - EditableImage.ImageData
   - EditableMesh.MeshData
+  - FaceControls.InternalOverrideFACSData
   - FloatCurve.ValuesAndTimes
   - HapticEffect.WaveformData
   - HiddenSurfaceRemovalAsset.HSRData
@@ -774,9 +777,16 @@ Properties with NotScriptable tag: 65
   - Path2D.PropertiesSerialize
   - Player.RawJoinData
   - PlayerGui.InputBindingMappingsRaw
+  - RolloutValidation.FirstBinaryString
+  - RolloutValidation.FirstSharedString
+  - RolloutValidation.SecondBinaryString
+  - RolloutValidation.SecondSharedString
+  - RolloutValidation.ThirdBinaryString
+  - RolloutValidation.ThirdSharedString
   - RotationCurve.ValuesAndTimes
   - StyleQuery.ConditionsSerialize
   - StyleRule.PropertiesSerialize
+  - StyleRule.PropertyTransitionsSerialize
   - Terrain.ClusterGridV3
   - Terrain.MaterialColors
   - Terrain.PhysicsGrid
@@ -979,6 +989,7 @@ NotCreatable classes that have creatable siblings: 33
       - UIGradient
       - UIPadding
       - UIScale
+      - UIShadow
       - UIStroke
   - UILayout (parent: UIComponent) has creatable siblings:
       - UICorner
@@ -987,6 +998,7 @@ NotCreatable classes that have creatable siblings: 33
       - UIGradient
       - UIPadding
       - UIScale
+      - UIShadow
       - UIStroke
   - Workspace (parent: WorldRoot) has creatable siblings:
       - WorldModel

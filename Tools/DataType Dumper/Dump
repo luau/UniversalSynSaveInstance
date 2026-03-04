@@ -1,4 +1,4 @@
-version-584e174a14ff41ef
+version-19073b5104cb45df
 
 === DATATYPES ===
 Axes [BOTH] {CanSave} {CanLoad}
@@ -47,7 +47,7 @@ Region3int16 [BOTH]
 ReplicationPV [API]
 RotationCurveKey [DOCS]
 Secret [DOCS]
-SecurityCapabilities [API] {CanSave} {CanLoad}
+SecurityCapabilities [BOTH] {CanSave} {CanLoad}
 SharedString [API] {CanSave} {CanLoad}
 SharedTable [DOCS]
 SystemAddress [API]
@@ -69,9 +69,9 @@ string [API] {CanSave} {CanLoad}
 
 === DATATYPES ANALYSIS ===
 Total unique datatypes: 65
-From API only: 21
+From API only: 20
 From Docs only: 22
-In both sources: 22
+In both sources: 23
 
 === CLASS TAGS ===
 Total unique class tags: 6
@@ -97,7 +97,7 @@ Total unique tags: 11
   Yields
 
 === CAPABILITIES ===
-Total unique capabilities: 51
+Total unique capabilities: 53
   AccessOutsideWrite
   Animation
   AssetCreateUpdate
@@ -107,6 +107,7 @@ Total unique capabilities: 51
   Assistant
   Audio
   Avatar
+  AvatarAppearance
   AvatarBehavior
   Basic
   CSG
@@ -124,6 +125,7 @@ Total unique capabilities: 51
   LegacySound
   LoadOwnedAsset
   LoadString
+  LoadUnownedAsset
   LocalUser
   Logging
   Material
