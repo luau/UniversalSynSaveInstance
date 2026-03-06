@@ -2308,7 +2308,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
 		AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
 
-		OptionsAliases = { -- You can't really modify these as a user
+		OptionsAliases = { -- You can't really modify these as a user (because they're read before user's Options are loaded)
 			DecompileTimeout = "timeout",
 			FileName = "FilePath",
 			IgnoreArchivable = "IgnoreNotArchivable",
@@ -3869,9 +3869,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
+	local none = true
 	if OPTIONS.KillAllScripts then
 		-- * partial credits @centerepic
-		game:GetService("ScriptContext"):SetTimeout(0.1)
 
 		local self = coroutine.running()
 		do
@@ -3883,11 +3883,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local t = typeof(v)
 				if t == "thread" then
 					if v ~= self then
-						pcall(task.cancel, v)
+						none = nil
+						pcall(coroutine.close, v)
 					end
 				elseif t == "function" then
 					if (not islclosure or islclosure(v)) and (not isexecutorclosure or not isexecutorclosure(v)) then
 						if hookfunction then
+							none = nil
 							pcall(hookfunction, v, coroutine.yield)
 						end
 					end
@@ -4012,7 +4014,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 
 				LocalPlayer:Kick(
-					"\n[SAFEMODE] Saving in Progress..\nPlease do NOT leave\nYou can disable this if you want (less protection)\nSafeMode=false in Options"
+					"\n[SAFEMODE] Saving..\nDo NOT leave\n"
+						.. (none and "[WARNING] LVL7 Executor RECOMMENDED for SAFETY\n" or "")
+						.. "To Disable this: SafeMode=false (Less Protection)"
 				)
 				wait_for_render()
 				task.delay(10, service.GuiService.ClearError, service.GuiService)
