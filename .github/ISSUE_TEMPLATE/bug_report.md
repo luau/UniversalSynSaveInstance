@@ -30,7 +30,8 @@ If applicable, add screenshots to help explain your problem.
 **Executor (& Emulator if used) Name(s):**
 Fluxus v1
 
-**Game Link:**
+**Game Link(s):**
+ATTACH GAME LINKS EVEN IF BUG HAPPENS ON ANY GAME
 https://www.roblox.com/games/185655149/Welcome-to-Bloxburg
 
 **Script Used (Options matter):**
