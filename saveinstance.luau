@@ -835,6 +835,7 @@ XML_Descriptors = {
 			.. " 0 "
 	end,
 	Content = function(raw) -- TODO Not sure about Object & Opaque, run tests when possible
+		-- * Currently the only way to tell which properties serialize (CanSave & CanLoad don't help here) is either API-2 dump or ReflectionService
 		local SourceType = raw.SourceType
 		return SourceType == Enum.ContentSourceType.None and "<null></null>"
 			or SourceType == Enum.ContentSourceType.Uri and "<uri>" .. XML_Descriptors.string(raw.Uri) .. "</uri>"
@@ -842,7 +843,7 @@ XML_Descriptors = {
 			or SourceType == Enum.ContentSourceType.Opaque and "<Ref>" .. GetRef(raw.Opaque) .. "</Ref>"
 	end,
 	ContentId = function(raw) -- ! only add raw == nil if such edge-case exists (note it)
-		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw) .. "</url>", "Content" -- TODO Remove "Content" str once Roblox fully releases Content DataType
+		return raw == "" and "<null></null>" or "<url>" .. XML_Descriptors.string(raw) .. "</url>", "Content" -- ~~TODO Remove "Content" str once Roblox fully releases Content DataType~~ Nvm, looks like both are using <Content> tag now (ex. EmissiveMaskContent & ColorMap)
 	end,
 	CoordinateFrame = function(raw)
 		return "<CFrame>" .. XML_Descriptors.CFrame(raw) .. "</CFrame>"
@@ -1094,12 +1095,7 @@ do
 	XML_Descriptors[descriptorName] = XML_Descriptors[redirectName]
 end
 
-if CLIENT_VERSION < math.huge then -- math.huge because unknown yet
-	-- ! For sake of compatibility with older clients, Roblox currently does this too but it WILL probably change in the future so keep track of that. ONCE ROBLOX MOVES AWAY FROM THIS, MAKE SURE TO KEEP SUPPORT FOR VERY OLD CLIENTS; 645 <= CLIENT Ver < ??? (ver when roblox moves away), THIS IS COMPLICATED SO PROBABLY NO SUPPORT, JUST USE OLDER VER OF USSI; NEWEST CLIENTS
-	XML_Descriptors.Content = XML_Descriptors.ContentId
-end
-
-local ClassList
+local ClassList, FetchAPI
 
 do
 	local ClassPropertyExceptions = {
@@ -1742,7 +1738,7 @@ do
 		end
 	end
 
-	local function FetchAPI()
+	FetchAPI = function()
 		-- Credits @MaximumADHD
 
 		local API_Dump
@@ -1767,6 +1763,9 @@ do
 			local matching_versions, is_matched = {}
 
 			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
+			-- ! Deploy History is preferred due to:
+			-- ! - accuracy (matches your build perfectly, mismatched dump versions might result in saveinstance trying to save properties that your client doesn't have yet)
+			-- ! - latency (Roblox-Client-Tracker might fall behind DeployHistory sometimes)
 			local DeployHistory = string.split(game:HttpGet("https://setup.rbxcdn.com/DeployHistory.txt", true), "\n")
 			for i = #DeployHistory, 1, -1 do
 				local line = DeployHistory[i]
@@ -1845,6 +1844,8 @@ do
 			tmp_classDict[ClassName] = props
 		end
 
+		local Max_SecurityCapabilities = SecurityCapabilities.new(unpack(Enum.SecurityCapability:GetEnumItems()))
+		local filter = { Security = Max_SecurityCapabilities, ExcludeDisplay = true, ExcludeInherited = true }
 		-- Second pass (actual)
 		for _, API_Class in API_Dump_Decoded do
 			local ClassProperties, ClassProperties_size = {}, 1
@@ -1871,6 +1872,7 @@ do
 
 			local ClassWhitelist, ClassBlacklist = ClassesWhitelist[ClassName], ClassesBlacklist[ClassName]
 
+			local ContentProperties
 			for _, Member in API_Class.Members do
 				-- ? print(game:GetService("ReflectionService"):GetPropertyNames("TextBox"))
 				if Member.MemberType == "Property" then
@@ -1885,18 +1887,37 @@ do
 							A very simple fix for many problems that saveinstance scripts encounter!
 						--]]
 						local PropertyName = Member.Name
+
+						local ValueType = Member.ValueType
+						local ValueType_Name = ValueType.Name
+
+						if ValueType_Name == "Content" then
+							-- ? This filters out Content DataType properties that Roblox doesn't serialize (even if they have CanSave/CanLoad true), takes less space, time & prevents potential property conflicts (Content vs ContentId)
+							if not ContentProperties then
+								ContentProperties = {}
+
+								local o, properties = pcall(
+									service.ReflectionService.GetPropertiesOfClass,
+									service.ReflectionService,
+									ClassName,
+									filter
+								) -- ? Might produce errors (ex. RolloutValidation) therefore pcall
+								if o then
+									for _, property in properties do -- * might as well check all properties, not just Content type
+										ContentProperties[property.Name] = property.Serialized
+									end
+								end
+							end
+							if ContentProperties[PropertyName] ~= nil then
+								Serialization.CanSave = ContentProperties[PropertyName]
+							end
+						end
+
 						if
 							(Serialization.CanSave or ClassWhitelist and ClassWhitelist[PropertyName])
 							and not (ClassBlacklist and ClassBlacklist[PropertyName])
 						then
 							local MemberTags = Member.Tags
-
-							local ValueType = Member.ValueType
-							local ValueType_Name = ValueType.Name
-
-							if 645 <= CLIENT_VERSION and ValueType_Name == "Content" then -- TODO: Remove after Roblox adds a descriptor for it
-								continue
-							end
 
 							local Special, PreferredDescriptorName
 
@@ -1989,15 +2010,6 @@ do
 
 		return classList
 	end
-
-	local ok, result = pcall(FetchAPI)
-	if ok then
-		ClassList = result
-	else
-		warn("Failed to load the API Dump")
-		warn(result)
-		return
-	end
 end
 
 local GLOBAL_ENV = getgenv and getgenv() or _G or shared
@@ -2013,8 +2025,8 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @within SynSaveInstance
 --- @field __DEBUG_MODE boolean -- This will print debug logs to console about unusual scenarios. Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
 --- @field ReadMe boolean --___Default:___ true
---- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. ___Default:___ true
---- @field KillAllScripts boolean -- Kills all scripts to further protect you from detections. SafeMode also enables this by default. ___Default:___ true
+--- @field SafeMode boolean -- Kicks you before Saving, which prevents you from being detected in any game. **HIGHLY RECOMMENDED TO KEEP ENABLED**. ___Default:___ true
+--- @field KillAllScripts boolean -- Kills all scripts to further protect you from detections. SafeMode also enables this by default. **HIGHLY RECOMMENDED TO KEEP ENABLED**. ___Default:___ true
 --- @field ShutdownWhenDone boolean -- Shuts the game down after saveinstance is finished. ___Default:___ false
 --- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
 --- .Anonymous {boolean|table{UserId = string, Name = string}} -- * **RISKY:** Cleans the file of any info related to your account like: Name, UserId. This is useful for some games that might store that info in GUIs or other Instances. Might potentially mess up parts of strings that contain characters that match your Name or parts of numbers that match your UserId. Can also be a table with UserId & Name keys. ___Default:___ false
@@ -2536,7 +2548,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			placename = placename .. filetype
 		end
 
-		if GLOBAL_ENV[placename] then
+		if GLOBAL_ENV[placename] then -- ? AvoidFileOverwrite kinda messes with this, but shouldn't be an issue
 			-- warn("UniversalSynSaveInstance is already saving to this file")
 			return
 		end
@@ -4045,7 +4057,23 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					base64encode = rbxcrypt_base64encode
 				end
 
-				assert(base64encode, "base64encode not found")
+				if not base64encode then
+					warn("base64encode not found")
+					GLOBAL_ENV[placename] = nil
+					return
+				end
+			end
+		end
+
+		do
+			local ok, result = pcall(FetchAPI)
+			if ok then
+				ClassList = result
+			else
+				warn("Failed to load the API Dump")
+				warn(result)
+				GLOBAL_ENV[placename] = nil
+				return
 			end
 		end
 
