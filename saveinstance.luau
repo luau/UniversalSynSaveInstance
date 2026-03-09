@@ -92,115 +92,6 @@ local service = setmetatable({}, {
 	end,
 })
 
-local gethiddenproperty_fallback
-do -- * Load Region of Déjà Vu
-	local UGCValidationService -- = service.UGCValidationService
-
-	gethiddenproperty_fallback = function(instance, propertyName)
-		if not UGCValidationService then
-			UGCValidationService = service.UGCValidationService
-		end
-		return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
-		-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
-	end
-	if gethiddenproperty then
-		local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
-		if not o or r ~= nil and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
-			gethiddenproperty = nil
-		else
-			o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
-
-			if o and r ~= nil and type(r) ~= "string" then
-				gethiddenproperty = nil
-			end
-		end
-	end
-	local function benchmark(funcs, ...)
-		local ranking = table.create(2)
-		for i, f in funcs do
-			local start = os.clock()
-			for _ = 1, 50 do
-				f(...)
-			end
-			ranking[i] = { t = os.clock() - start, f = f }
-		end
-		table.sort(ranking, function(a, b)
-			return a.t < b.t
-		end)
-		return ranking[1].f
-	end
-
-	local test_str = string.rep("\1\0\0\0\1\2\3\4\5\6\7", 50)
-
-	do
-		if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
-			bit32 = table.clone(bit32)
-
-			local function tobit(num)
-				num %= (bit32.bxor(num, 32))
-				if 0x80000000 < num then
-					num -= bit32.bxor(num, 32)
-				end
-				return num
-			end
-
-			bit32.byteswap = function(num)
-				local BYTE_SIZE = 8
-				local MAX_BYTE_VALUE = 255
-
-				num %= bit32.bxor(2, 32)
-
-				local a = bit32.band(num, MAX_BYTE_VALUE)
-				num = bit32.rshift(num, BYTE_SIZE)
-
-				local b = bit32.band(num, MAX_BYTE_VALUE)
-				num = bit32.rshift(num, BYTE_SIZE)
-
-				local c = bit32.band(num, MAX_BYTE_VALUE)
-				num = bit32.rshift(num, BYTE_SIZE)
-
-				local d = bit32.band(num, MAX_BYTE_VALUE)
-				num = tobit(bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d)
-				return num
-			end
-
-			table.freeze(bit32)
-		end
-
-		-- Credits @daily3014 & @XoifaiI
-		local rbxcrypt_base64encode
-		pcall(function()
-			local b64_enc_buf = loadstring(
-				game:HttpGet(
-					"https://raw.githubusercontent.com/daily3014/rbx-cryptography/refs/heads/main/src/Utilities/Base64.luau",
-					true
-				),
-				"Base64"
-			)().Encode
-			rbxcrypt_base64encode = function(raw)
-				return buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
-			end
-		end)
-
-		local EncodingService = game:GetService("EncodingService")
-		local EncodingService_base64encode = function(raw)
-			return buffer.tostring(EncodingService:Base64Encode(buffer.fromstring(raw)))
-		end
-
-		-- * Tests if base64encode exists and works properly then benchmark it
-		if base64encode and base64encode("\1\0\0\0\1") == "AQAAAAE=" then
-			if rbxcrypt_base64encode then
-				base64encode =
-					benchmark({ base64encode, rbxcrypt_base64encode, EncodingService_base64encode }, test_str)
-			end
-		else
-			base64encode = rbxcrypt_base64encode
-		end
-
-		assert(base64encode, "base64encode not found")
-	end
-end
-
 local SharedString_identifier = 1e15 -- 1 quadrillion, up to 9.(9) quadrillion, in theory this shouldn't ever run out and be enough for all sharedstrings ever imaginable 	-- TODO: worst case, add fallback to str randomizer once numbers run out : )
 local SharedStrings = setmetatable({}, {
 	__index = function(self, str)
@@ -2529,9 +2420,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local SafeMode = OPTIONS.SafeMode
-	if SafeMode then
-		OPTIONS.KillAllScripts = true
-	end
 
 	local FilePath = OPTIONS.FilePath
 	local SaveCacheInterval = OPTIONS.SaveCacheInterval
@@ -3151,6 +3039,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		Item ..= "</Properties>"
 		return Item
 	end
+
+	local gethiddenproperty_fallback
 
 	local function save_hierarchy(hierarchy)
 		for _, instance in hierarchy do
@@ -3823,19 +3713,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local Connections
+	local Connections = {}
+	local function Connect(event, func)
+		table.insert(Connections, event:Connect(func))
+	end
 	do
 		local Players = service.Players
 
 		if IgnoreList.Model ~= true then
-			Connections = {}
 			local function ignoreCharacter(player)
-				table.insert(
-					Connections,
-					player.CharacterAdded:Connect(function(character)
-						IgnoreList[character] = true
-					end)
-				)
+				Connect(player.CharacterAdded, function(character)
+					IgnoreList[character] = true
+				end)
 
 				local Character = player.Character
 				if Character then
@@ -3844,12 +3733,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 
 			if OPTIONS.RemovePlayerCharacters then
-				table.insert(
-					Connections,
-					Players.PlayerAdded:Connect(function(player)
-						ignoreCharacter(player)
-					end)
-				)
+				Connect(Players.PlayerAdded, function(player)
+					ignoreCharacter(player)
+				end)
+
 				for _, player in Players:GetPlayers() do
 					ignoreCharacter(player)
 				end
@@ -3869,51 +3756,42 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	local none = true
 	if OPTIONS.KillAllScripts then
 		-- * partial credits @centerepic
+		game:GetService("ScriptContext"):SetTimeout(math.clamp(SaveCacheInterval * 0.000047, 10, 30))
 
 		local self = coroutine.running()
 		do
-			local hookfunction = hookfunction
 			local islclosure = islclosure
-
 			local isexecutorclosure = isexecutorclosure or checkclosure or isourclosure
-			local function filterNkill(v)
-				local t = typeof(v)
-				if t == "thread" then
-					if v ~= self then
-						none = nil
-						pcall(coroutine.close, v)
-					end
-				elseif t == "function" then
-					if (not islclosure or islclosure(v)) and (not isexecutorclosure or not isexecutorclosure(v)) then
-						if hookfunction then
-							none = nil
-							pcall(hookfunction, v, coroutine.yield)
+			local hookfunction = hookfunction
+
+			local function filterNkill(f)
+				if not f then
+					return
+				end
+
+				for _, v in table.clone(f()) do
+					local _type = type(v)
+					if _type == "thread" then
+						if v ~= self then
+							pcall(coroutine.close, v)
+						end
+					elseif _type == "function" then
+						if
+							(not islclosure or islclosure(v)) and (not isexecutorclosure or not isexecutorclosure(v))
+						then
+							if hookfunction then
+								pcall(hookfunction, v, coroutine.yield)
+							end
 						end
 					end
 				end
 			end
 
-			local reg = debug and debug.getregistry or getreg or getregistry
-			if reg then
-				for _, v in reg() do
-					filterNkill(v)
-				end
-			end
-
-			if getallthreads then
-				for _, v in getallthreads() do
-					filterNkill(v)
-				end
-			end
-
-			if getgc then
-				for _, v in getgc() do
-					filterNkill(v)
-				end
-			end
+			filterNkill(debug and debug.getregistry or getreg or getregistry)
+			filterNkill(getallthreads)
+			filterNkill(getgc)
 		end
 	end
 
@@ -4012,20 +3890,30 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						Properties = { Name = "[" .. LocalPlayer.ClassName .. "] " .. LocalPlayer.Name },
 					}
 				end
+				local msg =
+					"[SAFEMODE] Saving..\nDo NOT leave\n[WARNING] LVL7 Executor RECOMMENDED for SAFETY\nTo Disable this: SafeMode=false (Less Protection)"
+				local function Kick()
+					LocalPlayer:Kick(msg)
+				end
 
-				LocalPlayer:Kick(
-					"\n[SAFEMODE] Saving..\nDo NOT leave\n"
-						.. (none and "[WARNING] LVL7 Executor RECOMMENDED for SAFETY\n" or "")
-						.. "To Disable this: SafeMode=false (Less Protection)"
-				)
+				Kick()
+				pcall(function()
+					Connect(service.GuiService.ErrorMessageChanged, function()
+						if service.GuiService:GetErrorMessage() ~= msg then
+							Kick()
+						end
+					end)
+				end)
 				wait_for_render()
-				task.delay(10, service.GuiService.ClearError, service.GuiService)
+				-- task.wait(5)
+				-- task.delay(10, service.GuiService.ClearError, service.GuiService)
 			end)
 
-			service.RunService:Set3dRenderingEnabled(false)
+			pcall(function()
+				service.RunService:Set3dRenderingEnabled(false)
+			end)
 		end
 
-		local anti_idle
 		if OPTIONS.AntiIdle then
 			task.spawn(function()
 				local Idled = GetLocalPlayer().Idled
@@ -4040,7 +3928,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						end
 					end
 				end
-				anti_idle = Idled:Connect(function()
+				Connect(Idled, function()
 					service.VirtualInputManager:SendMouseWheelEvent(
 						service.UserInputService:GetMouseLocation().X,
 						service.UserInputService:GetMouseLocation().Y,
@@ -4051,29 +3939,142 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end)
 		end
 
+		do -- * Load Region of Déjà Vu
+			local UGCValidationService -- = service.UGCValidationService
+
+			gethiddenproperty_fallback = function(instance, propertyName)
+				if not UGCValidationService then
+					UGCValidationService = service.UGCValidationService
+				end
+				return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
+				-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
+			end
+			if gethiddenproperty then
+				local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
+				if not o or r ~= nil and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
+					gethiddenproperty = nil
+				else
+					o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
+
+					if o and r ~= nil and type(r) ~= "string" then
+						gethiddenproperty = nil
+					end
+				end
+			end
+			local function benchmark(funcs, ...)
+				local ranking = table.create(2)
+				for i, f in funcs do
+					local start = os.clock()
+					for _ = 1, 50 do
+						f(...)
+					end
+					ranking[i] = { t = os.clock() - start, f = f }
+				end
+				table.sort(ranking, function(a, b)
+					return a.t < b.t
+				end)
+				return ranking[1].f
+			end
+
+			local test_str = string.rep("\1\0\0\0\1\2\3\4\5\6\7", 50)
+
+			do
+				if not bit32.byteswap or not pcall(bit32.byteswap, 1) then -- Because Fluxus is missing byteswap
+					bit32 = table.clone(bit32)
+
+					local function tobit(num)
+						num %= (bit32.bxor(num, 32))
+						if 0x80000000 < num then
+							num -= bit32.bxor(num, 32)
+						end
+						return num
+					end
+
+					bit32.byteswap = function(num)
+						local BYTE_SIZE = 8
+						local MAX_BYTE_VALUE = 255
+
+						num %= bit32.bxor(2, 32)
+
+						local a = bit32.band(num, MAX_BYTE_VALUE)
+						num = bit32.rshift(num, BYTE_SIZE)
+
+						local b = bit32.band(num, MAX_BYTE_VALUE)
+						num = bit32.rshift(num, BYTE_SIZE)
+
+						local c = bit32.band(num, MAX_BYTE_VALUE)
+						num = bit32.rshift(num, BYTE_SIZE)
+
+						local d = bit32.band(num, MAX_BYTE_VALUE)
+						num = tobit(
+							bit32.lshift(bit32.lshift(bit32.lshift(a, BYTE_SIZE) + b, BYTE_SIZE) + c, BYTE_SIZE) + d
+						)
+						return num
+					end
+
+					table.freeze(bit32)
+				end
+
+				-- Credits @daily3014 & @XoifaiI
+				local rbxcrypt_base64encode
+				pcall(function()
+					local b64_enc_buf = loadstring(
+						game:HttpGet(
+							"https://raw.githubusercontent.com/daily3014/rbx-cryptography/refs/heads/main/src/Utilities/Base64.luau",
+							true
+						),
+						"Base64"
+					)().Encode
+					rbxcrypt_base64encode = function(raw)
+						return buffer.tostring(b64_enc_buf(buffer.fromstring(raw)))
+					end
+				end)
+
+				local EncodingService = game:GetService("EncodingService")
+				local EncodingService_base64encode = function(raw)
+					return buffer.tostring(EncodingService:Base64Encode(buffer.fromstring(raw)))
+				end
+
+				-- * Tests if base64encode exists and works properly then benchmark it
+				if base64encode and base64encode("\1\0\0\0\1") == "AQAAAAE=" then
+					if rbxcrypt_base64encode then
+						base64encode =
+							benchmark({ base64encode, rbxcrypt_base64encode, EncodingService_base64encode }, test_str)
+					end
+				else
+					base64encode = rbxcrypt_base64encode
+				end
+
+				assert(base64encode, "base64encode not found")
+			end
+		end
+
 		elapse_t = os.clock()
 
 		local ok, err = xpcall(save_game, function(err)
 			return debug.traceback(err)
 		end)
 
+		for _, connection in Connections do
+			connection:Disconnect()
+		end
+
 		if SafeMode then
-			service.GuiService:ClearError()
-			service.RunService:Set3dRenderingEnabled(true)
+			pcall(function()
+				local max = 5
+				task.delay(
+					math.clamp(max - (os.clock() - elapse_t), 0, max),
+					service.GuiService.ClearError,
+					service.GuiService
+				)
+				service.RunService:Set3dRenderingEnabled(true)
+			end)
 		end
 
 		if old_gethiddenproperty then
 			gethiddenproperty = old_gethiddenproperty
 		end
 
-		if anti_idle then
-			anti_idle:Disconnect()
-		end
-		if Connections then
-			for _, connection in Connections do
-				connection:Disconnect()
-			end
-		end
 		GLOBAL_ENV[placename] = nil
 
 		elapse_t = os.clock() - elapse_t
