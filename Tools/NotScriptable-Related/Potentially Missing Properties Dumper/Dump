@@ -1,4 +1,5 @@
-Varies per executor; Tested on Codex
+0.711.0.7110875
+Doesnt get everything; Also varies per executor; Tested on Codex
 
 DebuggerBreakpoint.line {NotCreatable Class} 
 
@@ -8,13 +9,28 @@ BasePart.Color3uint8  Unable to get property Color3uint8, type Color3uint8
 
 EditableImage.ImageData {NotCreatable Class} 
 
-Instance.UniqueId  Unable to get property UniqueId, type UniqueId
-Instance.HistoryId  Unable to get property HistoryId, type UniqueId
-
-MetaBreakpointContext.ContextDataInternal {NotCreatable Class} 
+RolloutValidation.ThirdSharedString {NotCreatable Class} 
+RolloutValidation.SecondSharedExpectedValue {NotCreatable Class} 
+RolloutValidation.GenerationStrategy {NotCreatable Class} 
+RolloutValidation.FirstSharedString {NotCreatable Class} 
+RolloutValidation.AdditionalFluffTwo {NotCreatable Class} 
+RolloutValidation.SecondBinaryExpectedValue {NotCreatable Class} 
+RolloutValidation.ThirdBinaryString {NotCreatable Class} 
+RolloutValidation.ThirdBinaryExpectedValue {NotCreatable Class} 
+RolloutValidation.FirstSharedExpectedValue {NotCreatable Class} 
+RolloutValidation.AdditionalFluffOne {NotCreatable Class} 
+RolloutValidation.FirstBinaryExpectedValue {NotCreatable Class} 
+RolloutValidation.ThirdSharedExpectedValue {NotCreatable Class} 
+RolloutValidation.SecondBinaryString {NotCreatable Class} 
+RolloutValidation.AdditionalFluffThree {NotCreatable Class} 
+RolloutValidation.FirstBinaryString {NotCreatable Class} 
+RolloutValidation.SecondSharedString {NotCreatable Class} 
+RolloutValidation.CreationVersion {NotCreatable Class} 
 
 ScriptDebugger.ScriptGuid {NotCreatable Class} 
 ScriptDebugger.CoreScriptIdentifier {NotCreatable Class} 
+
+MetaBreakpointContext.ContextDataInternal {NotCreatable Class} 
 
 Model.WorldPivotData  Unable to get property WorldPivotData, type OptionalCoordinateFrame
 

@@ -122,7 +122,10 @@ do
 	end
 end
 local F = Instance.new("Folder")
-local s = "\n"
+local s = `{version()}\nDoesnt get everything; Also varies per executor; Tested on {table.concat(
+	{ identifyexecutor() },
+	" "
+)}\n\n`
 local blacklist = ArrayToDictionary({ "RelativeGui" })
 for ClassName, ClassInfo in ClassList do
 	if blacklist[ClassName] then
@@ -167,4 +170,4 @@ for ClassName, ClassInfo in ClassList do
 	end
 end
 warn("Finished")
-writefile("!missing2.txt", s)
+writefile("!nil errors.txt", s)

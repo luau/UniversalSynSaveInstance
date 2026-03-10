@@ -1,4 +1,5 @@
-Varies per executor; Tested on Codex
+0.711.0.7110875
+Doesnt get everything; Also varies per executor; Tested on Codex
 
 Annotation {Fake Creatable}
 
@@ -6,15 +7,11 @@ AuroraScript {Fake Creatable}
 
 Breakpoint {Fake Creatable}
 
-CompositeValueCurve {Fake Creatable}
-
 CustomLog {Fake Creatable}
 
 ExplorerFilter {Fake Creatable}
 
 InternalSyncItem {Fake Creatable}
-
-MakeupDescription {Fake Creatable}
 
 ReflectionMetadata {Fake Creatable}
 

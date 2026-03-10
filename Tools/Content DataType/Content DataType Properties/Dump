@@ -1,4 +1,4 @@
-version-bb326014c89c4d27
+version-19073b5104cb45df
 
 AudioPlayer.AudioContent
 
@@ -14,6 +14,7 @@ ClickDetector.CursorIconContent
 
 DragDetector.ActivatedCursorIconContent
 
+Decal.ColorMapContent
 Decal.MetalnessMapContent
 Decal.NormalMapContent
 Decal.RoughnessMapContent
@@ -75,4 +76,6 @@ UserInputService.MouseIconContent
 VideoPlayer.VideoContent
 
 WrapTextureTransfer.ReferenceCageMeshContent
+
+VideoSampler.VideoContent
 

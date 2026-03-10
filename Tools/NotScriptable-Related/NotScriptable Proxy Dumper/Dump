@@ -1,4 +1,7 @@
+0.711.0.7110875
 Doesnt get everything; Also varies per executor; Tested on Codex
+
+AnimationClip.GuidBinaryString - Guid
 
 BallSocketConstraint.MaxFrictionTorqueXml - MaxFrictionTorque
 

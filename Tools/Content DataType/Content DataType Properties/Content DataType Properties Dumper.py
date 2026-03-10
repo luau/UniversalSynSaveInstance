@@ -60,8 +60,8 @@ def fetch_api(version_hash=None):
                 # Check if ValueType is "Content" and both CanSave and CanLoad are true
                 if (
                     value_type == "Content"
-                    and serialization["CanLoad"]
-                    and serialization["CanSave"]
+                    # and serialization["CanLoad"]
+                    # and serialization["CanSave"]
                 ):
                     output += f"{class_name}.{member_name}\n"
 

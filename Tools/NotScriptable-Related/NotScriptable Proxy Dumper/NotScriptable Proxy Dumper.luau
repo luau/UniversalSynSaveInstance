@@ -125,7 +125,10 @@ do
 		return classList
 	end
 
-	local s = `Doesnt get everything; Also varies per executor; Tested on {identifyexecutor()}\n\n`
+	local s = `{version()}\nDoesnt get everything; Also varies per executor; Tested on {table.concat(
+		{ identifyexecutor() },
+		" "
+	)}\n\n`
 	local api = FetchAPI()
 	local keys = {}
 	for classname in api do
@@ -205,6 +208,25 @@ do
 			local not_Special = not PropertyInfo.Special
 
 			if instance then
+				if PropertyInfo.Category == "Class" then
+					continue
+				end
+				if
+					(ClassName == "AudioListener" and PropertyName == "PositionOverride")
+					-- or (ClassName == "UserInputService")
+					or (ClassName == "FaceControls" and PropertyName == "LeftUpperLipRaiser")
+					or (ClassName == "PartOperation" and PropertyName == "MeshData2")
+					or (ClassName == "PlayerEmulatorService" and PropertyName == "SerializedEmulatedPolicyInfo")
+					or (ClassName == "PlayerGui" and PropertyName == "InputBindingMappingsRaw")
+					or (ClassName == "Workspace" and PropertyName == "ConvexDecompCompressed")
+					or (ClassName == "Workspace" and PropertyName == "IKControlConstraintSupport")
+					or (ClassName == "Workspace" and PropertyName == "RejectCharacterDeletions")
+					or (ClassName == "Workspace" and PropertyName == "TouchEventsUseCollisionGroups")
+					or (ClassName == "Workspace" and PropertyName == "UseFixedSimulation")
+					or (ClassName == "Workspace")
+				then
+					continue
+				end
 				writefile("crasher.txt", ClassName .. "." .. PropertyName)
 				if instance.Parent == nil and instance ~= game then
 					local O, err = pcall(function()
@@ -249,7 +271,6 @@ do
 				)
 				--
 				local value = nil
-
 				local ValueType = PropertyInfo.ValueType
 
 				if PropertyInfo.Category == "Enum" then

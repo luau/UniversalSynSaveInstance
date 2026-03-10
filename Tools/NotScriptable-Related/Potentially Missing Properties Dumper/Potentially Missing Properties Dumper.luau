@@ -130,7 +130,10 @@ do
 		return classList
 	end
 
-	local s = `Varies per executor; Tested on {identifyexecutor()}\n\n`
+	local s = `{version()}\nDoesnt get everything; Also varies per executor; Tested on {table.concat(
+		{ identifyexecutor() },
+		" "
+	)}\n\n`
 	for ClassName, ClassInfo in FetchAPI() do
 		local instance
 
@@ -189,9 +192,15 @@ do
 
 		for _, PropertyInfo in ClassInfo.Properties do
 			local PropertyName = PropertyInfo.Name
+			writefile("crasher.txt", ClassName .. "." .. PropertyName)
 			local o, r = true, true
 			if instance then
-				o, r = pcall(gethiddenproperty, instance, PropertyName)
+				if
+					not (ClassName == "UnvalidatedAssetService" and PropertyName == "CachedData")
+					and not (ClassName == "LuaSourceContainer" and PropertyName == "ScriptGuid")
+				then
+					o, r = pcall(gethiddenproperty, instance, PropertyName)
+				end
 				if not o then
 					local oo, rr = pcall(gethiddenproperty_fallback, instance, PropertyName)
 					if rr == nil then
@@ -217,5 +226,5 @@ do
 		end
 	end
 	warn("Finished")
-	writefile("!missing.txt", s)
+	writefile("!potentially missing.txt", s)
 end

@@ -1,3 +1,6 @@
+0.711.0.7110875
+Doesnt get everything; Also varies per executor; Tested on Codex
+
 ! AuroraScript: This type can not be instantiated
 ! CustomLog: The current thread cannot create 'CustomLog' (lacking capability InternalTest)
 ! InternalSyncItem: Internal Permission is required for this feature.
