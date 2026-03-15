@@ -4,5 +4,6 @@ __pycache__
 build
 docs
 tempCodeRunnerFile.luau
+tempCodeRunnerFile.py
 test.luau
 test.py

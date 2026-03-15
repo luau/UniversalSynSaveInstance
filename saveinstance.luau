@@ -122,13 +122,13 @@ local function index(self, index_name)
 end
 
 local version = version
-if not version then
+if not version then -- ? just in case
 	version = function()
 		return "UNKNOWN"
 	end
 end
 
-local CLIENT_VERSION = tonumber(string.split(version(), ".")[2]) or 9e9 -- Velocity temp fix
+local CLIENT_VERSION = tonumber(string.split(version(), ".")[2]) or 9e9
 
 local attr_Type_IDs = {
 	string = 0x02,
@@ -1099,17 +1099,17 @@ end
 local ClassList, FetchAPI
 
 do
-	local ClassPropertyExceptions = {
+	local ClassPropertyExceptions = ArrayToDict({
 		Whitelist = {
-			MeshPart = ArrayToDict({ "CollisionFidelity" }),
-			PartOperation = ArrayToDict({ "CollisionFidelity" }),
-			TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }),
+			MeshPart = { "CollisionFidelity" },
+			PartOperation = { "CollisionFidelity" },
+			TriangleMeshPart = { "CollisionFidelity" },
 		},
 		Blacklist = {
-			LuaSourceContainer = ArrayToDict({ "ScriptGuid" }),
-			Instance = ArrayToDict({ "UniqueId", "HistoryId" }),
+			LuaSourceContainer = { "ScriptGuid" },
+			Instance = { "UniqueId", "HistoryId" },
 		},
-	}
+	}, true)
 
 	local function AttributesSerialize(attrs)
 		-- * There are certain restrictions for names of attributes
@@ -1745,10 +1745,6 @@ do
 		local API_Dump
 
 		local ok, err = pcall(function()
-			if EXECUTOR_NAME == "Velocity" then -- TODO Temp fix as it crashes on HttpGet for sites that return 403 code
-				return
-			end
-
 			local CLIENT_VERSION_str = tostring(CLIENT_VERSION)
 			local ok, result = pcall(readfile, CLIENT_VERSION_str)
 			if
@@ -1761,7 +1757,7 @@ do
 				return
 			end
 
-			local matching_versions, is_matched = {}
+			local matching_versions, matched, is_matched = {}, {}
 
 			-- * https://setup.rbxcdn.com/versionQTStudio seems to be a bit behind DeployHistory.txt
 			-- ! Deploy History is preferred due to:
@@ -1777,8 +1773,9 @@ do
 						is_matched = true
 
 						local version_hash = string.match(line, "(version%-[^%s]+)")
-						if version_hash then
-							matching_versions[version_hash] = true
+						if version_hash and not matched[version_hash] then
+							matched[version_hash] = true
+							table.insert(matching_versions, version_hash) -- ? Retain the order (by latest)
 						end
 					elseif is_matched then
 						break
@@ -1786,7 +1783,7 @@ do
 				end
 			end
 
-			for version_hash in matching_versions do
+			for _, version_hash in matching_versions do
 				ok, result = pcall(
 					game.HttpGet,
 					game,
