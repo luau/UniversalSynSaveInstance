@@ -720,6 +720,7 @@ XML_Descriptors = {
 	--------------------------------------------------------------
 	--------------------------------------------------------------
 	--------------------------------------------------------------
+	-- AssetContentMap = function(raw) end, AssetContentMapSerializationEnabled	FFlag and "new" (?) voxel grid required
 	Axes = function(raw)
 		-- The text of this element is formatted as an integer between 0 and 7
 
@@ -1806,8 +1807,10 @@ do
 		end)
 
 		if not ok or not API_Dump then
-			warn("[DEBUG] Failed to get " .. version() .. " version API Dump, trying latest..")
-			warn("[DEBUG]", err)
+			if err then
+				warn("[DEBUG] Failed to get " .. version() .. " version API Dump, trying latest..")
+				warn("[DEBUG]", err)
+			end
 			API_Dump = service.HttpService:JSONEncode(
 				service.HttpService:JSONDecode(
 					game:HttpGet(
@@ -3927,27 +3930,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if OPTIONS.AntiIdle then
-			task.spawn(function()
-				local Idled = GetLocalPlayer().Idled
-				if getconnections then
-					for _, c in getconnections(Idled) do
-						if not pcall(function()
-							c:Disable()
-						end) then
-							pcall(function()
-								c:Disconnect()
-							end)
-						end
-					end
-				end
-				Connect(Idled, function()
-					service.VirtualInputManager:SendMouseWheelEvent(
-						service.UserInputService:GetMouseLocation().X,
-						service.UserInputService:GetMouseLocation().Y,
-						true,
-						game
-					)
-				end)
+			local Idled = GetLocalPlayer().Idled
+			Connect(Idled, function()
+				service.VirtualInputManager:SendMouseWheelEvent(
+					service.UserInputService:GetMouseLocation().X,
+					service.UserInputService:GetMouseLocation().Y,
+					true,
+					game
+				)
 			end)
 		end
 
