@@ -1,11 +1,11 @@
 version-19073b5104cb45df
 
 Classes that do NOT inherit from Object:
----------------------------------------------
+----------------------------------------
 All classes inherit from Object
 
 Classes that do NOT inherit from Instance:
------------------------------------------------
+----------------------------------------
 Object does not inherit from Instance
 AnimationNode does not inherit from Instance
 AuroraHandle does not inherit from Instance

@@ -1,128 +1,52 @@
-import os
-import sys
-import re
+import os, sys, re
+p = os.path.dirname(os.path.abspath(__file__))
+while p != os.path.dirname(p) and not os.path.exists(os.path.join(p, "common")):
+    p = os.path.dirname(p)
+sys.path.insert(0, os.path.join(p, "common"))
+from dump_utils import write_dump_file, get_api_response, array_to_dictionary
 
-
-def import_dump_utils():
-    """Smart function to find and import dump_utils from common directory"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Search up the directory tree
-    search_dir = current_dir
-    max_depth = 10
-
-    for _ in range(max_depth):
-        common_path = os.path.join(search_dir, "common")
-        dump_utils_path = os.path.join(common_path, "dump_utils.py")
-
-        if os.path.exists(dump_utils_path):
-            if common_path not in sys.path:
-                sys.path.append(common_path)
-            try:
-                from dump_utils import (
-                    write_dump_file,
-                    get_api_response,
-                    array_to_dictionary,
-                )
-
-                print(f"Found dump_utils at: {common_path}")
-                return write_dump_file, get_api_response, array_to_dictionary
-            except ImportError as e:
-                print(f"Failed to import from {common_path}: {e}")
-                break
-
-        parent_dir = os.path.dirname(search_dir)
-        if parent_dir == search_dir:
-            break
-        search_dir = parent_dir
-
-    raise ImportError("Could not find common/dump_utils.py in any parent directory")
-
-
-# Import utilities
-write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
-
-
-def fetch_api(version_hash=None):
-    response, version_hash = get_api_response(version_hash)
-    api_classes = response.json()["Classes"]
-
-    s = version_hash + "\n\n"
-    filtered_properties = []
-
-    for api_class in api_classes:
-        class_name = api_class["Name"]
-        class_members = api_class["Members"]
-
-        prev_len = len(s)
-        enum_members = {}
-
-        for member in class_members:
-            member_name = member["Name"]
-            member_type = member["MemberType"]
-            if member_type == "Property":
-                serialization = member["Serialization"]
-                member_tags = member.get("Tags")
-                original_tags = member_tags
-                special = False
-                if member_tags:
-                    member_tags = array_to_dictionary(member_tags)
-                    special = member_tags.get("NotScriptable")
-
-                if serialization["CanLoad"] and serialization["CanSave"] and special:
-                    value_type = member["ValueType"]["Name"]
-                    value_category = member["ValueType"]["Category"]
-                    if value_category == "Enum":
-                        enum_members[value_type] = member_name
-                    s += f"{class_name}.{member_name} {{{value_type}}}"
-                    for item in original_tags:
-                        if isinstance(item, dict):
-                            s += f"{{PreferredDescriptorName: {item.get('PreferredDescriptorName')}}}"
-                    s += "\n"
-
-                if re.search(
-                    r"xml|internal|serial|replica", member_name, re.IGNORECASE
-                ):
-                    prop_str = f"{class_name}.{member_name}"
-                    if not special:
-                        prop_str += " {Scriptable}"
-                    if not (
-                        serialization.get("CanLoad", True)
-                        and serialization.get("CanSave", True)
-                    ):
-                        prop_str += " {Serialize: False}"
-
-                    filtered_properties.append(prop_str)
-
-        for enum_type, real_member_name in enum_members.items():
-            for member in class_members:
-                member_name = member["Name"]
-                member_type = member["MemberType"]
-                if member_name != real_member_name and member_type == "Property":
-                    value_category = member["ValueType"]["Category"]
-                    if value_category == "Enum":
-                        value_type = member["ValueType"]["Name"]
-                        if value_type == enum_type: # value_type != "RolloutState" and 
-                            s += f"{real_member_name} -> {member_name} {{POTENTIAL PROXY}}\n"
-
-        if len(s) != prev_len:
-            s += "\n"
-
-    if filtered_properties:
-        s += "\nPotential Proxy Properties:\n"
-        s += "\n".join(filtered_properties) + "\n"
-
+def fetch(vh=None):
+    resp, vh = get_api_response(vh)
+    s = f"{vh}\n\n"
+    filtered = []
+    for c in resp.json()["Classes"]:
+        cname = c["Name"]
+        prev = len(s)
+        enums = {}
+        for m in c["Members"]:
+            if m["MemberType"] != "Property": continue
+            mname = m["Name"]
+            ser = m["Serialization"]
+            tags = array_to_dictionary(m.get("Tags")) if m.get("Tags") else {}
+            raw = m.get("Tags", [])
+            ns = tags.get("NotScriptable")
+            if ser["CanLoad"] and ser["CanSave"] and ns:
+                vt = m["ValueType"]
+                vtn, vtc = vt["Name"], vt["Category"]
+                if vtc == "Enum": enums[vtn] = mname
+                s += f"{cname}.{mname} {{{vtn}}}"
+                for t in raw:
+                    if isinstance(t, dict): s += f" {{PreferredDescriptorName: {t.get('PreferredDescriptorName')}}}"
+                s += "\n"
+            if re.search(r"xml|internal|serial|replica", mname, re.I):
+                ps = f"{cname}.{mname}"
+                if not ns: ps += " {Scriptable}"
+                if not (ser.get("CanLoad", True) and ser.get("CanSave", True)): ps += " {Serialize: False}"
+                filtered.append(ps)
+        for et, rm in enums.items():
+            for m in c["Members"]:
+                if m["Name"] != rm and m["MemberType"] == "Property":
+                    vt = m["ValueType"]
+                    if vt["Category"] == "Enum" and vt["Name"] == et:
+                        s += f"{rm} -> {m['Name']} {{POTENTIAL PROXY}}\n"
+        if len(s) > prev: s += "\n"
+    if filtered: s += "\nPotential Proxy Properties:\n" + "\n".join(filtered) + "\n"
     return s
 
-
 if __name__ == "__main__":
-    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
     try:
-        content = fetch_api(version_hash)
+        content = fetch(sys.argv[1] if len(sys.argv) > 1 else None)
         print(content)
-
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        write_dump_file(content, "Dump", script_dir)
-
+        write_dump_file(content, "Dump", os.path.dirname(__file__))
     except Exception as e:
         print(f"Error: {e}")

@@ -1,0 +1,1494 @@
+Version v1: version-8b02f75e5b5343a1
+Version v2: version-8b02f75e5b5343a1
+================================================================================
+
+
+Different Tags (493):
+----------------------------------------
+  ActivityHistoryEventService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AdService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AnimationClip
+    v1: ['NotCreatable']
+    v2: []
+  AnimationClipProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: []
+  AnimationFromVideoCreatorService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AnimationTrack
+    v1: ['NotCreatable']
+    v2: []
+  AnimationTrack.AdjustSpeed
+    v1: ['CustomLuaState']
+    v2: []
+  AnimationTrack.AdjustWeight
+    v1: ['CustomLuaState']
+    v2: []
+  AnimationTrack.Play
+    v1: ['CustomLuaState']
+    v2: []
+  AnimationTrack.Stop
+    v1: ['CustomLuaState']
+    v2: []
+  Animator.RootMotion
+    v1: ['ReadOnly', 'NotReplicated', 'NotBrowsable']
+    v2: ['NotReplicated', 'ReadOnly']
+  Animator.RootMotionWeight
+    v1: ['ReadOnly', 'NotReplicated', 'NotBrowsable']
+    v2: ['NotReplicated', 'ReadOnly']
+  AnnotationsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AssetCounterService
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotReplicated', 'Service']
+  AssetDeliveryProxy
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  AssetService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  AssetSoundEffect
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  AudioAnalyzer.GetSpectrum
+    v1: ['CustomLuaState']
+    v2: []
+  AudioEmitter.GetAngleAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioEmitter.GetDistanceAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioEmitter.SetAngleAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioEmitter.SetDistanceAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioListener.GetAngleAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioListener.GetDistanceAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioListener.SetAngleAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioListener.SetDistanceAttenuation
+    v1: ['CustomLuaState']
+    v2: []
+  AudioRecorder
+    v1: ['NotBrowsable']
+    v2: []
+  AudioSearchParams
+    v1: ['NotReplicated']
+    v2: []
+  AuroraHandle
+    v1: ['NotCreatable', 'Deprecated']
+    v2: ['NotCreatable', 'NotReplicated']
+  AuroraScript
+    v1: ['Deprecated']
+    v2: []
+  AuroraScriptObject
+    v1: ['NotCreatable', 'Deprecated']
+    v2: ['NotCreatable', 'NotReplicated']
+  AuroraScriptService
+    v1: ['NotCreatable', 'Service', 'Deprecated']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AuroraScriptService.FindBinding
+    v1: ['CustomLuaState']
+    v2: []
+  AuroraScriptService.FindBindings
+    v1: ['CustomLuaState']
+    v2: []
+  AuroraService
+    v1: ['NotCreatable', 'Service', 'Deprecated']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AvatarAbilityRules
+    v1: []
+    v2: ['NotReplicated']
+  AvatarAccessoryRules
+    v1: []
+    v2: ['NotReplicated']
+  AvatarAnimationRules
+    v1: []
+    v2: ['NotReplicated']
+  AvatarBodyRules
+    v1: []
+    v2: ['NotReplicated']
+  AvatarChatService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AvatarClothingRules
+    v1: []
+    v2: ['NotReplicated']
+  AvatarCollisionRules
+    v1: []
+    v2: ['NotReplicated']
+  AvatarCreationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AvatarCreationService.GetValidationRules
+    v1: ['CustomLuaState']
+    v2: []
+  AvatarEditorService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AvatarRules
+    v1: []
+    v2: ['NotReplicated']
+  AvatarSettings
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  BackpackItem
+    v1: ['NotCreatable']
+    v2: []
+  BadgeService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  BasePart
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  BasePart.LocalSimulationTouched
+    v1: ['Deprecated']
+    v2: []
+  BasePart.OutfitChanged
+    v1: ['Deprecated']
+    v2: []
+  BasePart.getMass
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetMass', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetMass', 'ThreadSafety': 'Unknown'}]
+  BasePlayerGui
+    v1: ['NotCreatable']
+    v2: []
+  BaseRemoteEvent
+    v1: ['NotCreatable']
+    v2: []
+  BaseScript
+    v1: ['NotCreatable']
+    v2: []
+  BaseWrap
+    v1: ['NotCreatable']
+    v2: []
+  BevelMesh
+    v1: ['NotCreatable', 'NotBrowsable', 'Deprecated']
+    v2: []
+  BodyAngularVelocity
+    v1: ['Deprecated', {'PreferredDescriptorName': 'AngularVelocity', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  BodyForce
+    v1: ['Deprecated', {'PreferredDescriptorName': 'VectorForce', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  BodyGyro
+    v1: ['Deprecated', {'PreferredDescriptorName': 'AlignOrientation', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  BodyMover
+    v1: ['NotCreatable', 'Deprecated']
+    v2: []
+  BodyPosition
+    v1: ['Deprecated', {'PreferredDescriptorName': 'AlignPosition', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  BodyThrust
+    v1: ['Deprecated', {'PreferredDescriptorName': 'VectorForce', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  BodyVelocity
+    v1: ['Deprecated', {'PreferredDescriptorName': 'LinearVelocity', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  BubbleChatConfiguration
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  CSGDictionaryService
+    v1: ['Service']
+    v2: ['NotReplicated', 'Service']
+  CacheableContentProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: []
+  Camera
+    v1: ['NotReplicated']
+    v2: []
+  CaptureService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  CaptureService.OnSavePromptFinished
+    v1: ['CustomLuaState']
+    v2: []
+  CatalogPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  ChangeHistoryService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ChangeHistoryStreamingService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ChannelSelectorSoundEffect
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  ChannelTabsConfiguration
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  CharacterAppearance
+    v1: ['NotCreatable']
+    v2: []
+  Chat
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  ChatInputBarConfiguration
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  ChatWindowConfiguration
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  ChatWindowMessageProperties
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  Clothing
+    v1: ['NotCreatable']
+    v2: []
+  ClusterPacketCache
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  Collaborator
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  CollaboratorsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  CollectionService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  CollectionService.AddTag
+    v1: ['CustomLuaState']
+    v2: []
+  CollectionService.GetCollection
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetTagged', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetTagged', 'ThreadSafety': 'Unknown'}]
+  CollectionService.GetTags
+    v1: ['CustomLuaState']
+    v2: []
+  CollectionService.HasTag
+    v1: ['CustomLuaState']
+    v2: []
+  CollectionService.RemoveTag
+    v1: ['CustomLuaState']
+    v2: []
+  CommerceService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ConfigureServerService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  Constraint
+    v1: ['NotCreatable']
+    v2: []
+  ContentProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: []
+  ContextActionService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  Controller
+    v1: ['NotCreatable']
+    v2: []
+  ControllerBase
+    v1: ['NotCreatable']
+    v2: []
+  ControllerSensor
+    v1: ['NotCreatable']
+    v2: []
+  CookiesService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  CoreGui
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  CoreGuiConfiguration
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  CorePackages
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  CoreScriptDebuggingManagerHelper
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  CreatorStoreService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  CrossDMScriptChangeListener
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  CustomEvent
+    v1: ['Deprecated']
+    v2: []
+  CustomEventReceiver
+    v1: ['Deprecated']
+    v2: []
+  CustomLog
+    v1: ['NotReplicated']
+    v2: []
+  CustomSoundEffect
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  CylinderMesh
+    v1: ['Deprecated']
+    v2: []
+  DataModel
+    v1: ['NotCreatable']
+    v2: []
+  DataModelMesh
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  DataModelSession
+    v1: ['NotCreatable']
+    v2: []
+  DataStoreGetOptions
+    v1: ['NotReplicated']
+    v2: []
+  DataStoreIncrementOptions
+    v1: ['NotReplicated']
+    v2: []
+  DataStoreInfo
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  DataStoreKeyInfo
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  DataStoreListingPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  DataStoreObjectVersionInfo
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  DataStoreOptions
+    v1: ['NotReplicated']
+    v2: []
+  DataStorePages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  DataStoreSetOptions
+    v1: ['NotReplicated']
+    v2: []
+  DataStoreVersionPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  Debris
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  Debris.MaxItems
+    v1: ['Deprecated']
+    v2: []
+  Debris.addItem
+    v1: ['Deprecated']
+    v2: []
+  DebugSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  DebuggablePluginWatcher
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  DebuggerBreakpoint
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  DebuggerConnectionManager
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  DebuggerManager
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  DebuggerWatch
+    v1: []
+    v2: ['NotReplicated']
+  DoubleConstrainedValue
+    v1: ['Deprecated']
+    v2: []
+  DynamicRotate
+    v1: ['NotCreatable']
+    v2: []
+  EditableImage
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  EditableImage.ReadPixelsBuffer
+    v1: ['CustomLuaState']
+    v2: []
+  EditableImage.WritePixelsBuffer
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  EditableMesh.GetColors
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFaceColors
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFaceNormals
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFaceUVs
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFaceVertices
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFaces
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFacesWithColor
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFacesWithNormal
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetFacesWithUV
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetNormals
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetUVs
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetVertexColors
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetVertexFaces
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetVertexNormals
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetVertexUVs
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetVerticesWithColor
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetVerticesWithNormal
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.GetVerticesWithUV
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.SetFaceColors
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.SetFaceNormals
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.SetFaceUVs
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.SetFaceVertices
+    v1: ['CustomLuaState']
+    v2: []
+  EditableService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  EventIngestService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ExperienceAuthService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ExperienceInviteOptions
+    v1: ['NotReplicated']
+    v2: []
+  ExplorerFilterAutocompleter
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: ['NotReplicated']
+  FaceInstance
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  FacialAnimationStreamingServiceV2
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  Feature
+    v1: ['NotCreatable']
+    v2: []
+  FeatureRestrictionManager
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  Flag
+    v1: ['Deprecated']
+    v2: []
+  FlagStand
+    v1: ['Deprecated']
+    v2: []
+  FlagStandService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  FloorWire
+    v1: ['Deprecated']
+    v2: []
+  FlyweightService
+    v1: ['Service']
+    v2: ['NotReplicated', 'Service']
+  FormFactorPart
+    v1: ['NotCreatable']
+    v2: []
+  FriendPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  FriendService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  FunctionalTest
+    v1: ['Deprecated']
+    v2: []
+  GamePassService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  GameSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  GenerationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  GenericChallengeService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  GenericSettings
+    v1: ['NotCreatable']
+    v2: []
+  Geometry
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  GeometryService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  GetTextBoundsParams
+    v1: ['NotReplicated']
+    v2: []
+  GlobalDataStore
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  GlobalSettings
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  Glue
+    v1: ['Deprecated', {'PreferredDescriptorName': 'WeldConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  GongService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  GuiBase
+    v1: ['NotCreatable']
+    v2: []
+  GuiBase2d
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  GuiBase3d
+    v1: ['NotCreatable']
+    v2: []
+  GuiButton
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  GuiLabel
+    v1: ['NotCreatable']
+    v2: []
+  GuiMain
+    v1: ['Deprecated']
+    v2: []
+  GuiObject
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  GuiObject.BackgroundColor
+    v1: ['Hidden', 'NotReplicated', 'Deprecated']
+    v2: ['Hidden', 'NotReplicated']
+  GuiObject.BorderColor
+    v1: ['Hidden', 'NotReplicated', 'Deprecated']
+    v2: ['Hidden', 'NotReplicated']
+  GuidRegistryService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  HSRDataContentProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: []
+  HandleAdornment
+    v1: ['NotCreatable']
+    v2: []
+  HandlesBase
+    v1: ['NotCreatable']
+    v2: []
+  Hat
+    v1: ['Deprecated']
+    v2: []
+  HeapProfilerService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  HeatmapService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  HeightmapImporterService
+    v1: ['Service', 'NotReplicated']
+    v2: ['Service']
+  Hint
+    v1: ['Deprecated']
+    v2: []
+  Hole
+    v1: ['Deprecated']
+    v2: []
+  Hopper
+    v1: ['NotCreatable', 'Service', 'Deprecated']
+    v2: []
+  HopperBin
+    v1: ['Deprecated']
+    v2: []
+  HttpRbxApiService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  HttpRequest
+    v1: ['NotCreatable']
+    v2: ['NotReplicated']
+  HttpService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  HttpService.JSONDecode
+    v1: ['CustomLuaState']
+    v2: []
+  HttpService.JSONEncode
+    v1: ['CustomLuaState']
+    v2: []
+  HumanoidRigDescription
+    v1: ['NotBrowsable']
+    v2: []
+  ILegacyStudioBridge
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  IncrementalPatchBuilder
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  InputObject
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  InsertService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  InsertService.AllowInsertFreeModels
+    v1: ['NotReplicated', 'NotBrowsable', 'Deprecated']
+    v2: ['NotReplicated', 'Deprecated']
+  InsertService.ApproveAssetId
+    v1: ['Deprecated']
+    v2: []
+  InsertService.ApproveAssetVersionId
+    v1: ['Deprecated']
+    v2: []
+  Instance
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  Instance.GetAttributes
+    v1: ['CustomLuaState']
+    v2: []
+  Instance.GetDebugId
+    v1: ['NotBrowsable']
+    v2: []
+  Instance.GetDescendants
+    v1: ['CustomLuaState']
+    v2: []
+  Instance.QueryDescendants
+    v1: ['CustomLuaState']
+    v2: []
+  Instance.Remove
+    v1: ['Deprecated']
+    v2: []
+  Instance.WaitForChild
+    v1: ['CustomLuaState', 'CanYield']
+    v2: []
+  Instance.children
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetChildren', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetChildren', 'ThreadSafety': 'Unknown'}]
+  Instance.findFirstChild
+    v1: ['Deprecated', {'PreferredDescriptorName': 'FindFirstChild', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'FindFirstChild', 'ThreadSafety': 'Unknown'}]
+  Instance.getChildren
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetChildren', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetChildren', 'ThreadSafety': 'Unknown'}]
+  Instance.isDescendantOf
+    v1: ['Deprecated', {'PreferredDescriptorName': 'IsDescendantOf', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'IsDescendantOf', 'ThreadSafety': 'Unknown'}]
+  InstanceAdornment
+    v1: ['NotCreatable']
+    v2: []
+  InstanceExtensionsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  IntConstrainedValue
+    v1: ['Deprecated']
+    v2: []
+  InventoryPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  JointInstance
+    v1: ['NotCreatable']
+    v2: []
+  JointsService
+    v1: ['NotCreatable', 'Service', 'Deprecated']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  KeyboardService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  KeyframeSequenceProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: []
+  LayerCollector
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  LegacyStudioBridge
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  Light
+    v1: ['NotCreatable']
+    v2: []
+  Lighting
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  Lighting.getMinutesAfterMidnight
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetMinutesAfterMidnight', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetMinutesAfterMidnight', 'ThreadSafety': 'Unknown'}]
+  LiveScriptingService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  LodDataEntity
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  LogService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  LoginService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  LuaSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  LuaSourceContainer
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  LuaWebService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  MLModelDeliveryService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  MakeupDescription
+    v1: ['NotBrowsable']
+    v2: []
+  ManualGlue
+    v1: ['Deprecated', {'PreferredDescriptorName': 'WeldConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  ManualSurfaceJointInstance
+    v1: ['NotCreatable', 'Deprecated', {'PreferredDescriptorName': 'WeldConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  ManualWeld
+    v1: ['Deprecated', {'PreferredDescriptorName': 'WeldConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  MarketplaceService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  MaterialService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  MaterialVariant.AlphaMode
+    v1: ['NotBrowsable']
+    v2: []
+  MemoryStoreHashMapPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  MeshContentProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: []
+  Message
+    v1: ['Deprecated']
+    v2: []
+  MetaBreakpointManager
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  Model.GetPrimaryPartCFrame
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPivot', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPivot', 'ThreadSafety': 'Unknown'}]
+  MotorFeature
+    v1: ['Deprecated']
+    v2: []
+  Mouse
+    v1: ['NotCreatable']
+    v2: []
+  MultipleDocumentInterfaceInstance
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  NetworkClient
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  NetworkMarker
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  NetworkPeer
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  NetworkServer
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  NetworkSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  NonReplicatedCSGDictionaryService
+    v1: ['Service']
+    v2: ['NotReplicated', 'Service']
+  NotificationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  Object.IsA
+    v1: ['CustomLuaState']
+    v2: []
+  Object.isA
+    v1: ['Deprecated', {'PreferredDescriptorName': 'IsA', 'ThreadSafety': 'Safe'}, 'CustomLuaState']
+    v2: ['Deprecated', {'PreferredDescriptorName': 'IsA', 'ThreadSafety': 'Unknown'}]
+  OpenCloudApiV1
+    v1: ['NotCreatable', 'NotReplicated', 'Deprecated', {'PreferredDescriptorName': 'HttpService', 'ThreadSafety': 'Unknown'}]
+    v2: ['NotCreatable', 'NotReplicated']
+  OpenCloudApiV1.CreateModel
+    v1: ['Deprecated', 'CustomLuaState']
+    v2: ['Deprecated']
+  OpenCloudService
+    v1: ['NotCreatable', 'Service', 'NotReplicated', 'Deprecated', {'PreferredDescriptorName': 'HttpService', 'ThreadSafety': 'Unknown'}]
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  OrderedDataStore
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  OutfitPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  PVAdornment
+    v1: ['NotCreatable']
+    v2: []
+  PVInstance
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  PackageLink
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  Pages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  ParabolaAdornment
+    v1: []
+    v2: ['NotReplicated']
+  PartAdornment
+    v1: ['NotCreatable']
+    v2: []
+  PatchBundlerFileWatch
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  Path
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  PermissionsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  PhysicsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  PhysicsSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  PlaceAssetIdsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  Plane
+    v1: ['Deprecated', {'PreferredDescriptorName': 'PlaneConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  Platform
+    v1: ['NotCreatable']
+    v2: []
+  PlatformLibraries
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  Player.CharacterAppearance
+    v1: ['NotBrowsable', 'Deprecated', {'PreferredDescriptorName': 'CharacterAppearanceId', 'ThreadSafety': 'Unknown'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'CharacterAppearanceId', 'ThreadSafety': 'Unknown'}]
+  Player.GetJoinData
+    v1: ['CustomLuaState']
+    v2: []
+  Player.SetUnder13
+    v1: ['Deprecated']
+    v2: []
+  PlayerGui
+    v1: ['NotCreatable', 'PlayerReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  PlayerHydrationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  PlayerMouse
+    v1: ['NotCreatable']
+    v2: []
+  Players
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  Players.NumPlayers
+    v1: ['ReadOnly', 'NotReplicated', 'Deprecated', {'PreferredDescriptorName': 'GetPlayers', 'ThreadSafety': 'Safe'}]
+    v2: ['NotReplicated', 'Deprecated', {'PreferredDescriptorName': 'GetPlayers', 'ThreadSafety': 'Unknown'}, 'ReadOnly']
+  Players.getPlayers
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPlayers', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPlayers', 'ThreadSafety': 'Unknown'}]
+  Players.players
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPlayers', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPlayers', 'ThreadSafety': 'Unknown'}]
+  Plugin
+    v1: ['NotCreatable']
+    v2: []
+  Plugin.GetPluginComponent
+    v1: ['CustomLuaState']
+    v2: []
+  PluginAction
+    v1: ['NotReplicated']
+    v2: []
+  PluginManager
+    v1: ['NotCreatable']
+    v2: []
+  PluginManager.CreatePlugin
+    v1: ['Deprecated', 'CustomLuaState']
+    v2: ['Deprecated']
+  PluginManagerInterface.CreatePlugin
+    v1: ['Deprecated', 'CustomLuaState']
+    v2: ['Deprecated']
+  PluginMenu
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  PluginMouse
+    v1: ['NotCreatable']
+    v2: []
+  PluginToolbar
+    v1: ['NotCreatable']
+    v2: []
+  PluginToolbarButton
+    v1: ['NotCreatable']
+    v2: []
+  PointsService
+    v1: ['NotCreatable', 'Service', 'Deprecated']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  PoseBase
+    v1: ['NotCreatable']
+    v2: []
+  PostEffect
+    v1: ['NotCreatable']
+    v2: []
+  ProcessInstancePhysicsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  ProximityPromptService
+    v1: ['Service', 'NotBrowsable']
+    v2: ['Service']
+  RbxAnalyticsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  RecommendationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ReflectionMetadataItem
+    v1: ['NotCreatable']
+    v2: []
+  ReflectionService.GetClass
+    v1: ['CustomLuaState']
+    v2: []
+  ReflectionService.GetClasses
+    v1: ['CustomLuaState']
+    v2: []
+  ReflectionService.GetEventsOfClass
+    v1: ['CustomLuaState']
+    v2: []
+  ReflectionService.GetMethodsOfClass
+    v1: ['CustomLuaState']
+    v2: []
+  ReflectionService.GetPropertiesOfClass
+    v1: ['CustomLuaState']
+    v2: []
+  ReflectionService.GetPropertyNames
+    v1: ['CustomLuaState']
+    v2: []
+  ReflectionService.GetStyledPropertyNames
+    v1: ['CustomLuaState']
+    v2: []
+  RemoteCommandService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  RemoteCursorService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  RemoteDebuggerServer
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  RenderSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  ReplicatedFirst
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  ReplicatedStorage
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  RobloxReplicatedStorage
+    v1: ['NotCreatable', 'Service', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  RobloxServerStorage
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  RocketPropulsion
+    v1: ['Deprecated', {'PreferredDescriptorName': 'LineForce', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  RomarkRbxAnalyticsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  RomarkService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  Rotate
+    v1: ['Deprecated', {'PreferredDescriptorName': 'HingeConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  RotateP
+    v1: ['Deprecated', {'PreferredDescriptorName': 'HingeConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  RotateV
+    v1: ['Deprecated', {'PreferredDescriptorName': 'HingeConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  RunService
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['Service']
+  RunningAverageItemDouble
+    v1: ['NotCreatable']
+    v2: []
+  RunningAverageItemInt
+    v1: ['NotCreatable']
+    v2: []
+  RunningAverageTimeIntervalItem
+    v1: ['NotCreatable']
+    v2: []
+  RuntimeContentService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  SafetyService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ScriptCloneWatcher
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  ScriptCloneWatcherHelper
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  ScriptContext
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  ScriptContext.GetLuauHeapInstanceReferenceReport
+    v1: ['CustomLuaState']
+    v2: []
+  ScriptContext.GetLuauHeapMemoryReport
+    v1: ['CustomLuaState']
+    v2: []
+  ScriptDebugger
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  ScriptProfilerService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ScriptProfilerService.DeserializeJSON
+    v1: ['CustomLuaState']
+    v2: []
+  ScriptService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  Selection
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  SelectionHighlightManager
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  SelectionLasso
+    v1: ['NotCreatable']
+    v2: []
+  SelectionPartLasso
+    v1: ['Deprecated']
+    v2: []
+  SelectionPointLasso
+    v1: ['Deprecated']
+    v2: []
+  SensorBase
+    v1: ['NotCreatable']
+    v2: []
+  SerializationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ServerStorage
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  ServiceProvider
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  ServiceVisibilityService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  SessionCheckService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  SessionService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  SharedTableRegistry
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  SkateboardPlatform
+    v1: ['Deprecated']
+    v2: []
+  Skin
+    v1: ['Deprecated']
+    v2: []
+  SlidingBallConstraint
+    v1: ['NotCreatable']
+    v2: []
+  SlimAnimationDataEntity
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  SlimAnimationReplicationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  SlimContentProvider
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  SlimReplicationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  Snap
+    v1: ['Deprecated', {'PreferredDescriptorName': 'WeldConstraint', 'ThreadSafety': 'Unknown'}]
+    v2: []
+  SolidModelContentProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: []
+  Sound.ChannelCount
+    v1: ['Hidden', 'ReadOnly', 'NotReplicated', 'NotBrowsable']
+    v2: ['Hidden', 'NotReplicated', 'ReadOnly']
+  SoundEffect
+    v1: ['NotCreatable']
+    v2: []
+  SoundService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  SpawnerService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  StandardPages
+    v1: ['NotCreatable', 'NotReplicated']
+    v2: []
+  StarterCharacterScripts
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  StarterGui
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  StarterPack
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  StarterPlayer
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  StarterPlayerScripts
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  Stats
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  StatsItem
+    v1: ['NotCreatable']
+    v2: []
+  Status
+    v1: ['NotCreatable', 'Deprecated']
+    v2: ['NotCreatable', 'NotReplicated']
+  StopWatchReporter
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  Studio
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  StudioData
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  StudioScriptDebugEventListener
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  StyleBase
+    v1: ['NotCreatable']
+    v2: []
+  StyleQuery
+    v1: ['NotBrowsable']
+    v2: []
+  SurfaceGuiBase
+    v1: ['NotCreatable']
+    v2: []
+  TaskScheduler
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  TeamCreateData
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  TeamCreatePublishService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  Teams
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  TeleportAsyncResult
+    v1: ['NotCreatable']
+    v2: []
+  TeleportService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  TemporaryCageMeshProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotReplicated']
+  Terrain
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  Terrain.ClearVoxelsAsync_beta
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.IterateVoxelsAsync_beta
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.ModifyVoxelsAsync_beta
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.ReadVoxelChannels
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.ReadVoxels
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.ReadVoxelsAsync_beta
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.SmoothRegion
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.WriteVoxelChannels
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.WriteVoxels
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.WriteVoxelsAsync_beta
+    v1: ['CustomLuaState']
+    v2: []
+  TerrainWriteOperation.GetBlock
+    v1: ['CustomLuaState']
+    v2: []
+  TestCase
+    v1: ['NotCreatable']
+    v2: []
+  TextBox.TextColor
+    v1: ['Hidden', 'NotReplicated', 'Deprecated']
+    v2: ['Hidden', 'NotReplicated']
+  TextBoxService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  TextButton.TextColor
+    v1: ['Hidden', 'NotReplicated', 'Deprecated']
+    v2: ['Hidden', 'NotReplicated']
+  TextChatMessage
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  TextChatService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  TextLabel.TextColor
+    v1: ['Hidden', 'NotReplicated', 'Deprecated']
+    v2: ['Hidden', 'NotReplicated']
+  TextService
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['Service']
+  TextSource
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  TimerService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  TotalCountTimeIntervalItem
+    v1: ['NotCreatable']
+    v2: []
+  TouchInputService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  TouchTransmitter
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  TraceRouteService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  TriangleMeshPart
+    v1: ['NotCreatable']
+    v2: []
+  TweenBase
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  TweenService
+    v1: ['NotCreatable', 'Service']
+    v2: ['Service']
+  UGCAvatarService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  UIBase
+    v1: ['NotCreatable']
+    v2: []
+  UIComponent
+    v1: ['NotCreatable']
+    v2: []
+  UIConstraint
+    v1: ['NotCreatable']
+    v2: []
+  UIGridStyleLayout
+    v1: ['NotCreatable', 'NotBrowsable']
+    v2: []
+  UILayout
+    v1: ['NotCreatable']
+    v2: []
+  UniqueIdLookupService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  UnvalidatedAssetService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  UserGameSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  UserService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  UserSettings
+    v1: ['NotCreatable']
+    v2: []
+  VRService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  VRStatusService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  ValueBase
+    v1: ['NotCreatable']
+    v2: []
+  VersionControlService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  VideoCaptureService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  VideoDisplay
+    v1: ['NotBrowsable']
+    v2: []
+  VideoPlayer
+    v1: ['NotBrowsable']
+    v2: []
+  VideoScreenCaptureService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  VideoService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  VirtualInputManager
+    v1: ['Service']
+    v2: []
+  VirtualUser
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  VisibilityCheckDispatcher
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  Visit
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
+  VisualizationModeService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  VoiceChatInternal
+    v1: ['NotCreatable', 'Service', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  VoiceChatService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  VoxelBuffer.ReadVoxels
+    v1: ['CustomLuaState']
+    v2: []
+  VoxelBuffer.WriteVoxels
+    v1: ['CustomLuaState']
+    v2: []
+  Workspace
+    v1: ['NotCreatable', 'Service']
+    v2: []
+  WorldRoot
+    v1: ['NotCreatable']
+    v2: []
+  WorldRoot.FindPartOnRay
+    v1: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.FindPartOnRayWithIgnoreList
+    v1: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.FindPartOnRayWithWhitelist
+    v1: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.FindPartsInRegion3
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.FindPartsInRegion3WithIgnoreList
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.FindPartsInRegion3WithWhiteList
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.GetAwakeContactNormals
+    v1: ['CustomLuaState']
+    v2: []
+  WorldRoot.GetAwakeContactParts
+    v1: ['CustomLuaState']
+    v2: []
+  WorldRoot.GetAwakeContactPositions
+    v1: ['CustomLuaState']
+    v2: []
+  WorldRoot.GetAwakeRootParts
+    v1: ['CustomLuaState']
+    v2: []
+  WorldRoot.GetPartBoundsInBox
+    v1: ['CustomLuaState']
+    v2: []
+  WorldRoot.GetPartBoundsInRadius
+    v1: ['CustomLuaState']
+    v2: []
+  WorldRoot.GetPartsInPart
+    v1: ['CustomLuaState']
+    v2: []
+  WorldRoot.IsRegion3Empty
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.IsRegion3EmptyWithIgnoreList
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.findPartOnRay
+    v1: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'Raycast', 'ThreadSafety': 'Unknown'}]
+  WorldRoot.findPartsInRegion3
+    v1: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Safe'}]
+    v2: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Unknown'}]
+  WrapDeformMeshProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotReplicated']
+  WrapTextureTransfer
+    v1: ['NotBrowsable']
+    v2: []
+
+================================================================================
+Summary:
+  Total: 8595
+  Same: 8102
+  Different: 493
+  Only v1: 0
+  Only v2: 0

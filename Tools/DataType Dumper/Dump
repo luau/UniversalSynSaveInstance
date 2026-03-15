@@ -1,6 +1,7 @@
-version-19073b5104cb45df
+version-8b02f75e5b5343a1
 
 === DATATYPES ===
+AssetContentMap [API] {CanSave} {CanLoad}
 Axes [BOTH] {CanSave} {CanLoad}
 BinaryString [API] {CanSave} {CanLoad}
 BrickColor [BOTH] {CanSave} {CanLoad}
@@ -68,8 +69,8 @@ int64 [API] {CanSave} {CanLoad}
 string [API] {CanSave} {CanLoad}
 
 === DATATYPES ANALYSIS ===
-Total unique datatypes: 65
-From API only: 20
+Total unique datatypes: 66
+From API only: 21
 From Docs only: 22
 In both sources: 23
 

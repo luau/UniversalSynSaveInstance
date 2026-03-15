@@ -1,4 +1,4 @@
-version-19073b5104cb45df
+version-8b02f75e5b5343a1
 
 EditableImage.ImageData {BinaryString}
 
@@ -143,6 +143,7 @@ Terrain.GrassLength {float}
 Terrain.MaterialColors {BinaryString}
 Terrain.PhysicsGrid {BinaryString}
 Terrain.SmoothGrid {BinaryString}
+Terrain.VoxelGridAssetContentMap {AssetContentMap}
 AcquisitionMethod -> LastUsedModificationMethod {POTENTIAL PROXY}
 
 TriangleMeshPart.AeroMeshData {SharedString}
@@ -214,11 +215,15 @@ Workspace.UseNewLuauTypeSolver {RolloutState}
 UseNewLuauTypeSolver -> EnableSLIMAvatars {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> LayeredClothingCacheOptimizations {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> NextGenerationReplication {POTENTIAL PROXY}
+UseNewLuauTypeSolver -> NextGenerationReplicationAlias {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> PhysicsImprovedSleep {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> PlayerScriptsUseInputActionSystem {POTENTIAL PROXY}
+UseNewLuauTypeSolver -> PlayerScriptsUseInputActionSystemAlias {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> TouchEventsUseCollisionGroups {POTENTIAL PROXY}
 UseNewLuauTypeSolver -> UseFixedSimulation {POTENTIAL PROXY}
+UseNewLuauTypeSolver -> UseFixedSimulationAlias {POTENTIAL PROXY}
 SignalBehavior2 -> SignalBehavior {POTENTIAL PROXY}
+SignalBehavior2 -> SignalBehaviorAlias {POTENTIAL PROXY}
 
 PackageLink.PackageIdSerialize {ContentId}
 PackageLink.VersionIdSerialize {int64}
@@ -346,6 +351,7 @@ TriangleMeshPart.FluidFidelityInternal
 MeshPart.RenderFidelityReplicate {Serialize: False}
 PartOperation.SerializedOperationGraph {Serialize: False}
 Workspace.NextGenerationReplication
+Workspace.NextGenerationReplicationAlias {Serialize: False}
 Workspace.ReplicateInstanceDestroySetting
 PackageLink.PackageIdSerialize
 PackageLink.SerializedDefaultAttributes {Scriptable}

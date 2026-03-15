@@ -1,50 +1,31 @@
-import os
-import subprocess
-import sys
+import os, subprocess, sys
 
-
-def run_python_files_in_directories(directory, script_name, version_hash=None):
-    non_python_files = []
-
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            if file.endswith(".py"):
-                file_path = os.path.join(root, file)
-
-                if os.path.abspath(file_path) == script_name:
-                    continue
-                print(f"Found Python file: {file_path}")
+def run_files(directory, script_name, vh=None):
+    non_py = []
+    for root, _, files in os.walk(directory):
+        for f in files:
+            fp = os.path.join(root, f)
+            if f.endswith(".py"):
+                if os.path.abspath(fp) == script_name: continue
+                print(f"Found: {fp}")
                 try:
-                    if version_hash:
-                        subprocess.run(["python", file_path, version_hash], check=True)
-                    else:
-                        subprocess.run(["python", file_path], check=True)
-                    print(f"Executed: {file_path}")
+                    cmd = ["python", fp, vh] if vh else ["python", fp]
+                    subprocess.run(cmd, check=True)
+                    print(f"Executed: {fp}")
                 except subprocess.CalledProcessError as e:
-                    print(f"Error running {file_path}: {e}")
-            elif file.endswith(".luau") or file.endswith(".lua"):
-                _, ext = os.path.splitext(file)
-                if ext and ext.lower() != ".py":
-                    file_path = os.path.join(root, file)
-                    if os.path.abspath(file_path) != script_name:
-                        non_python_files.append(file_path)
-
-    if non_python_files:
+                    print(f"Error running {fp}: {e}")
+            elif f.endswith((".luau", ".lua")):
+                if os.path.abspath(fp) != script_name:
+                    non_py.append(fp)
+    if non_py:
         print("\n" + "=" * 50)
         print("Files that couldn't be run (non-Python files):")
         print("=" * 50)
-        for file_path in non_python_files:
-            print(f"Could not run: {file_path}")
-        print(f"Total non-Python files: {len(non_python_files)}")
-
+        for fp in non_py: print(f"Could not run: {fp}")
+        print(f"Total non-Python files: {len(non_py)}")
 
 if __name__ == "__main__":
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    script_name = os.path.abspath(__file__)
-
-    # Check if version hash was passed as a command line argument
-    version_hash = None
-    if len(sys.argv) > 1:
-        version_hash = sys.argv[1]
-
-    run_python_files_in_directories(current_directory, script_name, version_hash)
+    d = os.path.dirname(os.path.abspath(__file__))
+    sn = os.path.abspath(__file__)
+    vh = sys.argv[1] if len(sys.argv) > 1 else None
+    run_files(d, sn, vh)

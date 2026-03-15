@@ -1,15 +1,15 @@
-version-19073b5104cb45df
+version-8b02f75e5b5343a1
 
-MaterialVariant.EmissiveMaskContent
+MaterialVariant.EmissiveMaskContent {default: "<Contentname="EmissiveMaskContent"><null></null></Content>"}
 
-SurfaceAppearance.EmissiveMaskContent
+SurfaceAppearance.EmissiveMaskContent {default: "<Contentname="EmissiveMaskContent"><null></null></Content>"}
 
-TerrainDetail.EmissiveMaskContent
+TerrainDetail.EmissiveMaskContent {default: "<Contentname="EmissiveMaskContent"><null></null></Content>"}
 
-VideoPlayer.VideoContent
+VideoPlayer.VideoContent {default: "<Contentname="VideoContent"><null></null></Content>"}
 
-WrapTextureTransfer.ReferenceCageMeshContent
+WrapTextureTransfer.ReferenceCageMeshContent {default: "<Contentname="ReferenceCageMeshContent"><null></null></Content>"}
 
 
 ---
-Total Content properties with defaultValue found: 5
+Total: 5

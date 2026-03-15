@@ -1,0 +1,2328 @@
+Version v1: version-8b02f75e5b5343a1
+Version v2: version-8b02f75e5b5343a1
+================================================================================
+
+
+Different Default values (771):
+----------------------------------------
+  AccessoryDescription.Instance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AnimationConstraint.Part0
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AnimationConstraint.Part1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AnimationNodeDefinition.InputPinData
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  AnimationRigData.label
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  AnimationRigData.name
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  AnimationRigData.parent
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  AnimationRigData.postTransform
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  AnimationRigData.preTransform
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  AnimationRigData.transform
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  AnnotationsService.Hovered
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AnnotationsService.Selected
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AssetService.AllowInsertFreeAssets
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  AudioDeviceInput.AccessList
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  AudioDeviceInput.Player
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AudioDeviceOutput.Player
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AudioEmitter.AngleAttenuation
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  AudioEmitter.DistanceAttenuation
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  AudioEmitter.PositionOverride
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AudioListener.AngleAttenuation
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  AudioListener.DistanceAttenuation
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  AudioListener.PositionOverride
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AuroraService.BufferFullInputCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  AuroraService.HashRoundingPoint
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.10000000000000000555'
+  AuroraService.IgnoreRotation
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  AuroraService.InputDropRate
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  AuroraService.LockStepIdOffset
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  AuroraService.OutOfOrderInputCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  AuroraService.RCCHeartbeatFPS
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  AuroraService.RollbackOffset
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  AuroraService.TooOldInputCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BackpackItem.TextureId
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  BaseCoreGuiConfiguration.Enabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BasePart.Anchored
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  BasePart.AssemblyAngularVelocity
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.AssemblyCenterOfMass
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.AssemblyLinearVelocity
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.AssemblyMass
+    v1: '__api_dump_class_not_creatable__'
+    v2: '6.72000027'
+  BasePart.AssemblyRootPart
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  BasePart.AudioCanCollide
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BasePart.BackParamA
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-0.5'
+  BasePart.BackParamB
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.5'
+  BasePart.BackSurface
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Smooth'
+  BasePart.BackSurfaceInput
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'NoInput'
+  BasePart.BottomParamA
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-0.5'
+  BasePart.BottomParamB
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.5'
+  BasePart.BottomSurface
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Inlet'
+  BasePart.BottomSurfaceInput
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'NoInput'
+  BasePart.CFrame
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1'
+  BasePart.CanCollide
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BasePart.CanQuery
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BasePart.CanTouch
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BasePart.CastShadow
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BasePart.CenterOfMass
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.CollisionGroup
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Default'
+  BasePart.CollisionGroupId
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BasePart.CollisionGroupReplicate
+    v1: '__api_dump_class_not_creatable__'
+    v2: '\x00'
+  BasePart.Color
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.639216, 0.635294, 0.647059'
+  BasePart.Color3uint8
+    v1: '__api_dump_class_not_creatable__'
+    v2: '163, 162, 165'
+  BasePart.CurrentPhysicalProperties
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.699999988, 0.300000012, 0.5, 1, 1, 0.
+  BasePart.CustomPhysicalProperties
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'default'
+  BasePart.DraggingV1
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  BasePart.Elasticity
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.5'
+  BasePart.EnableFluidForces
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BasePart.ExtentsCFrame
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1'
+  BasePart.ExtentsSize
+    v1: '__api_dump_class_not_creatable__'
+    v2: '4, 1.20000005, 2'
+  BasePart.Friction
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.300000012'
+  BasePart.FrontParamA
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-0.5'
+  BasePart.FrontParamB
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.5'
+  BasePart.FrontSurface
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Smooth'
+  BasePart.FrontSurfaceInput
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'NoInput'
+  BasePart.LeftParamA
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-0.5'
+  BasePart.LeftParamB
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.5'
+  BasePart.LeftSurface
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Smooth'
+  BasePart.LeftSurfaceInput
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'NoInput'
+  BasePart.LocalSimulationValidation
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BasePart.LocalTransparencyModifier
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BasePart.Locked
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  BasePart.Mass
+    v1: '__api_dump_class_not_creatable__'
+    v2: '6.72000027'
+  BasePart.Massless
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  BasePart.Material
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Plastic'
+  BasePart.MaterialVariant
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  BasePart.MaterialVariantSerialized
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  BasePart.NetworkIsSleeping
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  BasePart.NetworkOwnershipRule
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Automatic'
+  BasePart.Orientation
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.PhysicsRepRootPart
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  BasePart.PivotOffset
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1'
+  BasePart.Position
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.ReceiveAge
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BasePart.Reflectance
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BasePart.ResizeIncrement
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1'
+  BasePart.ResizeableFaces
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Right, Top, Back, Left, Bottom, Front'
+  BasePart.RightParamA
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-0.5'
+  BasePart.RightParamB
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.5'
+  BasePart.RightSurface
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Smooth'
+  BasePart.RightSurfaceInput
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'NoInput'
+  BasePart.RootPriority
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BasePart.RotVelocity
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.Rotation
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.Size
+    v1: '__api_dump_class_not_creatable__'
+    v2: '4, 1.20000005, 2'
+  BasePart.SpecificGravity
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.699999988'
+  BasePart.TopParamA
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-0.5'
+  BasePart.TopParamB
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.5'
+  BasePart.TopSurface
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Studs'
+  BasePart.TopSurfaceInput
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'NoInput'
+  BasePart.Transparency
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BasePart.Velocity
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  BasePart.size
+    v1: '__api_dump_class_not_creatable__'
+    v2: '4, 1.20000005, 2'
+  BaseScript.Disabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  BaseScript.Enabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  BaseScript.LinkedSource
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  BaseScript.RunContext
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Legacy'
+  Beam.Attachment0
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Beam.Attachment1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  BevelMesh.Bevel
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BevelMesh.Bevel Roundness
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BevelMesh.Bulge
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  BillboardGui.Adornee
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  BillboardGui.PlayerToHideFrom
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  BinaryStringValue.Value
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  BodyPartDescription.Instance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  BrickColorValue.Value
+    v1: '__api_dump_no_string_value__'
+    v2: '<int name="Value">194</int>'
+  BubbleChatConfiguration.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  Camera.CameraSubject
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ChannelTabsConfiguration.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  ChatInputBarConfiguration.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  ChatInputBarConfiguration.TargetTextChannel
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ChatInputBarConfiguration.TextBox
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ChatWindowConfiguration.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  ChatWindowMessageProperties.PrefixTextProperties
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Clothing.Color3
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1, 1, 1'
+  Clothing.Outfit1
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  Clothing.Outfit2
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  CompressorSoundEffect.SideChain
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ContentProvider.BaseUrl
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ContentProvider.RequestQueueSize
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  ControllerManager.ActiveController
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ControllerManager.ClimbSensor
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ControllerManager.GroundSensor
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ControllerManager.RootPart
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ControllerPartSensor.SensedPart
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  CoreGui.SelectionImageObject
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  CoreGui.Version
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  CoreGuiConfiguration.CapturesViewConfiguration
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  CoreGuiConfiguration.PlayerListConfiguration
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  CoreGuiConfiguration.SelfViewConfiguration
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  CustomEventReceiver.Source
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DataModelMesh.Offset
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0'
+  DataModelMesh.Scale
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1, 1, 1'
+  DataModelMesh.VertexColor
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1, 1, 1'
+  DataModelSession.CurrentDataModelType
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'None'
+  DataModelSession.SessionId
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  DataStoreInfo.CreatedTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  DataStoreInfo.DataStoreName
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  DataStoreInfo.UpdatedTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  DataStoreKey.KeyName
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  DataStoreKeyInfo.CreatedTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  DataStoreKeyInfo.UpdatedTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  DataStoreKeyInfo.Version
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  DataStoreObjectVersionInfo.CreatedTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  DataStoreObjectVersionInfo.IsDeleted
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  DataStoreObjectVersionInfo.Version
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  Debris.MaxItems
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1000'
+  DebugSettings.DataModel
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  DebugSettings.InstanceCount
+    v1: '__api_dump_skipped_class__'
+    v2: '916'
+  DebugSettings.IsScriptStackTracingEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  DebugSettings.JobCount
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  DebugSettings.PlayerCount
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  DebugSettings.ReportSoundWarnings
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  DebugSettings.RobloxVersion
+    v1: '__api_dump_skipped_class__'
+    v2: '0.712.0.7120913'
+  DebugSettings.TickCountPreciseOverride
+    v1: '__api_dump_skipped_class__'
+    v2: 'Precise'
+  DebuggerBreakpoint.Condition
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  DebuggerBreakpoint.ContinueExecution
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  DebuggerBreakpoint.IsEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  DebuggerBreakpoint.Line
+    v1: '__api_dump_skipped_class__'
+    v2: '3'
+  DebuggerBreakpoint.LogExpression
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  DebuggerBreakpoint.isContextDependentBreakpoint
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  DebuggerBreakpoint.line
+    v1: '__api_dump_skipped_class__'
+    v2: '3'
+  DebuggerConnectionManager.Timeout
+    v1: '__api_dump_class_not_creatable__'
+    v2: '10'
+  DebuggerManager.DebuggingEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  DigitsRigDescription.Index1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Index2
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Index3
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Middle1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Middle2
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Middle3
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Pinky1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Pinky2
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Pinky3
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Ring1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Ring2
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Ring3
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Thumb1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Thumb2
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DigitsRigDescription.Thumb3
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DragDetector.PhysicalDragClickedPart
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  DragDetector.ReferenceInstance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  FaceControls.InternalOverrideFACSData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  FaceInstance.Face
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Front'
+  FacialAnimationRecordingService.BiometricDataConsent
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Feature.FaceId
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Right'
+  Feature.InOut
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Center'
+  Feature.LeftRight
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Center'
+  Feature.TopBottom
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Center'
+  File.Size
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Flag.TeamColor
+    v1: '__api_dump_no_string_value__'
+    v2: '<int name="TeamColor">194</int>'
+  FlagStand.TeamColor
+    v1: '__api_dump_no_string_value__'
+    v2: '<int name="TeamColor">194</int>'
+  FloatCurve.ValuesAndTimes
+    v1: '\x02'
+    v2: '__api_dump_not_serializable__'
+  FloorWire.From
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  FloorWire.To
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  FormFactorPart.FormFactor
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Brick'
+  FormFactorPart.formFactor
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Brick'
+  FormFactorPart.formFactorRaw
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Brick'
+  GameSettings.VideoCaptureEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  GetTextBoundsParams.Font
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="Font">\n\t<Family><url>rbxa
+  GuiService.AutoSelectGuiEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  GuiService.CoreEffectFolder
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  GuiService.CoreGuiFolder
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  GuiService.CoreGuiNavigationEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  GuiService.DisplayScalingMode
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Default'
+  GuiService.GuiNavigationEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  GuiService.IsModalDialog
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  GuiService.IsWindows
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  GuiService.MenuIsOpen
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  GuiService.PreferredTextSize
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Medium'
+  GuiService.PreferredTransparency
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1'
+  GuiService.ReducedMotionEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  GuiService.SelectedCoreObject
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  GuiService.SelectedObject
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  GuiService.TopbarInset
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0, 0, 0'
+  GuiService.TouchControlsEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  GuiService.ViewportDisplaySize
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Small'
+  GuiService.ViewportSizeInMM
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0'
+  HapticEffect.Waveform
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HapticEffect.WaveformData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  HiddenSurfaceRemovalAsset.HSRData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  HiddenSurfaceRemovalAsset.HSRMeshIdData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  Highlight.Adornee
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Humanoid.LeftLeg
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Humanoid.RightLeg
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Humanoid.RootPart
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Humanoid.SeatPart
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Humanoid.Torso
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Humanoid.WalkToPart
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.Chest
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.HeadBase
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftAnkle
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftClavicle
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftElbow
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftHip
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftKnee
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftShoulder
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftToeBase
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.LeftWrist
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.Neck
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightAnkle
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightClavicle
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightElbow
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightHip
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightKnee
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightShoulder
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightToeBase
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.RightWrist
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.Root
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.Spine
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  HumanoidRigDescription.Waist
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  IKControl.ChainRoot
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  IKControl.EndEffector
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  IKControl.Pole
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  IKControl.Target
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  InputBinding.UIButton
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  InternalSyncItem.Target
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  LocalizationTable.Root
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  LodDataEntity.EntitySource
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  LodDataEntity.SlimAnimationSource
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  LuaSourceContainer.CachedRemoteSource
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  LuaSourceContainer.CachedRemoteSourceLoadState
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  LuaSourceContainer.HasAssociatedDrafts
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  LuaSourceContainer.IsDifferentFromFileSystem
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  LuaSourceContainer.SandboxedSource
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  LuaSourceContainer.ScriptGuid
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  LuaSourceContainer.isPlayerScript
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  MakeupDescription.Instance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  MarkerCurve.ValuesAndTimes
+    v1: '\x02'
+    v2: '__api_dump_not_serializable__'
+  MaterialVariant.EmissiveMaskContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="EmissiveMaskContent">\n\
+  MeshPart.PhysicsData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  MetaBreakpoint.Id
+    v1: '4'
+    v2: '1'
+  Model.LodEntity
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Model.ModelMeshData
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="ModelMeshData">yuZp
+  Model.PrimaryPart
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Model.SlimAnimationTarget
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Model.SlimHash
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="SlimHash">yuZpQdnvv
+  Model.WorldPivotData
+    v1: '__api_dump_no_string_value__'
+    v2: '<OptionalCoordinateFrame name="WorldPiv
+  Mouse.Hit
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-6702.62158, 2503.24854, -6975.68994, 0
+  Mouse.Icon
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  Mouse.Origin
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-1.05031145, 20.3891296, 18.9037647, 0.
+  Mouse.Target
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  Mouse.TargetFilter
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  Mouse.TargetSurface
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Right'
+  Mouse.UnitRay
+    v1: '__api_dump_class_not_creatable__'
+    v2: '{-1.05031145, 20.3891296, 18.9037647}, 
+  Mouse.ViewSizeX
+    v1: '__api_dump_class_not_creatable__'
+    v2: '800'
+  Mouse.ViewSizeY
+    v1: '__api_dump_class_not_creatable__'
+    v2: '600'
+  Mouse.X
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-1'
+  Mouse.Y
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-1'
+  Mouse.hit
+    v1: '__api_dump_class_not_creatable__'
+    v2: '-6702.62158, 2503.24854, -6975.68994, 0
+  Mouse.target
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  MultipleDocumentInterfaceInstance.FocusedDataModelSession
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  NetworkSettings.EmulatedTotalMemoryInMB
+    v1: '__api_dump_skipped_class__'
+    v2: '112639'
+  NetworkSettings.FreeMemoryMBytes
+    v1: '__api_dump_skipped_class__'
+    v2: '96104.1016'
+  NetworkSettings.HttpProxyEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  NetworkSettings.HttpProxyURL
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  NetworkSettings.InboundNetworkLossPercent
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  NetworkSettings.InboundNetworkMaxDelayMs
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  NetworkSettings.InboundNetworkMinDelayMs
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  NetworkSettings.IncomingReplicationLag
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  NetworkSettings.NetworkEmulationEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  NetworkSettings.OpenCertManagerDialog
+    v1: '__api_dump_skipped_class__'
+    v2: '-1'
+  NetworkSettings.OutboundNetworkLossPercent
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  NetworkSettings.OutboundNetworkMaxDelayMs
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  NetworkSettings.OutboundNetworkMinDelayMs
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  NetworkSettings.PrintJoinSizeBreakdown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  NetworkSettings.PrintPhysicsErrors
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  NetworkSettings.PrintStreamInstanceQuota
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  NetworkSettings.RandomizeJoinInstanceOrder
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  NetworkSettings.RenderStreamedRegions
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  NetworkSettings.ShowActiveAnimationAsset
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  NoCollisionConstraint.Part0
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  NoCollisionConstraint.Part1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  NotificationService.IsConnected
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  NotificationService.IsLuaChatEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  NotificationService.IsLuaGameDetailsEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  NotificationService.SelectedTheme
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ObjectValue.Value
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  PackageLink.SerializedDefaultAttributes
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PartOperation.ChildData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PartOperation.ChildData2
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="ChildData2">yuZpQdn
+  PartOperation.MeshData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PartOperation.MeshData2
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="MeshData2">yuZpQdnv
+  PartOperation.PhysicsData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PartOperation.SolidMeshHolder
+    v1: '__api_dump_no_string_value__'
+    v2: '<NetAssetRef name="SolidMeshHolder">yuZ
+  PartOperationAsset.ChildData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PartOperationAsset.MeshData
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  Path2D.PropertiesSerialize
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PathfindingLink.Attachment0
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  PathfindingLink.Attachment1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  PhysicsSettings.AllowSleep
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  PhysicsSettings.AreAnchorsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreAssembliesShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreAssemblyCentersOfMassShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreAwakePartsHighlighted
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreBodyTypesShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreCollisionCostsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreConstraintForcesShownForSelectedOrHoveredInstances
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreConstraintTorquesShownForSelectedOrHoveredInstances
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreContactForcesShownForSelectedOrHoveredAssemblies
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreContactIslandsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreContactPointsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreGravityForcesShownForSelectedOrHoveredAssemblies
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreJointCoordinatesShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreMagnitudesShownForDrawnForcesAndTorques
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreMechanismsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreModelCoordsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreNonAnchorsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreOwnersShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.ArePartCoordsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreRegionsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreSolverIslandsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreTerrainReplicationRegionsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreTimestepsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreUnalignedPartsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.AreWorldCoordsShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.DisableCSGv2
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.DisableCSGv3ForPlugins
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.DrawConstraintsNetForce
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.DrawContactsNetForce
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.DrawTotalNetForce
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.EnableForceVisualizationSmoothing
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.FluidForceDrawScale
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  PhysicsSettings.ForceCSGv2
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  PhysicsSettings.ForceDrawScale
+    v1: '__api_dump_skipped_class__'
+    v2: '0.00100000005'
+  PhysicsSettings.ForceVisualizationSmoothingSteps
+    v1: '__api_dump_skipped_class__'
+    v2: '24'
+  PhysicsSettings.IsInterpolationThrottleShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.IsReceiveAgeShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.IsTreeShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.PhysicsEnvironmentalThrottle
+    v1: '__api_dump_skipped_class__'
+    v2: 'DefaultAuto'
+  PhysicsSettings.ShowDecompositionGeometry
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.ShowFluidForcesForSelectedOrHoveredMechanisms
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.ShowInstanceNamesForDrawnForcesAndTorques
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.SolverConvergenceMetricType
+    v1: '__api_dump_skipped_class__'
+    v2: 'AlgorithmAgnostic'
+  PhysicsSettings.SolverConvergenceVisualizationMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Disabled'
+  PhysicsSettings.ThrottleAdjustTime
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  PhysicsSettings.TorqueDrawScale
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  PhysicsSettings.UseCSGv2
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.AccountAge
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.AccountAgeReplicate
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.AppearanceDidLoad
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.AutoJumpEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  Player.CameraFrustumRequested
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.CameraMaxZoomDistance
+    v1: '__api_dump_skipped_class__'
+    v2: '400'
+  Player.CameraMinZoomDistance
+    v1: '__api_dump_skipped_class__'
+    v2: '0.5'
+  Player.CameraMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Classic'
+  Player.CanLoadCharacterAppearance
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  Player.Character
+    v1: '__api_dump_skipped_class__'
+    v2: 'nullptr'
+  Player.CharacterAppearance
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.CharacterAppearanceId
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.ChararacterRegionId
+    v1: '__api_dump_skipped_class__'
+    v2: 'NAN, NAN, NAN'
+  Player.ChatAvailabilityStatus
+    v1: '__api_dump_skipped_class__'
+    v2: 'Unknown'
+  Player.ChatMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'TextAndMenu'
+  Player.ChatPrivacyMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'NoOne'
+  Player.CloudEditCameraCoordinateFrame
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1'
+  Player.CloudEditPlayerActive
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  Player.CountryRegionCodeReplicate
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.DataComplexity
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.DataComplexityLimit
+    v1: '__api_dump_skipped_class__'
+    v2: '45000'
+  Player.DataReady
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.DevCameraOcclusionMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Zoom'
+  Player.DevComputerCameraMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'UserChoice'
+  Player.DevComputerMovementMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'UserChoice'
+  Player.DevEnableMouseLock
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  Player.DevTouchCameraMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'UserChoice'
+  Player.DevTouchMovementMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'UserChoice'
+  Player.DisplayName
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.FollowUserId
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.FollowUserIdReplicated
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.GameplayPaused
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.Guest
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.HasRobloxSubscription
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.HasVerifiedBadge
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.HealthDisplayDistance
+    v1: '__api_dump_skipped_class__'
+    v2: '100'
+  Player.InternalCharacterAppearanceLoaded
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.LocaleId
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.MaxSimulationRadius
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.MaximumSimulationRadius
+    v1: '__api_dump_skipped_class__'
+    v2: '1000'
+  Player.MembershipType
+    v1: '__api_dump_skipped_class__'
+    v2: 'None'
+  Player.MembershipTypeReplicate
+    v1: '__api_dump_skipped_class__'
+    v2: 'None'
+  Player.NameDisplayDistance
+    v1: '__api_dump_skipped_class__'
+    v2: '100'
+  Player.NeedRegionalFallback
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.Neutral
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  Player.OsPlatform
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.PartyId
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.PlatformName
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.ReplicationFocus
+    v1: '__api_dump_skipped_class__'
+    v2: 'nullptr'
+  Player.RespawnLocation
+    v1: '__api_dump_skipped_class__'
+    v2: 'nullptr'
+  Player.SimulationRadius
+    v1: '__api_dump_skipped_class__'
+    v2: '10'
+  Player.StepIdOffset
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.SuperSafeChatReplicate
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.Team
+    v1: '__api_dump_skipped_class__'
+    v2: 'nullptr'
+  Player.TeamColor
+    v1: '__api_dump_skipped_class__'
+    v2: '<int name="TeamColor">1</int>'
+  Player.Teleported
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.TeleportedIn
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.ThirdPartyTextChatRestrictionStatus
+    v1: '__api_dump_skipped_class__'
+    v2: 'Unknown'
+  Player.UnfilteredChat
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.UserId
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  Player.VRDevice
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  Player.VREnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  Player.userId
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  PlayerEmulatorService.SerializedEmulatedPolicyInfo
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PlayerGui.InputBindingMappingsRaw
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  PlayerGui.SelectionImageObject
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Players.BanningEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  Players.BubbleChat
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  Players.CharacterAutoLoads
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  Players.ClassicChat
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  Players.LocalPlayer
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  Players.MaxPlayers
+    v1: '__api_dump_class_not_creatable__'
+    v2: '12'
+  Players.MaxPlayersInternal
+    v1: '__api_dump_class_not_creatable__'
+    v2: '12'
+  Players.NumPlayers
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Players.PreferredPlayers
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Players.PreferredPlayersInternal
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Players.RespawnTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '5'
+  Players.ServerGitHash
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  Players.ServerLogPrefix
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  Players.UseStrafingAnimations
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  Players.localPlayer
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  Players.numPlayers
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  PluginDragEvent.Data
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  PluginDragEvent.MimeType
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  PluginDragEvent.Position
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0, 0'
+  PluginDragEvent.Sender
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  PluginGui.Plugin
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  PluginGui.Title
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  PluginToolbarButton.ClickableWhenViewportHidden
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  PluginToolbarButton.Enabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  PluginToolbarButton.Icon
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  PointLight.Range
+    v1: '__api_dump_skipped_class__'
+    v2: '8'
+  PoseBase.EasingDirection
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'In'
+  PoseBase.EasingStyle
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Linear'
+  PoseBase.Weight
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1'
+  ProximityPrompt.RootLocalizationTable
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ReflectionMetadataItem.Browsable
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  ReflectionMetadataItem.ClassCategory
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ReflectionMetadataItem.ClientOnly
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  ReflectionMetadataItem.Constraint
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ReflectionMetadataItem.Deprecated
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  ReflectionMetadataItem.EditingDisabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  ReflectionMetadataItem.EditorType
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ReflectionMetadataItem.FFlag
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ReflectionMetadataItem.IsBackend
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  ReflectionMetadataItem.PropertyOrder
+    v1: '__api_dump_class_not_creatable__'
+    v2: '5000'
+  ReflectionMetadataItem.ScriptContext
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ReflectionMetadataItem.ServerOnly
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  ReflectionMetadataItem.SliderScaling
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ReflectionMetadataItem.UIMaximum
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  ReflectionMetadataItem.UIMinimum
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  ReflectionMetadataItem.UINumTicks
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  RenderSettings.AutoFRMLevel
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  RenderSettings.EagerBulkExecution
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  RenderSettings.EditQualityLevel
+    v1: '__api_dump_skipped_class__'
+    v2: 'Automatic'
+  RenderSettings.Enable VR Mode
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  RenderSettings.EnableFRM
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  RenderSettings.ExportMergeByMaterial
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  RenderSettings.FrameRateManager
+    v1: '__api_dump_skipped_class__'
+    v2: 'Automatic'
+  RenderSettings.GraphicsMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Automatic'
+  RenderSettings.MeshCacheSize
+    v1: '__api_dump_skipped_class__'
+    v2: '33554432'
+  RenderSettings.MeshPartDetailLevel
+    v1: '__api_dump_skipped_class__'
+    v2: 'DistanceBased'
+  RenderSettings.QualityLevel
+    v1: '__api_dump_skipped_class__'
+    v2: 'Automatic'
+  RenderSettings.ReloadAssets
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  RenderSettings.RenderCSGTrianglesDebug
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  RenderSettings.ShowBoundingBoxes
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  RenderSettings.ViewMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'None'
+  RobloxSerializableInstance.Data
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  RocketPropulsion.Target
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  RolloutValidation.FirstBinaryString
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  RolloutValidation.FirstSharedString
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="FirstSharedString">
+  RolloutValidation.SecondBinaryString
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  RolloutValidation.SecondSharedString
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="SecondSharedString"
+  RolloutValidation.ThirdBinaryString
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  RolloutValidation.ThirdSharedString
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="ThirdSharedString">
+  RotationCurve.ValuesAndTimes
+    v1: '\x01'
+    v2: '__api_dump_not_serializable__'
+  RunService.ClientGitHash
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'ea0aef329279d41fa90fbfb4d5824ad9b776f67
+  RunService.FrameNumber
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  RunService.RunState
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Stopped'
+  ScreenshotHud.CameraButtonIcon
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  ScreenshotHud.CameraButtonPosition
+    v1: '__api_dump_class_not_creatable__'
+    v2: '{0, 0}, {0, 0}'
+  ScreenshotHud.CloseButtonPosition
+    v1: '__api_dump_class_not_creatable__'
+    v2: '{0, 0}, {0, 0}'
+  ScreenshotHud.CloseWhenScreenshotTaken
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  ScreenshotHud.ExperienceNameOverlayEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  ScreenshotHud.HideCoreGuiForCaptures
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  ScreenshotHud.HidePlayerGuiForCaptures
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  ScreenshotHud.OverlayFont
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'SourceSans'
+  ScreenshotHud.UsernameOverlayEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  ScreenshotHud.Visible
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  ScriptDebugger.Script
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Seat.Occupant
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Selection.ActiveInstance
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  Selection.RenderMode
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Outlines'
+  Selection.SelectionBoxThickness
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1'
+  Selection.SelectionLineThickness
+    v1: '__api_dump_class_not_creatable__'
+    v2: '2'
+  Selection.SelectionThickness
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.0199999996'
+  Selection.ShowActiveInstanceHighlight
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  SelectionPartLasso.Part
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ServiceVisibilityService.HiddenServices
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  ServiceVisibilityService.VisibleServices
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  SkateboardPlatform.Controller
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  SkateboardPlatform.ControllingHumanoid
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Skin.SkinColor
+    v1: '__api_dump_no_string_value__'
+    v2: '<int name="SkinColor">226</int>'
+  SlidingBallConstraint.ActuatorType
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'None'
+  SlidingBallConstraint.CurrentPosition
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlidingBallConstraint.LimitsEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  SlidingBallConstraint.LinearResponsiveness
+    v1: '__api_dump_class_not_creatable__'
+    v2: '45'
+  SlidingBallConstraint.LowerLimit
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlidingBallConstraint.MotorMaxAcceleration
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'INF'
+  SlidingBallConstraint.MotorMaxForce
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlidingBallConstraint.Restitution
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlidingBallConstraint.ServoMaxForce
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlidingBallConstraint.Size
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0.150000006'
+  SlidingBallConstraint.SoftlockServoUponReachingTarget
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  SlidingBallConstraint.Speed
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlidingBallConstraint.TargetPosition
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlidingBallConstraint.UpperLimit
+    v1: '__api_dump_class_not_creatable__'
+    v2: '5'
+  SlidingBallConstraint.Velocity
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  SlimAnimationDataEntity.EntitySource
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Sound.SoundGroup
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  SpawnLocation.TeamColor
+    v1: '__api_dump_no_string_value__'
+    v2: '<int name="TeamColor">194</int>'
+  SpotLight.Angle
+    v1: '__api_dump_skipped_class__'
+    v2: '90'
+  SpotLight.Face
+    v1: '__api_dump_skipped_class__'
+    v2: 'Front'
+  SpotLight.Range
+    v1: '__api_dump_skipped_class__'
+    v2: '16'
+  StarterGui.ProcessUserInput
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  StarterGui.ResetPlayerGuiOnSpawn
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  StarterGui.RtlTextSupport
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Default'
+  StarterGui.ScreenOrientation
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'LandscapeSensor'
+  StarterGui.ShowDevelopmentGui
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  StarterGui.StudioDefaultStyleSheet
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  StarterGui.StudioInsertWidgetLayerCollectorAutoLinkStyleSheet
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nullptr'
+  StarterGui.VirtualCursorMode
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Default'
+  Stats.ContactsCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.DataReceiveKbps
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.DataSendKbps
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.FrameTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.HeartbeatTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.HeartbeatTimeMs
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.InstanceCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '1064'
+  Stats.MemoryTrackingEnabled
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  Stats.MovingPrimitivesCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.PhysicsReceiveKbps
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.PhysicsSendKbps
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.PhysicsStepTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.PhysicsStepTimeMs
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.PrimitivesCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.RenderCPUFrameTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.RenderGPUFrameTime
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.SceneDrawcallCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.SceneTriangleCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.ShadowsDrawcallCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.ShadowsTriangleCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.UI2DDrawcallCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.UI2DTriangleCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.UI3DDrawcallCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  Stats.UI3DTriangleCount
+    v1: '__api_dump_class_not_creatable__'
+    v2: '0'
+  StatsItem.DisplayName
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Instance'
+  StudioDeviceEmulatorService.HasMultiTouchStarted
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  StudioDeviceEmulatorService.IsMultiTouchEmulationOn
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  StudioDeviceEmulatorService.IsMultiTouchEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  StudioDeviceEmulatorService.PivotPosition
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0'
+  StyleDerive.StyleSheet
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  StyleLink.StyleSheet
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  StyleQuery.ConditionsSerialize
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  StyleRule.PropertiesSerialize
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  StyleRule.PropertyTransitionsSerialize
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  SurfaceAppearance.EmissiveMaskContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="EmissiveMaskContent">\n\
+  SurfaceLight.Angle
+    v1: '__api_dump_skipped_class__'
+    v2: '90'
+  SurfaceLight.Face
+    v1: '__api_dump_skipped_class__'
+    v2: 'Front'
+  SurfaceLight.Range
+    v1: '__api_dump_skipped_class__'
+    v2: '16'
+  TaskScheduler.SchedulerDutyCycle
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  TaskScheduler.SchedulerRate
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  TaskScheduler.ThreadPoolConfig
+    v1: '__api_dump_skipped_class__'
+    v2: 'Auto'
+  TaskScheduler.ThreadPoolSize
+    v1: '__api_dump_skipped_class__'
+    v2: '12'
+  Team.TeamColor
+    v1: '__api_dump_no_string_value__'
+    v2: '<int name="TeamColor">1</int>'
+  TeleportAsyncResult.PrivateServerId
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  TeleportAsyncResult.ReservedServerAccessCode
+    v1: '__api_dump_class_not_creatable__'
+    v2: ''
+  TeleportService.CustomizedTeleportUI
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'false'
+  Terrain.MaterialColors
+    v1: ''
+    v2: '__api_dump_not_serializable__'
+  Terrain.PhysicsGrid
+    v1: '\x02\x03'
+    v2: '__api_dump_not_serializable__'
+  Terrain.SmoothGrid
+    v1: '\x01\x05'
+    v2: '__api_dump_not_serializable__'
+  TerrainDetail.EmissiveMaskContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="EmissiveMaskContent">\n\
+  TerrainRegion.SmoothGrid
+    v1: '\x01\x05'
+    v2: '__api_dump_not_serializable__'
+  TextBox.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  TextButton.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  TextChannel.DirectChatRequester
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  TextChatMessage.BubbleChatMessageProperties
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  TextChatMessage.ChatWindowMessageProperties
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  TextChatMessage.TextChannel
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  TextChatMessage.TextSource
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  TextLabel.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  TextSource.UserId
+    v1: '0'
+    v2: '3'
+  TextSource.UserIdReplicated
+    v1: '0'
+    v2: '3'
+  ThirdPartyUserService.FriendCommunicationRestrictionStatus
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Unknown'
+  ThirdPartyUserService.HasActiveUser
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'true'
+  ThirdPartyUserService.VoiceChatRestrictionStatus
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Unknown'
+  TrackerLodController.AudioMode
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Auto'
+  TrackerLodController.VideoExtrapolationMode
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Auto'
+  TrackerLodController.VideoLodMode
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Auto'
+  TrackerLodController.VideoMode
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Auto'
+  Trail.Attachment0
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Trail.Attachment1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Tween.Instance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  UIDragDetector.BoundingUI
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  UIDragDetector.ReferenceUIInstance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  UIPageLayout.CurrentPage
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  UserGameSettings.AllTutorialsDisabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.BadgeVisible
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.CameraMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Default'
+  UserGameSettings.CameraYInverted
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.ChatTranslationEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.ChatTranslationFTUXShown
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.ChatTranslationLocale
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  UserGameSettings.ChatTranslationToggleEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.ChatVisible
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.CompletedTutorials
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  UserGameSettings.ComputerCameraMovementChanged
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.ComputerCameraMovementMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Default'
+  UserGameSettings.ComputerMovementChanged
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.ComputerMovementMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Default'
+  UserGameSettings.ControlMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Classic'
+  UserGameSettings.DefaultCameraID
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  UserGameSettings.FramerateCap
+    v1: '__api_dump_skipped_class__'
+    v2: '-1'
+  UserGameSettings.Fullscreen
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.GamepadCameraSensitivity
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.GraphicsOptimizationMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Balanced'
+  UserGameSettings.GraphicsQualityLevel
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  UserGameSettings.HapticStrength
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.HasEverUsedVR
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.IsUsingCameraYInverted
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.IsUsingGamepadCameraSensitivity
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.MasterVolume
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.MasterVolumeStudio
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.MaxQualityEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.MicroProfilerWebServerEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.MicroProfilerWebServerIP
+    v1: '__api_dump_skipped_class__'
+    v2: 'Please use iOS or Android to use this f
+  UserGameSettings.MicroProfilerWebServerPort
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  UserGameSettings.MouseSensitivity
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.MouseSensitivityFirstPerson
+    v1: '__api_dump_skipped_class__'
+    v2: '1, 1'
+  UserGameSettings.MouseSensitivityThirdPerson
+    v1: '__api_dump_skipped_class__'
+    v2: '1, 1'
+  UserGameSettings.OnScreenProfilerEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.OnboardingsCompleted
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  UserGameSettings.PartyVoiceVolume
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.PeoplePageLayout
+    v1: '__api_dump_skipped_class__'
+    v2: 'Card'
+  UserGameSettings.PerformanceStatsVisible
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.PlayerHeight
+    v1: '__api_dump_skipped_class__'
+    v2: '5.70000029'
+  UserGameSettings.PlayerListVisible
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.PlayerNamesEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.PreferredTextSize
+    v1: '__api_dump_skipped_class__'
+    v2: 'Medium'
+  UserGameSettings.PreferredTransparency
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.QualityResetLevel
+    v1: '__api_dump_skipped_class__'
+    v2: '-1'
+  UserGameSettings.RCCProfilerRecordFrameRate
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  UserGameSettings.RCCProfilerRecordTimeFrame
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  UserGameSettings.ReadAloud
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.ReducedMotion
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.RotationType
+    v1: '__api_dump_skipped_class__'
+    v2: 'MovementRelative'
+  UserGameSettings.SavedQualityLevel
+    v1: '__api_dump_skipped_class__'
+    v2: 'Automatic'
+  UserGameSettings.StartMaximized
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.StartScreenPosition
+    v1: '__api_dump_skipped_class__'
+    v2: '20, 20'
+  UserGameSettings.StartScreenSize
+    v1: '__api_dump_skipped_class__'
+    v2: '800, 600'
+  UserGameSettings.TouchCameraMovementChanged
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.TouchCameraMovementMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Default'
+  UserGameSettings.TouchMovementChanged
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.TouchMovementMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'Default'
+  UserGameSettings.UiNavigationKeyBindEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.UsedCoreGuiIsVisibleToggle
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.UsedCustomGuiIsVisibleToggle
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.UsedHideHudShortcut
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.VRComfortSetting
+    v1: '__api_dump_skipped_class__'
+    v2: 'Normal'
+  UserGameSettings.VREnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.VRRotationIntensity
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserGameSettings.VRSafetyBubbleMode
+    v1: '__api_dump_skipped_class__'
+    v2: 'NoOne'
+  UserGameSettings.VRSmoothRotationEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.VRSmoothRotationEnabledCustomOption
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserGameSettings.VRThirdPersonFollowCamEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.VRThirdPersonFollowCamEnabledCustomOption
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.VignetteEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.VignetteEnabledCustomOption
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserGameSettings.gaID
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  UserInputService.AccelerometerEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserInputService.BottomBarSize
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0'
+  UserInputService.GamepadEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserInputService.GyroscopeEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserInputService.KeyboardEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserInputService.LegacyInputEventsEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserInputService.ModalEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserInputService.MouseBehavior
+    v1: '__api_dump_skipped_class__'
+    v2: 'Default'
+  UserInputService.MouseDeltaSensitivity
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
+  UserInputService.MouseEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserInputService.MouseIcon
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  UserInputService.MouseIconEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  UserInputService.NavBarSize
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 32'
+  UserInputService.OnScreenKeyboardAnimationDuration
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  UserInputService.OnScreenKeyboardPosition
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0'
+  UserInputService.OnScreenKeyboardSize
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0'
+  UserInputService.OnScreenKeyboardVisible
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserInputService.OverrideMouseIconBehavior
+    v1: '__api_dump_skipped_class__'
+    v2: 'None'
+  UserInputService.PreferredInput
+    v1: '__api_dump_skipped_class__'
+    v2: 'KeyboardAndMouse'
+  UserInputService.RightBarSize
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0'
+  UserInputService.StatusBarSize
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0'
+  UserInputService.TouchEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserInputService.TouchScreenEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  UserInputService.UserHeadCFrame
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1'
+  UserInputService.VREnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  ValueCurve.ValuesAndTimes
+    v1: '\x02'
+    v2: '__api_dump_not_serializable__'
+  VehicleSeat.Occupant
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  VelocityMotor.Hole
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  VideoPlayer.VideoContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="VideoContent">\n\t<null>
+  ViewportFrame.CurrentCamera
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  WeldConstraint.Part0
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  WeldConstraint.Part0Internal
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  WeldConstraint.Part1
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  WeldConstraint.Part1Internal
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Wire.SourceInstance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  Wire.TargetInstance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  WorkspaceAnnotation.Adornee
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  WrapTextureTransfer.ReferenceCageMeshContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="ReferenceCageMeshContent
+
+================================================================================
+Summary:
+  Total: 3805
+  Same: 3034
+  Different: 771
+  Only v1: 0
+  Only v2: 0

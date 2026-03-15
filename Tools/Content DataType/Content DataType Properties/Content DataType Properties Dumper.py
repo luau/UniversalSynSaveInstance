@@ -1,84 +1,30 @@
-import os
-import sys
+import os, sys
 
+# Find 'common' directory by searching up the tree
+p = os.path.dirname(os.path.abspath(__file__))
+while p != os.path.dirname(p) and not os.path.exists(os.path.join(p, "common")):
+    p = os.path.dirname(p)
+sys.path.insert(0, os.path.join(p, "common"))
 
-def import_dump_utils():
-    """Smart function to find and import dump_utils from common directory"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Search up the directory tree
-    search_dir = current_dir
-    max_depth = 10
-
-    for _ in range(max_depth):
-        common_path = os.path.join(search_dir, "common")
-        dump_utils_path = os.path.join(common_path, "dump_utils.py")
-
-        if os.path.exists(dump_utils_path):
-            if common_path not in sys.path:
-                sys.path.append(common_path)
-            try:
-                from dump_utils import write_dump_file, get_api_response
-
-                print(f"Found dump_utils at: {common_path}")
-                return write_dump_file, get_api_response
-            except ImportError as e:
-                print(f"Failed to import from {common_path}: {e}")
-                break
-
-        parent_dir = os.path.dirname(search_dir)
-        if parent_dir == search_dir:
-            break
-        search_dir = parent_dir
-
-    raise ImportError("Could not find common/dump_utils.py in any parent directory")
-
-
-# Import utilities
-write_dump_file, get_api_response = import_dump_utils()
-
+from dump_utils import write_dump_file, get_api_response
 
 def fetch_api(version_hash=None):
     response, version_hash = get_api_response(version_hash)
-    api_classes = response.json()["Classes"]
-
-    output = version_hash + "\n\n"
-
-    for api_class in api_classes:
-        class_name = api_class["Name"]
-        class_members = api_class["Members"]
-        prev_len = len(output)
-
-        for member in class_members:
-            member_name = member["Name"]
-            member_type = member["MemberType"]
-
-            if member_type == "Property":
-                serialization = member["Serialization"]
-                value_type = member["ValueType"]["Name"]
-
-                # Check if ValueType is "Content" and both CanSave and CanLoad are true
-                if (
-                    value_type == "Content"
-                    # and serialization["CanLoad"]
-                    # and serialization["CanSave"]
-                ):
-                    output += f"{class_name}.{member_name}\n"
-
-        if len(output) != prev_len:
-            output += "\n"
-
+    output = f"{version_hash}\n\n"
+    for cls in response.json()["Classes"]:
+        name = cls["Name"]
+        found = False
+        for m in cls["Members"]:
+            if m["MemberType"] == "Property" and m["ValueType"]["Name"] == "Content":
+                output += f"{name}.{m['Name']}\n"
+                found = True
+        if found: output += "\n"
     return output
 
-
 if __name__ == "__main__":
-    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
     try:
-        content = fetch_api(version_hash)
+        content = fetch_api(sys.argv[1] if len(sys.argv) > 1 else None)
         print(content)
-
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        write_dump_file(content, "Dump", script_dir)
-
+        write_dump_file(content, "Dump", os.path.dirname(__file__))
     except Exception as e:
         print(f"Error: {e}")

@@ -1,95 +1,37 @@
-import os
-import sys
+import os, sys
+p = os.path.dirname(os.path.abspath(__file__))
+while p != os.path.dirname(p) and not os.path.exists(os.path.join(p, "common")):
+    p = os.path.dirname(p)
+sys.path.insert(0, os.path.join(p, "common"))
+from dump_utils import write_dump_file, get_api_response
 
-
-def import_dump_utils():
-    """Smart function to find and import dump_utils from common directory"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Search up the directory tree
-    search_dir = current_dir
-    max_depth = 10
-
-    for _ in range(max_depth):
-        common_path = os.path.join(search_dir, "common")
-        dump_utils_path = os.path.join(common_path, "dump_utils.py")
-
-        if os.path.exists(dump_utils_path):
-            if common_path not in sys.path:
-                sys.path.append(common_path)
-            try:
-                from dump_utils import (
-                    write_dump_file,
-                    get_api_response,
-                    array_to_dictionary,
-                )
-
-                print(f"Found dump_utils at: {common_path}")
-                return write_dump_file, get_api_response, array_to_dictionary
-            except ImportError as e:
-                print(f"Failed to import from {common_path}: {e}")
-                break
-
-        parent_dir = os.path.dirname(search_dir)
-        if parent_dir == search_dir:
-            break
-        search_dir = parent_dir
-
-    raise ImportError("Could not find common/dump_utils.py in any parent directory")
-
-
-# Import utilities
-write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
-
-Class = ["Object", "Instance"]
-
-
-def check_superclass_inheritance(class_name, class_list, target_class):
-    current_class = class_list.get(class_name)
-    while current_class:
-        if current_class["Name"] == target_class:
-            return True
-        current_class = class_list.get(current_class["Superclass"])
+def check_inh(name, mapping, target):
+    curr = mapping.get(name)
+    while curr:
+        if curr["Name"] == target: return True
+        curr = mapping.get(curr["Superclass"])
     return False
 
-
-def fetch_api(version_hash=None):
-    response, version_hash = get_api_response(version_hash)
-    api_classes = response.json()["Classes"]
-    class_list = {cls["Name"]: cls for cls in api_classes}
-
-    s = version_hash + "\n\n"
-
-    for tracked_class in Class:
-        s += f"Classes that do NOT inherit from {tracked_class}:\n"
-        s += (
-            "-" * (len(f"Classes that do NOT inherit from {tracked_class}:") + 5) + "\n"
-        )
-
-        found_any = False
-        for api_class in api_classes:
-            class_name = api_class["Name"]
-
-            if not check_superclass_inheritance(class_name, class_list, tracked_class):
-                s += f"{class_name} does not inherit from {tracked_class}\n"
-                found_any = True
-
-        if not found_any:
-            s += f"All classes inherit from {tracked_class}\n"
-
+def fetch(vh=None):
+    resp, vh = get_api_response(vh)
+    classes = resp.json()["Classes"]
+    mapping = {c["Name"]: c for c in classes}
+    s = f"{vh}\n\n"
+    for target in ["Object", "Instance"]:
+        s += f"Classes that do NOT inherit from {target}:\n" + "-" * 40 + "\n"
+        found = False
+        for c in classes:
+            if not check_inh(c["Name"], mapping, target):
+                s += f"{c['Name']} does not inherit from {target}\n"
+                found = True
+        if not found: s += f"All classes inherit from {target}\n"
         s += "\n"
-
     return s
 
-
 if __name__ == "__main__":
-    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
     try:
-        content = fetch_api(version_hash)
+        content = fetch(sys.argv[1] if len(sys.argv) > 1 else None)
         print(content)
-
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        write_dump_file(content, "Dump", script_dir)
-
+        write_dump_file(content, "Dump", os.path.dirname(__file__))
     except Exception as e:
         print(f"Error: {e}")

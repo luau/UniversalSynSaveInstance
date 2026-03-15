@@ -1,466 +1,163 @@
-import os
-import sys
+import os, sys
+p = os.path.dirname(os.path.abspath(__file__))
+while p != os.path.dirname(p) and not os.path.exists(os.path.join(p, "common")):
+    p = os.path.dirname(p)
+sys.path.insert(0, os.path.join(p, "common"))
+from dump_utils import write_dump_file, get_api_response, array_to_dictionary
 
+BLACKLIST = {"Axes", "bool", "BrickColor", "CFrame", "Color3", "ColorSequence", "Content", "ContentId", "double", "Faces", "float", "Font", "int", "int64", "NumberRange", "NumberSequence", "PhysicalProperties", "Ray", "Rect", "string", "UDim", "UDim2", "Vector2", "Vector3"}
 
-def import_dump_utils():
-    """Smart function to find and import dump_utils from common directory"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+def fetch(vh=None):
+    resp, vh = get_api_response(vh, api_version="v2")
+    classes = resp.json()["Classes"]
+    s = f"{vh}\n\n"
+    hierarchy, nc_classes, c_classes, props_dict = {}, set(), set(), {}
+    ns_types, ns_props = set(), []
 
-    # Search up the directory tree
-    search_dir = current_dir
-    max_depth = 10
+    for c in classes:
+        name = c["Name"]
+        tags = array_to_dictionary(c.get("Tags")) if c.get("Tags") else {}
+        if tags.get("NotCreatable"): nc_classes.add(name)
+        else: c_classes.add(name)
+        hierarchy[name] = {"super": c["Superclass"], "tags": tags}
+        p_names = set()
+        for m in c["Members"]:
+            if m["MemberType"] == "Property":
+                p_names.add(m["Name"])
+                m_tags = array_to_dictionary(m.get("Tags")) if m.get("Tags") else {}
+                if m_tags.get("NotScriptable"):
+                    vt = m["ValueType"]
+                    if vt["Category"] not in ["Enum", "Class"] and vt["Name"] not in BLACKLIST:
+                        ns_types.add(vt["Name"])
+                        ns_props.append(f"{name}.{m['Name']}")
+        props_dict[name] = p_names
 
-    for _ in range(max_depth):
-        common_path = os.path.join(search_dir, "common")
-        dump_utils_path = os.path.join(common_path, "dump_utils.py")
+    def has_ancestor(name, target_set, visited=None):
+        if visited is None: visited = set()
+        if name in visited or name not in hierarchy: return False
+        visited.add(name)
+        sup = hierarchy[name]["super"]
+        if not sup or sup in ["Instance", "Object"]: return False
+        if sup in target_set: return True
+        return has_ancestor(sup, target_set, visited)
 
-        if os.path.exists(dump_utils_path):
-            if common_path not in sys.path:
-                sys.path.append(common_path)
-            try:
-                from dump_utils import (
-                    write_dump_file,
-                    get_api_response,
-                    array_to_dictionary,
-                )
+    nc_with_c_anc = [n for n in nc_classes if has_ancestor(n, c_classes)]
+    c_with_nc_anc = [n for n in c_classes if has_ancestor(n, nc_classes)]
+    
+    p2c = {}
+    for n in hierarchy:
+        sup = hierarchy[n]["super"]
+        if sup: p2c.setdefault(sup, []).append(n)
+    
+    siblings = {}
+    for sup, children in p2c.items():
+        if sup in ["Instance", "Object"]: continue
+        nc_children = [x for x in children if x in nc_classes]
+        c_children = [x for x in children if x in c_classes]
+        if nc_children and c_children:
+            for nc in nc_children:
+                siblings.setdefault(nc, []).extend(c_children)
+    for k in siblings: siblings[k] = list(set(siblings[k]))
 
-                print(f"Found dump_utils at: {common_path}")
-                return write_dump_file, get_api_response, array_to_dictionary
-            except ImportError as e:
-                print(f"Failed to import from {common_path}: {e}")
-                break
+    for c in classes:
+        name = c["Name"]
+        tags = array_to_dictionary(c.get("Tags")) if c.get("Tags") else {}
+        prev = len(s)
+        for m in c["Members"]:
+            if m["MemberType"] == "Property":
+                pname = m["Name"]
+                m_tags = array_to_dictionary(m.get("Tags")) if m.get("Tags") else {}
+                raw_tags = m.get("Tags", [])
+                ser = m["Serialization"]
+                vt = m["ValueType"]
+                tags_out = []
+                
+               
+                if vt["Name"] in ns_types and vt["Category"] not in ["Enum", "Class"] and not m_tags.get("NotScriptable") and vt["Name"] not in BLACKLIST:
+                    tags_out.append(f"{{Uses NotScriptable Type without the tag - {vt['Name']}}}")
+                if m_tags.get("WriteOnly"):
+                    tags_out.append("{WriteOnly}" if m_tags.get("NotScriptable") else "{Has WriteOnly without NotScriptable}")
+                if ser["CanLoad"] or ser["CanSave"]:
+                    if ser["CanLoad"] and not ser["CanSave"]: tags_out.append("{CanLoad Only}")
+                    elif ser["CanSave"] and not ser["CanLoad"]: tags_out.append("{CanSave Only}")
+                    if m_tags.get("Deprecated"):
+                        d = "{Deprecated}" + (" {CanSave}" if ser["CanSave"] else "")
+                        tags_out.append(d)
+                        
+                pref = None
+                for t in raw_tags:
+                    if isinstance(t, dict): pref = t.get("PreferredDescriptorName"); break
+                if pref and pref not in props_dict.get(name, set()):
+                    tags_out.append(f"{{PreferredDescriptorName: {pref} (NOT FOUND)}}")
+                elif pref:
+                    tags_out.append(f"{{PreferredDescriptorName: {pref}}}")
 
-        parent_dir = os.path.dirname(search_dir)
-        if parent_dir == search_dir:
-            break
-        search_dir = parent_dir
-
-    raise ImportError("Could not find common/dump_utils.py in any parent directory")
-
-
-# Import utilities
-write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
-
-
-def fetch_api(version_hash=None):
-    response, version_hash = get_api_response(version_hash)
-    api_classes = response.json()["Classes"]
-
-    s = version_hash + "\n\n"
-    class_list = {}
-
-    # Blacklist of common types that shouldn't trigger the warning
-    NOTSCRIPTABLE_BLACKLIST = {
-        "Axes",
-        "bool",
-        "BrickColor",
-        "CFrame",
-        "Color3",
-        "ColorSequence",
-        "Content",
-        "ContentId",
-        "double",
-        "Faces",
-        "float",
-        "Font",
-        "int",
-        "int64",
-        "NumberRange",
-        "NumberSequence",
-        "PhysicalProperties",
-        "Ray",
-        "Rect",
-        "string",
-        "UDim",
-        "UDim2",
-        "Vector2",
-        "Vector3",
-    }
-
-    not_scriptable_types = set()
-    not_scriptable_properties = []
-
-    # First pass: collect NotScriptable data, build class hierarchy, and collect all properties
-    class_hierarchy = {}
-    not_creatable_classes = set()
-    creatable_classes = set()
-
-    class_properties_dict = {}
-
-    for api_class in api_classes:
-        class_name = api_class["Name"]
-        class_members = api_class["Members"]
-        class_tags = api_class.get("Tags")
-
-        if class_tags:
-            class_tags = array_to_dictionary(class_tags)
-            if class_tags.get("NotCreatable"):
-                not_creatable_classes.add(class_name)
-            else:
-                creatable_classes.add(class_name)
-        else:
-            creatable_classes.add(class_name)  # Assume creatable if no tags
-
-        superclass = api_class["Superclass"]
-        class_hierarchy[class_name] = {
-            "superclass": superclass,
-            "tags": class_tags or {},
-        }
-
-        property_names = set()
-        for member in class_members:
-            if member["MemberType"] == "Property":
-                property_names.add(member["Name"])
-
-                member_tags = member.get("Tags")
-                if member_tags:
-                    member_tags = array_to_dictionary(member_tags)
-                    if member_tags.get("NotScriptable"):
-                        value_type = member["ValueType"]
-                        value_type_name = value_type["Name"]
-                        value_type_cat = value_type["Category"]
-                        if (
-                            value_type_cat not in ["Enum", "Class"]
-                            and value_type_name not in NOTSCRIPTABLE_BLACKLIST
-                        ):
-                            not_scriptable_types.add(value_type_name)
-                            not_scriptable_properties.append(
-                                f"{class_name}.{member['Name']}"
-                            )
-
-        class_properties_dict[class_name] = property_names
-
-    not_creatable_with_creatable_ancestors = []
-
-    def has_creatable_ancestor(class_name, visited=None):
-        """Check if a class has any creatable ancestor in its inheritance chain"""
-        if visited is None:
-            visited = set()
-
-        if class_name in visited:
-            return False
-        visited.add(class_name)
-
-        if class_name not in class_hierarchy:
-            return False
-
-        superclass = class_hierarchy[class_name]["superclass"]
-        if not superclass:  # No superclass
-            return False
-
-        # Skip if directly inheriting from Instance or Object
-        if superclass in ["Instance", "Object"]:
-            return False
-
-        if superclass in creatable_classes:
-            return True
-
-        # Recursively check superclass
-        return has_creatable_ancestor(superclass, visited)
-
-    for class_name in not_creatable_classes:
-        if has_creatable_ancestor(class_name):
-            not_creatable_with_creatable_ancestors.append(class_name)
-
-    creatable_with_notcreatable_ancestors = []
-
-    def has_notcreatable_ancestor(class_name, visited=None):
-        """Check if a class has any NotCreatable ancestor in its inheritance chain"""
-        if visited is None:
-            visited = set()
-
-        if class_name in visited:
-            return False
-        visited.add(class_name)
-
-        if class_name not in class_hierarchy:
-            return False
-
-        superclass = class_hierarchy[class_name]["superclass"]
-        if not superclass:  # No superclass
-            return False
-
-        # Skip if directly inheriting from Instance or Object
-        if superclass in ["Instance", "Object"]:
-            return False
-
-        if superclass in not_creatable_classes:
-            return True
-
-        # Recursively check superclass
-        return has_notcreatable_ancestor(superclass, visited)
-
-    for class_name in creatable_classes:
-        if has_notcreatable_ancestor(class_name):
-            creatable_with_notcreatable_ancestors.append(class_name)
-
-    # Find creatable siblings of NotCreatable classes
-    creatable_siblings_of_notcreatable = {}
-
-    # Build a dictionary of parent -> children relationships
-    parent_to_children = {}
-    for class_name in class_hierarchy:
-        parent = class_hierarchy[class_name]["superclass"]
-        if parent:
-            if parent not in parent_to_children:
-                parent_to_children[parent] = []
-            parent_to_children[parent].append(class_name)
-
-    # Find parents that have both creatable and NotCreatable children
-    for parent_class in parent_to_children:
-        if parent_class in ["Instance", "Object"]:
-            continue
-
-        children = parent_to_children[parent_class]
-        notcreatable_children = [
-            child for child in children if child in not_creatable_classes
-        ]
-        creatable_children = [child for child in children if child in creatable_classes]
-
-        # If parent has both creatable and NotCreatable children
-        if notcreatable_children and creatable_children:
-            for notcreatable_child in notcreatable_children:
-                if notcreatable_child not in creatable_siblings_of_notcreatable:
-                    creatable_siblings_of_notcreatable[notcreatable_child] = []
-                creatable_siblings_of_notcreatable[notcreatable_child].extend(
-                    creatable_children
-                )
-
-    # Remove duplicates from sibling lists
-    for notcreatable_child in creatable_siblings_of_notcreatable:
-        creatable_siblings_of_notcreatable[notcreatable_child] = list(
-            set(creatable_siblings_of_notcreatable[notcreatable_child])
-        )
-
-    # Second pass: original data collection + NotScriptable type checking
-    for api_class in api_classes:
-        class_name = api_class["Name"]
-        class_members = api_class["Members"]
-        class_tags = api_class.get("Tags")
-
-        if class_tags:
-            class_tags = array_to_dictionary(class_tags)
-
-        class_info = {
-            "Tags": class_tags,
-            "Superclass": api_class["Superclass"],
-            "Properties": {},
-        }
-
-        prev_len = len(s)
-
-        for member in class_members:
-            if member["MemberType"] == "Property":
-                property_name = member["Name"]
-                member_tags = member.get("Tags")
-                original_tags = member_tags
-
-                if member_tags:
-                    member_tags = array_to_dictionary(member_tags)
-                else:
-                    original_tags = {}
-                    member_tags = {}
-
-                serialization = member["Serialization"]
-
-                preferred_descriptor = None
-                invalid_preferred_descriptor = False
-
-                # Extract PreferredDescriptorName from tags
-                for tag_value in original_tags:
-                    if isinstance(tag_value, dict):
-                        preferred_descriptor = tag_value["PreferredDescriptorName"]
-
-                        # Check if the PreferredDescriptorName exists in this class's properties
-                        if (
-                            preferred_descriptor
-                            and preferred_descriptor
-                            not in class_properties_dict.get(class_name, set())
-                        ):
-                            invalid_preferred_descriptor = True
+                if tags_out:
+                    s += f"{name}.{pname} {' '.join(tags_out)}\n"
+        
+        if tags.get("NotCreatable"):
+            for m in c["Members"]:
+                if m["MemberType"] == "Property":
+                    val = m.get("Default")
+                    if val != "__api_dump_class_not_creatable__" and "__api_dump_" not in val:
+                        s += f"{name} is NotCreatable but {name}.{m['Name']} has default: \"{val}\"\n"
                         break
+        if len(s) > prev: s += "\n"
 
-                # Check if this property uses a ValueType from NotScriptable properties
-                value_type = member["ValueType"]
-                value_type_name = value_type["Name"]
-                value_type_cat = value_type["Category"]
-                uses_notscriptable_type = (
-                    value_type_name in not_scriptable_types
-                    and value_type_cat not in ["Enum", "Class"]
-                    and not member_tags.get("NotScriptable")
-                    and value_type_name not in NOTSCRIPTABLE_BLACKLIST
-                )
-                tags = []
+    s += "=" * 50 + "\nNOTSCRIPTABLE VALUE TYPE ANALYSIS\n" + "=" * 50 + "\n"
+    s += f"ValueTypes found exclusively in NotScriptable properties: {len(ns_types)}\n"
+    for t in sorted(ns_types): s += f"  - {t}\n"
+    s += f"\nProperties with NotScriptable tag: {len(ns_props)}\n"
+    for p in sorted(ns_props): s += f"  - {p}\n"
+    
+    s += "\n" + "=" * 50 + "\nPREFERREDDESCRIPTORNAME ANALYSIS\n" + "=" * 50 + "\n"
+    pref_count, invalid_pref = 0, 0
+    for c in classes:
+        for m in c["Members"]:
+            if m["MemberType"] == "Property":
+                for t in m.get("Tags", []):
+                    if isinstance(t, dict):
+                        pref_count += 1
+                        if t.get("PreferredDescriptorName") not in props_dict.get(c["Name"], set()):
+                            invalid_pref += 1
+    s += f"Properties using PreferredDescriptorName: {pref_count}\n"
+    s += f"Properties with PreferredDescriptorName pointing to non-existent property: {invalid_pref}\n"
+    if invalid_pref > 0:
+        s += "\nDetailed list:\n"
+        for c in classes:
+            for m in c["Members"]:
+                if m["MemberType"] == "Property":
+                    for t in m.get("Tags", []):
+                        if isinstance(t, dict):
+                            pd = t.get("PreferredDescriptorName")
+                            if pd and pd not in props_dict.get(c["Name"], set()):
+                                s += f"  - {c['Name']}.{m['Name']} -> {pd}\n"
 
-                if uses_notscriptable_type:
-                    tags.append(
-                        f"{{Uses NotScriptable Type without the tag - {value_type_name} }}"
-                    )
-
-                if member_tags.get("WriteOnly"):
-                    if member_tags.get("NotScriptable"):
-                        tags.append("{WriteOnly}")
-                    else:
-                        tags.append("{Has WriteOnly without NotScriptable}")
-
-                if serialization["CanLoad"] or serialization["CanSave"]:
-                    # Add CanLoad/CanSave conditions
-                    if serialization["CanLoad"] and not serialization["CanSave"]:
-                        tags.append("{CanLoad Only}")
-                    elif serialization["CanSave"] and not serialization["CanLoad"]:
-                        tags.append("{CanSave Only}")
-
-                    # Add Deprecated tag if present
-                    if member_tags.get("Deprecated"):
-                        deprecated_tag = "{Deprecated}"
-                        if serialization["CanSave"]:
-                            deprecated_tag += " {CanSave}"
-                        tags.append(deprecated_tag)
-
-                    # Combine tags into one line, each tag in separate brackets
-                if preferred_descriptor:
-                    if invalid_preferred_descriptor:
-                        tags.append(
-                            f"{{PreferredDescriptorName: {preferred_descriptor} (NOT FOUND IN SAME CLASS)}}"
-                        )
-                    else:
-                        tags.append(
-                            f"{{PreferredDescriptorName: {preferred_descriptor}}}"
-                        )
-
-                if tags:
-                    s += f"{class_name}.{property_name} {' '.join(tags)}\n"
-
-                class_info["Properties"][property_name] = {
-                    "Serialization": serialization,
-                    "Tags": member_tags,
-                    "Default": member.get("Default"),
-                }
-
-        if class_tags and class_tags.get("NotCreatable"):
-            for property_name, property_info in class_info["Properties"].items():
-                value = property_info.get("Default")
-                if (
-                    value != "__api_dump_class_not_creatable__"
-                    and "__api_dump_" not in value
-                ):
-                    s += f"{class_name} is NotCreatable but {class_name}.{property_name} has a default value: {value}\n"
-                    break
-
-        if len(s) != prev_len:
-            s += "\n"
-
-        class_list[class_name] = class_info
-
-    # Add analysis section
-    s += "\n" + "=" * 50 + "\n"
-    s += "NOTSCRIPTABLE VALUE TYPE ANALYSIS\n"
-    s += "=" * 50 + "\n\n"
-
-    s += f"ValueTypes found exclusively in NotScriptable properties: {len(not_scriptable_types)}\n"
-    for type_name in sorted(not_scriptable_types):
-        s += f"  - {type_name}\n"
-
-    s += f"\nProperties with NotScriptable tag: {len(not_scriptable_properties)}\n"
-    for prop in sorted(not_scriptable_properties):
-        s += f"  - {prop}\n"
-
-    s += f"\nBlacklisted types (excluded from analysis): {len(NOTSCRIPTABLE_BLACKLIST)}\n"
-    for type_name in sorted(NOTSCRIPTABLE_BLACKLIST):
-        s += f"  - {type_name}\n"
-
-    # NEW: Summary of PreferredDescriptorName issues
-    s += "\n" + "=" * 50 + "\n"
-    s += "PREFERREDDESCRIPTORNAME ANALYSIS\n"
-    s += "=" * 50 + "\n\n"
-
-    # Count PreferredDescriptorName usage
-    preferred_descriptor_count = 0
-    invalid_preferred_descriptor_count = 0
-
-    for api_class in api_classes:
-        class_name = api_class["Name"]
-        for member in api_class["Members"]:
-            if member["MemberType"] == "Property":
-                member_tags = member.get("Tags")
-                if member_tags:
-                    for tag_value in member_tags:
-                        if isinstance(tag_value, dict):
-                            preferred_descriptor_count += 1
-                            preferred_descriptor = tag_value["PreferredDescriptorName"]
-                            if preferred_descriptor not in class_properties_dict.get(
-                                class_name, set()
-                            ):
-                                invalid_preferred_descriptor_count += 1
-
-    s += f"Properties using PreferredDescriptorName: {preferred_descriptor_count}\n"
-    s += f"Properties with PreferredDescriptorName pointing to non-existent property in same class: {invalid_preferred_descriptor_count}\n"
-
-    if invalid_preferred_descriptor_count > 0:
-        s += "\nDetailed list of invalid PreferredDescriptorName references:\n"
-        for api_class in api_classes:
-            class_name = api_class["Name"]
-            for member in api_class["Members"]:
-                if member["MemberType"] == "Property":
-                    property_name = member["Name"]
-                    member_tags = member.get("Tags")
-                    if member_tags:
-                        for tag_value in member_tags:
-                            if isinstance(tag_value, dict):
-                                preferred_descriptor = tag_value[
-                                    "PreferredDescriptorName"
-                                ]
-                                if (
-                                    preferred_descriptor
-                                    not in class_properties_dict.get(class_name, set())
-                                ):
-                                    s += f"  - {class_name}.{property_name} -> {preferred_descriptor}\n"
-
-    s += "\n" + "=" * 50 + "\n"
-    s += "NOTCREATABLE INHERITANCE ANALYSIS\n"
-    s += "=" * 50 + "\n\n"
-
-    s += f"NotCreatable classes that inherit from creatable classes: {len(not_creatable_with_creatable_ancestors)}\n"
-    for class_name in sorted(not_creatable_with_creatable_ancestors):
+    s += "\n" + "=" * 50 + "\nNOTCREATABLE INHERITANCE ANALYSIS\n" + "=" * 50 + "\n"
+    s += f"NotCreatable classes that inherit from creatable classes: {len(nc_with_c_anc)}\n"
+    for n in sorted(nc_with_c_anc):
         chain = []
-        current_class = class_name
-        while current_class in class_hierarchy:
-            chain.append(current_class)
-            superclass = class_hierarchy[current_class]["superclass"]
-            if not superclass:
-                break
-            current_class = superclass
+        curr = n
+        while curr in hierarchy:
+            chain.append(curr)
+            curr = hierarchy[curr]["super"]
+            if not curr: break
+        s += f"  - {n} (inheritance: {' -> '.join(chain)})\n"
 
-        s += f"  - {class_name} (inheritance: {' -> '.join(chain)})\n"
-
-    s += "\n" + "=" * 50 + "\n"
-    s += "CREATABLE SIBLINGS OF NOTCREATABLE CLASSES\n"
-    s += "=" * 50 + "\n\n"
-
-    if creatable_siblings_of_notcreatable:
-        s += f"NotCreatable classes that have creatable siblings: {len(creatable_siblings_of_notcreatable)}\n"
-        for notcreatable_class in sorted(creatable_siblings_of_notcreatable.keys()):
-            siblings = creatable_siblings_of_notcreatable[notcreatable_class]
-            parent = class_hierarchy[notcreatable_class]["superclass"]
-            s += (
-                f"  - {notcreatable_class} (parent: {parent}) has creatable siblings:\n"
-            )
-            for sibling in sorted(siblings):
-                s += f"      - {sibling}\n"
+    s += "\n" + "=" * 50 + "\nCREATABLE SIBLINGS OF NOTCREATABLE CLASSES\n" + "=" * 50 + "\n"
+    if siblings:
+        s += f"NotCreatable classes that have creatable siblings: {len(siblings)}\n"
+        for n in sorted(siblings.keys()):
+            s += f"  - {n} (parent: {hierarchy[n]['super']}) has creatable siblings:\n"
+            for sib in sorted(siblings[n]): s += f"      - {sib}\n"
     else:
         s += "No NotCreatable classes found with creatable siblings.\n"
-
     return s
 
-
 if __name__ == "__main__":
-    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
     try:
-        content = fetch_api(version_hash)
+        content = fetch(sys.argv[1] if len(sys.argv) > 1 else None)
         print(content)
-
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        write_dump_file(content, "Dump", script_dir)
-
+        write_dump_file(content, "Dump", os.path.dirname(__file__))
     except Exception as e:
         print(f"Error: {e}")

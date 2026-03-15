@@ -1,263 +1,101 @@
-import os
-import sys
-import requests
+import os, sys, requests
+p = os.path.dirname(os.path.abspath(__file__))
+while p != os.path.dirname(p) and not os.path.exists(os.path.join(p, "common")):
+    p = os.path.dirname(p)
+sys.path.insert(0, os.path.join(p, "common"))
+from dump_utils import write_dump_file, get_api_response
 
+def extract_caps(data, caps=None):
+    if caps is None: caps = set()
+    if isinstance(data, list):
+        for i in data: extract_caps(i, caps)
+    elif isinstance(data, dict):
+        for k, v in data.items(): extract_caps(v, caps)
+    elif isinstance(data, str): caps.add(data)
+    return caps
 
-def import_dump_utils():
-    """Smart function to find and import dump_utils from common directory"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    search_dir = current_dir
-    max_depth = 10
-
-    for _ in range(max_depth):
-        common_path = os.path.join(search_dir, "common")
-        dump_utils_path = os.path.join(common_path, "dump_utils.py")
-
-        if os.path.exists(dump_utils_path):
-            if common_path not in sys.path:
-                sys.path.append(common_path)
-            try:
-                from dump_utils import (
-                    write_dump_file,
-                    get_api_response,
-                    array_to_dictionary,
-                )
-
-                print(f"Found dump_utils at: {common_path}")
-                return write_dump_file, get_api_response, array_to_dictionary
-            except ImportError as e:
-                print(f"Failed to import from {common_path}: {e}")
-                break
-
-        parent_dir = os.path.dirname(search_dir)
-        if parent_dir == search_dir:
-            break
-        search_dir = parent_dir
-
-    raise ImportError("Could not find common/dump_utils.py in any parent directory")
-
-
-write_dump_file, get_api_response, array_to_dictionary = import_dump_utils()
-
-datatypes = []
-datatypes_set = set()
-can_save_tracker = {}
-can_load_tracker = {}
-
-all_member_tags = set()
-all_capabilities = set()
-all_class_tags = set()
-
-
-def extract_capabilities(capabilities_data):
-    """Universal method to extract all capability strings from nested structures"""
-    capabilities = set()
-
-    if isinstance(capabilities_data, list):
-        for item in capabilities_data:
-            if isinstance(item, str):
-                capabilities.add(item)
-            elif isinstance(item, dict):
-                # Recursively extract from nested dictionaries
-                capabilities.update(extract_capabilities(item))
-    elif isinstance(capabilities_data, dict):
-        for key, value in capabilities_data.items():
-            if isinstance(value, (list, dict)):
-                # Recursively extract from nested structures
-                capabilities.update(extract_capabilities(value))
-            elif isinstance(value, str):
-                capabilities.add(value)
-
-    return capabilities
-
-
-def get_roblox_datatype_names():
-    """Fetch Roblox datatype names from GitHub creator docs"""
-    url = "https://api.github.com/repos/Roblox/creator-docs/contents/content/en-us/reference/engine/datatypes"
-
+def get_roblox_types():
     try:
-        response = requests.get(url)
-        response.raise_for_status()
+        resp = requests.get("https://api.github.com/repos/Roblox/creator-docs/contents/content/en-us/reference/engine/datatypes")
+        return [i["name"][:-5] for i in resp.json() if i["type"] == "file" and i["name"].endswith(".yaml")]
+    except: return []
 
-        data = response.json()
-        names = [
-            item["name"][:-5]
-            for item in data
-            if item["type"] == "file" and item["name"].endswith(".yaml")
-        ]
+def fetch(vh=None):
+    resp, vh = get_api_response(vh)
+    data = resp.json()
+    dtypes, dtypes_set, save_t, load_t = [], set(), {}, {}
+    all_m_tags, all_caps, all_c_tags = set(), set(), set()
 
-        return names
-
-    except requests.RequestException as e:
-        print(f"Error fetching Roblox datatypes from GitHub: {e}")
-        return []
-    except ValueError as e:
-        print(f"Error parsing GitHub API response: {e}")
-        return []
-
-
-def fetch_api(version_hash=None):
-    response, version_hash = get_api_response(version_hash)
-    api_data = response.json()
-    api_classes = api_data["Classes"]
-    api_enums = api_data["Enums"]
-
-    global datatypes, datatypes_set, can_save_tracker, can_load_tracker
-    global all_member_tags, all_capabilities, all_class_tags
-
-    # Process Classes
-    for api_class in api_classes:
-        class_tags = api_class.get("Tags")
-        if class_tags:
-            for tag in class_tags:
-                if isinstance(tag, str):
-                    all_class_tags.add(tag)
-
-        class_members = api_class["Members"]
-
-        for member in class_members:
-            member_tags = member.get("Tags")
-            if member_tags:
-                for tag in member_tags:
-                    if isinstance(tag, str):
-                        all_member_tags.add(tag)
-
-            member_capabilities = member.get("Capabilities")
-            if member_capabilities:
-                extracted_caps = extract_capabilities(member_capabilities)
-                all_capabilities.update(extracted_caps)
-
-            if member["MemberType"] == "Property":
-
-                serialization = member["Serialization"]
-                value_type = member["ValueType"]
-                value_type_name = value_type["Name"]
-                value_type_cat = value_type["Category"]
-
-                if value_type_cat == "Enum" or value_type_cat == "Class":
-                    continue
-
-                # Track CanSave status
-                if serialization["CanSave"]:
-                    can_save_tracker[value_type_name] = True
-                elif value_type_name not in can_save_tracker:
-                    can_save_tracker[value_type_name] = False
-
-                # Track CanLoad status
-                if serialization["CanLoad"]:
-                    can_load_tracker[value_type_name] = True
-                elif value_type_name not in can_load_tracker:
-                    can_load_tracker[value_type_name] = False
-
-                if value_type_name not in datatypes_set:
-                    datatypes_set.add(value_type_name)
-                    datatypes.append(value_type_name)
-
-    # Process Enums - look for SecurityCapability
-    for api_enum in api_enums:
-        if api_enum["Name"] == "SecurityCapability":
-            items = api_enum["Items"]
-            for item in items:
-                capability_name = item["Name"]
-                all_capabilities.add(capability_name)
-            break  # Found SecurityCapability, no need to continue
-
-    return version_hash
-
+    for c in data["Classes"]:
+        for t in c.get("Tags", []):
+            if isinstance(t, str): all_c_tags.add(t)
+        for m in c["Members"]:
+            for t in m.get("Tags", []):
+                if isinstance(t, str): all_m_tags.add(t)
+            for cap in extract_caps(m.get("Capabilities", [])): all_caps.add(cap)
+            if m["MemberType"] == "Property":
+                ser = m["Serialization"]
+                vt = m["ValueType"]
+                if vt["Category"] in ["Enum", "Class"]: continue
+                name = vt["Name"]
+                if ser["CanSave"]: save_t[name] = True
+                elif name not in save_t: save_t[name] = False
+                if ser["CanLoad"]: load_t[name] = True
+                elif name not in load_t: load_t[name] = False
+                if name not in dtypes_set:
+                    dtypes_set.add(name)
+                    dtypes.append(name)
+    
+    for e in data["Enums"]:
+        if e["Name"] == "SecurityCapability":
+            for i in e["Items"]: all_caps.add(i["Name"])
+            break
+    return vh, dtypes, dtypes_set, save_t, load_t, all_m_tags, all_caps, all_c_tags
 
 if __name__ == "__main__":
-    version_hash = sys.argv[1] if len(sys.argv) > 1 else None
-
     try:
-        version_hash = fetch_api(version_hash)
-        datatypes.sort()
-
-        # Get Roblox datatype names from GitHub
-        roblox_datatypes = get_roblox_datatype_names()
-        roblox_datatypes.sort()
-
-        # Merge API datatypes and documentation datatypes
-        all_datatypes_set = set(datatypes) | set(roblox_datatypes)
-        all_datatypes = sorted(list(all_datatypes_set))
-
-        # Find datatypes that are in one source but not the other
-        api_only = set(datatypes) - set(roblox_datatypes)
-        docs_only = set(roblox_datatypes) - set(datatypes)
-        in_both = set(datatypes) & set(roblox_datatypes)
-
-        output_lines = []
-
-        output_lines.append("=== DATATYPES ===")
-        for datatype in all_datatypes:
-            source_indicators = []
-
-            if datatype in api_only:
-                source_indicators.append("[API]")
-            elif datatype in docs_only:
-                source_indicators.append("[DOCS]")
-            else:  # in both
-                source_indicators.append("[BOTH]")
-
-            if datatype in datatypes_set:
-                can_save_status = can_save_tracker.get(datatype, False)
-                can_load_status = can_load_tracker.get(datatype, False)
-
-                if can_save_status:
-                    source_indicators.append("{CanSave}")
-                if can_load_status:
-                    source_indicators.append("{CanLoad}")
-
-                if (can_save_status and not can_load_status) or (
-                    can_load_status and not can_save_status
-                ):
-                    source_indicators.append("-> Probably has a descriptor")
-
-            output_lines.append(f"{datatype} {' '.join(source_indicators)}")
-
-        output_lines.append("")
-        output_lines.append("=== DATATYPES ANALYSIS ===")
-        output_lines.append(f"Total unique datatypes: {len(all_datatypes)}")
-        output_lines.append(f"From API only: {len(api_only)}")
-        output_lines.append(f"From Docs only: {len(docs_only)}")
-        output_lines.append(f"In both sources: {len(in_both)}")
-        output_lines.append("")
-
-        output_lines.append("=== CLASS TAGS ===")
-        output_lines.append(f"Total unique class tags: {len(all_class_tags)}")
-        sorted_class_tags = sorted(list(all_class_tags))
-
-        for tag in sorted_class_tags:
-            output_lines.append(f"  {tag}")
-
-        output_lines.append("")
-
-        output_lines.append("=== MEMBER TAGS ===")
-        output_lines.append(f"Total unique tags: {len(all_member_tags)}")
-        sorted_tags = sorted(list(all_member_tags))
-
-        for tag in sorted_tags:
-            output_lines.append(f"  {tag}")
-
-        output_lines.append("")
-
-        output_lines.append("=== CAPABILITIES ===")
-        output_lines.append(f"Total unique capabilities: {len(all_capabilities)}")
-        sorted_capabilities = sorted(list(all_capabilities))
-
-        for capability in sorted_capabilities:
-            output_lines.append(f"  {capability}")
-
-        content_body = "\n".join(output_lines) + "\n"
-        full_content = version_hash + "\n\n" + content_body
-
-        print(content_body)
-
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        write_dump_file(full_content, "Dump", script_dir)
-
+        vh, dtypes, dtypes_set, save_t, load_t, all_m_tags, all_caps, all_c_tags = fetch(sys.argv[1] if len(sys.argv) > 1 else None)
+        dtypes.sort()
+        roblox = sorted(get_roblox_types())
+        all_d = sorted(list(set(dtypes) | set(roblox)))
+        api_only = set(dtypes) - set(roblox)
+        docs_only = set(roblox) - set(dtypes)
+        
+        lines = ["=== DATATYPES ==="]
+        for d in all_d:
+            ind = []
+            if d in api_only: ind.append("[API]")
+            elif d in docs_only: ind.append("[DOCS]")
+            else: ind.append("[BOTH]")
+            if d in dtypes_set:
+                if save_t.get(d): ind.append("{CanSave}")
+                if load_t.get(d): ind.append("{CanLoad}")
+                if (save_t.get(d) and not load_t.get(d)) or (load_t.get(d) and not save_t.get(d)):
+                    ind.append("-> Probably has a descriptor")
+            lines.append(f"{d} {' '.join(ind)}")
+        
+        lines.append("\n=== DATATYPES ANALYSIS ===")
+        lines.append(f"Total unique datatypes: {len(all_d)}")
+        lines.append(f"From API only: {len(api_only)}")
+        lines.append(f"From Docs only: {len(docs_only)}")
+        lines.append(f"In both sources: {len(set(dtypes) & set(roblox))}")
+        
+        lines.append("\n=== CLASS TAGS ===")
+        lines.append(f"Total unique class tags: {len(all_c_tags)}")
+        for t in sorted(all_c_tags): lines.append(f"  {t}")
+        
+        lines.append("\n=== MEMBER TAGS ===")
+        lines.append(f"Total unique tags: {len(all_m_tags)}")
+        for t in sorted(all_m_tags): lines.append(f"  {t}")
+        
+        lines.append("\n=== CAPABILITIES ===")
+        lines.append(f"Total unique capabilities: {len(all_caps)}")
+        for t in sorted(all_caps): lines.append(f"  {t}")
+        
+        content = "\n".join(lines) + "\n"
+        full = f"{vh}\n\n{content}"
+        print(content)
+        write_dump_file(full, "Dump", os.path.dirname(__file__))
     except Exception as e:
         print(f"Error: {e}")
-        import traceback
-
-        traceback.print_exc()
+        import traceback; traceback.print_exc()
