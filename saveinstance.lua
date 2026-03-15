@@ -11,7 +11,7 @@ local function ArrayToDict(t, hydridMode, valueOverride, typeStrict)
 	local tmp = {}
 
 	if hydridMode then
-		for any1, any2 in t do
+		for any1, any2 in next, t do
 			if type(any1) == "number" then
 				tmp[any2] = valueOverride or true
 			elseif type(any2) == "table" then
@@ -21,7 +21,7 @@ local function ArrayToDict(t, hydridMode, valueOverride, typeStrict)
 			end
 		end
 	else
-		for _, key in t do
+		for _, key in next, t do
 			if not typeStrict or typeStrict and type(key) == typeStrict then
 				tmp[key] = true
 			end
@@ -266,7 +266,7 @@ local function __COUNT_CAPABILITY_BITS(raw)
 	-- ! Seems like both tostring & .Contains ignore high / internal bits (anything above CapabilityControl): RemoteCommand, InternalTest, PluginOrOpenCloud, Assistant. They're present when created & saved by Studio but can't be read through current means
 
 	local result = 0
-	for _, flag in string.split(tostring(raw), " | ") do
+	for _, flag in next, string.split(tostring(raw), " | ") do
 		local bit = CAPABILITY_BITS[flag]
 		if bit then
 			result = result + bit
@@ -278,7 +278,7 @@ end
 local function __COUNT_BITS(...) -- * Credits to Friend (you know yourself)
 	local Value = 0
 
-	for i, bit in { ... } do
+	for i, bit in next, { ... } do
 		if bit then
 			Value = Value + 2 ^ (i - 1)
 		end
@@ -323,7 +323,7 @@ Binary_Descriptors = {
 			buffer.writeu32(b, 0, Keypoints_n)
 
 			local offset = 4
-			for _, keypoint in Keypoints do
+			for _, keypoint in next, Keypoints do
 				keypoint_handler(keypoint, b, offset)
 				offset = offset + keypointSize
 			end
@@ -701,7 +701,7 @@ XML_Descriptors = {
 		return function(raw)
 			local sequence = ""
 
-			for _, keypoint in raw.Keypoints do
+			for _, keypoint in next, raw.Keypoints do
 				sequence = sequence .. keypoint_handler(keypoint)
 			end
 
@@ -1081,6 +1081,7 @@ do -- Sequences
 end
 
 for descriptorName, redirectName in
+	next,
 	{
 		NetAssetRef = "SharedString",
 		Vector2int16 = "Vector2",
@@ -1121,7 +1122,7 @@ do
 		local buffer_size = 4
 		local attrs_sorted = {}
 		local attrs_formatted = table.clone(attrs)
-		for attr, val in attrs do
+		for attr, val in next, attrs do
 			attrs_n = attrs_n + 1
 			attrs_sorted[attrs_n] = attr
 
@@ -1143,7 +1144,7 @@ do
 
 		local string__descriptor = Binary_Descriptors["string"]
 		local offset = 4
-		for _, attr in attrs_sorted do
+		for _, attr in next, attrs_sorted do
 			local b_Name, Name_size = string__descriptor(attr)
 
 			buffer.copy(b, offset, b_Name)
@@ -1170,7 +1171,7 @@ do
 
 		local attenuations_sorted = {}
 
-		for key in attenuations do
+		for key in next, attenuations do
 			attenuations_n = attenuations_n + 1
 			attenuations_sorted[attenuations_n] = key
 		end
@@ -1180,7 +1181,7 @@ do
 		local b = buffer.create(1 + attenuations_n * 8)
 
 		local offset = 1
-		for _, key in attenuations_sorted do
+		for _, key in next, attenuations_sorted do
 			buffer.writef32(b, offset, key)
 			offset = offset + 4
 			buffer.writef32(b, offset, attenuations[key]) -- volume
@@ -1205,7 +1206,7 @@ do
 		local __PACK_F32 = Binary_Descriptors.__PACK_F32
 
 		local offset = 8
-		for _, transform in transforms do
+		for _, transform in next, transforms do
 			local X, Y, Z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = transform:GetComponents()
 
 			local xBasis = __PACK_F32(R00, R01, R02)
@@ -1272,7 +1273,7 @@ do
 				local Path2DControlPoint_descriptor = Binary_Descriptors["Path2DControlPoint"]
 
 				local offset = 4
-				for i, point in control_points do
+				for i, point in next, control_points do
 					local buf = Path2DControlPoint_descriptor(point)
 
 					buffer.writeu8(b, offset, TypeID_Path2DControlPoint)
@@ -1329,7 +1330,7 @@ do
 				end
 
 				local strings_size = 0
-				for i, marker in markers do
+				for i, marker in next, markers do
 					strings_size = strings_size + (#marker.Value + 1)
 				end
 
@@ -1340,7 +1341,7 @@ do
 				buffer.writeu32(b, 4, markers_n)
 
 				local offset = 8
-				for i, marker in markers do
+				for i, marker in next, markers do
 					local value = marker.Value
 					buffer.writestring(b, offset, value)
 					offset = offset + (#value + 1) -- buffer.writeu8(b, offset, 0) -- Null terminator
@@ -1353,7 +1354,7 @@ do
 				buffer.writeu32(b, offset, markers_n)
 				offset = offset + 4
 
-				for i, marker in markers do
+				for i, marker in next, markers do
 					local scaled_time = math.round(marker.Time * 2400)
 					buffer.writeu32(b, offset, scaled_time)
 					offset = offset + 4
@@ -1374,7 +1375,7 @@ do
 
 				local buffer_size = 8
 
-				for _, pin in input_pins do
+				for _, pin in next, input_pins do
 					buffer_size = buffer_size + (4 + #pin)
 				end
 
@@ -1385,7 +1386,7 @@ do
 
 				local string__descriptor = Binary_Descriptors["string"]
 				local offset = 8
-				for _, pin in input_pins do
+				for _, pin in next, input_pins do
 					local b_pin, pin_size = string__descriptor(pin)
 
 					buffer.copy(b, offset, b_pin)
@@ -1423,7 +1424,7 @@ do
 
 				local offset = 8
 
-				for _, label in labels do
+				for _, label in next, labels do
 					buffer.writeu32(b, offset, label)
 					offset = offset + 4
 				end
@@ -1440,7 +1441,7 @@ do
 
 				local buffer_size = 8
 
-				for _, name in names do
+				for _, name in next, names do
 					buffer_size = buffer_size + (4 + #name)
 				end
 
@@ -1451,11 +1452,11 @@ do
 
 				local offset = 8
 
-				for _, name in names do
+				for _, name in next, names do
 					buffer.writeu32(b, offset, #name)
 					offset = offset + 4
 				end
-				for _, name in names do
+				for _, name in next, names do
 					buffer.writestring(b, offset, name)
 					offset = offset + #name
 				end
@@ -1477,7 +1478,7 @@ do
 
 				local offset = 8
 
-				for _, parent in parents do
+				for _, parent in next, parents do
 					buffer.writeu16(b, offset, parent) -- ? likely u8 with \0 (Null) terminators but this is safer in case they overflow beyond 255 values
 					offset = offset + 2
 				end
@@ -1509,7 +1510,7 @@ do
 				local __writei64 = Binary_Descriptors.__writei64
 
 				local offset = 0
-				for _, user_id in userid_accesslist do
+				for _, user_id in next, userid_accesslist do
 					__writei64(b, offset, user_id)
 					offset = offset + 8
 				end
@@ -1584,9 +1585,9 @@ do
 
 				local RGB_components = { "R", "G", "B" }
 
-				for _, material in TERRAIN_MATERIAL_COLORS do
+				for _, material in next, TERRAIN_MATERIAL_COLORS do
 					local color = instance:GetMaterialColor(material)
-					for _, component in RGB_components do
+					for _, component in next, RGB_components do
 						buffer.writeu8(b, offset, math.floor(color[component] * 255)) -- ? math.floor seems unneeded but it makes it faster
 						offset = offset + 1
 					end
@@ -1618,14 +1619,14 @@ do
 		HumanoidDescription = {
 			EmotesDataInternal = function(instance)
 				local emotes_data = ""
-				for name, ids in instance:GetEmotes() do
+				for name, ids in next, instance:GetEmotes() do
 					emotes_data = emotes_data .. name .. "^" .. table.concat(ids, "^") .. "^\\"
 				end
 				return emotes_data
 			end,
 			EquippedEmotesDataInternal = function(instance)
 				local equipped_emotes_data = ""
-				for _, emote in instance:GetEquippedEmotes() do
+				for _, emote in next, instance:GetEquippedEmotes() do
 					equipped_emotes_data = equipped_emotes_data .. emote.Slot .. "^" .. emote.Name .. "\\"
 				end
 				return equipped_emotes_data
@@ -1696,7 +1697,7 @@ do
 
 				local buffer_size = 2 -- Initial size
 
-				for _, group in collision_groups do
+				for _, group in next, collision_groups do
 					buffer_size = buffer_size + (7 + #group.name)
 				end
 
@@ -1707,7 +1708,7 @@ do
 
 				local TypeID_int32 = attr_Type_IDs["int32"]
 				local offset = 2
-				for i, group in collision_groups do
+				for i, group in next, collision_groups do
 					local name, id, mask = group.name, i - 1, group.mask
 					local name_len = #name
 
@@ -1730,7 +1731,7 @@ do
 			end,
 		},
 	}
-	for _, enum_item in Enum.Material:GetEnumItems() do
+	for _, enum_item in next, Enum.Material:GetEnumItems() do
 		NotScriptableFixes.MaterialService[enum_item.Name .. "Name"] = function(instance)
 			return instance:GetBaseMaterialOverride(enum_item)
 		end
@@ -1780,7 +1781,7 @@ do
 				end
 			end
 
-			for _, version_hash in matching_versions do
+			for _, version_hash in next, matching_versions do
 				ok, result = pcall(
 					game.HttpGet,
 					game,
@@ -1823,11 +1824,11 @@ do
 		local API_Dump_Decoded = service.HttpService:JSONDecode(API_Dump)
 
 		-- First pass (prep)
-		for _, API_Class in API_Dump_Decoded do
+		for _, API_Class in next, API_Dump_Decoded do
 			local ClassName = API_Class.Name
 			local props = {}
 
-			for _, Member in API_Class.Members do
+			for _, Member in next, API_Class.Members do
 				local MemberType = Member.MemberType
 				if MemberType == "Property" or MemberType == "Function" then
 					props[Member.Name] = {
@@ -1844,7 +1845,7 @@ do
 		local Max_SecurityCapabilities = SecurityCapabilities.new(unpack(Enum.SecurityCapability:GetEnumItems()))
 		local filter = { Security = Max_SecurityCapabilities, ExcludeDisplay = true, ExcludeInherited = true }
 		-- Second pass (actual)
-		for _, API_Class in API_Dump_Decoded do
+		for _, API_Class in next, API_Dump_Decoded do
 			local ClassProperties, ClassProperties_size = {}, 1
 			local Class = {
 				Properties = ClassProperties,
@@ -1870,7 +1871,7 @@ do
 			local ClassWhitelist, ClassBlacklist = ClassesWhitelist[ClassName], ClassesBlacklist[ClassName]
 
 			local ContentProperties
-			for _, Member in API_Class.Members do
+			for _, Member in next, API_Class.Members do
 				-- ? print(game:GetService("ReflectionService"):GetPropertyNames("TextBox"))
 				if Member.MemberType == "Property" then
 					local Serialization = Member.Serialization
@@ -1919,7 +1920,7 @@ do
 							local Special, PreferredDescriptorName
 
 							if MemberTags then
-								for _, tag in MemberTags do
+								for _, tag in next, MemberTags do
 									if type(tag) == "table" then
 										PreferredDescriptorName = tag.PreferredDescriptorName
 										if PreferredDescriptorName and Special then
@@ -2221,7 +2222,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	}
 
 	local OPTIONS_lowercase, CustomOptions_valid = {}, {}
-	for option_name in OPTIONS do
+	for option_name in next, OPTIONS do
 		local option_name_lowercase = string.lower(option_name)
 		if OPTIONS_lowercase[option_name_lowercase] then
 			warn("DUPLICATE OPTION", option_name)
@@ -2229,7 +2230,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			OPTIONS_lowercase[option_name_lowercase] = option_name
 		end
 	end
-	for option_alias, option_name in OPTIONS.OptionsAliases do
+	for option_alias, option_name in next, OPTIONS.OptionsAliases do
 		local option_name_lowercase = string.lower(option_alias)
 		if OPTIONS_lowercase[option_name_lowercase] then
 			warn("DUPLICATE ALIAS", option_alias)
@@ -2308,7 +2309,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				OPTIONS.IsModel = true
 				CustomOptions = {}
 			else
-				for key, value in CustomOptions do
+				for key, value in next, CustomOptions do
 					local option = OPTIONS_lowercase[string.lower(key)]
 
 					if option then
@@ -2394,7 +2395,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		local function ignorePath(path)
 			if path then
-				for _, child in path:GetChildren() do
+				for _, child in next, path:GetChildren() do
 					local class_match = default_scripts[child.ClassName]
 					if class_match then
 						local name_match = class_match[child.Name]
@@ -2506,6 +2507,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 
 			for _, key in
+				next,
 				{
 					"IsolateLocalPlayer",
 					"IsolateLocalPlayerCharacter",
@@ -2564,7 +2566,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local Children = TempRoot:GetChildren()
 				if 0 < #Children then
 					local tmp_dict = ArrayToDict(tmp)
-					for _, child in Children do
+					for _, child in next, Children do
 						if not tmp_dict[child] then
 							table.insert(tmp, child)
 						end
@@ -2578,6 +2580,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local tmp_dict = ArrayToDict(tmp)
 
 			for _, serviceName in
+				next,
 				{
 					"Workspace",
 					"Players",
@@ -2614,7 +2617,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			-- TODO: Only save paths that lead to scripts (nothing else)
 			-- Currently saves paths along with children of each tree
 			local unique = {}
-			for _, instance in TempRoot:GetDescendants() do
+			for _, instance in next, TempRoot:GetDescendants() do
 				if isLuaSourceContainer(instance) then
 					local Parent = instance.Parent
 					while Parent and Parent ~= TempRoot do
@@ -2626,7 +2629,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 				end
 			end
-			for instance in unique do
+			for instance in next, unique do
 				table.insert(tmp, instance)
 			end
 		end
@@ -2653,6 +2656,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- local totalsize = #totalstr
 
 		for i, unit in
+			next,
 			{
 				"B",
 				"KB",
@@ -2966,7 +2970,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		if Fix then
 			return Fix
 		elseif Fix == nil then
-			for class_name, fix in fixes do
+			for class_name, fix in next, fixes do
 				if instance:IsA(class_name) then
 					return fix
 				end
@@ -3028,7 +3032,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local Ref = Instance.new(className) -- ! Assuming anything passed here is Creatable
 		local Item = ReturnItem(Ref.ClassName, Ref)
 
-		for propertyName, val in properties do
+		for propertyName, val in next, properties do
 			local whitelisted, value, tag
 
 			-- TODO: Improve all sort of overrides & exceptions in the code (code below is awful)
@@ -3052,7 +3056,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local gethiddenproperty_fallback
 
 	local function save_hierarchy(hierarchy)
-		for _, instance in hierarchy do
+		for _, instance in next, hierarchy do
 			local __DARKLUA_CONTINUE_61 = false
 			repeat
 				local InstanceOverride, ClassTagOverride, ClassNameOverride
@@ -3170,7 +3174,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							end
 						end
 
-						for _, Property in GetInheritedProps(ClassNameOverride or ClassName) do
+						for _, Property in next, GetInheritedProps(ClassNameOverride or ClassName) do
 							local __DARKLUA_CONTINUE_62 = false
 							repeat
 								local PropertyName = Property.Name
@@ -3540,7 +3544,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 			local NilInstancesFixes = OPTIONS.NilInstancesFixes
 
-			for _, instance in global_container.getnilinstances() do
+			for _, instance in next, global_container.getnilinstances() do
 				if instance == game then
 					instance = nil
 					-- break
@@ -3602,7 +3606,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local C = game:GetService("CoreGui")
 		local D = Enum.CollisionFidelity.Default
 				
-		for _, v in game:GetDescendants() do
+		for _, v in next, game:GetDescendants() do
 			if v:IsA("TriangleMeshPart") and not v:IsDescendantOf(C) then
 				v.CollisionFidelity = D
 			end
@@ -3635,7 +3639,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 		do
 			local tmp = { "<SharedStrings>" }
-			for value, identifier in SharedStrings do
+			for value, identifier in next, SharedStrings do
 				table.insert(tmp, '<SharedString md5="' .. identifier .. '">' .. value .. "</SharedString>")
 			end
 
@@ -3694,7 +3698,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					local Anonymous = type(OPTIONS.Anonymous) == "table" and OPTIONS.Anonymous
 						or { UserId = "1", Name = "Roblox" }
 
-					for _, chunk in chunks do
+					for _, chunk in next, chunks do
 						chunk.str = gsubCaseInsensitive(
 							string.gsub(chunk.str, LocalPlayer.UserId, Anonymous.UserId),
 							LocalPlayer.Name,
@@ -3707,7 +3711,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local Callback = OPTIONS.Callback
 			if Callback then
 				local totalstr = header
-				for _, chunk in chunks do
+				for _, chunk in next, chunks do
 					totalstr = totalstr .. chunk.str
 				end
 				Callback(totalstr, chunks, totalsize)
@@ -3716,7 +3720,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				local totallen, currentlen = math.ceil(totalsize / SEGMENT_SIZE), 1
 
-				for _, chunk in chunks do
+				for _, chunk in next, chunks do
 					local length = math.ceil(chunk.size / SEGMENT_SIZE)
 					for i = 1, length do
 						local savestr = string.sub(chunk.str, (i - 1) * SEGMENT_SIZE + 1, i * SEGMENT_SIZE)
@@ -3738,7 +3742,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			else
 				local totalstr = header
-				for _, chunk in chunks do
+				for _, chunk in next, chunks do
 					totalstr = totalstr .. chunk.str
 				end
 				run_with_loading(
@@ -3777,7 +3781,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					ignoreCharacter(player)
 				end)
 
-				for _, player in Players:GetPlayers() do
+				for _, player in next, Players:GetPlayers() do
 					ignoreCharacter(player)
 				end
 			else
@@ -3811,7 +3815,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					return
 				end
 
-				for _, v in table.clone(f()) do
+				for _, v in next, table.clone(f()) do
 					local _type = type(v)
 					if _type == "thread" then
 						if v ~= self then
@@ -3919,7 +3923,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						InstancesOverrides[instance] = {
 							__Children = children,
 						}
-						for _, child in children do
+						for _, child in next, children do
 							construct_InstanceOverride(child)
 						end
 					end
@@ -3990,7 +3994,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 			local function benchmark(funcs, ...)
 				local ranking = table.create(2)
-				for i, f in funcs do
+				for i, f in next, funcs do
 					local start = os.clock()
 					for _ = 1, 50 do
 						f(...)
@@ -4098,7 +4102,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return debug.traceback(err)
 		end)
 
-		for _, connection in Connections do
+		for _, connection in next, Connections do
 			connection:Disconnect()
 		end
 
