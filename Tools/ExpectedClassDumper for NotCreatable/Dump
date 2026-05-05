@@ -1,4 +1,4 @@
-version-7091b4c2589245e0
+version-547feaebd3b44131
 
 AudioDeviceInput.Player {Player}
 
@@ -53,8 +53,6 @@ SelectionLasso.Humanoid {Humanoid}
 SelectionPartLasso.Part {BasePart}
 
 GuiService.SelectedObject {GuiObject}
-
-HapticEffect.Waveform {FloatCurve}
 
 InputBinding.UIButton {GuiButton}
 

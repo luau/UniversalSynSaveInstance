@@ -1,4 +1,4 @@
-version-4e426689616b482d
+version-547feaebd3b44131
 
 EditableImage.ImageData {BinaryString}
 
@@ -126,14 +126,6 @@ MaterialVariant.TexturePack {ContentId}
 
 MetaBreakpointContext.ContextDataInternal {string}
 
-NetworkSettings.InboundNetworkLossPercent {float}
-NetworkSettings.InboundNetworkMaxDelayMs {int}
-NetworkSettings.InboundNetworkMinDelayMs {int}
-NetworkSettings.NetworkEmulationEnabled {bool}
-NetworkSettings.OutboundNetworkLossPercent {float}
-NetworkSettings.OutboundNetworkMaxDelayMs {int}
-NetworkSettings.OutboundNetworkMinDelayMs {int}
-
 BasePart.Color3uint8 {Color3uint8}
 BasePart.MaterialVariantSerialized {string}
 BasePart.size {Vector3}
@@ -150,6 +142,7 @@ Terrain.AcquisitionMethod {TerrainAcquisitionMethod}
 Terrain.Decoration {bool}
 Terrain.GrassLength {float}
 Terrain.MaterialColors {BinaryString}
+Terrain.Materials {SharedString}
 Terrain.PhysicsGrid {BinaryString}
 Terrain.SmoothGrid {BinaryString}
 Terrain.VoxelGridAssetContentMap {AssetContentMap}
@@ -202,7 +195,6 @@ Workspace.LayeredClothingCacheOptimizations {RolloutState}
 Workspace.MeshPartHeadsAndAccessories {MeshPartHeadsAndAccessories}
 Workspace.MeshStreamingAndImprovedLods {RolloutState}
 Workspace.ModelStreamingBehavior {ModelStreamingBehavior}
-Workspace.MoverConstraintRootBehavior {MoverConstraintRootBehaviorMode}
 Workspace.NextGenerationReplication {RolloutState}
 Workspace.PathfindingUseImprovedSearch {PathfindingUseImprovedSearch}
 Workspace.PhysicsImprovedSleep {RolloutState}

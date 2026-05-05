@@ -4,4 +4,4 @@ __pycache__
 build
 docs
 tempCodeRunnerFile.*
-test.*
+test*.*

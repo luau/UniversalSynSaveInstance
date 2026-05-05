@@ -1,9 +1,9 @@
-Version v1: version-4e426689616b482d
-Version v2: version-4e426689616b482d
+Version v1: version-547feaebd3b44131
+Version v2: version-547feaebd3b44131
 ================================================================================
 
 
-Different Default values (775):
+Different Default values (774):
 ----------------------------------------
   AccessoryDescription.Instance
     v1: '__api_dump_no_string_value__'
@@ -520,7 +520,7 @@ Different Default values (775):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.717.0.7170982'
+    v2: '0.719.0.7191339'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -710,9 +710,6 @@ Different Default values (775):
   GuiService.ViewportSizeInMM
     v1: '__api_dump_class_not_creatable__'
     v2: '0, 0'
-  HapticEffect.Waveform
-    v1: '__api_dump_no_string_value__'
-    v2: 'nullptr'
   HapticEffect.WaveformData
     v1: ''
     v2: '__api_dump_not_serializable__'
@@ -934,20 +931,20 @@ Different Default values (775):
     v2: 'nullptr'
   NetworkSettings.EmulatedTotalMemoryInMB
     v1: '__api_dump_skipped_class__'
-    v2: '112639'
+    v2: '109999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '98408.8281'
+    v2: '94827.8984'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
   NetworkSettings.HttpProxyURL
     v1: '__api_dump_skipped_class__'
     v2: ''
-  NetworkSettings.InboundNetworkLossPercent
+  NetworkSettings.InboundNetworkJitterMs
     v1: '__api_dump_skipped_class__'
     v2: '0'
-  NetworkSettings.InboundNetworkMaxDelayMs
+  NetworkSettings.InboundNetworkLossPercent
     v1: '__api_dump_skipped_class__'
     v2: '0'
   NetworkSettings.InboundNetworkMinDelayMs
@@ -956,16 +953,13 @@ Different Default values (775):
   NetworkSettings.IncomingReplicationLag
     v1: '__api_dump_skipped_class__'
     v2: '0'
-  NetworkSettings.NetworkEmulationEnabled
-    v1: '__api_dump_skipped_class__'
-    v2: 'false'
   NetworkSettings.OpenCertManagerDialog
     v1: '__api_dump_skipped_class__'
     v2: '-1'
-  NetworkSettings.OutboundNetworkLossPercent
+  NetworkSettings.OutboundNetworkJitterMs
     v1: '__api_dump_skipped_class__'
     v2: '0'
-  NetworkSettings.OutboundNetworkMaxDelayMs
+  NetworkSettings.OutboundNetworkLossPercent
     v1: '__api_dump_skipped_class__'
     v2: '0'
   NetworkSettings.OutboundNetworkMinDelayMs
@@ -1606,7 +1600,7 @@ Different Default values (775):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: 'add2a7b69c824cc9b4b30f69c45a0f3ec3d3ff8
+    v2: '48a66cdfc38c0a676d03a91a5363ab5da17446c
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1916,6 +1910,9 @@ Different Default values (775):
   Terrain.MaterialColors
     v1: ''
     v2: '__api_dump_not_serializable__'
+  Terrain.Materials
+    v1: '__api_dump_no_string_value__'
+    v2: '<SharedString name="Materials">yuZpQdnv
   Terrain.PhysicsGrid
     v1: '\x02\x03'
     v2: '__api_dump_not_serializable__'
@@ -2333,8 +2330,8 @@ Different Default values (775):
 
 ================================================================================
 Summary:
-  Total: 3855
-  Same: 3080
-  Different: 775
+  Total: 3871
+  Same: 3097
+  Different: 774
   Only v1: 0
   Only v2: 0

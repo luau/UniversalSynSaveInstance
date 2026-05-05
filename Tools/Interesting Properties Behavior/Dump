@@ -1,4 +1,4 @@
-version-4e426689616b482d
+version-547feaebd3b44131
 
 Object.className {PreferredDescriptorName: ClassName}
 
@@ -286,8 +286,6 @@ Path2D.SelectedControlPoint {CanLoad Only}
 Path2D.SelectedControlPointData {CanLoad Only}
 
 GuiService.MenuIsOpen {CanSave Only}
-
-HapticEffect.Waveform {Deprecated} {CanSave}
 
 HttpService is NotCreatable but HttpService.HttpEnabled has default: "false"
 
@@ -741,7 +739,7 @@ ValueTypes found exclusively in NotScriptable properties: 13
   - UniqueId
   - Vector3int16
 
-Properties with NotScriptable tag: 76
+Properties with NotScriptable tag: 77
   - AnimationClip.GuidBinaryString
   - AnimationNodeDefinition.InputPinData
   - AnimationRigData.Generic
@@ -806,6 +804,7 @@ Properties with NotScriptable tag: 76
   - StyleRule.PropertyTransitionsSerialize
   - Terrain.ClusterGridV3
   - Terrain.MaterialColors
+  - Terrain.Materials
   - Terrain.PhysicsGrid
   - Terrain.SmoothGrid
   - Terrain.VoxelGridAssetContentMap
