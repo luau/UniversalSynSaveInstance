@@ -1725,7 +1725,7 @@ do
 					buffer.writeu8(b, offset, (color.G * 255))
 					offset += 1
 					buffer.writeu8(b, offset, (color.B * 255))
-					offset += 1
+						offset += 1
 				end
 
 				return buffer.tostring(b)
@@ -3369,9 +3369,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return prop_list
 	end
 
-	local total_inst = 0
-	local current_inst = 0
-
 	local function save_cache()
 		local savestr = table.concat(savebuffer)
 
@@ -3385,11 +3382,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		savebuffer_size = 1
 
 		if StatusText then
-			StatusText.Text = "Saving.. Size: "
-				.. get_size_format()
-				.. "; Progress: ~"
-				.. math.floor((current_inst / total_inst) * 100)
-				.. "%"
+			StatusText.Text = "Saving.. Size: " .. get_size_format()
 		end
 
 		wait_for_render() -- ? Needed for at least 1fps (status text)
@@ -3420,23 +3413,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Item
 	end
 
-	local gethiddenproperty_fallback, _save_hierarchy
+	local gethiddenproperty_fallback
 
-	local function save_hierarchy(hierarchy, ...)
-		if typeof(hierarchy) == "Instance" then
-			total_inst += #hierarchy:GetDescendants() + 1
-		else
-			for _, inst in hierarchy do
-				total_inst += #inst:GetDescendants() + 1
-			end
-		end
-		_save_hierarchy(hierarchy, ...)
-	end
-
-	_save_hierarchy = function(hierarchy)
+	local function save_hierarchy(hierarchy)
 		for _, instance in hierarchy do
-			current_inst += 1
-
 			local InstanceOverride, ClassTagOverride, ClassNameOverride
 
 			if not InstanceOverride then
@@ -3807,7 +3787,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local Children = InstanceOverride and InstanceOverride.__Children or instance:GetChildren()
 
 				if #Children ~= 0 then
-					_save_hierarchy(Children)
+					save_hierarchy(Children)
 				end
 			end
 
