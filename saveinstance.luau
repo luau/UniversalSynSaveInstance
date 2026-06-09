@@ -1567,6 +1567,7 @@ do
 			Color3uint8 = "Color",
 			MaterialVariantSerialized = "MaterialVariant",
 			size = "Size",
+			siz = "Size",
 		},
 		DoubleConstrainedValue = { value = "Value" },
 		IntConstrainedValue = { value = "Value" },
@@ -1667,7 +1668,7 @@ do
 				-- TODO Use code below once GetFirstCustomMaterialSlotIndex & GetMaterialSlot are enabled
 				--[[
 				local colors = {}
-				for slotIndex = 0, instance:GetFirstCustomMaterialSlotIndex() - 1 do
+				for slotIndex = 0, instance:GetFirstCustomMaterialSlotIndex() - 1 do -- ! GetFirstCustomMaterialSlotIndex was removed
 					local o, baseMaterial, materialVariant, color = pcall(instance.GetMaterialSlot, instance, slotIndex)
 
 					if o then
@@ -1725,7 +1726,7 @@ do
 					buffer.writeu8(b, offset, (color.G * 255))
 					offset += 1
 					buffer.writeu8(b, offset, (color.B * 255))
-						offset += 1
+					offset += 1
 				end
 
 				return buffer.tostring(b)
@@ -1734,9 +1735,9 @@ do
 		TriangleMeshPart = {
 			FluidFidelityInternal = "FluidFidelity",
 		},
-		MeshPart = { InitialSize = "MeshSize" },
+		MeshPart = { InitialSize = "MeshSize", MeshID = "MeshId" },
 		PartOperation = { InitialSize = "MeshSize" },
-		Part = { shape = "Shape" },
+		Part = { shape = "Shape", shap = "Shape" },
 		TrussPart = { style = "Style" },
 		FormFactorPart = {
 			formFactorRaw = "FormFactor",
@@ -1752,6 +1753,20 @@ do
 			end,
 		},
 		HumanoidDescription = {
+			AccessoryBlob = function(instance)
+				local blob = {}
+
+				for _, acc in instance:GetAccessories(false) do
+					table.insert(blob, {
+						AssetId = acc.AssetId,
+						Order = acc.Order,
+						AccessoryType = acc.AccessoryType.Name,
+						Puffiness = acc.Puffiness,
+					})
+				end
+
+				return service.HttpService:JSONEncode(blob)
+			end,
 			EmotesDataInternal = function(instance)
 				local emotes_data = ""
 				for name, ids in instance:GetEmotes() do
@@ -1792,7 +1807,11 @@ do
 			end,
 			WorldPivotData = "WorldPivot", -- TODO This doesn't accurately represent whether optional type property is present or not (it's never nil), gethiddenproperty or gethiddenproperty_fallback is preferred
 		},
-		PackageLink = { PackageIdSerialize = "PackageId", VersionIdSerialize = "VersionNumber" },
+		PackageLink = {
+			PackageContentSerialize = "PackageContent",
+			PackageIdSerialize = "PackageId",
+			VersionIdSerialize = "VersionNumber",
+		},
 		Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
 
 		StarterPlayer = { AvatarJointUpgrade_SerializedRollout = "AvatarJointUpgrade" }, -- RobloxScriptSecurity
@@ -1814,10 +1833,15 @@ do
 			end,
 		},
 		WeldConstraint = {
-			CFrame0 = function(instance) -- Assuming CFrame1 is the same just with Part1 -> Part0
+			CFrame0 = function(instance)
 				local Part0, Part1 = instance.Part0, instance.Part1
 
 				return Part0 and Part1 and Part0.CFrame:ToObjectSpace(Part1.CFrame) or CFrame.identity
+			end,
+			CFrame1 = function(instance)
+				local Part0, Part1 = instance.Part0, instance.Part1
+
+				return Part0 and Part1 and Part1.CFrame:ToObjectSpace(Part0.CFrame) or CFrame.identity
 			end,
 			Part0Internal = "Part0",
 			Part1Internal = "Part1",
@@ -1978,7 +2002,7 @@ do
 				end
 
 				if not dump then
-					for _, version_hash in matching_versions do
+					for _, version_hash in matching_versions do -- TODO ideally match nearest by Commit segment of version(), new>old
 						dump = fetchFullApiDump(version_hash)
 						if dump then
 							break
@@ -3396,11 +3420,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local whitelisted, value, tag
 
 			-- TODO: Improve all sort of overrides & exceptions in the code (code below is awful)
-			if "Source" == propertyName then
+			if propertyName == "Source" then
 				tag = "ProtectedString"
 				value = XML_Descriptors.__PROTECTEDSTRING(val)
 				whitelisted = true
-			elseif "Name" == propertyName then
+			elseif propertyName == "Name" then
 				whitelisted = true
 				value, tag = ReturnValueAndTag(val, "string") -- * Doubt ValueType will change
 			end
@@ -3544,7 +3568,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						local raw
 						if
 							not (
-								"ProtectedString" == ValueType
+								ValueType == "ProtectedString"
 								and PropertyName == "Source"
 								and isLuaSourceContainer(instance)
 							)
@@ -3564,6 +3588,16 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									end
 
 									if ok then
+										if ValueType == "Content" then
+											local t = typeof(result)
+
+											if t == "string" then
+												result = Content.fromUri(result)
+											elseif t == "Instance" then
+												result = Content.fromObject(result)
+											end
+										end
+
 										raw = result
 									else
 										GHPFFailed = true
@@ -3650,7 +3684,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 							if Descriptor then
 								value, tag = ReturnValueAndTag(raw, ValueType, Descriptor)
-							elseif "ProtectedString" == ValueType then -- TODO: Try fitting this inside Descriptors
+							elseif ValueType == "ProtectedString" then -- TODO: Try fitting this inside Descriptors
 								tag = ValueType
 
 								if PropertyName == "Source" then
@@ -3819,7 +3853,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 					InstancesOverrides[instanceOrTable] = {
 						__ClassName = customClassName, -- ! Assuming any class that contains ProtectedString is never passed, because it expects bytecode, not normal code
-						__Children = hierarchy,
+						-- __Children = hierarchy,
 						Properties = properties,
 					}
 
@@ -4308,6 +4342,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 					return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
 					-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
+					-- ! Seems to have issues with notscriptable Content DataType as it returns it in raw form (string) instead of Content type (ex. PackageContentSerialize)
 				end
 				if gethiddenproperty then
 					local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
