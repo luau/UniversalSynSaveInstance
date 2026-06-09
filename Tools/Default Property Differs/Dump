@@ -1,9 +1,9 @@
-Version v1: version-547feaebd3b44131
-Version v2: version-547feaebd3b44131
+Version v1: version-d0e6613dc5584cf7
+Version v2: version-d0e6613dc5584cf7
 ================================================================================
 
 
-Different Default values (774):
+Different Default values (781):
 ----------------------------------------
   AccessoryDescription.Instance
     v1: '__api_dump_no_string_value__'
@@ -21,7 +21,7 @@ Different Default values (774):
     v1: '����'
     v2: '__api_dump_not_serializable__'
   AnimationRigData.label
-    v1: '\x01'
+    v1: '\x02'
     v2: '__api_dump_not_serializable__'
   AnimationRigData.name
     v1: '\x01'
@@ -30,13 +30,13 @@ Different Default values (774):
     v1: '\x01'
     v2: '__api_dump_not_serializable__'
   AnimationRigData.postTransform
-    v1: '\x01'
+    v1: '\x02'
     v2: '__api_dump_not_serializable__'
   AnimationRigData.preTransform
-    v1: '\x01'
+    v1: '\x02'
     v2: '__api_dump_not_serializable__'
   AnimationRigData.transform
-    v1: '\x01'
+    v1: '\x02'
     v2: '__api_dump_not_serializable__'
   AnnotationsService.Hovered
     v1: '__api_dump_no_string_value__'
@@ -233,9 +233,6 @@ Different Default values (774):
   BasePart.LeftSurfaceInput
     v1: '__api_dump_class_not_creatable__'
     v2: 'NoInput'
-  BasePart.LocalSimulationValidation
-    v1: '__api_dump_class_not_creatable__'
-    v2: '0'
   BasePart.LocalTransparencyModifier
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -505,7 +502,7 @@ Different Default values (774):
     v2: '1'
   DebugSettings.InstanceCount
     v1: '__api_dump_skipped_class__'
-    v2: '914'
+    v2: '926'
   DebugSettings.IsScriptStackTracingEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'true'
@@ -520,7 +517,7 @@ Different Default values (774):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.719.0.7191339'
+    v2: '0.725.0.7251140'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -821,6 +818,9 @@ Different Default values (774):
   InputBinding.UIButton
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
+  InputBinding.UIModifier
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
   InternalSyncItem.Target
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -934,7 +934,7 @@ Different Default values (774):
     v2: '109999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '94827.8984'
+    v2: '94596.9062'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1004,6 +1004,9 @@ Different Default values (774):
   ObjectValue.Value
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
+  PackageLink.PackageContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="PackageContent">\n\t<nul
   PackageLink.SerializedDefaultAttributes
     v1: ''
     v2: '__api_dump_not_serializable__'
@@ -1364,6 +1367,9 @@ Different Default values (774):
   Player.UnfilteredChat
     v1: '__api_dump_skipped_class__'
     v2: 'false'
+  Player.User
+    v1: '__api_dump_skipped_class__'
+    v2: 'U1.AQAAAAAAAAAAAAAAAAAAAAA'
   Player.UserId
     v1: '__api_dump_skipped_class__'
     v2: '0'
@@ -1600,7 +1606,7 @@ Different Default values (774):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: '48a66cdfc38c0a676d03a91a5363ab5da17446c
+    v2: 'f73242d2c12aa8c32ec2e6105c4f354c756a4c4
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1745,6 +1751,9 @@ Different Default values (774):
   SpotLight.Range
     v1: '__api_dump_skipped_class__'
     v2: '16'
+  StarterGui.ClipsDescendantsSupportsRotation
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'Default'
   StarterGui.ProcessUserInput
     v1: '__api_dump_class_not_creatable__'
     v2: 'false'
@@ -1789,7 +1798,7 @@ Different Default values (774):
     v2: '0'
   Stats.InstanceCount
     v1: '__api_dump_class_not_creatable__'
-    v2: '1062'
+    v2: '1074'
   Stats.MemoryTrackingEnabled
     v1: '__api_dump_class_not_creatable__'
     v2: 'true'
@@ -1844,6 +1853,15 @@ Different Default values (774):
   StatsItem.DisplayName
     v1: '__api_dump_class_not_creatable__'
     v2: 'Instance'
+  StudioCameraService.FocusDistance
+    v1: '__api_dump_skipped_class__'
+    v2: '50'
+  StudioCameraService.LockCameraSpeed
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  StudioCameraService.LoggingEnabled
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
   StudioDeviceEmulatorService.HasMultiTouchStarted
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1869,7 +1887,7 @@ Different Default values (774):
     v1: ''
     v2: '__api_dump_not_serializable__'
   StyleRule.PropertyTransitionsSerialize
-    v1: ''
+    v1: '\x02'
     v2: '__api_dump_not_serializable__'
   SurfaceAppearance.EmissiveMaskContent
     v1: '__api_dump_no_string_value__'
@@ -2156,6 +2174,9 @@ Different Default values (774):
   UserGameSettings.StartScreenSize
     v1: '__api_dump_skipped_class__'
     v2: '800, 600'
+  UserGameSettings.StudioPreferredTextSize
+    v1: '__api_dump_skipped_class__'
+    v2: 'Medium'
   UserGameSettings.TouchCameraMovementChanged
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -2330,8 +2351,8 @@ Different Default values (774):
 
 ================================================================================
 Summary:
-  Total: 3871
-  Same: 3097
-  Different: 774
+  Total: 3932
+  Same: 3151
+  Different: 781
   Only v1: 0
   Only v2: 0

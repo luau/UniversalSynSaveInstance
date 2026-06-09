@@ -1,4 +1,4 @@
-version-547feaebd3b44131
+version-c8e5a3c64a194377
 
 AudioDeviceInput.Player {Player}
 
@@ -55,6 +55,7 @@ SelectionPartLasso.Part {BasePart}
 GuiService.SelectedObject {GuiObject}
 
 InputBinding.UIButton {GuiButton}
+InputBinding.UIModifier {GuiButton}
 
 JointInstance.Part0 {BasePart}
 JointInstance.Part1 {BasePart}

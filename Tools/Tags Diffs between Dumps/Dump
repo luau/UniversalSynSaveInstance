@@ -1,9 +1,9 @@
-Version v1: version-547feaebd3b44131
-Version v2: version-547feaebd3b44131
+Version v1: version-d0e6613dc5584cf7
+Version v2: version-d0e6613dc5584cf7
 ================================================================================
 
 
-Different Tags (498):
+Different Tags (504):
 ----------------------------------------
   ActivityHistoryEventService
     v1: ['NotCreatable', 'Service']
@@ -225,7 +225,7 @@ Different Tags (498):
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
   ChannelSelectorSoundEffect
-    v1: ['NotCreatable', 'NotBrowsable']
+    v1: ['NotCreatable']
     v2: ['NotCreatable', 'NotReplicated']
   ChannelTabsConfiguration
     v1: ['NotCreatable']
@@ -419,6 +419,9 @@ Different Tags (498):
   EditableMesh
     v1: ['NotCreatable']
     v2: ['NotCreatable', 'NotReplicated']
+  EditableMesh.Clear
+    v1: ['NotBrowsable']
+    v2: []
   EditableMesh.GetColors
     v1: ['CustomLuaState']
     v2: []
@@ -497,6 +500,9 @@ Different Tags (498):
   ExperienceInviteOptions
     v1: ['NotReplicated']
     v2: []
+  ExperienceStateRecordingService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
   ExplorerFilterAutocompleter
     v1: ['NotCreatable', 'NotReplicated']
     v2: ['NotReplicated']
@@ -512,6 +518,9 @@ Different Tags (498):
   FeatureRestrictionManager
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated']
+  FileSyncReplicationService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
   Flag
     v1: ['Deprecated']
     v2: []
@@ -620,6 +629,9 @@ Different Tags (498):
   HeapProfilerService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
+  HeatmapQueryService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
   HeatmapService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
@@ -652,9 +664,6 @@ Different Tags (498):
     v2: []
   HttpService.JSONEncode
     v1: ['CustomLuaState']
-    v2: []
-  HumanoidRigDescription
-    v1: ['NotBrowsable']
     v2: []
   ILegacyStudioBridge
     v1: ['NotCreatable', 'Service']
@@ -824,6 +833,12 @@ Different Tags (498):
   MetaBreakpointManager
     v1: ['NotCreatable', 'Service', 'NotReplicated']
     v2: ['NotCreatable', 'NotReplicated']
+  MicroProfilerService.GetDataInRange
+    v1: ['CustomLuaState']
+    v2: []
+  MicroProfilerService.ProcessCommand
+    v1: ['CustomLuaState']
+    v2: []
   Model.GetPrimaryPartCFrame
     v1: ['Deprecated', {'PreferredDescriptorName': 'GetPivot', 'ThreadSafety': 'Safe'}]
     v2: ['Deprecated', {'PreferredDescriptorName': 'GetPivot', 'ThreadSafety': 'Unknown'}]
@@ -886,6 +901,9 @@ Different Tags (498):
     v2: []
   PackageLink
     v1: ['NotCreatable', 'NotBrowsable']
+    v2: ['NotCreatable', 'NotReplicated']
+  Packages
+    v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated']
   Pages
     v1: ['NotCreatable', 'NotReplicated']
@@ -1175,6 +1193,9 @@ Different Tags (498):
   SlimContentProvider
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated']
+  SlimDebugSettings
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
   SlimReplicationService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
@@ -1184,9 +1205,6 @@ Different Tags (498):
   SolidModelContentProvider
     v1: ['NotCreatable', 'Service', 'NotReplicated']
     v2: []
-  Sound.ChannelCount
-    v1: ['Hidden', 'ReadOnly', 'NotReplicated', 'NotBrowsable']
-    v2: ['Hidden', 'NotReplicated', 'ReadOnly']
   SoundEffect
     v1: ['NotCreatable']
     v2: []
@@ -1502,8 +1520,8 @@ Different Tags (498):
 
 ================================================================================
 Summary:
-  Total: 8777
-  Same: 8279
-  Different: 498
+  Total: 8916
+  Same: 8412
+  Different: 504
   Only v1: 0
   Only v2: 0

@@ -1,6 +1,9 @@
-version-8b02f75e5b5343a1
+version-d0e6613dc5584cf7
 
 === DATATYPES ===
+AnimTrackMetadata [API]
+AnimTrackPlayState [API]
+AnimTrackWeight [API]
 AssetContentMap [API] {CanSave} {CanLoad}
 Axes [BOTH] {CanSave} {CanLoad}
 BinaryString [API] {CanSave} {CanLoad}
@@ -56,6 +59,7 @@ TweenInfo [BOTH]
 UDim [BOTH] {CanSave} {CanLoad}
 UDim2 [BOTH] {CanSave} {CanLoad}
 UniqueId [API] {CanSave} {CanLoad}
+User [API]
 ValueCurveKey [DOCS]
 Vector2 [BOTH] {CanSave} {CanLoad}
 Vector2int16 [DOCS]
@@ -69,8 +73,8 @@ int64 [API] {CanSave} {CanLoad}
 string [API] {CanSave} {CanLoad}
 
 === DATATYPES ANALYSIS ===
-Total unique datatypes: 66
-From API only: 21
+Total unique datatypes: 70
+From API only: 25
 From Docs only: 22
 In both sources: 23
 

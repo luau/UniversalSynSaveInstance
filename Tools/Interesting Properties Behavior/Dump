@@ -1,4 +1,4 @@
-version-547feaebd3b44131
+version-d0e6613dc5584cf7
 
 Object.className {PreferredDescriptorName: ClassName}
 
@@ -18,7 +18,6 @@ ConfigSnapshot.Outdated {CanSave Only}
 EditableImage.Size {CanSave Only}
 
 EditableMesh.FixedSize {CanSave Only}
-EditableMesh.SkinningEnabled {Deprecated} {CanSave}
 
 Instance.Parent {CanLoad Only}
 Instance.UniqueId {Uses NotScriptable Type without the tag - UniqueId}
@@ -209,6 +208,8 @@ EditableService is NotCreatable but EditableService.EditableStatus has default: 
 
 ExperienceStateCaptureService is NotCreatable but ExperienceStateCaptureService.HiddenSelectionEnabled has default: "false"
 
+ExperienceStateRecordingService is NotCreatable but ExperienceStateRecordingService.IsServerDataModelRecorderActive has default: "false"
+
 ExplorerFilterAutocompleter.ReplaceRange {CanSave Only}
 ExplorerFilterAutocompleter.RequiresOutsideContext {CanSave Only}
 
@@ -325,7 +326,7 @@ IncrementalPatchBuilder is NotCreatable but IncrementalPatchBuilder.AddPathsToBu
 InputObject is NotCreatable but InputObject.Delta has default: "0, 0, 0"
 
 InsertService.AllowInsertFreeModels {Deprecated} {CanSave}
-InsertService is NotCreatable but InsertService.AllowClientInsertModels has default: "false"
+InsertService is NotCreatable but InsertService.AllowInsertFreeModels has default: "false"
 
 InternalSyncItem.Target {CanLoad Only}
 
@@ -437,8 +438,6 @@ MeshPart.HasJointOffset {Deprecated} {CanSave}
 MeshPart.JointOffset {Deprecated} {CanSave}
 MeshPart.MeshID {CanLoad Only} {Deprecated} {PreferredDescriptorName: MeshId}
 
-PartOperation.TriangleCount {CanSave Only}
-
 TrussPart.Style {CanLoad Only}
 
 Camera.CoordinateFrame {CanLoad Only} {Deprecated} {PreferredDescriptorName: CFrame}
@@ -454,10 +453,13 @@ ProceduralModel.GenerationError {CanSave Only}
 Workspace.CollisionGroups {WriteOnly} {CanLoad Only}
 Workspace.StreamingPauseMode {CanLoad Only}
 
+PackageLink.PackageContent {CanSave Only}
 PackageLink.PackageId {CanSave Only}
 PackageLink.SerializedDefaultAttributes {Uses NotScriptable Type without the tag - BinaryString}
 PackageLink.VersionNumber {CanLoad Only}
 PackageLink is NotCreatable but PackageLink.AutoUpdate has default: "false"
+
+Packages is NotCreatable but Packages.IsDehydrated has default: "false"
 
 DataStoreKeyPages.Cursor {CanSave Only}
 
@@ -586,8 +588,6 @@ StarterPlayer is NotCreatable but StarterPlayer.AllowCustomAnimations has defaul
 
 Studio.UI Theme {CanSave Only} {Deprecated} {CanSave}
 
-StudioCameraService is NotCreatable but StudioCameraService.FocusDistance has default: "50"
-
 StudioData is NotCreatable but StudioData.EnableScriptCollabByDefaultOnLoad has default: "false"
 
 StudioPublishService is NotCreatable but StudioPublishService.PublishLocked has default: "false"
@@ -660,6 +660,8 @@ Translator.LocaleId {CanSave Only}
 
 TweenBase.PlaybackState {CanSave Only}
 
+UICorner.CornerRadius {CanLoad Only}
+
 UIListLayout.HorizontalPadding {CanLoad Only}
 UIListLayout.VerticalPadding {CanLoad Only}
 
@@ -716,6 +718,9 @@ WeldConstraint.Part1 {CanLoad Only}
 
 Wire.Connected {CanSave Only}
 
+StudioActionOverride.Released {CanSave Only}
+StudioActionOverride.StudioAction {CanSave Only}
+
 VideoSampler.TimeLength {CanSave Only}
 VideoSampler.VideoContent {CanSave Only}
 
@@ -724,7 +729,10 @@ WebStreamClient.ConnectionState {CanSave Only}
 ==================================================
 NOTSCRIPTABLE VALUE TYPE ANALYSIS
 ==================================================
-ValueTypes found exclusively in NotScriptable properties: 13
+ValueTypes found exclusively in NotScriptable properties: 16
+  - AnimTrackMetadata
+  - AnimTrackPlayState
+  - AnimTrackWeight
   - AssetContentMap
   - BinaryString
   - CSGPropertyData
@@ -739,7 +747,7 @@ ValueTypes found exclusively in NotScriptable properties: 13
   - UniqueId
   - Vector3int16
 
-Properties with NotScriptable tag: 77
+Properties with NotScriptable tag: 101
   - AnimationClip.GuidBinaryString
   - AnimationNodeDefinition.InputPinData
   - AnimationRigData.Generic
@@ -749,6 +757,30 @@ Properties with NotScriptable tag: 77
   - AnimationRigData.postTransform
   - AnimationRigData.preTransform
   - AnimationRigData.transform
+  - Animator.AnimTrackMetadata0
+  - Animator.AnimTrackMetadata1
+  - Animator.AnimTrackMetadata2
+  - Animator.AnimTrackMetadata3
+  - Animator.AnimTrackMetadata4
+  - Animator.AnimTrackMetadata5
+  - Animator.AnimTrackMetadata6
+  - Animator.AnimTrackMetadata7
+  - Animator.AnimTrackPlayState0
+  - Animator.AnimTrackPlayState1
+  - Animator.AnimTrackPlayState2
+  - Animator.AnimTrackPlayState3
+  - Animator.AnimTrackPlayState4
+  - Animator.AnimTrackPlayState5
+  - Animator.AnimTrackPlayState6
+  - Animator.AnimTrackPlayState7
+  - Animator.AnimTrackWeight0
+  - Animator.AnimTrackWeight1
+  - Animator.AnimTrackWeight2
+  - Animator.AnimTrackWeight3
+  - Animator.AnimTrackWeight4
+  - Animator.AnimTrackWeight5
+  - Animator.AnimTrackWeight6
+  - Animator.AnimTrackWeight7
   - Animator.FacsReplicationData
   - AudioDeviceInput.AccessList
   - AuroraScript.AuroraScriptBindingsSerialize
@@ -784,7 +816,6 @@ Properties with NotScriptable tag: 77
   - PartOperation.MeshData
   - PartOperation.MeshData2
   - PartOperation.PhysicsData
-  - PartOperation.SerializedOperationGraph
   - PartOperation.SolidMeshHolder
   - PartOperationAsset.ChildData
   - PartOperationAsset.MeshData
@@ -807,6 +838,7 @@ Properties with NotScriptable tag: 77
   - Terrain.Materials
   - Terrain.PhysicsGrid
   - Terrain.SmoothGrid
+  - Terrain.ValidationAssetContentMap
   - Terrain.VoxelGridAssetContentMap
   - TerrainRegion.ExtentsMax
   - TerrainRegion.ExtentsMin

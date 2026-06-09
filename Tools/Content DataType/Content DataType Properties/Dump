@@ -1,10 +1,14 @@
-version-19073b5104cb45df
+version-d0e6613dc5584cf7
+
+Animation.AnimationContent
 
 AudioPlayer.AudioContent
 
 BaseWrap.CageMeshContent
 
 WrapLayer.ReferenceMeshContent
+
+Beam.TextureContent
 
 CharacterMesh.BaseTextureContent
 CharacterMesh.MeshContent
@@ -13,6 +17,9 @@ CharacterMesh.OverlayTextureContent
 ClickDetector.CursorIconContent
 
 DragDetector.ActivatedCursorIconContent
+
+FileMesh.MeshContent
+FileMesh.TextureContent
 
 Decal.ColorMapContent
 Decal.MetalnessMapContent
@@ -32,6 +39,10 @@ ScrollingFrame.TopImageContent
 
 VideoFrame.VideoContent
 
+AdGui.FallbackImageContent
+
+ImageHandleAdornment.ImageContent
+
 MaterialVariant.ColorMapContent
 MaterialVariant.EmissiveMaskContent
 MaterialVariant.MetalnessMapContent
@@ -44,6 +55,13 @@ MeshPart.MeshContent
 MeshPart.TextureContent
 
 BackpackItem.TextureContent
+
+PackageLink.PackageContent
+PackageLink.PackageContentSerialize
+
+ParticleEmitter.TextureContent
+
+ScreenshotHud.CameraButtonIconContent
 
 Sky.MoonTextureContent
 Sky.SkyboxBackContent
@@ -67,6 +85,8 @@ TerrainDetail.EmissiveMaskContent
 TerrainDetail.MetalnessMapContent
 TerrainDetail.NormalMapContent
 TerrainDetail.RoughnessMapContent
+
+Trail.TextureContent
 
 UIDragDetector.ActivatedCursorIconContent
 UIDragDetector.CursorIconContent

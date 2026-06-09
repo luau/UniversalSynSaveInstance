@@ -1,4 +1,4 @@
-version-547feaebd3b44131
+version-d0e6613dc5584cf7
 
 EditableImage.ImageData {BinaryString}
 
@@ -21,6 +21,7 @@ AnimationRigData.postTransform {BinaryString}
 AnimationRigData.preTransform {BinaryString}
 AnimationRigData.transform {BinaryString}
 
+StarterGui.ClipsDescendantsSupportsRotation {RolloutState}
 StarterGui.RtlTextSupport {RtlTextSupport}
 StarterGui.VirtualCursorMode {VirtualCursorMode}
 
@@ -67,8 +68,6 @@ Humanoid.InternalHeadScale {float}
 
 HumanoidDescription.EmotesDataInternal {string}
 HumanoidDescription.EquippedEmotesDataInternal {string}
-
-InsertService.AllowClientInsertModels {bool}
 
 Lighting.ExtendLightRangeTo120 {RolloutState}
 
@@ -145,6 +144,7 @@ Terrain.MaterialColors {BinaryString}
 Terrain.Materials {SharedString}
 Terrain.PhysicsGrid {BinaryString}
 Terrain.SmoothGrid {BinaryString}
+Terrain.ValidationAssetContentMap {AssetContentMap}
 Terrain.VoxelGridAssetContentMap {AssetContentMap}
 AcquisitionMethod -> LastUsedModificationMethod {POTENTIAL PROXY}
 
@@ -191,6 +191,8 @@ Workspace.EnableSLIMAvatars {RolloutState}
 Workspace.ExplicitAutoJoints {bool}
 Workspace.FluidForces {FluidForces}
 Workspace.IKControlConstraintSupport {IKControlConstraintSupport}
+Workspace.ImprovedAnimationConstraint {RolloutState}
+Workspace.ImprovedPhysicsReplication {RolloutState}
 Workspace.LayeredClothingCacheOptimizations {RolloutState}
 Workspace.MeshPartHeadsAndAccessories {MeshPartHeadsAndAccessories}
 Workspace.MeshStreamingAndImprovedLods {RolloutState}
@@ -218,6 +220,8 @@ Workspace.UseFixedSimulation {RolloutState}
 Workspace.UseNewLuauTypeSolver {RolloutState}
 Workspace.ValidateEnabledProximityPrompt {RolloutState}
 ValidateEnabledProximityPrompt -> EnableSLIMAvatars {POTENTIAL PROXY}
+ValidateEnabledProximityPrompt -> ImprovedAnimationConstraint {POTENTIAL PROXY}
+ValidateEnabledProximityPrompt -> ImprovedPhysicsReplication {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> LayeredClothingCacheOptimizations {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> MeshStreamingAndImprovedLods {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> NextGenerationReplication {POTENTIAL PROXY}
@@ -232,6 +236,7 @@ ValidateEnabledProximityPrompt -> UseNewLuauTypeSolver {POTENTIAL PROXY}
 SignalBehavior2 -> SignalBehavior {POTENTIAL PROXY}
 SignalBehavior2 -> SignalBehaviorAlias {POTENTIAL PROXY}
 
+PackageLink.PackageContentSerialize {Content}
 PackageLink.PackageIdSerialize {ContentId}
 PackageLink.VersionIdSerialize {int64}
 
@@ -330,6 +335,7 @@ Fire.heat_xml
 Fire.size_xml
 Folder.ReplicatedGuiInsertionOrder {Serialize: False}
 GuiBase2d.ReplicatedInsertionOrder {Serialize: False}
+VideoFrame.InternalVideoUsage {Scriptable}
 VideoFrame.PlayingReplicating {Serialize: False}
 VideoFrame.TimePositionReplicating {Serialize: False}
 Path2D.PropertiesSerialize
@@ -356,10 +362,11 @@ BasePart.MaterialVariantSerialized
 BasePart.ReplicationPV {Serialize: False}
 TriangleMeshPart.FluidFidelityInternal
 MeshPart.RenderFidelityReplicate {Serialize: False}
-PartOperation.SerializedOperationGraph {Serialize: False}
+Workspace.ImprovedPhysicsReplication
 Workspace.NextGenerationReplication
 Workspace.NextGenerationReplicationAlias {Serialize: False}
 Workspace.ReplicateInstanceDestroySetting
+PackageLink.PackageContentSerialize
 PackageLink.PackageIdSerialize
 PackageLink.SerializedDefaultAttributes {Scriptable}
 PackageLink.VersionIdSerialize
@@ -389,7 +396,11 @@ Studio.LoadInternalPlugins {Scriptable}
 StyleRule.PropertiesSerialize
 StyleRule.PropertyTransitionsSerialize
 StyleQuery.ConditionsSerialize
+TextChatMessage.PrefixTextInternal {Scriptable} {Serialize: False}
+TextChatMessage.TextInternal {Scriptable} {Serialize: False}
+TextChatMessage.TranslationInternal {Scriptable} {Serialize: False}
 TextSource.UserIdReplicated {Serialize: False}
+VideoPlayer.InternalVideoUsage {Scriptable}
 VideoPlayer.PlayingReplicating {Serialize: False}
 WeldConstraint.Part0Internal
 WeldConstraint.Part1Internal
