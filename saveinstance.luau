@@ -3593,7 +3593,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 											if t == "string" then
 												result = Content.fromUri(result)
-											elseif t == "Instance" then
+											elseif t == "Object" then
 												result = Content.fromObject(result)
 											end
 										end
