@@ -3588,16 +3588,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 									end
 
 									if ok then
-										if ValueType == "Content" then
-											local t = typeof(result)
-
-											if t == "string" then
-												result = Content.fromUri(result)
-											elseif t == "Object" then
-												result = Content.fromObject(result)
-											end
-										end
-
 										raw = result
 									else
 										GHPFFailed = true
@@ -4342,7 +4332,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 					return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
 					-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
-					-- ! Seems to have issues with notscriptable Content DataType as it returns it in raw form (string) instead of Content type (ex. PackageContentSerialize)
 				end
 				if gethiddenproperty then
 					local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
