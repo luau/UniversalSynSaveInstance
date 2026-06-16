@@ -1,74 +1,72 @@
-version-d0e6613dc5584cf7
-
-Object
-
-AnimationNode
-
-Capture
-
-ScreenshotCapture
-
-VideoCapture
-
-ConfigSnapshot
-
-EditableImage
-
-EditableMesh
-
-ExecutedRemoteCommand
-
-Instance
+version-914135c3903b4ffb
 
 AnimationClip
+
+AnimationImportData
+
+AnimationNode
 
 AnimationStreamTrack
 
 AnimationTrack
 
+AssetImportSession
+
+AssetSoundEffect
+
 AuroraScriptObject
 
-CapturesViewConfiguration
-
-PlayerListConfiguration
-
-SelfViewConfiguration
-
-AnimationImportData
-
-FacsImportData
-
-GroupImportData
-
-JointImportData
-
-MaterialImportData
-
-MeshImportData
-
-RootImportData
-
-PlayerGui
-
-BodyMover
-
-CharacterAppearance
-
-Clothing
-
-Collaborator
-
-Constraint
-
-SlidingBallConstraint
-
-Controller
-
-DataModelMesh
+BackpackItem
 
 BevelMesh
 
+BodyMover
+
+BubbleChatConfiguration
+
+Capture
+
+CapturesViewConfiguration
+
+ChannelSelectorSoundEffect
+
+ChannelTabsConfiguration
+
+CharacterAppearance
+
+ChatInputBarConfiguration
+
+ChatWindowConfiguration
+
+ChatWindowMessageProperties
+
+ClientReplicator
+
+Clothing
+
+CloudLocalizationTable
+
+Collaborator
+
+ConfigSnapshot
+
+Constraint
+
+Controller
+
+ControllerSensor
+
+CoreScript
+
+CustomSoundEffect
+
+DataModel
+
+DataModelMesh
+
 DataModelSession
+
+DataStore
 
 DataStoreInfo
 
@@ -82,11 +80,17 @@ DebuggerBreakpoint
 
 DebuggerConnection
 
-LocalDebuggerConnection
-
 DebuggerLuaResponse
 
 DebuggerVariable
+
+DynamicRotate
+
+EditableImage
+
+EditableMesh
+
+ExecutedRemoteCommand
 
 ExplorerFilterAutocompleter
 
@@ -96,57 +100,55 @@ FacialAnimationStreamingServiceStats
 
 FacialAnimationStreamingSubsessionStats
 
+FacsImportData
+
 Feature
 
 File
 
+FormFactorPart
+
 GlobalDataStore
 
-DataStore
-
-OrderedDataStore
-
-GuiObject
+GroupImportData
 
 GuiButton
 
 GuiLabel
 
-LayerCollector
-
-InstanceAdornment
-
-PVAdornment
+GuiObject
 
 HandleAdornment
-
-PartAdornment
-
-SelectionLasso
 
 HttpRequest
 
 ImportSession
 
-AssetImportSession
-
 InputObject
+
+Instance
+
+InstanceAdornment
+
+JointImportData
 
 JointInstance
 
-DynamicRotate
-
-ManualSurfaceJointInstance
+LayerCollector
 
 Light
 
-CloudLocalizationTable
+LocalDebuggerConnection
 
 LodDataEntity
 
 LuaSourceContainer
 
-CoreScript
+MLSession
+
+ManualSurfaceJointInstance
+
+MaterialImportData
 
 MemStorageConnection
 
@@ -156,6 +158,8 @@ MemoryStoreQueue
 
 MemoryStoreSortedMap
 
+MeshImportData
+
 MessageBusConnection
 
 MetaBreakpoint
@@ -163,8 +167,6 @@ MetaBreakpoint
 MetaBreakpointContext
 
 Mouse
-
-PlayerMouse
 
 MultipleDocumentInterfaceInstance
 
@@ -174,29 +176,21 @@ NetworkPeer
 
 NetworkReplicator
 
-ClientReplicator
-
-ServerReplicator
+Object
 
 OpenCloudApiV1
 
+OrderedDataStore
+
+OutputLink
+
+PVAdornment
+
 PVInstance
 
-FormFactorPart
-
-Platform
-
-Terrain
-
-TriangleMeshPart
-
-BackpackItem
-
-Status
-
-WorldRoot
-
 PackageLink
+
+PartAdornment
 
 PatchMapping
 
@@ -208,11 +202,19 @@ PausedStateBreakpoint
 
 PausedStateException
 
+Platform
+
 PlayerData
 
 PlayerDataRecord
 
 PlayerDataRecordConfig
+
+PlayerGui
+
+PlayerListConfiguration
+
+PlayerMouse
 
 PlayerScripts
 
@@ -224,41 +226,7 @@ RobloxSerializableInstance
 
 RolloutValidation
 
-ScreenshotHud
-
-ScriptBuilder
-
-SyncScriptBuilder
-
-ScriptDebugger
-
-ScriptDocument
-
-ScriptRuntime
-
-ControllerSensor
-
-ServiceProvider
-
-DataModel
-
-SlimAnimationDataEntity
-
-SoundEffect
-
-CustomSoundEffect
-
-AssetSoundEffect
-
-ChannelSelectorSoundEffect
-
-StackFrame
-
-StarterPlayerScripts
-
-StarterCharacterScripts
-
-StatsItem
+RootImportData
 
 RunningAverageItemDouble
 
@@ -266,31 +234,69 @@ RunningAverageItemInt
 
 RunningAverageTimeIntervalItem
 
-TotalCountTimeIntervalItem
+ScreenshotCapture
 
-StudioWidget
+ScreenshotHud
+
+ScriptBuilder
+
+ScriptDebugger
+
+ScriptDocument
+
+ScriptRuntime
+
+SelectionLasso
+
+SelfViewConfiguration
+
+ServerReplicator
+
+ServiceProvider
+
+SlidingBallConstraint
+
+SlimAnimationDataEntity
+
+SoundEffect
+
+StackFrame
+
+StarterCharacterScripts
+
+StarterPlayerScripts
+
+StatsItem
+
+Status
+
+StudioActionOverride
 
 StudioScreenshotCapture
 
 StudioTheme
 
+StudioWidget
+
+SyncScriptBuilder
+
 TeleportAsyncResult
+
+Terrain
+
+TerrainIterateOperation
+
+TerrainModifyOperation
+
+TerrainReadOperation
+
+TerrainWriteOperation
 
 TestCase
 
 TextChatConfigurations
 
-BubbleChatConfiguration
-
-ChannelTabsConfiguration
-
-ChatInputBarConfiguration
-
-ChatWindowConfiguration
-
 TextChatMessage
-
-ChatWindowMessageProperties
 
 TextFilterResult
 
@@ -304,35 +310,25 @@ TextureGenerationUnwrappingRequest
 
 ThreadState
 
+TotalCountTimeIntervalItem
+
 TouchTransmitter
 
 TrackerLodController
 
 Translator
 
+TriangleMeshPart
+
 UIComponent
 
 UIConstraint
 
-UILayout
-
 UIGridStyleLayout
 
-WebSocketClient
+UILayout
 
-MLSession
-
-OutputLink
-
-StudioActionOverride
-
-TerrainIterateOperation
-
-TerrainModifyOperation
-
-TerrainReadOperation
-
-TerrainWriteOperation
+VideoCapture
 
 VideoSampler
 
@@ -340,5 +336,9 @@ VirtualInput
 
 VoxelBuffer
 
+WebSocketClient
+
 WebStreamClient
+
+WorldRoot
 

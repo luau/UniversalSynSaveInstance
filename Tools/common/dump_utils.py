@@ -153,6 +153,9 @@ def normalize_v2_dump(data):
             #         nm[mk] = mv
             nc["Members"].append(nm)
         res["Classes"].append(nc)
+
+    res["Classes"].sort(key=lambda x: x["Name"])
+
     for e in data["enums"]:
         enum = {
             "Name": e.get("name"),
@@ -160,7 +163,28 @@ def normalize_v2_dump(data):
         }
 
         res["Enums"].append(enum)
+
+    res["Enums"].sort(key=lambda x: x["Name"])
+
     return res
+
+
+def sort_v1_dump(data):
+    if "Classes" in data and isinstance(data["Classes"], list):
+        data["Classes"].sort(key=lambda x: x.get("Name", ""))
+
+        for c in data["Classes"]:
+            if "Members" in c and isinstance(c["Members"], list):
+                c["Members"].sort(key=lambda x: x.get("Name", ""))
+
+    if "Enums" in data and isinstance(data["Enums"], list):
+        data["Enums"].sort(key=lambda x: x.get("Name", ""))
+
+        for e in data["Enums"]:
+            if "Items" in e and isinstance(e["Items"], list):
+                e["Items"].sort(key=lambda x: x.get("Name", ""))
+
+    return data
 
 
 def fetch(u):
@@ -331,8 +355,21 @@ def get_api_response(version_hash=None, api_version="v1"):
             result = W(r, normalized)
             save_cache(json.dumps(normalized), v, version_hash)
         else:
-            result = r
-            save_cache(result, v, version_hash)
+            raw_data = r.json()
+            sorted_data = sort_v1_dump(raw_data)
+
+            class W:
+                def __init__(self, orig, data):
+                    self._o, self._d = orig, data
+
+                def json(self):
+                    return self._d
+
+                def __getattr__(self, a):
+                    return getattr(self._o, a)
+
+            result = W(r, sorted_data)
+            save_cache(json.dumps(sorted_data), v, version_hash)
 
         return result, version_hash
 

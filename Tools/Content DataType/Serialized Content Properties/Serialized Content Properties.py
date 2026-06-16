@@ -5,7 +5,7 @@ p = os.path.dirname(os.path.abspath(__file__))
 while p != os.path.dirname(p) and not os.path.exists(os.path.join(p, "common")):
     p = os.path.dirname(p)
 sys.path.insert(0, os.path.join(p, "common"))
-from dump_utils import write_dump_file, get_api_response
+from dump_utils import write_dump_file, get_api_response, array_to_dictionary
 
 
 def fetch(vh=None):
@@ -25,6 +25,9 @@ def fetch(vh=None):
             default = m.get("Default")
             if "api_dump_" in default:
                 continue
+            # tags = array_to_dictionary(m.get("Tags")) if m.get("Tags") else {}
+            # if tags.get("NotReplicated"): # TODO Temp patch to remove PackageContent
+            #     continue
             default = re.sub(r"\s+", "", default)
             out += f"{cname}.{m['Name']} {{default: \"{default}\"}}"
             out += "\n"

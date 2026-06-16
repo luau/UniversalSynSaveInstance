@@ -1,27 +1,4 @@
-version-d0e6613dc5584cf7
-
-Object.className {PreferredDescriptorName: ClassName}
-
-Capture.CaptureTime {CanSave Only}
-Capture.CaptureType {CanSave Only}
-Capture.FilePathString {CanSave Only}
-Capture.LocalId {CanSave Only}
-Capture.SourcePlaceId {CanSave Only}
-Capture.SourceUniverseId {CanSave Only}
-
-VideoCapture.FilePath {CanSave Only}
-VideoCapture.TimeLength {CanSave Only}
-
-ConfigSnapshot.Error {CanSave Only}
-ConfigSnapshot.Outdated {CanSave Only}
-
-EditableImage.Size {CanSave Only}
-
-EditableMesh.FixedSize {CanSave Only}
-
-Instance.Parent {CanLoad Only}
-Instance.UniqueId {Uses NotScriptable Type without the tag - UniqueId}
-Instance.archivable {CanLoad Only} {Deprecated} {PreferredDescriptorName: Archivable}
+version-914135c3903b4ffb
 
 AdPortal.PortalVersion {CanSave Only}
 
@@ -38,6 +15,9 @@ AssetDeliveryProxy is NotCreatable but AssetDeliveryProxy.Interface has default:
 
 AssetPatchSettings is NotCreatable but AssetPatchSettings.ContentId has default: ""
 
+AtmosphereSensor.AirDensity {CanSave Only}
+AtmosphereSensor.RelativeWindVelocity {CanSave Only}
+
 Attachment.Axis {CanLoad Only}
 Attachment.Rotation {PreferredDescriptorName: Orientation}
 Attachment.SecondaryAxis {CanLoad Only}
@@ -45,8 +25,6 @@ Attachment.WorldAxis {CanLoad Only}
 Attachment.WorldCFrame {CanLoad Only}
 Attachment.WorldRotation {PreferredDescriptorName: WorldOrientation}
 Attachment.WorldSecondaryAxis {CanLoad Only}
-
-Bone.Transform {CanLoad Only}
 
 AudioAnalyzer.PeakLevel {CanSave Only}
 AudioAnalyzer.RmsLevel {CanSave Only}
@@ -82,41 +60,62 @@ AudioSpeechToText.VoiceDetected {CanSave Only}
 AudioTextToSpeech.IsLoaded {CanSave Only}
 AudioTextToSpeech.TimeLength {CanSave Only}
 
+AuroraScript.Source {Uses NotScriptable Type without the tag - ProtectedString}
+
 AvatarChatService is NotCreatable but AvatarChatService.ClientFeatures has default: "0"
 
 AvatarSettings is NotCreatable but AvatarSettings.Loaded has default: "false"
 
-CapturesViewConfiguration is NotCreatable but CapturesViewConfiguration.Open has default: "false"
-
-PlayerListConfiguration is NotCreatable but PlayerListConfiguration.Open has default: "true"
-
-SelfViewConfiguration is NotCreatable but SelfViewConfiguration.Open has default: "false"
-
 BaseImportData.Id {CanSave Only}
 
-MaterialImportData.IsPbr {CanSave Only}
+BasePart.AssemblyAngularVelocity {CanLoad Only}
+BasePart.AssemblyLinearVelocity {CanLoad Only}
+BasePart.BackParamA {Deprecated} {CanSave}
+BasePart.BackParamB {Deprecated} {CanSave}
+BasePart.BackSurfaceInput {Deprecated} {CanSave}
+BasePart.BottomParamA {Deprecated} {CanSave}
+BasePart.BottomParamB {Deprecated} {CanSave}
+BasePart.BottomSurfaceInput {Deprecated} {CanSave}
+BasePart.BrickColor {CanLoad Only}
+BasePart.CollisionGroupId {Deprecated} {CanSave} {PreferredDescriptorName: CollisionGroup}
+BasePart.Color {CanLoad Only}
+BasePart.Elasticity {CanLoad Only} {Deprecated}
+BasePart.Friction {CanLoad Only} {Deprecated}
+BasePart.FrontParamA {Deprecated} {CanSave}
+BasePart.FrontParamB {Deprecated} {CanSave}
+BasePart.FrontSurfaceInput {Deprecated} {CanSave}
+BasePart.LeftParamA {Deprecated} {CanSave}
+BasePart.LeftParamB {Deprecated} {CanSave}
+BasePart.LeftSurfaceInput {Deprecated} {CanSave}
+BasePart.RightParamA {Deprecated} {CanSave}
+BasePart.RightParamB {Deprecated} {CanSave}
+BasePart.RightSurfaceInput {Deprecated} {CanSave}
+BasePart.RotVelocity {Deprecated} {CanSave} {PreferredDescriptorName: AssemblyAngularVelocity}
+BasePart.Rotation {CanLoad Only}
+BasePart.Size {CanLoad Only}
+BasePart.SpecificGravity {PreferredDescriptorName: SpecificGravity}
+BasePart.TopParamA {Deprecated} {CanSave}
+BasePart.TopParamB {Deprecated} {CanSave}
+BasePart.TopSurfaceInput {Deprecated} {CanSave}
+BasePart.Velocity {Deprecated} {CanSave} {PreferredDescriptorName: AssemblyLinearVelocity}
+BasePart.brickColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: BrickColor}
+BasePart.siz {WriteOnly} {CanLoad Only}
 
-MeshImportData.CageManifold {CanSave Only}
-MeshImportData.CageMeshNotIntersected {CanSave Only}
-MeshImportData.CageNoOverlappingVertices {CanSave Only}
-MeshImportData.CageUVMatched {CanSave Only}
-MeshImportData.Dimensions {CanSave Only}
-MeshImportData.MeshNoHoleDetected {CanSave Only}
-MeshImportData.NoIrrelevantCageModified {CanSave Only}
-MeshImportData.NoOuterCageFarExtendedFromMesh {CanSave Only}
-MeshImportData.PolygonCount {CanSave Only}
+BaseScript.LinkedSource {Deprecated} {CanSave}
 
-RootImportData.FileDimensions {CanSave Only}
-RootImportData.PolygonCount {CanSave Only}
-
-CoreGui.Version {CanSave Only}
-
-PlayerGui is NotCreatable but PlayerGui.CurrentScreenOrientation has default: "LandscapeLeft"
-
-StarterGui.ResetPlayerGuiOnSpawn {Deprecated} {CanSave}
+BillboardGui.DistanceLowerLimit {Deprecated} {CanSave}
+BillboardGui.DistanceStep {CanLoad Only}
+BillboardGui.DistanceUpperLimit {Deprecated} {CanSave}
 
 BodyAngularVelocity.angularvelocity {CanLoad Only} {Deprecated} {PreferredDescriptorName: AngularVelocity}
 BodyAngularVelocity.maxTorque {CanLoad Only} {Deprecated} {PreferredDescriptorName: MaxTorque}
+
+BodyColors.HeadColor {CanLoad Only}
+BodyColors.LeftArmColor {CanLoad Only}
+BodyColors.LeftLegColor {CanLoad Only}
+BodyColors.RightArmColor {CanLoad Only}
+BodyColors.RightLegColor {CanLoad Only}
+BodyColors.TorsoColor {CanLoad Only}
 
 BodyForce.force {CanLoad Only} {Deprecated} {PreferredDescriptorName: Force}
 
@@ -132,50 +131,63 @@ BodyThrust.location {CanLoad Only} {Deprecated} {PreferredDescriptorName: Locati
 BodyVelocity.maxForce {CanLoad Only} {Deprecated} {PreferredDescriptorName: MaxForce}
 BodyVelocity.velocity {CanLoad Only} {Deprecated} {PreferredDescriptorName: Velocity}
 
-BodyColors.HeadColor {CanLoad Only}
-BodyColors.LeftArmColor {CanLoad Only}
-BodyColors.LeftLegColor {CanLoad Only}
-BodyColors.RightArmColor {CanLoad Only}
-BodyColors.RightLegColor {CanLoad Only}
-BodyColors.TorsoColor {CanLoad Only}
+Bone.Transform {CanLoad Only}
+
+BubbleChatConfiguration is NotCreatable but BubbleChatConfiguration.AdorneeName has default: "HumanoidRootPart"
+
+Camera.CoordinateFrame {CanLoad Only} {Deprecated} {PreferredDescriptorName: CFrame}
+Camera.NearPlaneZ {CanSave Only}
+Camera.ViewportSize {CanSave Only}
+Camera.focus {CanLoad Only} {Deprecated} {PreferredDescriptorName: Focus}
+
+Capture.CaptureTime {CanSave Only}
+Capture.CaptureType {CanSave Only}
+Capture.FilePathString {CanSave Only}
+Capture.LocalId {CanSave Only}
+Capture.SourcePlaceId {CanSave Only}
+Capture.SourceUniverseId {CanSave Only}
+
+CapturesViewConfiguration is NotCreatable but CapturesViewConfiguration.Open has default: "false"
+
+ChannelSelectorSoundEffect is NotCreatable but ChannelSelectorSoundEffect.Channel has default: "1"
+
+ChannelTabsConfiguration is NotCreatable but ChannelTabsConfiguration.AbsolutePosition has default: "0, 0"
+
+Chat is NotCreatable but Chat.BubbleChatEnabled has default: "false"
+
+ChatInputBarConfiguration is NotCreatable but ChatInputBarConfiguration.AbsolutePosition has default: "0, 0"
+
+ChatWindowConfiguration is NotCreatable but ChatWindowConfiguration.AbsolutePosition has default: "0, 0"
+
+ChatWindowMessageProperties is NotCreatable but ChatWindowMessageProperties.TextColor3 has default: "1, 1, 1"
 
 Clothing.Outfit1 {CanLoad Only}
 Clothing.Outfit2 {CanLoad Only}
 
-Chat is NotCreatable but Chat.BubbleChatEnabled has default: "false"
-
-DragDetector.Axis {CanLoad Only}
-DragDetector.SecondaryAxis {CanLoad Only}
-DragDetector.WorldAxis {CanLoad Only}
-DragDetector.WorldSecondaryAxis {CanLoad Only}
-
 Collaborator.CollaboratorColor {PreferredDescriptorName: CollaboratorColor3}
 Collaborator is NotCreatable but Collaborator.CFrame has default: "0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1"
+
+ConfigSnapshot.Error {CanSave Only}
+ConfigSnapshot.Outdated {CanSave Only}
 
 ConnectivityService.NetworkStatus {CanSave Only}
 ConnectivityService is NotCreatable but ConnectivityService.NetworkStatus has default: "Unknown"
 
-HingeConstraint.CurrentAngle {CanSave Only}
-HingeConstraint.SoftlockServoUponReachingTarget {Deprecated} {CanSave}
+ContentProvider.BaseUrl {CanSave Only}
+ContentProvider.RequestQueueSize {CanSave Only}
 
-RodConstraint.CurrentDistance {CanSave Only}
-
-RopeConstraint.CurrentDistance {CanSave Only}
-
-SlidingBallConstraint.CurrentPosition {CanSave Only}
-SlidingBallConstraint.SoftlockServoUponReachingTarget {Deprecated} {CanSave}
+CoreGui.Version {CanSave Only}
 
 CylindricalConstraint.CurrentAngle {CanSave Only}
 CylindricalConstraint.SoftlockAngularServoUponReachingTarget {Deprecated} {CanSave}
 CylindricalConstraint.WorldRotationAxis {CanSave Only}
 
-SpringConstraint.CurrentLength {CanSave Only}
-
-TorsionSpringConstraint.CurrentAngle {CanSave Only}
-TorsionSpringConstraint.LimitEnabled {Deprecated} {CanSave} {PreferredDescriptorName: LimitsEnabled}
-
-ContentProvider.BaseUrl {CanSave Only}
-ContentProvider.RequestQueueSize {CanSave Only}
+DataModel.MatchmakingType {CanSave Only}
+DataModel.PrivateServerId {CanSave Only}
+DataModel.PrivateServerOwnerId {CanSave Only}
+DataModel.VIPServerId {CanSave Only} {Deprecated} {CanSave} {PreferredDescriptorName: PrivateServerId}
+DataModel.VIPServerOwnerId {CanSave Only} {Deprecated} {CanSave} {PreferredDescriptorName: PrivateServerOwnerId}
+DataModel.workspace {PreferredDescriptorName: Workspace}
 
 DataStoreInfo.CreatedTime {CanSave Only}
 DataStoreInfo.DataStoreName {CanSave Only}
@@ -186,6 +198,10 @@ DataStoreKey.KeyName {CanSave Only}
 DataStoreKeyInfo.CreatedTime {CanSave Only}
 DataStoreKeyInfo.UpdatedTime {CanSave Only}
 DataStoreKeyInfo.Version {CanSave Only}
+
+DataStoreKeyPages.Cursor {CanSave Only}
+
+DataStoreListingPages.Cursor {CanSave Only}
 
 DataStoreObjectVersionInfo.CreatedTime {CanSave Only}
 DataStoreObjectVersionInfo.IsDeleted {CanSave Only}
@@ -204,6 +220,24 @@ DebugSettings.RobloxVersion {CanSave Only}
 
 DebuggerManager.DebuggingEnabled {CanSave Only}
 
+Decal.Shiny {CanLoad Only} {Deprecated}
+Decal.Specular {CanLoad Only} {Deprecated}
+
+DockWidgetPluginGui.HostWidgetWasRestored {CanSave Only}
+DockWidgetPluginGui is NotCreatable but DockWidgetPluginGui.HostWidgetWasRestored has default: "false"
+
+DoubleConstrainedValue.ConstrainedValue {CanLoad Only}
+DoubleConstrainedValue.Value {CanLoad Only}
+
+DragDetector.Axis {CanLoad Only}
+DragDetector.SecondaryAxis {CanLoad Only}
+DragDetector.WorldAxis {CanLoad Only}
+DragDetector.WorldSecondaryAxis {CanLoad Only}
+
+EditableImage.Size {CanSave Only}
+
+EditableMesh.FixedSize {CanSave Only}
+
 EditableService is NotCreatable but EditableService.EditableStatus has default: "Unknown"
 
 ExperienceStateCaptureService is NotCreatable but ExperienceStateCaptureService.HiddenSelectionEnabled has default: "false"
@@ -215,9 +249,6 @@ ExplorerFilterAutocompleter.RequiresOutsideContext {CanSave Only}
 
 FaceAnimatorService is NotCreatable but FaceAnimatorService.AudioAnimationEnabled has default: "true"
 
-Decal.Shiny {CanLoad Only} {Deprecated}
-Decal.Specular {CanLoad Only} {Deprecated}
-
 FacialAnimationStreamingServiceV2 is NotCreatable but FacialAnimationStreamingServiceV2.ServiceState has default: "0"
 
 Fire.Heat {CanLoad Only}
@@ -225,6 +256,13 @@ Fire.Size {CanLoad Only}
 Fire.size {CanLoad Only} {Deprecated} {PreferredDescriptorName: Size}
 
 FloatCurve.Length {CanSave Only}
+
+FluidForceSensor.CenterOfPressure {CanSave Only}
+FluidForceSensor.Force {CanSave Only}
+FluidForceSensor.Torque {CanSave Only}
+
+FormFactorPart.FormFactor {CanLoad Only} {Deprecated}
+FormFactorPart.formFactor {CanLoad Only} {Deprecated}
 
 FunctionalTest.AllowSleep {CanLoad Only}
 FunctionalTest.Is30FpsThrottleEnabled {CanLoad Only}
@@ -237,56 +275,21 @@ GamepadService is NotCreatable but GamepadService.GamepadCursorEnabled has defau
 
 GuiBase2d.Localize {CanLoad Only} {Deprecated} {PreferredDescriptorName: AutoLocalize}
 
+GuiBase3d.Color {CanLoad Only} {Deprecated} {PreferredDescriptorName: Color3}
+
 GuiObject.BackgroundColor {CanLoad Only} {Deprecated}
 GuiObject.BorderColor {CanLoad Only} {Deprecated}
 GuiObject.Draggable {Deprecated} {CanSave}
 GuiObject.GuiState {CanSave Only}
 GuiObject.Transparency {CanLoad Only}
 
-TextButton.Font {CanLoad Only}
-TextButton.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
-TextButton.LocalizedText {CanSave Only}
-TextButton.OpenTypeFeaturesError {CanSave Only}
-TextButton.TextColor {CanLoad Only} {Deprecated}
-TextButton.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
-
-TextLabel.Font {CanLoad Only}
-TextLabel.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
-TextLabel.LocalizedText {CanSave Only}
-TextLabel.OpenTypeFeaturesError {CanSave Only}
-TextLabel.TextColor {CanLoad Only} {Deprecated}
-TextLabel.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
-
-ScrollingFrame.AbsoluteCanvasSize {CanSave Only}
-ScrollingFrame.AbsoluteWindowSize {CanSave Only}
-
-TextBox.Font {CanLoad Only}
-TextBox.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
-TextBox.OpenTypeFeaturesError {CanSave Only}
-TextBox.TextColor {CanLoad Only} {Deprecated}
-TextBox.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
-
-ViewportFrame.CurrentCamera {CanLoad Only}
-
-BillboardGui.DistanceLowerLimit {Deprecated} {CanSave}
-BillboardGui.DistanceStep {CanLoad Only}
-BillboardGui.DistanceUpperLimit {Deprecated} {CanSave}
-
-DockWidgetPluginGui.HostWidgetWasRestored {CanSave Only}
-DockWidgetPluginGui is NotCreatable but DockWidgetPluginGui.HostWidgetWasRestored has default: "false"
-
-ScreenGui.IgnoreGuiInset {CanLoad Only}
-
-GuiBase3d.Color {CanLoad Only} {Deprecated} {PreferredDescriptorName: Color3}
-
-SelectionBox.SurfaceColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: SurfaceColor3}
-
-SelectionSphere.SurfaceColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: SurfaceColor3}
-
-Path2D.SelectedControlPoint {CanLoad Only}
-Path2D.SelectedControlPointData {CanLoad Only}
-
 GuiService.MenuIsOpen {CanSave Only}
+
+HingeConstraint.CurrentAngle {CanSave Only}
+HingeConstraint.SoftlockServoUponReachingTarget {Deprecated} {CanSave}
+
+HopperBin.Command {WriteOnly} {CanLoad Only}
+HopperBin.TextureName {WriteOnly} {CanLoad Only}
 
 HttpService is NotCreatable but HttpService.HttpEnabled has default: "false"
 
@@ -328,11 +331,16 @@ InputObject is NotCreatable but InputObject.Delta has default: "0, 0, 0"
 InsertService.AllowInsertFreeModels {Deprecated} {CanSave}
 InsertService is NotCreatable but InsertService.AllowInsertFreeModels has default: "false"
 
+Instance.Parent {CanLoad Only}
+Instance.UniqueId {Uses NotScriptable Type without the tag - UniqueId}
+Instance.archivable {CanLoad Only} {Deprecated} {PreferredDescriptorName: Archivable}
+
+IntConstrainedValue.ConstrainedValue {CanLoad Only}
+IntConstrainedValue.Value {CanLoad Only}
+
 InternalSyncItem.Target {CanLoad Only}
 
 JointInstance.part1 {PreferredDescriptorName: Part1}
-
-Motor.CurrentAngle {CanLoad Only}
 
 Lighting.ClockTime {CanLoad Only}
 Lighting.Outlines {Deprecated} {CanSave}
@@ -351,18 +359,25 @@ LocalizationTable.Root {PreferredDescriptorName: RootLocalizationTable (NOT FOUN
 
 LodDataEntity is NotCreatable but LodDataEntity.EntityLodEnabled has default: "true"
 
-AuroraScript.Source {Uses NotScriptable Type without the tag - ProtectedString}
-
-BaseScript.LinkedSource {Deprecated} {CanSave}
-
-Script.Source {Uses NotScriptable Type without the tag - ProtectedString}
-
-ModuleScript.LinkedSource {Deprecated} {CanSave}
-ModuleScript.Source {Uses NotScriptable Type without the tag - ProtectedString}
-
 MarkerCurve.Length {CanSave Only}
 
+MaterialImportData.IsPbr {CanSave Only}
+
 MaterialService is NotCreatable but MaterialService.AsphaltName has default: "Asphalt"
+
+MeshImportData.CageManifold {CanSave Only}
+MeshImportData.CageMeshNotIntersected {CanSave Only}
+MeshImportData.CageNoOverlappingVertices {CanSave Only}
+MeshImportData.CageUVMatched {CanSave Only}
+MeshImportData.Dimensions {CanSave Only}
+MeshImportData.MeshNoHoleDetected {CanSave Only}
+MeshImportData.NoIrrelevantCageModified {CanSave Only}
+MeshImportData.NoOuterCageFarExtendedFromMesh {CanSave Only}
+MeshImportData.PolygonCount {CanSave Only}
+
+MeshPart.HasJointOffset {Deprecated} {CanSave}
+MeshPart.JointOffset {Deprecated} {CanSave}
+MeshPart.MeshID {CanLoad Only} {Deprecated} {PreferredDescriptorName: MeshId}
 
 MetaBreakpoint.Id {CanSave Only}
 MetaBreakpoint.IsLogpoint {CanSave Only}
@@ -372,6 +387,11 @@ MetaBreakpoint is NotCreatable but MetaBreakpoint.Condition has default: ""
 MetaBreakpointContext is NotCreatable but MetaBreakpointContext.ContextDataInternal has default: "0 1 2 "
 
 MicroProfilerService is NotCreatable but MicroProfilerService.ContextLabel has default: ""
+
+ModuleScript.LinkedSource {Deprecated} {CanSave}
+ModuleScript.Source {Uses NotScriptable Type without the tag - ProtectedString}
+
+Motor.CurrentAngle {CanLoad Only}
 
 Mouse.Hit {CanSave Only}
 Mouse.Origin {CanSave Only}
@@ -387,71 +407,7 @@ Mouse.target {PreferredDescriptorName: Target}
 
 NotificationService.SelectedTheme {CanLoad Only}
 
-BasePart.AssemblyAngularVelocity {CanLoad Only}
-BasePart.AssemblyLinearVelocity {CanLoad Only}
-BasePart.BackParamA {Deprecated} {CanSave}
-BasePart.BackParamB {Deprecated} {CanSave}
-BasePart.BackSurfaceInput {Deprecated} {CanSave}
-BasePart.BottomParamA {Deprecated} {CanSave}
-BasePart.BottomParamB {Deprecated} {CanSave}
-BasePart.BottomSurfaceInput {Deprecated} {CanSave}
-BasePart.BrickColor {CanLoad Only}
-BasePart.CollisionGroupId {Deprecated} {CanSave} {PreferredDescriptorName: CollisionGroup}
-BasePart.Color {CanLoad Only}
-BasePart.Elasticity {CanLoad Only} {Deprecated}
-BasePart.Friction {CanLoad Only} {Deprecated}
-BasePart.FrontParamA {Deprecated} {CanSave}
-BasePart.FrontParamB {Deprecated} {CanSave}
-BasePart.FrontSurfaceInput {Deprecated} {CanSave}
-BasePart.LeftParamA {Deprecated} {CanSave}
-BasePart.LeftParamB {Deprecated} {CanSave}
-BasePart.LeftSurfaceInput {Deprecated} {CanSave}
-BasePart.RightParamA {Deprecated} {CanSave}
-BasePart.RightParamB {Deprecated} {CanSave}
-BasePart.RightSurfaceInput {Deprecated} {CanSave}
-BasePart.RotVelocity {Deprecated} {CanSave} {PreferredDescriptorName: AssemblyAngularVelocity}
-BasePart.Rotation {CanLoad Only}
-BasePart.Size {CanLoad Only}
-BasePart.SpecificGravity {PreferredDescriptorName: SpecificGravity}
-BasePart.TopParamA {Deprecated} {CanSave}
-BasePart.TopParamB {Deprecated} {CanSave}
-BasePart.TopSurfaceInput {Deprecated} {CanSave}
-BasePart.Velocity {Deprecated} {CanSave} {PreferredDescriptorName: AssemblyLinearVelocity}
-BasePart.brickColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: BrickColor}
-BasePart.siz {WriteOnly} {CanLoad Only}
-
-FormFactorPart.FormFactor {CanLoad Only} {Deprecated}
-FormFactorPart.formFactor {CanLoad Only} {Deprecated}
-
-Part.Shape {CanLoad Only}
-Part.shap {WriteOnly} {CanLoad Only}
-
-Terrain.ClusterGrid {WriteOnly} {CanLoad Only}
-Terrain.ClusterGridV2 {WriteOnly} {CanLoad Only}
-Terrain.ClusterGridV3 {WriteOnly} {CanLoad Only}
-Terrain is NotCreatable but Terrain.AcquisitionMethod has default: "None"
-
-TriangleMeshPart.CollisionFidelity {CanLoad Only}
-TriangleMeshPart.FluidFidelity {CanLoad Only}
-
-MeshPart.HasJointOffset {Deprecated} {CanSave}
-MeshPart.JointOffset {Deprecated} {CanSave}
-MeshPart.MeshID {CanLoad Only} {Deprecated} {PreferredDescriptorName: MeshId}
-
-TrussPart.Style {CanLoad Only}
-
-Camera.CoordinateFrame {CanLoad Only} {Deprecated} {PreferredDescriptorName: CFrame}
-Camera.NearPlaneZ {CanSave Only}
-Camera.ViewportSize {CanSave Only}
-Camera.focus {CanLoad Only} {Deprecated} {PreferredDescriptorName: Focus}
-
-HopperBin.Command {WriteOnly} {CanLoad Only}
-HopperBin.TextureName {WriteOnly} {CanLoad Only}
-
-ProceduralModel.GenerationError {CanSave Only}
-
-Workspace.CollisionGroups {WriteOnly} {CanLoad Only}
-Workspace.StreamingPauseMode {CanLoad Only}
+Object.className {PreferredDescriptorName: ClassName}
 
 PackageLink.PackageContent {CanSave Only}
 PackageLink.PackageId {CanSave Only}
@@ -461,15 +417,17 @@ PackageLink is NotCreatable but PackageLink.AutoUpdate has default: "false"
 
 Packages is NotCreatable but Packages.IsDehydrated has default: "false"
 
-DataStoreKeyPages.Cursor {CanSave Only}
-
-DataStoreListingPages.Cursor {CanSave Only}
+Part.Shape {CanLoad Only}
+Part.shap {WriteOnly} {CanLoad Only}
 
 ParticleEmitter.VelocitySpread {CanLoad Only} {Deprecated} {PreferredDescriptorName: SpreadAngle}
 
 PatchMapping is NotCreatable but PatchMapping.FlattenTree has default: "false"
 
 Path.Status {CanSave Only}
+
+Path2D.SelectedControlPoint {CanLoad Only}
+Path2D.SelectedControlPointData {CanLoad Only}
 
 PathfindingService.EmptyCutoff {CanLoad Only} {Deprecated}
 PathfindingService is NotCreatable but PathfindingService.EmptyCutoff has default: "0"
@@ -500,6 +458,10 @@ PlayerDataService is NotCreatable but PlayerDataService.LoadFailureBehavior has 
 PlayerEmulatorService.SerializedEmulatedPolicyInfo {Uses NotScriptable Type without the tag - BinaryString}
 PlayerEmulatorService is NotCreatable but PlayerEmulatorService.CustomPoliciesEnabled has default: "false"
 
+PlayerGui is NotCreatable but PlayerGui.CurrentScreenOrientation has default: "LandscapeLeft"
+
+PlayerListConfiguration is NotCreatable but PlayerListConfiguration.Open has default: "true"
+
 Players.NumPlayers {PreferredDescriptorName: GetPlayers (NOT FOUND)}
 Players.localPlayer {PreferredDescriptorName: LocalPlayer}
 Players.numPlayers {PreferredDescriptorName: NumPlayers}
@@ -517,6 +479,8 @@ PolicyService is NotCreatable but PolicyService.IsLuobuServer has default: "Unkn
 
 Pose.MaskWeight {CanLoad Only} {Deprecated}
 
+ProceduralModel.GenerationError {CanSave Only}
+
 RealtimeMedia.IsConnected {CanSave Only}
 
 RenderSettings.EnableFRM {CanLoad Only}
@@ -524,45 +488,51 @@ RenderSettings.EnableFRM {CanLoad Only}
 RobloxSerializableInstance.Data {Uses NotScriptable Type without the tag - BinaryString}
 RobloxSerializableInstance is NotCreatable but RobloxSerializableInstance.Data has default: ""
 
+RodConstraint.CurrentDistance {CanSave Only}
+
 RolloutValidation is NotCreatable but RolloutValidation.AdditionalFluffOne has default: "0"
+
+RootImportData.FileDimensions {CanSave Only}
+RootImportData.PolygonCount {CanSave Only}
+
+RopeConstraint.CurrentDistance {CanSave Only}
 
 RotationCurve.Length {CanSave Only}
 
 SafetyService is NotCreatable but SafetyService.IsCaptureModeForReport has default: "false"
 
+ScreenGui.IgnoreGuiInset {CanLoad Only}
+
 ScreenshotHud.ExperienceNameOverlayEnabled {Deprecated} {CanSave}
 ScreenshotHud.OverlayFont {Deprecated} {CanSave}
 ScreenshotHud.UsernameOverlayEnabled {Deprecated} {CanSave}
 
-SyncScriptBuilder.RawBytecode {Deprecated} {CanSave} {PreferredDescriptorName: CompileTarget}
-SyncScriptBuilder is NotCreatable but SyncScriptBuilder.CompileTarget has default: "CoreScript"
+Script.Source {Uses NotScriptable Type without the tag - ProtectedString}
 
 ScriptContext is NotCreatable but ScriptContext.ScriptsDisabled has default: "false"
 
 ScriptDebugger is NotCreatable but ScriptDebugger.CoreScriptIdentifier has default: ""
 
+ScrollingFrame.AbsoluteCanvasSize {CanSave Only}
+ScrollingFrame.AbsoluteWindowSize {CanSave Only}
+
 Selection.SelectionBoxThickness {CanSave Only}
 Selection.SelectionLineThickness {CanSave Only}
 
-AtmosphereSensor.AirDensity {CanSave Only}
-AtmosphereSensor.RelativeWindVelocity {CanSave Only}
+SelectionBox.SurfaceColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: SurfaceColor3}
 
-FluidForceSensor.CenterOfPressure {CanSave Only}
-FluidForceSensor.Force {CanSave Only}
-FluidForceSensor.Torque {CanSave Only}
+SelectionSphere.SurfaceColor {CanLoad Only} {Deprecated} {PreferredDescriptorName: SurfaceColor3}
+
+SelfViewConfiguration is NotCreatable but SelfViewConfiguration.Open has default: "false"
 
 ServerScriptService is NotCreatable but ServerScriptService.LoadStringEnabled has default: "false"
-
-DataModel.MatchmakingType {CanSave Only}
-DataModel.PrivateServerId {CanSave Only}
-DataModel.PrivateServerOwnerId {CanSave Only}
-DataModel.VIPServerId {CanSave Only} {Deprecated} {CanSave} {PreferredDescriptorName: PrivateServerId}
-DataModel.VIPServerOwnerId {CanSave Only} {Deprecated} {CanSave} {PreferredDescriptorName: PrivateServerOwnerId}
-DataModel.workspace {PreferredDescriptorName: Workspace}
 
 ServiceVisibilityService.HiddenServices {Uses NotScriptable Type without the tag - BinaryString}
 ServiceVisibilityService.VisibleServices {Uses NotScriptable Type without the tag - BinaryString}
 ServiceVisibilityService is NotCreatable but ServiceVisibilityService.HiddenServices has default: ""
+
+SlidingBallConstraint.CurrentPosition {CanSave Only}
+SlidingBallConstraint.SoftlockServoUponReachingTarget {Deprecated} {CanSave}
 
 SlimAnimationDataEntity is NotCreatable but SlimAnimationDataEntity.EntityScale has default: "1"
 
@@ -578,15 +548,20 @@ Sound.isPlaying {PreferredDescriptorName: IsPlaying}
 Sound.xmlRead_MaxDistance_3 {CanLoad Only} {Deprecated} {PreferredDescriptorName: RollOffMaxDistance}
 Sound.xmlRead_MinDistance_3 {CanLoad Only} {Deprecated} {PreferredDescriptorName: RollOffMinDistance}
 
-ChannelSelectorSoundEffect is NotCreatable but ChannelSelectorSoundEffect.Channel has default: "1"
-
 SoundService is NotCreatable but SoundService.AcousticSimulationEnabled has default: "false"
 
 Sparkles.Color {CanLoad Only}
 
+SpringConstraint.CurrentLength {CanSave Only}
+
+StarterGui.ResetPlayerGuiOnSpawn {Deprecated} {CanSave}
+
 StarterPlayer is NotCreatable but StarterPlayer.AllowCustomAnimations has default: "true"
 
 Studio.UI Theme {CanSave Only} {Deprecated} {CanSave}
+
+StudioActionOverride.Released {CanSave Only}
+StudioActionOverride.StudioAction {CanSave Only}
 
 StudioData is NotCreatable but StudioData.EnableScriptCollabByDefaultOnLoad has default: "false"
 
@@ -607,11 +582,14 @@ StudioTestService is NotCreatable but StudioTestService.EditModeActive has defau
 StudioUserService.IsLoggedIn {CanSave Only}
 StudioUserService is NotCreatable but StudioUserService.IsLoggedIn has default: "false"
 
-StyleRule.Index {CanLoad Only}
-
 StyleDerive.Index {CanLoad Only}
 
 StyleQuery.IsActive {CanSave Only}
+
+StyleRule.Index {CanLoad Only}
+
+SyncScriptBuilder.RawBytecode {Deprecated} {CanSave} {PreferredDescriptorName: CompileTarget}
+SyncScriptBuilder is NotCreatable but SyncScriptBuilder.CompileTarget has default: "CoreScript"
 
 TaskScheduler.SchedulerDutyCycle {CanSave Only}
 TaskScheduler.SchedulerRate {CanSave Only}
@@ -627,6 +605,11 @@ TeleportAsyncResult.ReservedServerAccessCode {CanSave Only}
 
 TeleportService.CustomizedTeleportUI {CanLoad Only} {Deprecated}
 
+Terrain.ClusterGrid {WriteOnly} {CanLoad Only}
+Terrain.ClusterGridV2 {WriteOnly} {CanLoad Only}
+Terrain.ClusterGridV3 {WriteOnly} {CanLoad Only}
+Terrain is NotCreatable but Terrain.AcquisitionMethod has default: "None"
+
 TerrainRegion.GridV3 {WriteOnly} {CanLoad Only}
 
 TestService.ErrorCount {CanSave Only}
@@ -634,21 +617,31 @@ TestService.Is30FpsThrottleEnabled {CanLoad Only} {Deprecated} {PreferredDescrip
 TestService.TestCount {CanSave Only}
 TestService.WarnCount {CanSave Only}
 
+TextBox.Font {CanLoad Only}
+TextBox.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
+TextBox.OpenTypeFeaturesError {CanSave Only}
+TextBox.TextColor {CanLoad Only} {Deprecated}
+TextBox.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
+
+TextButton.Font {CanLoad Only}
+TextButton.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
+TextButton.LocalizedText {CanSave Only}
+TextButton.OpenTypeFeaturesError {CanSave Only}
+TextButton.TextColor {CanLoad Only} {Deprecated}
+TextButton.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
+
 TextChannel.DirectChatRequester {CanSave Only}
-
-BubbleChatConfiguration is NotCreatable but BubbleChatConfiguration.AdorneeName has default: "HumanoidRootPart"
-
-ChannelTabsConfiguration is NotCreatable but ChannelTabsConfiguration.AbsolutePosition has default: "0, 0"
-
-ChatInputBarConfiguration is NotCreatable but ChatInputBarConfiguration.AbsolutePosition has default: "0, 0"
-
-ChatWindowConfiguration is NotCreatable but ChatWindowConfiguration.AbsolutePosition has default: "0, 0"
 
 TextChatMessage is NotCreatable but TextChatMessage.ChatActionType has default: ""
 
-ChatWindowMessageProperties is NotCreatable but ChatWindowMessageProperties.TextColor3 has default: "1, 1, 1"
-
 TextChatService is NotCreatable but TextChatService.ChatTranslationEnabled has default: "true"
+
+TextLabel.Font {CanLoad Only}
+TextLabel.FontSize {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextSize}
+TextLabel.LocalizedText {CanSave Only}
+TextLabel.OpenTypeFeaturesError {CanSave Only}
+TextLabel.TextColor {CanLoad Only} {Deprecated}
+TextLabel.TextWrap {CanLoad Only} {Deprecated} {PreferredDescriptorName: TextWrapped}
 
 TextSource is NotCreatable but TextSource.CanSend has default: "true"
 
@@ -656,7 +649,15 @@ ThirdPartyUserService.FriendCommunicationRestrictionStatus {CanSave Only}
 ThirdPartyUserService.HasActiveUser {CanSave Only}
 ThirdPartyUserService.VoiceChatRestrictionStatus {CanSave Only}
 
+TorsionSpringConstraint.CurrentAngle {CanSave Only}
+TorsionSpringConstraint.LimitEnabled {Deprecated} {CanSave} {PreferredDescriptorName: LimitsEnabled}
+
 Translator.LocaleId {CanSave Only}
+
+TriangleMeshPart.CollisionFidelity {CanLoad Only}
+TriangleMeshPart.FluidFidelity {CanLoad Only}
+
+TrussPart.Style {CanLoad Only}
 
 TweenBase.PlaybackState {CanSave Only}
 
@@ -689,26 +690,30 @@ UserInputService.VREnabled {CanSave Only}
 
 VRService is NotCreatable but VRService.AutomaticScaling has default: "World"
 
-DoubleConstrainedValue.ConstrainedValue {CanLoad Only}
-DoubleConstrainedValue.Value {CanLoad Only}
-
-IntConstrainedValue.ConstrainedValue {CanLoad Only}
-IntConstrainedValue.Value {CanLoad Only}
-
 ValueCurve.Length {CanSave Only}
 ValueCurve.ValueType {CanSave Only}
 
 VersionControlService is NotCreatable but VersionControlService.ScriptCollabEnabled has default: "false"
 
+VideoCapture.FilePath {CanSave Only}
+VideoCapture.TimeLength {CanSave Only}
+
 VideoCaptureService is NotCreatable but VideoCaptureService.Active has default: "false"
 
 VideoDeviceInput.IsReady {CanSave Only}
+
+VideoSampler.TimeLength {CanSave Only}
+VideoSampler.VideoContent {CanSave Only}
+
+ViewportFrame.CurrentCamera {CanLoad Only}
 
 VoiceChatInternal is NotCreatable but VoiceChatInternal.VoiceChatState has default: "Idle"
 
 VoiceChatService is NotCreatable but VoiceChatService.DefaultDistanceAttenuation has default: "Inverse"
 
 WebSocketClient.ConnectionState {CanSave Only}
+
+WebStreamClient.ConnectionState {CanSave Only}
 
 WeldConstraint.Active {CanSave Only}
 WeldConstraint.CFrame1 {CanLoad Only}
@@ -718,13 +723,8 @@ WeldConstraint.Part1 {CanLoad Only}
 
 Wire.Connected {CanSave Only}
 
-StudioActionOverride.Released {CanSave Only}
-StudioActionOverride.StudioAction {CanSave Only}
-
-VideoSampler.TimeLength {CanSave Only}
-VideoSampler.VideoContent {CanSave Only}
-
-WebStreamClient.ConnectionState {CanSave Only}
+Workspace.CollisionGroups {WriteOnly} {CanLoad Only}
+Workspace.StreamingPauseMode {CanLoad Only}
 
 ==================================================
 NOTSCRIPTABLE VALUE TYPE ANALYSIS

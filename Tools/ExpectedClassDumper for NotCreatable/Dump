@@ -1,4 +1,4 @@
-version-c8e5a3c64a194377
+version-914135c3903b4ffb
 
 AudioDeviceInput.Player {Player}
 
@@ -6,17 +6,10 @@ AudioDeviceOutput.Player {Player}
 
 AuroraScriptObject.BehaviorWeak {AuroraScript}
 
-CoreGui.SelectionImageObject {GuiObject}
-
-PlayerGui.SelectionImageObject {GuiObject}
-
-StarterGui.StudioDefaultStyleSheet {StyleSheet}
-StarterGui.StudioInsertWidgetLayerCollectorAutoLinkStyleSheet {StyleSheet}
-
 Beam.Attachment0 {Attachment}
 Beam.Attachment1 {Attachment}
 
-RocketPropulsion.Target {BasePart}
+ChatInputBarConfiguration.TargetTextChannel {TextChannel}
 
 Constraint.Attachment0 {Attachment}
 Constraint.Attachment1 {Attachment}
@@ -26,31 +19,27 @@ ControllerManager.ClimbSensor {ControllerSensor}
 ControllerManager.GroundSensor {ControllerSensor}
 ControllerManager.RootPart {BasePart}
 
+ControllerPartSensor.SensedPart {BasePart}
+
+CoreGui.SelectionImageObject {GuiObject}
+
 CoreGuiConfiguration.CapturesViewConfiguration {CapturesViewConfiguration}
 CoreGuiConfiguration.PlayerListConfiguration {PlayerListConfiguration}
 CoreGuiConfiguration.SelfViewConfiguration {SelfViewConfiguration}
 
+FloorWire.From {BasePart}
+FloorWire.To {BasePart}
+
 GuiBase2d.RootLocalizationTable {LocalizationTable}
+
+GuiButton.HoverHapticEffect {HapticEffect}
+GuiButton.PressHapticEffect {HapticEffect}
 
 GuiObject.NextSelectionDown {GuiObject}
 GuiObject.NextSelectionLeft {GuiObject}
 GuiObject.NextSelectionRight {GuiObject}
 GuiObject.NextSelectionUp {GuiObject}
 GuiObject.SelectionImageObject {GuiObject}
-
-GuiButton.HoverHapticEffect {HapticEffect}
-GuiButton.PressHapticEffect {HapticEffect}
-
-FloorWire.From {BasePart}
-FloorWire.To {BasePart}
-
-PVAdornment.Adornee {PVInstance}
-
-PartAdornment.Adornee {BasePart}
-
-SelectionLasso.Humanoid {Humanoid}
-
-SelectionPartLasso.Part {BasePart}
 
 GuiService.SelectedObject {GuiObject}
 
@@ -60,16 +49,14 @@ InputBinding.UIModifier {GuiButton}
 JointInstance.Part0 {BasePart}
 JointInstance.Part1 {BasePart}
 
-VelocityMotor.Hole {Hole}
+Model.PrimaryPart {BasePart}
 
 NoCollisionConstraint.Part0 {BasePart}
 NoCollisionConstraint.Part1 {BasePart}
 
-Model.PrimaryPart {BasePart}
+PVAdornment.Adornee {PVInstance}
 
-ProceduralModel.Generator {ModuleScript}
-
-Workspace.CurrentCamera {Camera}
+PartAdornment.Adornee {BasePart}
 
 PathfindingLink.Attachment0 {Attachment}
 PathfindingLink.Attachment1 {Attachment}
@@ -78,17 +65,26 @@ Player.Character {Model}
 Player.RespawnLocation {SpawnLocation}
 Player.Team {Team}
 
+PlayerGui.SelectionImageObject {GuiObject}
+
+ProceduralModel.Generator {ModuleScript}
+
 ProximityPrompt.RootLocalizationTable {LocalizationTable}
 
-ControllerPartSensor.SensedPart {BasePart}
+RocketPropulsion.Target {BasePart}
+
+SelectionLasso.Humanoid {Humanoid}
+
+SelectionPartLasso.Part {BasePart}
 
 Sound.SoundGroup {SoundGroup}
+
+StarterGui.StudioDefaultStyleSheet {StyleSheet}
+StarterGui.StudioInsertWidgetLayerCollectorAutoLinkStyleSheet {StyleSheet}
 
 StyleDerive.StyleSheet {StyleSheet}
 
 StyleLink.StyleSheet {StyleSheet}
-
-ChatInputBarConfiguration.TargetTextChannel {TextChannel}
 
 TextChatMessage.BubbleChatMessageProperties {BubbleChatMessageProperties}
 TextChatMessage.ChatWindowMessageProperties {ChatWindowMessageProperties}
@@ -101,6 +97,10 @@ Trail.Attachment1 {Attachment}
 UIDragDetector.BoundingUI {GuiBase2d}
 UIDragDetector.ReferenceUIInstance {GuiObject}
 
+VelocityMotor.Hole {Hole}
+
 WeldConstraint.Part0Internal {BasePart}
 WeldConstraint.Part1Internal {BasePart}
+
+Workspace.CurrentCamera {Camera}
 

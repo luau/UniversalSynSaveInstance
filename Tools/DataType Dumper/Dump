@@ -1,4 +1,4 @@
-version-d0e6613dc5584cf7
+version-914135c3903b4ffb
 
 === DATATYPES ===
 AnimTrackMetadata [API]
@@ -59,7 +59,7 @@ TweenInfo [BOTH]
 UDim [BOTH] {CanSave} {CanLoad}
 UDim2 [BOTH] {CanSave} {CanLoad}
 UniqueId [API] {CanSave} {CanLoad}
-User [API]
+User [BOTH]
 ValueCurveKey [DOCS]
 Vector2 [BOTH] {CanSave} {CanLoad}
 Vector2int16 [DOCS]
@@ -74,9 +74,9 @@ string [API] {CanSave} {CanLoad}
 
 === DATATYPES ANALYSIS ===
 Total unique datatypes: 70
-From API only: 25
+From API only: 24
 From Docs only: 22
-In both sources: 23
+In both sources: 24
 
 === CLASS TAGS ===
 Total unique class tags: 6
