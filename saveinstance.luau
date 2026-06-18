@@ -1032,6 +1032,10 @@ XML_Descriptors = {
 		return string.gsub(raw, "-", "") -- seems to be string type by default
 	end,
 
+	-- User = function(raw)
+	-- 	return raw:ToString() -- ? not sure yet
+	-- end,
+
 	Vector2 = function(raw)
 		--[[
 			X: Represents the X component. Interpreted as a <float>.
@@ -1604,7 +1608,7 @@ do
 			AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure, RobloxScriptSecurity
 			-- Material = function(instance) -- EnableMaterialSlotTable FFlag, uncomment once GetMaterialSlot is enabled
 			-- 	local slots = {}
-			-- 	for slotIndex = 0, 1e9 do
+			-- 	for slotIndex = 2, 1e9 do
 			-- 		local ok, baseMaterial, materialVariant, color =
 			-- 			pcall(instance.GetMaterialSlot, instance, slotIndex)
 
@@ -2024,7 +2028,7 @@ do
 					local class = {
 						Name = className,
 						Members = members,
-						Superclass = api_class.Superclass,
+						Superclass = api_class.Superclass or "<<<ROOT>>>",
 					}
 					local permits = api_class.Permits
 
@@ -2072,6 +2076,7 @@ do
 									Rect2D = "Rect",
 									Vector3Int16 = "Vector3int16",
 									Vector2Int16 = "Vector2int16",
+									Region3Int16 = "Region3int16",
 								}
 								valueType_Name = renames[valueType_Name] or valueType_Name
 							end
@@ -2116,7 +2121,7 @@ do
 			end,
 		}
 		for i, fetcher in APIDUMP_FETCHERS do
-			if i == 2 then
+			if i ~= 3 then
 				continue
 			end
 			local o, r = pcall(fetcher)
@@ -2204,7 +2209,7 @@ do
 						local ValueType = Member.ValueType
 						local ValueType_Name = ValueType.Name
 
-						if ValueType_Name == "Content" then
+						if ValueType_Name == "Content" or ValueType_Name == "AssetContentMap" then -- TODO Can Skip this if our dump was fetched from ReflectionService (make it explicit), currently ReflectionService dump isn't written to file
 							-- ? This filters out Content DataType properties that Roblox doesn't serialize (even if they have CanSave/CanLoad true), takes less space, time & prevents potential property conflicts (Content vs ContentId)
 							if not ContentProperties then
 								ContentProperties = {}
