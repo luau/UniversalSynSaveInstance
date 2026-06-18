@@ -1,4 +1,4 @@
-version-914135c3903b4ffb
+version-3da9d00a092c4d59
 
 AnimationClip.GuidBinaryString {BinaryString}
 
@@ -237,6 +237,8 @@ TerrainDetail.TexturePack {ContentId}
 TerrainRegion.ExtentsMax {Vector3int16}
 TerrainRegion.ExtentsMin {Vector3int16}
 TerrainRegion.SmoothGrid {BinaryString}
+
+TextChatService.EnableProtectedChat {RolloutState}
 
 TriangleMeshPart.AeroMeshData {SharedString}
 TriangleMeshPart.FluidFidelityInternal {FluidFidelity}

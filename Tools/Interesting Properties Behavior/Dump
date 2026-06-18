@@ -1,4 +1,4 @@
-version-914135c3903b4ffb
+version-3da9d00a092c4d59
 
 AdPortal.PortalVersion {CanSave Only}
 
@@ -474,6 +474,7 @@ PluginMenu.Title {CanLoad Only}
 PluginToolbarButton.ClickableWhenViewportHidden {CanLoad Only}
 PluginToolbarButton.Enabled {CanLoad Only}
 PluginToolbarButton.Icon {CanLoad Only}
+PluginToolbarButton.IconContent {CanLoad Only}
 
 PolicyService is NotCreatable but PolicyService.IsLuobuServer has default: "Unknown"
 
@@ -932,6 +933,7 @@ NotCreatable classes that have creatable siblings: 33
       - RelativeGui
       - ScrollingFrame
       - TextBox
+      - TextChannelWindow
       - VideoDisplay
       - VideoFrame
       - ViewportFrame
@@ -941,6 +943,7 @@ NotCreatable classes that have creatable siblings: 33
       - RelativeGui
       - ScrollingFrame
       - TextBox
+      - TextChannelWindow
       - VideoDisplay
       - VideoFrame
       - ViewportFrame

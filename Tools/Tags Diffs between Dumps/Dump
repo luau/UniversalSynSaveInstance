@@ -1,9 +1,9 @@
-Version v1: version-d0e6613dc5584cf7
-Version v2: version-d0e6613dc5584cf7
+Version v1: version-3da9d00a092c4d59
+Version v2: version-3da9d00a092c4d59
 ================================================================================
 
 
-Different Tags (504):
+Different Tags (505):
 ----------------------------------------
   ActivityHistoryEventService
     v1: ['NotCreatable', 'Service']
@@ -1328,6 +1328,9 @@ Different Tags (504):
   TextButton.TextColor
     v1: ['Hidden', 'NotReplicated', 'Deprecated']
     v2: ['Hidden', 'NotReplicated']
+  TextChannelWindow
+    v1: ['NotBrowsable']
+    v2: []
   TextChatMessage
     v1: ['NotCreatable']
     v2: ['NotCreatable', 'NotReplicated']
@@ -1520,8 +1523,8 @@ Different Tags (504):
 
 ================================================================================
 Summary:
-  Total: 8916
-  Same: 8412
-  Different: 504
+  Total: 8953
+  Same: 8448
+  Different: 505
   Only v1: 0
   Only v2: 0

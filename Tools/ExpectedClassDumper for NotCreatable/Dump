@@ -1,4 +1,4 @@
-version-914135c3903b4ffb
+version-3da9d00a092c4d59
 
 AudioDeviceInput.Player {Player}
 
@@ -85,6 +85,8 @@ StarterGui.StudioInsertWidgetLayerCollectorAutoLinkStyleSheet {StyleSheet}
 StyleDerive.StyleSheet {StyleSheet}
 
 StyleLink.StyleSheet {StyleSheet}
+
+TextChannelWindow.Target {TextChannel}
 
 TextChatMessage.BubbleChatMessageProperties {BubbleChatMessageProperties}
 TextChatMessage.ChatWindowMessageProperties {ChatWindowMessageProperties}

@@ -1,9 +1,9 @@
-Version v1: version-914135c3903b4ffb
-Version v2: version-914135c3903b4ffb
+Version v1: version-3da9d00a092c4d59
+Version v2: version-3da9d00a092c4d59
 ================================================================================
 
 
-Different Default values (781):
+Different Default values (784):
 ----------------------------------------
   AccessoryDescription.Instance
     v1: '__api_dump_no_string_value__'
@@ -517,7 +517,7 @@ Different Default values (781):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.725.0.7251148'
+    v2: '0.726.0.7261140'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -934,7 +934,7 @@ Different Default values (781):
     v2: '109999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '94889.7656'
+    v2: '97819.6328'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1193,6 +1193,9 @@ Different Default values (781):
   Player.AccountAgeReplicate
     v1: '__api_dump_skipped_class__'
     v2: '0'
+  Player.AgeChecked
+    v1: '__api_dump_skipped_class__'
+    v2: 'Unchecked'
   Player.AppearanceDidLoad
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1606,7 +1609,7 @@ Different Default values (781):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: 'b467be4ea68c9636298eb98f51b06f581cc5a3e
+    v2: '4359f21cf4c82b6a1d2009234eae83ccc822376
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1737,6 +1740,9 @@ Different Default values (781):
     v1: ''
     v2: '__api_dump_not_serializable__'
   Sound.SoundGroup
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  SoundService.ListenerObject
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
   SpawnLocation.TeamColor
@@ -1950,6 +1956,9 @@ Different Default values (781):
     v1: '__api_dump_no_string_value__'
     v2: '<Font name="FontFace">\n\t<Family><url>
   TextChannel.DirectChatRequester
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  TextChannelWindow.Target
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
   TextChatMessage.BubbleChatMessageProperties
@@ -2351,8 +2360,8 @@ Different Default values (781):
 
 ================================================================================
 Summary:
-  Total: 3932
-  Same: 3151
-  Different: 781
+  Total: 3955
+  Same: 3171
+  Different: 784
   Only v1: 0
   Only v2: 0

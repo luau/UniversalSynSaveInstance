@@ -38,6 +38,18 @@ def write_dump_file(content, filename="Dump", script_dir=None, skip_lines=1):
 
 
 def normalize_v2_dump(data):
+    class_names = {c.get("name") for c in data["classes"]}
+
+    type_renames = {
+        "CoordinateFrame": "CFrame",
+        "Rect2D": "Rect",
+        "Vector3Int16": "Vector3int16",
+        "Vector2Int16": "Vector2int16",
+    }
+
+    def apply_rename(type_name):
+        return type_renames.get(type_name, type_name)
+
     res = {"Classes": [], "Enums": []}
     for c in data["classes"]:
         nc = {
@@ -109,20 +121,26 @@ def normalize_v2_dump(data):
                     "CanLoad": m.get("isSerialized"),
                     "CanSave": m.get("isSerialized"),
                 }
-                dv = (
-                    mt["defaultValue"]
-                    if "defaultValue" in mt and mt["defaultValue"] is not None
-                    else mt.get(
-                        "defaultValueMissingReason", "__api_dump_no_string_value__"
-                    )
-                )
-                if dv.startswith("api_dump_"):
+                
+                dv = mt.get("defaultValue")
+                if dv is None:
+                    dv = mt.get("defaultValueMissingReason", "__api_dump_no_string_value__")
+                
+                if isinstance(dv, str) and dv.startswith("api_dump_"):
                     dv = "__" + dv + "__"
                 nm["Default"] = dv
 
+                # 3. Determine Category and Apply Rename
+                type_name = mt.get("type")
+                category = None
+                if mt.get("isEnum"):
+                    category = "Enum"
+                elif type_name in class_names:
+                    category = "Class"
+
                 nm["ValueType"] = {
-                    "Name": mt.get("type"),
-                    "Category": mt.get("isEnum") and "Enum" or None,
+                    "Name": apply_rename(type_name),
+                    "Category": category,
                     "Capabilities": mt.get("capabilities"),
                 }
 
@@ -133,8 +151,8 @@ def normalize_v2_dump(data):
                     {
                         "Name": a.get("identifier"),
                         "Type": {
-                            "Name": a.get("type"),
-                            "Category": mt.get("isEnum") and "Enum" or None,
+                            "Name": apply_rename(a.get("type")),
+                            "Category": "Enum" if mt.get("isEnum") else ("Class" if a.get("type") in class_names else None),
                         },
                     }
                     for a in (mt.get("arguments"))
@@ -143,8 +161,8 @@ def normalize_v2_dump(data):
                 r = mt.get("results")[0]
 
                 nm["ReturnType"] = {
-                    "Name": r.get("type"),
-                    "Category": mt.get("isEnum") and "Enum" or None,
+                    "Name": apply_rename(r.get("type")),
+                    "Category": "Enum" if mt.get("isEnum") else ("Class" if r.get("type") in class_names else None),
                 }
             nm["Tags"] = m_tags
 

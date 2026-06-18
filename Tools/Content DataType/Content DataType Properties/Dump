@@ -1,4 +1,4 @@
-version-914135c3903b4ffb
+version-3da9d00a092c4d59
 
 AdGui.FallbackImageContent
 
@@ -17,6 +17,9 @@ CharacterMesh.MeshContent
 CharacterMesh.OverlayTextureContent
 
 ClickDetector.CursorIconContent
+
+Clothing.Outfit1Content
+Clothing.Outfit2Content
 
 Decal.ColorMapContent
 Decal.MetalnessMapContent
@@ -51,13 +54,21 @@ Mouse.IconContent
 PackageLink.PackageContent
 PackageLink.PackageContentSerialize
 
+Pants.PantsTemplateContent
+
 ParticleEmitter.TextureContent
+
+PluginToolbarButton.IconContent
 
 ScreenshotHud.CameraButtonIconContent
 
 ScrollingFrame.BottomImageContent
 ScrollingFrame.MidImageContent
 ScrollingFrame.TopImageContent
+
+Shirt.ShirtTemplateContent
+
+ShirtGraphic.TextureContent
 
 Sky.MoonTextureContent
 Sky.SkyboxBackContent
