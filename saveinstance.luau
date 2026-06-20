@@ -1916,6 +1916,16 @@ do
 
 		-- ! exact version match is preferred, mismatched dump versions might result in saveinstance trying to save properties that your client doesn't have yet
 		local APIDUMP_FETCHERS = {
+			[0] = function()
+				return service.HttpService:JSONEncode(
+					service.HttpService:JSONDecode(
+						game:HttpGet(
+							"https://raw.githubusercontent.com/setup-rbxcdn/build-archive/master/data/production/builds/version-3da9d00a092c4d59/Full-API-Dump.json",
+							true
+						)
+					).Classes
+				)
+			end,
 			[1] = function()
 				local res = readfile(FULL_VERSION)
 				if res and res ~= "" and service.HttpService:JSONDecode(res) then
@@ -2121,7 +2131,7 @@ do
 			end,
 		}
 		for i, fetcher in APIDUMP_FETCHERS do
-			if i ~= 3 then
+			if i ~= 0 then
 				continue
 			end
 			local o, r = pcall(fetcher)
