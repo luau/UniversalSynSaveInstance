@@ -1920,7 +1920,7 @@ do
 				return service.HttpService:JSONEncode(
 					service.HttpService:JSONDecode(
 						game:HttpGet(
-							"https://raw.githubusercontent.com/setup-rbxcdn/build-archive/master/data/production/builds/version-3da9d00a092c4d59/Full-API-Dump.json",
+							"https://raw.githubusercontent.com/setup-rbxcdn/build-archive/master/data/production/builds/version-46693bc0bc244907/Full-API-Dump.json",
 							true
 						)
 					).Classes
