@@ -1916,16 +1916,6 @@ do
 
 		-- ! exact version match is preferred, mismatched dump versions might result in saveinstance trying to save properties that your client doesn't have yet
 		local APIDUMP_FETCHERS = {
-			[0] = function()
-				return service.HttpService:JSONEncode(
-					service.HttpService:JSONDecode(
-						game:HttpGet(
-							"https://raw.githubusercontent.com/setup-rbxcdn/build-archive/master/data/production/builds/version-46693bc0bc244907/Full-API-Dump.json",
-							true
-						)
-					).Classes
-				)
-			end,
 			[1] = function()
 				local res = readfile(FULL_VERSION)
 				if res and res ~= "" and service.HttpService:JSONDecode(res) then
@@ -1934,7 +1924,6 @@ do
 			end,
 			[2] = function() -- version-history.json -> exact_match -> zbeta -> LIVE -> sibling major matches
 				local client_version_str = tostring(CLIENT_VERSION)
-
 				local dump
 				local matching_versions, matched, is_matched, exact_match = {}, {}
 				local function process_line(line, noinsert)
@@ -1942,7 +1931,6 @@ do
 						string.match(line, '"%d+%.(%d+)%.([^"]+)": "(version%-[^"]+)')
 					if file_version == client_version_str then
 						is_matched = true
-
 						if version_hash and not matched[version_hash] then -- ! this might cause issues if different file_versions point to the same version_hash (never happened)
 							matched[version_hash] = true
 							if not noinsert then -- to avoid fetching duplicates
@@ -1956,12 +1944,49 @@ do
 						return false -- stop iteration
 					end
 				end
-				local function fetchFullApiDump(hash)
-					local ok, res = pcall(function()
-						local raw = game:HttpGet("https://setup.rbxcdn.com/" .. hash .. "-Full-API-Dump.json", true) -- Seems like only hashes for WindowsStudio64 are supported
-						return service.HttpService:JSONEncode(service.HttpService:JSONDecode(raw).Classes) -- minify it
+
+				-- ! Assumes Normal dumps never include Default; Full dumps always do.
+				local function isFullDump(classes)
+					if not classes then
+						return false
+					end
+					for _, class in classes do
+						for _, member in class.Members do
+							if member.MemberType == "Property" then
+								return member.Default ~= nil
+							end
+						end
+					end
+					return false -- no properties found at all; treat as inconclusive/not full
+				end
+
+				local function tryFetchDump(url)
+					local ok, decoded = pcall(function()
+						local raw = game:HttpGet(url, true)
+						return service.HttpService:JSONDecode(raw)
 					end)
-					return ok and res or nil
+					return ok and decoded or nil
+				end
+
+				local function fetchFullApiDump(hash)
+					-- Primary: Roblox CDN (only WindowsStudio64 hashes seem supported here)
+					local decoded = tryFetchDump("https://setup.rbxcdn.com/" .. hash .. "-Full-API-Dump.json")
+					if decoded and isFullDump(decoded.Classes) then
+						return service.HttpService:JSONEncode(decoded.Classes) -- minify it
+					end
+
+					-- Fallback: our own archived full dumps, in case Roblox's endpoint
+					-- silently returned a normal dump instead of a full one (or 404'd).
+					decoded = tryFetchDump(
+						"https://raw.githubusercontent.com/setup-rbxcdn/roblox-full-api-dumps/refs/heads/main/full-dumps/"
+							.. hash
+							.. "-Full-API-Dump.json"
+					)
+					if decoded and isFullDump(decoded.Classes) then -- isFullDump check is useless here but why not
+						return service.HttpService:JSONEncode(decoded.Classes)
+					end
+
+					return nil
 				end
 
 				do
@@ -1985,7 +2010,6 @@ do
 						end
 					end
 				end
-
 				do -- ? this might happen when user is on a new version but Roblox-Client-Tracker hasn't updated version-history.json yet
 					local function fallback_channel(channel)
 						local ok, res = pcall(function()
@@ -2005,16 +2029,13 @@ do
 							return process_line(line, true)
 						end
 					end
-
 					if not exact_match then
 						exact_match = fallback_channel("zbeta") or fallback_channel() -- LIVE
 					end
 				end
-
 				if exact_match then
 					dump = fetchFullApiDump(exact_match)
 				end
-
 				if not dump then
 					for _, version_hash in matching_versions do -- TODO ideally match nearest by Commit segment of version(), new>old
 						dump = fetchFullApiDump(version_hash)
@@ -2023,10 +2044,10 @@ do
 						end
 					end
 				end
-
 				return dump
 			end,
 			[3] = function()
+				-- ! Some executors (like Xeno) error on ReflectionService.GetClasses due to their ProxyService
 				-- TODO At the time of writing this is missing a way to confirm NotCreatable & NotScriptable
 				-- also is missing some classes like UserGameSettings, not that important though as none of them appear under DataModel
 				local classes, classes_size = {}, 1
@@ -2130,10 +2151,8 @@ do
 				)
 			end,
 		}
+
 		for i, fetcher in APIDUMP_FETCHERS do
-			if i ~= 0 then
-				continue
-			end
 			local o, r = pcall(fetcher)
 			if o and r then
 				API_Dump = r
