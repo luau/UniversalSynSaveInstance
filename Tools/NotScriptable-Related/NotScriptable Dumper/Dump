@@ -1,4 +1,4 @@
-version-3da9d00a092c4d59
+version-8b44d8f2067642d8
 
 AnimationClip.GuidBinaryString {BinaryString}
 
@@ -70,7 +70,7 @@ HumanoidDescription.EquippedEmotesDataInternal {string}
 Instance.AttributesSerialize {BinaryString}
 Instance.DefinesCapabilities {bool}
 Instance.HistoryId {UniqueId}
-Instance.Tags {BinaryString}
+Instance.Tags {SharedString}
 
 IntConstrainedValue.value {int64}
 
@@ -238,8 +238,6 @@ TerrainRegion.ExtentsMax {Vector3int16}
 TerrainRegion.ExtentsMin {Vector3int16}
 TerrainRegion.SmoothGrid {BinaryString}
 
-TextChatService.EnableProtectedChat {RolloutState}
-
 TriangleMeshPart.AeroMeshData {SharedString}
 TriangleMeshPart.FluidFidelityInternal {FluidFidelity}
 TriangleMeshPart.InertiaMigrated {bool}
@@ -285,7 +283,6 @@ Workspace.MeshStreamingAndImprovedLods {RolloutState}
 Workspace.ModelStreamingBehavior {ModelStreamingBehavior}
 Workspace.NextGenerationReplication {RolloutState}
 Workspace.PathfindingUseImprovedSearch {PathfindingUseImprovedSearch}
-Workspace.PhysicsImprovedSleep {RolloutState}
 Workspace.PhysicsSteppingMethod {PhysicsSteppingMethod}
 Workspace.PlayerCharacterDestroyBehavior {PlayerCharacterDestroyBehavior}
 Workspace.PlayerScriptsUseInputActionSystem {RolloutState}
@@ -312,7 +309,6 @@ ValidateEnabledProximityPrompt -> LayeredClothingCacheOptimizations {POTENTIAL P
 ValidateEnabledProximityPrompt -> MeshStreamingAndImprovedLods {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> NextGenerationReplication {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> NextGenerationReplicationAlias {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> PhysicsImprovedSleep {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> PlayerScriptsUseInputActionSystem {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> PlayerScriptsUseInputActionSystemAlias {POTENTIAL PROXY}
 ValidateEnabledProximityPrompt -> TouchEventsUseCollisionGroups {POTENTIAL PROXY}

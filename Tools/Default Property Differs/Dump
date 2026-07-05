@@ -1,9 +1,9 @@
-Version v1: version-3da9d00a092c4d59
-Version v2: version-3da9d00a092c4d59
+Version v1: version-8b44d8f2067642d8
+Version v2: version-8b44d8f2067642d8
 ================================================================================
 
 
-Different Default values (784):
+Different Default values (788):
 ----------------------------------------
   AccessoryDescription.Instance
     v1: '__api_dump_no_string_value__'
@@ -62,7 +62,7 @@ Different Default values (784):
   AudioEmitter.DistanceAttenuation
     v1: ''
     v2: '__api_dump_not_serializable__'
-  AudioEmitter.PositionOverride
+  AudioEmitter.PositionInstance
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
   AudioListener.AngleAttenuation
@@ -71,7 +71,7 @@ Different Default values (784):
   AudioListener.DistanceAttenuation
     v1: ''
     v2: '__api_dump_not_serializable__'
-  AudioListener.PositionOverride
+  AudioListener.PositionInstance
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
   AuroraService.BufferFullInputCount
@@ -517,7 +517,7 @@ Different Default values (784):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.726.0.7261140'
+    v2: '0.728.0.7280895'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -622,7 +622,7 @@ Different Default values (784):
     v2: 'Center'
   File.Size
     v1: '__api_dump_class_not_creatable__'
-    v2: '0'
+    v2: '15'
   Flag.TeamColor
     v1: '__api_dump_no_string_value__'
     v2: '<int name="TeamColor">194</int>'
@@ -934,7 +934,7 @@ Different Default values (784):
     v2: '109999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '97819.6328'
+    v2: '96221.7656'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1202,6 +1202,9 @@ Different Default values (784):
   Player.AutoJumpEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'true'
+  Player.CameraFieldOfView
+    v1: '__api_dump_skipped_class__'
+    v2: '70'
   Player.CameraFrustumRequested
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1214,6 +1217,9 @@ Different Default values (784):
   Player.CameraMode
     v1: '__api_dump_skipped_class__'
     v2: 'Classic'
+  Player.CameraViewportSize
+    v1: '__api_dump_skipped_class__'
+    v2: '0, 0'
   Player.CanLoadCharacterAppearance
     v1: '__api_dump_skipped_class__'
     v2: 'true'
@@ -1609,7 +1615,7 @@ Different Default values (784):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: '4359f21cf4c82b6a1d2009234eae83ccc822376
+    v2: 'd02d3cbeeb145ec46a44f4fd40ff3d10a8ec195
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1733,6 +1739,9 @@ Different Default values (784):
   SlidingBallConstraint.Velocity
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
+  SlimAnimationDataEntity.BoneParentIndices
+    v1: ''
+    v2: '__api_dump_not_serializable__'
   SlimAnimationDataEntity.EntitySource
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -1804,7 +1813,7 @@ Different Default values (784):
     v2: '0'
   Stats.InstanceCount
     v1: '__api_dump_class_not_creatable__'
-    v2: '1074'
+    v2: '1697'
   Stats.MemoryTrackingEnabled
     v1: '__api_dump_class_not_creatable__'
     v2: 'true'
@@ -2240,6 +2249,9 @@ Different Default values (784):
   UserGameSettings.VignetteEnabledCustomOption
     v1: '__api_dump_skipped_class__'
     v2: 'true'
+  UserGameSettings.VoiceChatVolume
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
   UserGameSettings.gaID
     v1: '__api_dump_skipped_class__'
     v2: ''
@@ -2360,8 +2372,8 @@ Different Default values (784):
 
 ================================================================================
 Summary:
-  Total: 3955
-  Same: 3171
-  Different: 784
+  Total: 3978
+  Same: 3190
+  Different: 788
   Only v1: 0
   Only v2: 0

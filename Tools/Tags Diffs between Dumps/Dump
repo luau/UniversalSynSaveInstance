@@ -1,5 +1,5 @@
-Version v1: version-3da9d00a092c4d59
-Version v2: version-3da9d00a092c4d59
+Version v1: version-8b44d8f2067642d8
+Version v2: version-8b44d8f2067642d8
 ================================================================================
 
 
@@ -944,6 +944,9 @@ Different Tags (505):
   Player.CharacterAppearance
     v1: ['NotBrowsable', 'Deprecated', {'PreferredDescriptorName': 'CharacterAppearanceId', 'ThreadSafety': 'Unknown'}]
     v2: ['Deprecated', {'PreferredDescriptorName': 'CharacterAppearanceId', 'ThreadSafety': 'Unknown'}]
+  Player.GetCameraState
+    v1: ['CustomLuaState']
+    v2: []
   Player.GetJoinData
     v1: ['CustomLuaState']
     v2: []
@@ -1388,9 +1391,6 @@ Different Tags (505):
   UILayout
     v1: ['NotCreatable']
     v2: []
-  UIShadow
-    v1: ['NotBrowsable']
-    v2: []
   UniqueIdLookupService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
@@ -1523,8 +1523,8 @@ Different Tags (505):
 
 ================================================================================
 Summary:
-  Total: 8953
-  Same: 8448
+  Total: 9012
+  Same: 8507
   Different: 505
   Only v1: 0
   Only v2: 0

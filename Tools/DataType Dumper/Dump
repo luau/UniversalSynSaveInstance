@@ -1,6 +1,7 @@
-version-914135c3903b4ffb
+version-8b44d8f2067642d8
 
 === DATATYPES ===
+AdReward [DOCS]
 AnimTrackMetadata [API]
 AnimTrackPlayState [API]
 AnimTrackWeight [API]
@@ -73,9 +74,9 @@ int64 [API] {CanSave} {CanLoad}
 string [API] {CanSave} {CanLoad}
 
 === DATATYPES ANALYSIS ===
-Total unique datatypes: 70
+Total unique datatypes: 71
 From API only: 24
-From Docs only: 22
+From Docs only: 23
 In both sources: 24
 
 === CLASS TAGS ===

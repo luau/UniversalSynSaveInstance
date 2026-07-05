@@ -1,4 +1,6 @@
-version-3da9d00a092c4d59
+version-8b44d8f2067642d8
+
+AccessoryDescription.Puffiness {Deprecated} {CanSave}
 
 AdPortal.PortalVersion {CanSave Only}
 
@@ -535,7 +537,7 @@ ServiceVisibilityService is NotCreatable but ServiceVisibilityService.HiddenServ
 SlidingBallConstraint.CurrentPosition {CanSave Only}
 SlidingBallConstraint.SoftlockServoUponReachingTarget {Deprecated} {CanSave}
 
-SlimAnimationDataEntity is NotCreatable but SlimAnimationDataEntity.EntityScale has default: "1"
+SlimAnimationDataEntity is NotCreatable but SlimAnimationDataEntity.BoneParentIndices has default: ""
 
 Smoke.Opacity {CanLoad Only}
 Smoke.RiseVelocity {CanLoad Only}
@@ -727,6 +729,11 @@ Wire.Connected {CanSave Only}
 Workspace.CollisionGroups {WriteOnly} {CanLoad Only}
 Workspace.StreamingPauseMode {CanLoad Only}
 
+WrapLayer.Puffiness {Deprecated} {CanSave}
+WrapLayer.ShrinkFactor {Deprecated} {CanSave}
+
+WrapTarget.Stiffness {Deprecated} {CanSave}
+
 ==================================================
 NOTSCRIPTABLE VALUE TYPE ANALYSIS
 ==================================================
@@ -748,7 +755,7 @@ ValueTypes found exclusively in NotScriptable properties: 16
   - UniqueId
   - Vector3int16
 
-Properties with NotScriptable tag: 101
+Properties with NotScriptable tag: 102
   - AnimationClip.GuidBinaryString
   - AnimationNodeDefinition.InputPinData
   - AnimationRigData.Generic
@@ -830,6 +837,7 @@ Properties with NotScriptable tag: 101
   - RolloutValidation.ThirdBinaryString
   - RolloutValidation.ThirdSharedString
   - RotationCurve.ValuesAndTimes
+  - SlimAnimationDataEntity.BoneParentIndices
   - SlimAnimationDataEntity.SlimInstanceHashes
   - StyleQuery.ConditionsSerialize
   - StyleRule.PropertiesSerialize

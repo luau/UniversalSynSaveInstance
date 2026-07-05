@@ -4,6 +4,11 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CACHE_FILE = os.path.join(SCRIPT_DIR, "api_dump_cache.json")
 CACHE_TTL = 60 * 60 * 2  # 2 hours
 
+FALLBACK_DUMP_URL_TEMPLATE = (
+    "https://raw.githubusercontent.com/setup-rbxcdn/roblox-full-api-dumps/"
+    "refs/heads/main/full-dumps/{hash}-Full-API-Dump.json"
+)
+
 
 def array_to_dictionary(t, h=None):
     if h == "adjust":
@@ -35,6 +40,16 @@ def write_dump_file(content, filename="Dump", script_dir=None, skip_lines=1):
 
     print("File written:", path)
     return True
+
+
+def is_full_dump(data):
+    if not data or "Classes" not in data:
+        return False
+    for c in data["Classes"]:
+        for m in c.get("Members", []):
+            if m.get("MemberType") == "Property":
+                return "Default" in m
+    return False  # no properties found at all; treat as inconclusive/not full
 
 
 def normalize_v2_dump(data):
@@ -121,16 +136,17 @@ def normalize_v2_dump(data):
                     "CanLoad": m.get("isSerialized"),
                     "CanSave": m.get("isSerialized"),
                 }
-                
+
                 dv = mt.get("defaultValue")
                 if dv is None:
-                    dv = mt.get("defaultValueMissingReason", "__api_dump_no_string_value__")
-                
+                    dv = mt.get(
+                        "defaultValueMissingReason", "__api_dump_no_string_value__"
+                    )
+
                 if isinstance(dv, str) and dv.startswith("api_dump_"):
                     dv = "__" + dv + "__"
                 nm["Default"] = dv
 
-                # 3. Determine Category and Apply Rename
                 type_name = mt.get("type")
                 category = None
                 if mt.get("isEnum"):
@@ -152,7 +168,11 @@ def normalize_v2_dump(data):
                         "Name": a.get("identifier"),
                         "Type": {
                             "Name": apply_rename(a.get("type")),
-                            "Category": "Enum" if mt.get("isEnum") else ("Class" if a.get("type") in class_names else None),
+                            "Category": (
+                                "Enum"
+                                if mt.get("isEnum")
+                                else ("Class" if a.get("type") in class_names else None)
+                            ),
                         },
                     }
                     for a in (mt.get("arguments"))
@@ -162,7 +182,11 @@ def normalize_v2_dump(data):
 
                 nm["ReturnType"] = {
                     "Name": apply_rename(r.get("type")),
-                    "Category": "Enum" if mt.get("isEnum") else ("Class" if r.get("type") in class_names else None),
+                    "Category": (
+                        "Enum"
+                        if mt.get("isEnum")
+                        else ("Class" if r.get("type") in class_names else None)
+                    ),
                 }
             nm["Tags"] = m_tags
 
@@ -249,13 +273,13 @@ def get_latest_version():
         candidates.append(vh)
 
     zb = get_clientsettings(
-        "https://clientsettings.rbxcdn.com/v2/client-version/WindowsStudio64/channel/zbeta"
+        "https://clientsettingscdn.roblox.com/v2/client-version/WindowsStudio64/channel/zbeta"
     )
     if zb:
         candidates.append(zb)
 
     live = get_clientsettings(
-        "https://clientsettings.rbxcdn.com/v2/client-version/WindowsStudio64"
+        "https://clientsettingscdn.roblox.com/v2/client-version/WindowsStudio64"
     )
     if live:
         candidates.append(live)
@@ -323,6 +347,38 @@ def save_cache(resp_obj, api_version, version_hash):
         print("Failed to save cache:", e)
 
 
+def fetch_v1_dump(version_hash):
+    primary_url = f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"
+    print(f"Trying v1 (primary): {primary_url}")
+    r = fetch(primary_url)
+    if r:
+        try:
+            data = r.json()
+            if is_full_dump(data):
+                return data
+            print("Primary dump was not a Full API Dump, falling back to archive.")
+        except Exception as e:
+            print("Failed to parse primary dump:", e)
+    else:
+        print("Primary dump fetch failed, falling back to archive.")
+
+    fallback_url = FALLBACK_DUMP_URL_TEMPLATE.format(hash=version_hash)
+    print(f"Trying v1 (fallback archive): {fallback_url}")
+    r = fetch(fallback_url)
+    if r:
+        try:
+            data = r.json()
+            if is_full_dump(data):
+                return data
+            print("Fallback archive dump was also not a Full API Dump.")
+        except Exception as e:
+            print("Failed to parse fallback dump:", e)
+    else:
+        print("Fallback archive fetch failed.")
+
+    return None
+
+
 def get_api_response(version_hash=None, api_version="v1"):
     """Fetch API dump (v1/v2), uses cache per version+api"""
     cached, cached_vh = load_cache(api_version)
@@ -338,57 +394,37 @@ def get_api_response(version_hash=None, api_version="v1"):
 
     print("Using:", version_hash)
 
-    urls = []
-    if api_version == "auto":
-        urls = [
-            ("v1", f"https://setup.rbxcdn.com/{version_hash}-Full-API-Dump.json"),
-            ("v2", f"https://setup.rbxcdn.com/{version_hash}-API-Dump-2.json"),
-        ]
-    else:
-        urls = [
-            (
-                api_version,
-                f"https://setup.rbxcdn.com/{version_hash}-{'Full-API-Dump.json' if api_version=='v1' else 'API-Dump-2.json'}",
+    class W:
+        def __init__(self, orig, data):
+            self._o, self._d = orig, data
+
+        def json(self):
+            return self._d
+
+        def __getattr__(self, a):
+            return getattr(self._o, a)
+
+    if api_version in ("v1", "auto"):
+        raw_data = fetch_v1_dump(version_hash)
+        if raw_data:
+            sorted_data = sort_v1_dump(raw_data)
+            result = W(None, sorted_data)
+            save_cache(json.dumps(sorted_data), "v1", version_hash)
+            return result, version_hash
+        if api_version == "v1":
+            raise RuntimeError(
+                "Failed to fetch a valid Full API Dump (v1) from any source"
             )
-        ]
+        # api_version == "auto": fall through to try v2 below
 
-    for v, u in urls:
-        print(f"Trying {v}: {u}")
+    if api_version in ("v2", "auto"):
+        u = f"https://setup.rbxcdn.com/{version_hash}-API-Dump-2.json"
+        print(f"Trying v2: {u}")
         r = fetch(u)
-        if not r:
-            continue
-        if v == "v2":
-
-            class W:
-                def __init__(self, orig, data):
-                    self._o, self._d = orig, data
-
-                def json(self):
-                    return self._d
-
-                def __getattr__(self, a):
-                    return getattr(self._o, a)
-
+        if r:
             normalized = normalize_v2_dump(r.json())
             result = W(r, normalized)
-            save_cache(json.dumps(normalized), v, version_hash)
-        else:
-            raw_data = r.json()
-            sorted_data = sort_v1_dump(raw_data)
-
-            class W:
-                def __init__(self, orig, data):
-                    self._o, self._d = orig, data
-
-                def json(self):
-                    return self._d
-
-                def __getattr__(self, a):
-                    return getattr(self._o, a)
-
-            result = W(r, sorted_data)
-            save_cache(json.dumps(sorted_data), v, version_hash)
-
-        return result, version_hash
+            save_cache(json.dumps(normalized), "v2", version_hash)
+            return result, version_hash
 
     raise RuntimeError("Failed to fetch API dump")
