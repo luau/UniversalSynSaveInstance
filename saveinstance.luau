@@ -1991,7 +1991,7 @@ do
 						local ok, res = pcall(function()
 							return service.HttpService:JSONDecode(
 								game:HttpGet(
-									"https://clientsettings.rbxcdn.com/v2/client-version/WindowsStudio64"
+									"https://clientsettingscdn.roblox.com/v2/client-version/WindowsStudio64"
 										.. (channel and "/channel/" .. channel or ""),
 									true
 								)
