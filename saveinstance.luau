@@ -138,6 +138,7 @@ end) then
 end
 
 local CLIENT_VERSION = tonumber(string.match(FULL_VERSION, "%d+%.(%d+)")) or 9e9
+local __BREAK = "__BREAK" .. service.HttpService:GenerateGUID(false)
 
 local CFrame_Rotation_IDs = {
 	["\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\128\63"] = 0x02,
@@ -1739,7 +1740,17 @@ do
 		TriangleMeshPart = {
 			FluidFidelityInternal = "FluidFidelity",
 		},
-		MeshPart = { InitialSize = "MeshSize", MeshID = "MeshId" },
+		MeshPart = {
+			InitialSize = "MeshSize",
+			MeshID = "MeshId",
+			VertexCount = function(instance) -- RobloxSecurity
+				local meshId = instance.MeshId
+				if meshId == "" then
+					return __BREAK
+				end
+				return #service.UGCValidationService:GetMeshVerts(meshId)
+			end,
+		},
 		PartOperation = { InitialSize = "MeshSize" },
 		Part = { shape = "Shape", shap = "Shape" },
 		TrussPart = { style = "Style" },
@@ -1750,10 +1761,29 @@ do
 		Humanoid = {
 			Health_XML = "Health",
 			InternalBodyScale = function(instance) -- RobloxScriptSecurity
-				return instance:GetAccessoryHandleScale(instance.Parent.HumanoidRootPart, Enum.BodyPartR15.RootPart) -- It doesn't matter if it errors due to missing HumanoidRootPart, the function just won't be called ever again in such case
+				-- X - BodyWidthScale
+				-- Y - BodyHeightScale
+				-- Z - BodyDepthScale
+				local a = instance.RootPart
+
+				if not a then
+					return __BREAK
+				end
+
+				return instance:GetAccessoryHandleScale(a, Enum.BodyPartR15.RootPart)
 			end,
 			InternalHeadScale = function(instance) -- RobloxScriptSecurity
-				return instance:GetAccessoryHandleScale(instance.Parent.Head, Enum.BodyPartR15.Head).X -- It doesn't matter if it errors due to missing Head, the function just won't be called ever again in such case; X, Y, Z seem to be always equal
+				-- HeadScale
+				local a = instance.Parent and instance.Parent:FindFirstChild("Head")
+
+				if not a then
+					return __BREAK
+				end
+
+				return instance:GetAccessoryHandleScale(a, Enum.BodyPartR15.Head).X -- X, Y, Z seem to be always equal
+			end,
+			NetworkHumanoidState = function(instance) -- CanSave & CanLoad false
+				return instance:GetState()
 			end,
 		},
 		HumanoidDescription = {
@@ -3306,8 +3336,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			or type(result) == "string"
 				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
 	end
-
-	local __BREAK = "__BREAK" .. service.HttpService:GenerateGUID(false)
 
 	local function ReadProperty(instance, property, propertyName, special, category, optional)
 		local raw = __BREAK
