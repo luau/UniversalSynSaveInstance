@@ -558,7 +558,7 @@ Binary_Descriptors = {
 		end
 		local b = buffer.create(len)
 
-		buffer.writeu8(b, 0, raw and 3 or 0) -- 3 means it has set CustomPhysicalProperties & has set AcousticAbsorption, normally this would be __COUNT_BITS but AcousticAbsorption has been enabled by default
+		buffer.writeu8(b, 0, raw and 3 or 0) -- 3 means it has set CustomPhysicalProperties & has set AcousticAbsorption, normally this would be __COUNT_BITS but AcousticAbsorption has been enabled by default; -- * PhysicalProperties.new(0,0,0).AcousticAbsorption could be used as default value to compare AcousticAbsorption against to determine whether it has been set or not
 
 		if raw then
 			buffer.writef32(b, 1, raw.Density)
@@ -1566,6 +1566,19 @@ do
 				return AttenuationSerialize(instance:GetDistanceAttenuation())
 			end,
 		},
+		-- AuroraScript = { -- Class not released yet
+		-- 	AuroraScriptBindingsSerialize = function(instance)
+		-- 		local bindings = service.AuroraScriptService:getInstancesForBehavior(instance)
+		-- 		if #bindings == 0 then
+		-- 			return ""
+		-- 		end
+		-- 		local refs = table.create(#bindings)
+		-- 		for i, binding in bindings do
+		-- 			refs[i] = GetRef(binding)
+		-- 		end
+		-- 		return table.concat(refs, "\0")
+		-- 	end,
+		-- },
 		DebuggerBreakpoint = { line = "Line" }, -- ? This shouldn't appear in live games (try to prove this wrong)
 		BallSocketConstraint = { MaxFrictionTorqueXml = "MaxFrictionTorque" },
 		BasePart = {
@@ -1848,7 +1861,10 @@ do
 		},
 		Players = { MaxPlayersInternal = "MaxPlayers", PreferredPlayersInternal = "PreferredPlayers" }, -- ? Only needed for execs that lack LocalUserSecurity (Level 2, 5, 9), even so, it's a pretty useless information as it can be viewed elsewhere
 
-		StarterPlayer = { AvatarJointUpgrade_SerializedRollout = "AvatarJointUpgrade" }, -- RobloxScriptSecurity
+		StarterPlayer = {
+			AvatarJointUpgrade_SerializedRollout = "AvatarJointUpgrade", -- RobloxScriptSecurity
+			-- LoadCharacterLayeredClothing = "LoadCharacterLayeredClothing ",-- * Both NotScriptable
+		},
 		Smoke = { size_xml = "Size", opacity_xml = "Opacity", riseVelocity_xml = "RiseVelocity" },
 		Sound = {
 			xmlRead_MinDistance_3 = "RollOffMinDistance", -- * Also MinDistance
@@ -1884,7 +1900,7 @@ do
 			end,
 		},
 		Workspace = {
-			-- SignalBehavior2 = "SignalBehavior", -- * Both are NotScriptable so it doesn't make sense to keep
+			-- SignalBehavior2 = "SignalBehavior", -- * Both NotScriptable
 			CollisionGroupData = function()
 				local collision_groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
 
@@ -1939,6 +1955,8 @@ do
 	FetchAPI = function()
 		-- Credits @MaximumADHD
 
+		local FILE_NAME = "API_DUMP.json"
+
 		local API_Dump
 
 		local Max_SecurityCapabilities = SecurityCapabilities.new(unpack(Enum.SecurityCapability:GetEnumItems()))
@@ -1947,9 +1965,9 @@ do
 		-- ! exact version match is preferred, mismatched dump versions might result in saveinstance trying to save properties that your client doesn't have yet
 		local APIDUMP_FETCHERS = {
 			[1] = function()
-				local res = readfile(FULL_VERSION)
-				if res and res ~= "" and service.HttpService:JSONDecode(res) then
-					return res
+				local res = readfile(FILE_NAME)
+				if res and res ~= "" then
+					return service.HttpService:JSONDecode(res)[FULL_VERSION]
 				end
 			end,
 			[2] = function() -- version-history.json -> exact_match -> zbeta -> LIVE -> sibling major matches
@@ -1977,9 +1995,6 @@ do
 
 				-- ! Assumes Normal dumps never include Default; Full dumps always do.
 				local function isFullDump(classes)
-					if not classes then
-						return false
-					end
 					for _, class in classes do
 						for _, member in class.Members do
 							if member.MemberType == "Property" then
@@ -1995,14 +2010,14 @@ do
 						local raw = game:HttpGet(url, true)
 						return service.HttpService:JSONDecode(raw)
 					end)
-					return ok and decoded or nil
+					return ok and decoded.Classes or nil
 				end
 
 				local function fetchFullApiDump(hash)
 					-- Primary: Roblox CDN (only WindowsStudio64 hashes seem supported here)
 					local decoded = tryFetchDump("https://setup.rbxcdn.com/" .. hash .. "-Full-API-Dump.json")
-					if decoded and isFullDump(decoded.Classes) then
-						return service.HttpService:JSONEncode(decoded.Classes) -- minify it
+					if decoded and isFullDump(decoded) then
+						return decoded
 					end
 
 					-- Fallback: our own archived full dumps, in case Roblox's endpoint
@@ -2012,8 +2027,8 @@ do
 							.. hash
 							.. "-Full-API-Dump.json"
 					)
-					if decoded and isFullDump(decoded.Classes) then -- isFullDump check is useless here but why not
-						return service.HttpService:JSONEncode(decoded.Classes)
+					if decoded and isFullDump(decoded) then -- isFullDump check is useless here but why not
+						return decoded
 					end
 
 					return nil
@@ -2168,17 +2183,15 @@ do
 					classes_size += 1
 				end
 
-				return service.HttpService:JSONEncode(classes)
+				return classes
 			end,
 			[4] = function()
-				return service.HttpService:JSONEncode(
-					service.HttpService:JSONDecode(
-						game:HttpGet(
-							"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json",
-							true
-						)
-					).Classes
-				)
+				return service.HttpService:JSONDecode(
+					game:HttpGet(
+						"https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/Mini-API-Dump.json",
+						true
+					)
+				).Classes
 			end,
 		}
 
@@ -2188,7 +2201,11 @@ do
 				API_Dump = r
 				if i == 2 then -- relies on [2] being the same
 					if writefile then
-						writefile(FULL_VERSION, API_Dump)
+						local ok, err =
+							pcall(writefile, FILE_NAME, service.HttpService:JSONEncode({ [FULL_VERSION] = API_Dump }))
+						if not ok then
+							warn("[DEBUG] DUMP writefile error", err)
+						end
 					end
 				end
 				break
@@ -2203,7 +2220,7 @@ do
 
 		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
 
-		local API_Dump_Decoded = service.HttpService:JSONDecode(API_Dump)
+		local API_Dump_Decoded = API_Dump
 
 		-- First pass (prep)
 		for _, API_Class in API_Dump_Decoded do
@@ -2417,7 +2434,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
 --- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {TextChatService}
---- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore** except `= false` meaning if you ignore one instance it will automatically ignore it's descendants. ___Default:___ {CoreGui, CorePackages}
+--- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore** except `= false` meaning save the instance but ignore it's descendants. ___Default:___ {CoreGui, CorePackages}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
