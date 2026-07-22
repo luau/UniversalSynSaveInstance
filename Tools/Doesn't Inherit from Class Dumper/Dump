@@ -1,4 +1,4 @@
-version-914135c3903b4ffb
+version-14d8b191232f4ddd
 
 Classes that do NOT inherit from Object:
 ----------------------------------------
@@ -12,6 +12,7 @@ ConfigSnapshot does not inherit from Instance
 EditableImage does not inherit from Instance
 EditableMesh does not inherit from Instance
 ExecutedRemoteCommand does not inherit from Instance
+LuauExpression does not inherit from Instance
 MLSession does not inherit from Instance
 Object does not inherit from Instance
 OutputLink does not inherit from Instance

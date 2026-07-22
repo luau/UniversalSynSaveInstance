@@ -1,4 +1,4 @@
-version-8b44d8f2067642d8
+version-14d8b191232f4ddd
 
 AnimationClip.GuidBinaryString {BinaryString}
 
@@ -22,7 +22,11 @@ BasePart.size {Vector3}
 
 BaseWrap.HSRData {SharedString}
 BaseWrap.HSRMeshIdData {SharedString}
+BaseWrap.TemporaryCageMeshContent {Content}
 BaseWrap.TemporaryCageMeshId {ContentId}
+TemporaryCageMeshContent -> CageMeshId {POTENTIAL PROXY Content}
+TemporaryCageMeshContent -> HSRAssetId {POTENTIAL PROXY Content}
+TemporaryCageMeshContent -> TemporaryCageMeshId {POTENTIAL PROXY Content}
 
 BevelMesh.Bevel {float}
 BevelMesh.Bevel Roundness {float}
@@ -50,8 +54,8 @@ Fire.size_xml {float}
 FloatCurve.ValuesAndTimes {BinaryString}
 
 FormFactorPart.formFactorRaw {FormFactor}
-formFactorRaw -> FormFactor {POTENTIAL PROXY}
-formFactorRaw -> formFactor {POTENTIAL PROXY}
+formFactorRaw -> FormFactor {POTENTIAL PROXY Enum}
+formFactorRaw -> formFactor {POTENTIAL PROXY Enum}
 
 FunctionalTest.HasMigratedSettingsToTestService {bool}
 
@@ -125,6 +129,12 @@ MaterialService.WoodName {string}
 MaterialService.WoodPlanksName {string}
 
 MaterialVariant.TexturePack {ContentId}
+MaterialVariant.TexturePackContent {Content}
+TexturePackContent -> ColorMap {POTENTIAL PROXY Content}
+TexturePackContent -> MetalnessMap {POTENTIAL PROXY Content}
+TexturePackContent -> NormalMap {POTENTIAL PROXY Content}
+TexturePackContent -> RoughnessMap {POTENTIAL PROXY Content}
+TexturePackContent -> TexturePack {POTENTIAL PROXY Content}
 
 MeshPart.InitialSize {Vector3}
 MeshPart.PhysicsData {BinaryString}
@@ -145,15 +155,18 @@ NegateOperation.PreviousOperation {NegateOperationHiddenHistory}
 PackageLink.PackageContentSerialize {Content}
 PackageLink.PackageIdSerialize {ContentId}
 PackageLink.VersionIdSerialize {int64}
+PackageContentSerialize -> PackageId {POTENTIAL PROXY Content}
+PackageContentSerialize -> PackageIdSerialize {POTENTIAL PROXY Content}
 
 Part.shape {PartType}
-shape -> Shape {POTENTIAL PROXY}
-shape -> shap {POTENTIAL PROXY}
+shape -> Shape {POTENTIAL PROXY Enum}
+shape -> shap {POTENTIAL PROXY Enum}
 
 PartOperation.AssetId {ContentId}
 PartOperation.ChildData {BinaryString}
 PartOperation.ChildData2 {SharedString}
 PartOperation.ComponentIndex {int}
+PartOperation.Content {Content}
 PartOperation.FormFactor {FormFactor}
 PartOperation.InitialSize {Vector3}
 PartOperation.MeshData {BinaryString}
@@ -161,6 +174,7 @@ PartOperation.MeshData2 {SharedString}
 PartOperation.OffCentered {bool}
 PartOperation.PhysicsData {BinaryString}
 PartOperation.SolidMeshHolder {NetAssetRef}
+Content -> AssetId {POTENTIAL PROXY Content}
 
 PartOperationAsset.ChildData {BinaryString}
 PartOperationAsset.MeshData {BinaryString}
@@ -213,8 +227,8 @@ StarterPlayer.AvatarJointUpgrade_SerializedRollout {RolloutState}
 StarterPlayer.CreateDefaultPlayerModule {bool}
 StarterPlayer.EnableDynamicHeads {LoadDynamicHeads}
 StarterPlayer.LoadCharacterLayeredClothing {LoadCharacterLayeredClothing}
-AvatarJointUpgrade_SerializedRollout -> AvatarJointUpgrade {POTENTIAL PROXY}
-LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing  {POTENTIAL PROXY}
+AvatarJointUpgrade_SerializedRollout -> AvatarJointUpgrade {POTENTIAL PROXY Enum}
+LoadCharacterLayeredClothing -> LoadCharacterLayeredClothing  {POTENTIAL PROXY Enum}
 
 StyleQuery.ConditionsSerialize {BinaryString}
 
@@ -230,9 +244,15 @@ Terrain.PhysicsGrid {BinaryString}
 Terrain.SmoothGrid {BinaryString}
 Terrain.ValidationAssetContentMap {AssetContentMap}
 Terrain.VoxelGridAssetContentMap {AssetContentMap}
-AcquisitionMethod -> LastUsedModificationMethod {POTENTIAL PROXY}
+AcquisitionMethod -> LastUsedModificationMethod {POTENTIAL PROXY Enum}
 
 TerrainDetail.TexturePack {ContentId}
+TerrainDetail.TexturePackContent {Content}
+TexturePackContent -> ColorMap {POTENTIAL PROXY Content}
+TexturePackContent -> MetalnessMap {POTENTIAL PROXY Content}
+TexturePackContent -> NormalMap {POTENTIAL PROXY Content}
+TexturePackContent -> RoughnessMap {POTENTIAL PROXY Content}
+TexturePackContent -> TexturePack {POTENTIAL PROXY Content}
 
 TerrainRegion.ExtentsMax {Vector3int16}
 TerrainRegion.ExtentsMin {Vector3int16}
@@ -242,10 +262,10 @@ TriangleMeshPart.AeroMeshData {SharedString}
 TriangleMeshPart.FluidFidelityInternal {FluidFidelity}
 TriangleMeshPart.InertiaMigrated {bool}
 TriangleMeshPart.PhysicalConfigData {SharedString}
-FluidFidelityInternal -> FluidFidelity {POTENTIAL PROXY}
+FluidFidelityInternal -> FluidFidelity {POTENTIAL PROXY Enum}
 
 TrussPart.style {Style}
-style -> Style {POTENTIAL PROXY}
+style -> Style {POTENTIAL PROXY Enum}
 
 UnvalidatedAssetService.CachedData {string}
 
@@ -286,6 +306,7 @@ Workspace.PathfindingUseImprovedSearch {PathfindingUseImprovedSearch}
 Workspace.PhysicsSteppingMethod {PhysicsSteppingMethod}
 Workspace.PlayerCharacterDestroyBehavior {PlayerCharacterDestroyBehavior}
 Workspace.PlayerScriptsUseInputActionSystem {RolloutState}
+Workspace.PredictiveStreamingMode {PredictiveStreamingMode}
 Workspace.PrimalPhysicsSolver {PrimalPhysicsSolver}
 Workspace.RejectCharacterDeletions {RejectCharacterDeletions}
 Workspace.RenderingCacheOptimizations {RenderingCacheOptimizationMode}
@@ -302,23 +323,26 @@ Workspace.TouchesUseCollisionGroups {bool}
 Workspace.UseFixedSimulation {RolloutState}
 Workspace.UseNewLuauTypeSolver {RolloutState}
 Workspace.ValidateEnabledProximityPrompt {RolloutState}
-ValidateEnabledProximityPrompt -> EnableSLIMAvatars {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> ImprovedAnimationConstraint {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> ImprovedPhysicsReplication {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> LayeredClothingCacheOptimizations {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> MeshStreamingAndImprovedLods {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> NextGenerationReplication {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> NextGenerationReplicationAlias {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> PlayerScriptsUseInputActionSystem {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> PlayerScriptsUseInputActionSystemAlias {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> TouchEventsUseCollisionGroups {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> UseFixedSimulation {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> UseFixedSimulationAlias {POTENTIAL PROXY}
-ValidateEnabledProximityPrompt -> UseNewLuauTypeSolver {POTENTIAL PROXY}
-SignalBehavior2 -> SignalBehavior {POTENTIAL PROXY}
-SignalBehavior2 -> SignalBehaviorAlias {POTENTIAL PROXY}
+ValidateEnabledProximityPrompt -> EnableSLIMAvatars {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> ImprovedAnimationConstraint {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> ImprovedPhysicsReplication {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> LayeredClothingCacheOptimizations {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> MeshStreamingAndImprovedLods {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> NextGenerationReplication {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> NextGenerationReplicationAlias {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> PlayerScriptsUseInputActionSystem {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> PlayerScriptsUseInputActionSystemAlias {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> TouchEventsUseCollisionGroups {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> UseFixedSimulation {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> UseFixedSimulationAlias {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> UseNewLuauTypeSolver {POTENTIAL PROXY Enum}
+SignalBehavior2 -> SignalBehavior {POTENTIAL PROXY Enum}
+SignalBehavior2 -> SignalBehaviorAlias {POTENTIAL PROXY Enum}
 
 WrapLayer.TemporaryReferenceId {ContentId}
+WrapLayer.TemporaryReferenceMeshContent {Content}
+TemporaryReferenceMeshContent -> ReferenceMeshId {POTENTIAL PROXY Content}
+TemporaryReferenceMeshContent -> TemporaryReferenceId {POTENTIAL PROXY Content}
 
 
 Potential Proxy Properties:
@@ -368,6 +392,7 @@ Player.InternalCharacterAppearanceLoaded {Serialize: False}
 Player.MembershipTypeReplicate {Serialize: False}
 Player.ReplicationFocus {Scriptable}
 Player.SuperSafeChatReplicate {Serialize: False}
+Player.UserIdModeReplicate {Serialize: False}
 PlayerEmulatorService.SerializedEmulatedPolicyInfo {Scriptable}
 Players.MaxPlayersInternal {Scriptable}
 Players.PreferredPlayersInternal {Scriptable}

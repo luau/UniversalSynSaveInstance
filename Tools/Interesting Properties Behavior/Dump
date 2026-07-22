@@ -1,4 +1,4 @@
-version-8b44d8f2067642d8
+version-14d8b191232f4ddd
 
 AccessoryDescription.Puffiness {Deprecated} {CanSave}
 
@@ -328,6 +328,8 @@ HumanoidDescription.WaistAccessory {CanLoad Only}
 
 IncrementalPatchBuilder is NotCreatable but IncrementalPatchBuilder.AddPathsToBundle has default: "false"
 
+InputAction.PreferredBinding {CanSave Only}
+
 InputObject is NotCreatable but InputObject.Delta has default: "0, 0, 0"
 
 InsertService.AllowInsertFreeModels {Deprecated} {CanSave}
@@ -484,6 +486,7 @@ Pose.MaskWeight {CanLoad Only} {Deprecated}
 
 ProceduralModel.GenerationError {CanSave Only}
 
+RealtimeMedia.AudioInputActive {CanSave Only}
 RealtimeMedia.IsConnected {CanSave Only}
 
 RenderSettings.EnableFRM {CanLoad Only}
@@ -755,7 +758,7 @@ ValueTypes found exclusively in NotScriptable properties: 16
   - UniqueId
   - Vector3int16
 
-Properties with NotScriptable tag: 102
+Properties with NotScriptable tag: 126
   - AnimationClip.GuidBinaryString
   - AnimationNodeDefinition.InputPinData
   - AnimationRigData.Generic
@@ -767,28 +770,52 @@ Properties with NotScriptable tag: 102
   - AnimationRigData.transform
   - Animator.AnimTrackMetadata0
   - Animator.AnimTrackMetadata1
+  - Animator.AnimTrackMetadata10
+  - Animator.AnimTrackMetadata11
+  - Animator.AnimTrackMetadata12
+  - Animator.AnimTrackMetadata13
+  - Animator.AnimTrackMetadata14
+  - Animator.AnimTrackMetadata15
   - Animator.AnimTrackMetadata2
   - Animator.AnimTrackMetadata3
   - Animator.AnimTrackMetadata4
   - Animator.AnimTrackMetadata5
   - Animator.AnimTrackMetadata6
   - Animator.AnimTrackMetadata7
+  - Animator.AnimTrackMetadata8
+  - Animator.AnimTrackMetadata9
   - Animator.AnimTrackPlayState0
   - Animator.AnimTrackPlayState1
+  - Animator.AnimTrackPlayState10
+  - Animator.AnimTrackPlayState11
+  - Animator.AnimTrackPlayState12
+  - Animator.AnimTrackPlayState13
+  - Animator.AnimTrackPlayState14
+  - Animator.AnimTrackPlayState15
   - Animator.AnimTrackPlayState2
   - Animator.AnimTrackPlayState3
   - Animator.AnimTrackPlayState4
   - Animator.AnimTrackPlayState5
   - Animator.AnimTrackPlayState6
   - Animator.AnimTrackPlayState7
+  - Animator.AnimTrackPlayState8
+  - Animator.AnimTrackPlayState9
   - Animator.AnimTrackWeight0
   - Animator.AnimTrackWeight1
+  - Animator.AnimTrackWeight10
+  - Animator.AnimTrackWeight11
+  - Animator.AnimTrackWeight12
+  - Animator.AnimTrackWeight13
+  - Animator.AnimTrackWeight14
+  - Animator.AnimTrackWeight15
   - Animator.AnimTrackWeight2
   - Animator.AnimTrackWeight3
   - Animator.AnimTrackWeight4
   - Animator.AnimTrackWeight5
   - Animator.AnimTrackWeight6
   - Animator.AnimTrackWeight7
+  - Animator.AnimTrackWeight8
+  - Animator.AnimTrackWeight9
   - Animator.FacsReplicationData
   - AudioDeviceInput.AccessList
   - AuroraScript.AuroraScriptBindingsSerialize

@@ -1,4 +1,4 @@
-version-914135c3903b4ffb
+version-14d8b191232f4ddd
 
 AnimationClip
 
@@ -84,6 +84,8 @@ DebuggerLuaResponse
 
 DebuggerVariable
 
+DisplayWakeLock
+
 DynamicRotate
 
 EditableImage
@@ -143,6 +145,8 @@ LocalDebuggerConnection
 LodDataEntity
 
 LuaSourceContainer
+
+LuauExpression
 
 MLSession
 

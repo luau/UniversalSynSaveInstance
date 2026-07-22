@@ -1,9 +1,9 @@
-Version v1: version-8b44d8f2067642d8
-Version v2: version-8b44d8f2067642d8
+Version v1: version-14d8b191232f4ddd
+Version v2: version-14d8b191232f4ddd
 ================================================================================
 
 
-Different Default values (788):
+Different Default values (793):
 ----------------------------------------
   AccessoryDescription.Instance
     v1: '__api_dump_no_string_value__'
@@ -502,7 +502,7 @@ Different Default values (788):
     v2: '1'
   DebugSettings.InstanceCount
     v1: '__api_dump_skipped_class__'
-    v2: '926'
+    v2: '940'
   DebugSettings.IsScriptStackTracingEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'true'
@@ -517,7 +517,7 @@ Different Default values (788):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.728.0.7280895'
+    v2: '0.731.0.7310942'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -815,6 +815,12 @@ Different Default values (788):
   IKControl.Target
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
+  InputAction.PreferredBinding
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  InputBinding.DisplayImage
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="DisplayImage">\n\t<null>
   InputBinding.UIButton
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -934,7 +940,7 @@ Different Default values (788):
     v2: '109999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '96221.7656'
+    v2: '95206.9922'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1340,6 +1346,9 @@ Different Default values (788):
   Player.PartyId
     v1: '__api_dump_skipped_class__'
     v2: ''
+  Player.PendingRequestedTool
+    v1: '__api_dump_skipped_class__'
+    v2: 'nullptr'
   Player.PlatformName
     v1: '__api_dump_skipped_class__'
     v2: ''
@@ -1382,12 +1391,18 @@ Different Default values (788):
   Player.UserId
     v1: '__api_dump_skipped_class__'
     v2: '0'
+  Player.UserIdModeReplicate
+    v1: '__api_dump_skipped_class__'
+    v2: 'Invalid'
   Player.VRDevice
     v1: '__api_dump_skipped_class__'
     v2: ''
   Player.VREnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
+  Player.VoiceChatVolume
+    v1: '__api_dump_skipped_class__'
+    v2: '1'
   Player.userId
     v1: '__api_dump_skipped_class__'
     v2: '0'
@@ -1615,7 +1630,7 @@ Different Default values (788):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: 'd02d3cbeeb145ec46a44f4fd40ff3d10a8ec195
+    v2: '790e533f655bedbf7e44e47f1021f14910e48cb
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1813,7 +1828,7 @@ Different Default values (788):
     v2: '0'
   Stats.InstanceCount
     v1: '__api_dump_class_not_creatable__'
-    v2: '1697'
+    v2: '1725'
   Stats.MemoryTrackingEnabled
     v1: '__api_dump_class_not_creatable__'
     v2: 'true'
@@ -2372,8 +2387,8 @@ Different Default values (788):
 
 ================================================================================
 Summary:
-  Total: 3978
-  Same: 3190
-  Different: 788
+  Total: 3972
+  Same: 3179
+  Different: 793
   Only v1: 0
   Only v2: 0

@@ -13,6 +13,7 @@ def fetch(vh=None):
         cname = c["Name"]
         prev = len(s)
         enums = {}
+        contents = {}
         for m in c["Members"]:
             if m["MemberType"] != "Property": continue
             mname = m["Name"]
@@ -24,6 +25,7 @@ def fetch(vh=None):
                 vt = m["ValueType"]
                 vtn, vtc = vt["Name"], vt["Category"]
                 if vtc == "Enum": enums[vtn] = mname
+                if vtn == "Content": contents[mname] = mname
                 s += f"{cname}.{mname} {{{vtn}}}"
                 for t in raw:
                     if isinstance(t, dict): s += f" {{PreferredDescriptorName: {t.get('PreferredDescriptorName')}}}"
@@ -38,7 +40,13 @@ def fetch(vh=None):
                 if m["Name"] != rm and m["MemberType"] == "Property":
                     vt = m["ValueType"]
                     if vt["Category"] == "Enum" and vt["Name"] == et:
-                        s += f"{rm} -> {m['Name']} {{POTENTIAL PROXY}}\n"
+                        s += f"{rm} -> {m['Name']} {{POTENTIAL PROXY Enum}}\n"
+        for rm in contents:
+            for m in c["Members"]:
+                if m["Name"] != rm and m["MemberType"] == "Property":
+                    vt = m["ValueType"]
+                    if vt["Name"] == "ContentId":
+                        s += f"{rm} -> {m['Name']} {{POTENTIAL PROXY Content}}\n"
         if len(s) > prev: s += "\n"
     if filtered: s += "\nPotential Proxy Properties:\n" + "\n".join(filtered) + "\n"
     return s

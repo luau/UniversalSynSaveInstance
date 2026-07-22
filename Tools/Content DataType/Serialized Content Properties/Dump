@@ -1,4 +1,6 @@
-version-d0e6613dc5584cf7
+version-ed7d8193e8564b1f
+
+InputBinding.DisplayImage {default: "<Contentname="DisplayImage"><null></null></Content>"}
 
 MaterialVariant.EmissiveMaskContent {default: "<Contentname="EmissiveMaskContent"><null></null></Content>"}
 
@@ -14,4 +16,4 @@ WrapTextureTransfer.ReferenceCageMeshContent {default: "<Contentname="ReferenceC
 
 
 ---
-Total: 6
+Total: 7
