@@ -2439,7 +2439,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
---- @field FilePath string -- Must only contain the name (can include path) of the file, no file extension. ___Default:___ false
+--- @field FilePath string -- The name (can include a path) of the file to save to. If it has no extension, `.rbxmx/rbxm` (models) or `.rbxlx/rbxl` (places) is appended; an existing extension is left as-is. Ignores `OPTIONS.AvoidFileOverwrite`. ___Default:___ false
 --- @field AvoidFileOverwrite boolean -- Prevents writing to place file that already exists. ___Default:___ true
 --- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
 --- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
@@ -2468,6 +2468,7 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- Format: { Alias = CanonicalOption }
 --- These are resolved before user options are processed and cannot be modified at runtime.
 --- @field timeout string -- DecompileTimeout
+--- @field DecompileScripts string -- Decompile
 --- @field FileName string -- FilePath
 --- @field IgnoreArchivable string -- IgnoreNotArchivable
 --- @field IgnoreDefaultProps string -- IgnoreDefaultProperties
@@ -2477,7 +2478,9 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field SavePlayerGui string -- IsolateLocalPlayer
 --- @field SavePlayers string -- IsolatePlayers
 --- @field SaveNonCreatable string -- SaveNotCreatable
+--- @field SaveNilInstances string -- NilInstances
 --- @field SaveCharacters string -- SavePlayerCharacters
+--- @field StatusText string -- ShowStatus
 
 --- @interface OptionsAliasesInverse
 --- @within SynSaveInstance
@@ -2546,7 +2549,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		-- DisableCompression = false, --Description: Disables compression in the binary output
 
 		DecompileJobless = false,
-		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
+		DecompileIgnore = {
 			-- "Chat",
 			"TextChatService",
 			ModuleScript = nil,
@@ -2623,6 +2626,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		OptionsAliases = { -- You can't really modify these as a user (because they're read before user's Options are loaded)
 			timeout = "DecompileTimeout",
+			DecompileScripts = "Decompile",
 			FileName = "FilePath",
 			IgnoreArchivable = "IgnoreNotArchivable",
 			IgnoreDefaultProps = "IgnoreDefaultProperties",
@@ -2631,8 +2635,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			IsolatePlayerGui = "IsolateLocalPlayer",
 			SavePlayerGui = "IsolateLocalPlayer",
 			SaveNonCreatable = "SaveNotCreatable",
+			SaveNilInstances = "NilInstances",
 			SavePlayers = "IsolatePlayers",
 			SaveCharacters = "SavePlayerCharacters",
+			StatusText = "ShowStatus",
 		},
 		OptionsAliasesInverse = {
 			noscripts = "Decompile",
@@ -2909,12 +2915,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 	local ScriptCache = OPTIONS.scriptcache and getscriptbytecode
 
-	local DecompileTimeout = OPTIONS.DecompileTimeout
-
 	local IgnoreSharedStrings = OPTIONS.IgnoreSharedStrings
 	local SharedStringOverwrite = OPTIONS.SharedStringOverwrite
 
-	local ldeccache = GLOBAL_ENV.scriptcache
+	local ldeccache = GLOBAL_ENV.USSI_scriptcache
 
 	local DecompileIgnoring, ToSaveList, ldecompile, placename, elapse_t, SaveNotCreatableWillBeEnabled, RecoveredScripts
 
@@ -2924,7 +2928,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	if ScriptCache and not ldeccache then
 		ldeccache = {}
-		GLOBAL_ENV.scriptcache = ldeccache
+		GLOBAL_ENV.USSI_scriptcache = ldeccache
 	end
 
 	if ToSaveInstance == game then
@@ -2974,7 +2978,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local filetype = IsModel and ".rbxmx" or ".rbxlx"
 
 		if FilePath then
-			placename = FilePath
+			local hasExtension = string.match(FilePath, "%.[^/\\]+$") ~= nil
+			placename = hasExtension and FilePath or (FilePath .. filetype)
 		elseif IsModel then
 			placename =
 				sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1] or game):GetFullName())
@@ -2982,7 +2987,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			placename = sanitizeFileName("place " .. PlaceName)
 		end
 
-		if OPTIONS.AvoidFileOverwrite and isfile then
+		if FilePath then
+		elseif OPTIONS.AvoidFileOverwrite and isfile then
 			local counter = 0
 			local temp = placename
 
@@ -4309,7 +4315,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	if OPTIONS.ShowStatus then
 		do
-			local Exists = GLOBAL_ENV._statustext
+			local Exists = GLOBAL_ENV.USSI_statustext
 			if Exists then
 				Exists:Destroy()
 			end
@@ -4317,7 +4323,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		local StatusGui = Instance.new("ScreenGui")
 
-		GLOBAL_ENV._statustext = StatusGui
+		GLOBAL_ENV.USSI_statustext = StatusGui
 
 		StatusGui.DisplayOrder = 2e9
 		pcall(function() -- ? Compatibility with level 2
