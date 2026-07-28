@@ -2286,28 +2286,23 @@ do
 				return service.HttpService:JSONEncode(blob)
 			end,
 			EmotesDataInternal = function(instance)
-				local emotes = instance:GetEmotes()
-
-				local parts = {}
-				local c = 0
-				for name, ids in emotes do
-					c += 1
-					parts[c] = name .. "^" .. table.concat(ids, "^")
+				local emotes_data = ""
+				for name, ids in instance:GetEmotes() do
+					emotes_data ..= name .. "^" .. table.concat(ids, "^") .. "^\\"
 				end
-				return table.concat(parts, "\\")
+				return emotes_data
 			end,
 			EquippedEmotesDataInternal = function(instance)
 				local equipped_emotes = instance:GetEquippedEmotes()
-				local n = #equipped_emotes
-				if n == 0 then
+				if #equipped_emotes == 0 then
 					return ""
 				end
 
-				local parts = table.create(n)
-				for i, emote in equipped_emotes do
-					parts[i] = emote.Slot .. "^" .. emote.Name
+				local equipped_emotes_data = ""
+				for _, emote in equipped_emotes do
+					equipped_emotes_data = equipped_emotes_data .. emote.Slot .. "^" .. emote.Name .. "\\"
 				end
-				return table.concat(parts, "\\")
+				return equipped_emotes_data
 			end,
 		},
 		LocalizationTable = {
