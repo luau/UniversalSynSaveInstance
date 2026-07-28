@@ -2396,6 +2396,8 @@ do
 				end
 				return table.concat(parts, "\\")
 			end,
+		},
+		WorldRoot = {
 			CollisionGroupData = function()
 				local collision_groups = game:GetService("PhysicsService"):GetRegisteredCollisionGroups()
 				local n = #collision_groups
@@ -2455,6 +2457,8 @@ do
 			return instance:GetBaseMaterialOverride(enum_item)
 		end
 	end
+
+	NotScriptableFixes.Workspace.CollisionGroupData = NotScriptableFixes.WorldRoot.CollisionGroupData -- TODO Remove once v732 goes live
 
 	FetchAPI = function()
 		-- Credits @MaximumADHD
