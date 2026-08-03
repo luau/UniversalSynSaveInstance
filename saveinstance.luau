@@ -31,6 +31,24 @@ local function arrayToDict(t, mixedMode, valueOverride, typeStrict)
 	return tmp
 end
 
+local service = setmetatable({}, {
+	__index = function(self, serviceName)
+		local o, s = pcall(Instance.new, serviceName)
+		local Service = o and s
+			or game:GetService(serviceName)
+			or settings():GetService(serviceName)
+			or UserSettings():GetService(serviceName)
+
+		-- if cloneref then
+		-- 	Service = cloneref(Service)
+		-- end
+		if Service then
+			self[serviceName] = Service
+		end
+		return Service
+	end,
+})
+
 local global_container
 do
 	local filename = "UniversalMethodFinder"
@@ -73,24 +91,6 @@ local writefile = writefile
 
 local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = global_container.base64encode
-
-local service = setmetatable({}, {
-	__index = function(self, serviceName)
-		local o, s = pcall(Instance.new, serviceName)
-		local Service = o and s
-			or game:GetService(serviceName)
-			or settings():GetService(serviceName)
-			or UserSettings():GetService(serviceName)
-
-		-- if cloneref then
-		-- 	Service = cloneref(Service)
-		-- end
-		if Service then
-			self[serviceName] = Service
-		end
-		return Service
-	end,
-})
 
 local sharedStringId = 1e15 -- 1 quadrillion, up to 9.(9) quadrillion, in theory this shouldn't ever run out and be enough for all sharedstrings ever imaginable 	-- TODO: worst case, add fallback to str randomizer once numbers run out : )
 local sharedStrings = setmetatable({}, {
@@ -2446,6 +2446,12 @@ do
 				return ServiceVisibilitySerialize(true)
 			end,
 		},
+
+		-- EditableImage = { -- Not sure how this would be encountered as it can't be parented
+		-- 	ImageData = function(instance) -- Not sure if format is correct
+		-- 		return buffer.tostring(instance:ReadPixelsBuffer(Vector2.new(), instance.Size)) -- Vector2.zero can be set to a local to avoid repeat creations
+		-- 	end,
+		-- },
 	}
 	for _, enum_item in Enum.Material:GetEnumItems() do
 		NotScriptableFixes.MaterialService[enum_item.Name .. "Name"] = function(instance)
@@ -2938,8 +2944,8 @@ local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 --- @field BytecodeTimeout number -- If the SaveBytecode run time exceeds this value it gets cancelled. Set to -1 to disable timeout. ___Default:___ 3
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. ___Default:___ false
---- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- * Ignores match & it's descendants by default. To Ignore only the instance itself set the value to `= false`. Examples: "Chat", - Matches any instance with "Chat" ClassName, Players = {"MyPlayerName"} - Matches "Players" Class AND "MyPlayerName" Name ONLY, `workspace` - matches Instance by reference, `[workspace] = false` - matches Instance by reference and only ignores the instance itself and not it's descendants. ___Default:___ {TextChatService}
---- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Structure is similar to **@DecompileIgnore** except `= false` meaning save the instance but ignore it's descendants. ___Default:___ {CoreGui, CorePackages}
+--- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Ignores matched instances and their descendants by default. To ignore only the instance itself, set the value to `false`. Examples: `"Chat"` matches any instance with ClassName "Chat"; `Players = {"MyPlayerName"}` matches class "Players" AND name "MyPlayerName" only; `workspace` matches a specific instance by reference; `[workspace] = false` matches a specific instance by reference, ignoring only itself and not its descendants. ___Default:___ {TextChatService}
+--- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name | false}} -- Structure mirrors **@DecompileIgnore**, except `false` means keep the instance but ignore its descendants. Supports both instance references and ClassName strings. Examples: `"CoreGui"` skips entirely; `CorePackages = false` keeps the instance but skips its descendants; `Players = {"SomePlayer"}` skips a specific named instance with specific ClassName. ___Default:___ {CoreGui, CorePackages, Packages = false}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. ___Default:___ 0x1600 * 10
@@ -3062,7 +3068,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		IgnoreProperties = {},
 
-		IgnoreList = { "CoreGui", "CorePackages" },
+		IgnoreList = { "CoreGui", "CorePackages", Packages = false },
 
 		ExtraInstances = {},
 		NilInstances = false,
@@ -3101,6 +3107,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			"", -- * FilteredSelection
 			"AdvancedDragger",
 			"AnimationTrack",
+			-- "Breakpoint",
+			-- "DebuggerWatch",
 			"Dragger",
 			"Player",
 			"PlayerGui",
@@ -4083,8 +4091,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				do
 					local OnIgnoredList = IgnoreList[ClassName]
-					if OnIgnoredList and (OnIgnoredList == true or OnIgnoredList[InstanceName]) then
-						continue
+					if OnIgnoredList ~= nil then
+						if OnIgnoredList == false then
+							SkipEntirely = false
+						elseif OnIgnoredList == true or OnIgnoredList[InstanceName] then
+							continue
+						end
 					end
 				end
 
