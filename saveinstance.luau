@@ -3348,7 +3348,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		ignorePath(service.StarterPlayer:FindFirstChildOfClass("StarterPlayerScripts"))
+		ignorePath(service.StarterPlayer)
 
 		local LocalPlayer = service.Players.LocalPlayer
 		if LocalPlayer then
