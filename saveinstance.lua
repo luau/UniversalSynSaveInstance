@@ -3888,7 +3888,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local inputLower = string.lower(input)
 		search = string.lower(search)
 
-		if not string_find(input, search) then
+		if not string_find(inputLower, search) then
 			return input
 		end
 
