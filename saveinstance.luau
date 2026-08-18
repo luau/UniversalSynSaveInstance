@@ -1833,7 +1833,7 @@ do
 		},
 		AnimationNodeDefinition = {
 			InputPinData = function(instance)
-				local input_pins = instance:GetInputPins()
+				local input_pins = instance:GetOrderedInputPinNames()
 
 				local n = #input_pins
 
