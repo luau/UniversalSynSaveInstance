@@ -1,7 +1,8 @@
+> [!IMPORTANT]
+> Independent, unofficial project. Not affiliated with, endorsed by, or officially connected to Roblox Corporation. "Luau" is a trademark of Roblox Corporation.
 <p align="center">
   <img height="400px" style="margin: 0; padding: 0" src=".moonwave\static\logo.png" />
 </p>
-
 
 # Loadstring
 
