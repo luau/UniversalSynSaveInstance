@@ -225,7 +225,7 @@ local CAPABILITY_BITS = {
 	----------------------------------- 7
 	RunClientScript = 2 ^ 8, ---------- 8
 	RunServerScript = 2 ^ 9, ---------- 9
-	Unknown = 2 ^ 10, ----------------- 10 (0xa)
+	----------------------------------- 10
 	AccessOutsideWrite = 2 ^ 11, ------ 11 (0xb)
 	----------------------------------- 12
 	----------------------------------- 13
@@ -284,6 +284,8 @@ local CAPABILITY_BITS = {
 local function countCapabilityBits(raw)
 	-- TODO tostring & string.split aren't ideal but this is the only way until the feature is out of the experimental phase (SecurityCapabilities.Contains exists but the Enums that it accepts lacks some hidden bits) - NotAccessible, Unknown, Restricted
 	-- ! Seems like both tostring & .Contains ignore high / internal bits (anything above CapabilityControl): RemoteCommand, InternalTest, PluginOrOpenCloud, Assistant. They're present when created & saved by Studio but can't be read through current means
+
+	-- TODO Use https://rfcs.luau.org/type-long-integer.html once released to avoid overflow beyond ^53
 
 	local result = 0
 	for _, flag in string.split(tostring(raw), " | ") do
@@ -345,23 +347,14 @@ end
 
 local function classifyTable(t)
 	local len = #t
-	if len > 0 then
-		local n = 0
-		for _ in t do
-			n += 1
+	if len == 0 then
+		len = nil
 		end
-		if n == len then
+	if next(t, len) == nil then
 			return "ValueArray"
-		end
+	else
+		return "ValueTable"
 	end
-	local n, maxIndex = 0, 0
-	for k in t do
-		n += 1
-		if type(k) == "number" and k > maxIndex and k == math.floor(k) and k >= 1 then
-			maxIndex = k
-		end
-	end
-	return (maxIndex > 0 and maxIndex == n) and "ValueArray" or "ValueTable"
 end
 
 local function resolveTypeName(value)
@@ -664,9 +657,9 @@ Binary_Encoders = {
 			local xBasis = _packF32(R00, R01, R02)
 			buffer.copy(b, 13, xBasis)
 			local yBasis = _packF32(R10, R11, R12)
-			buffer.copy(b, 13 + 12, yBasis)
+			buffer.copy(b, 25, yBasis)
 			local zBasis = _packF32(R20, R21, R22)
-			buffer.copy(b, 13 + 24, zBasis)
+			buffer.copy(b, 37, zBasis)
 
 			-- buffer.writef32(b, 13, R00)
 			-- buffer.writef32(b, 17, R01)
@@ -1064,19 +1057,6 @@ XML_Encoders = {
 	-- Path3DControlPoint = function(raw) end,
 
 	PhysicalProperties = function(raw)
-		--[[
-			Contains at least one CustomPhysics element, which is interpreted according to the bool type. If this value is true, then the tag also contains an element for each component of the PhysicalProperties:
-
-			Density
-			Friction
-			Elasticity
-			FrictionWeight
-			ElasticityWeight
-			AcousticAbsorption
-
-			The value of each component is represented by the text content formatted as a 32-bit floating point number (see float)
-		]]
-
 		local CustomPhysics = "<CustomPhysics>" .. XML_Encoders.bool(raw and true or false) .. "</CustomPhysics>"
 
 		return raw
@@ -1128,7 +1108,7 @@ XML_Encoders = {
 
 		return countCapabilityBits(raw)
 	end,
-	-- SystemAddress = function(raw) return raw end, -- PeerId? systemAddress as a string in the format "IP|Port", "|" being portDelineator, should not be '.', ':', '%', '-', '/', a number, or a-f  -- ? Not sure (binaryAddress)
+
 	TweenInfo = function(raw)
 		local _normalizeNumber = XML_Encoders._normalizeNumber
 		return "Time:"
@@ -1428,7 +1408,7 @@ do
 
 	local function encodeTimeTicks(time)
 		local scaled = time * 2400
-		if not (scaled >= -2147483648.0 and scaled < 2147483648.0) then
+		if not (scaled >= -2147483648 and scaled < 2147483648) then
 			return -2147483648
 		end
 		return math.round(scaled)
@@ -1508,6 +1488,19 @@ do
 		end
 	end
 
+	local function encodeGuid(uid)
+		local cleanGuid = string.gsub(uid, "[{}-]", "")
+		local bytes = buffer.create(16)
+
+		for i = 0, 15 do
+			local hexByte = string.sub(cleanGuid, (i * 2) + 1, (i * 2) + 2)
+			local val = tonumber(hexByte, 16) or 0
+			buffer.writeu8(bytes, i, val)
+		end
+
+		return buffer.tostring(bytes)
+	end
+
 	--[[
 		For more info:
 		- https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/Potentially%20Missing%20Properties%20Dumper/Potentially%20Missing%20Properties%20Dumper.luau
@@ -1536,6 +1529,70 @@ do
 
 				return table.concat(tags, "\0")
 			end,
+			-- SerializedOverrides = function(instance) -- Unused in live games?
+			-- 	local datamodeldiff = game:GetService("PackageService"):GetOverrides(instance) -- Doesn't exist in live games
+			-- 	local identities = datamodeldiff:GetIdentities()
+
+			-- 	local resolved = {}
+			-- 	for _, identity in identities do
+			-- 		local uidBytes = encodeGuid(identity:ResolveInstance(instance).UniqueId) -- tostring could be used on identity instead but is slower
+			-- 		local changeType = datamodeldiff:GetChangeType(identity)
+			-- 		local props = datamodeldiff:GetPropertyNames(identity)
+			-- 		table.sort(props)
+			-- 		table.insert(resolved, {
+			-- 			uidBytes = uidBytes,
+			-- 			changeType = changeType,
+			-- 			props = props,
+			-- 		})
+			-- 	end
+
+			-- 	table.sort(resolved, function(a, b)
+			-- 		return a.uidBytes < b.uidBytes
+			-- 	end)
+
+			-- 	local recordBlobs = {}
+			-- 	local totalSize = 10
+
+			-- 	for _, entry in resolved do
+			-- 		local props = entry.props
+			-- 		local bodySize = 20
+			-- 		for _, p in props do
+			-- 			bodySize += 1 + #p
+			-- 		end
+
+			-- 		local record = buffer.create(1 + bodySize)
+			-- 		buffer.writeu8(record, 0, bodySize)
+			-- 		buffer.writeu8(record, 1, 1)
+			-- 		buffer.writestring(record, 2, entry.uidBytes)
+			-- 		buffer.writeu8(record, 18, entry.changeType.Value)
+			-- 		buffer.writeu8(record, 19, 0)
+			-- 		buffer.writeu8(record, 20, #props)
+
+			-- 		local offset = 21
+			-- 		for _, p in props do
+			-- 			buffer.writeu8(record, offset, #p)
+			-- 			buffer.writestring(record, offset + 1, p)
+			-- 			offset += 1 + #p
+			-- 		end
+
+			-- 		table.insert(recordBlobs, record)
+			-- 		totalSize += buffer.len(record)
+			-- 	end
+
+			-- 	local out = buffer.create(totalSize)
+			-- 	buffer.writestring(out, 0, "RDFF")
+			-- 	buffer.writeu32(out, 4, 1)
+			-- 	buffer.writeu8(out, 8, 0)
+			-- 	buffer.writeu8(out, 9, #resolved)
+
+			-- 	local pos = 10
+			-- 	for _, record in recordBlobs do
+			-- 		buffer.copy(out, pos, record)
+			-- 		pos += buffer.len(record)
+			-- 	end
+
+			-- 	return buffer.tostring(out)
+			-- end,
 		},
 		Path2D = {
 			PropertiesSerialize = function(instance)
@@ -1690,7 +1747,7 @@ do
 					return "\1\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0"
 				end
 
-				local perKeySize = 1 + 16 + 4 + 4
+				local perKeySize = 25
 				local b = buffer.create(8 + (#keys * perKeySize) + 8 + (#keys * 4))
 
 				buffer.writeu32(b, 0, 1) -- ? [CONSTANT] Version byte (likely)
@@ -1756,7 +1813,7 @@ do
 					local dataBuf, dataSize = encoder(key.Value)
 					bufs[i] = dataBuf
 					sizes[i] = dataSize
-					valuesPayloadSize += 1 + 1 + 4 + 1 + dataSize + 4 + 4
+					valuesPayloadSize += 15 + dataSize
 				end
 
 				local b = buffer.create(8 + valuesPayloadSize + 8 + 4 * n)
@@ -1866,16 +1923,7 @@ do
 		},
 		AnimationClip = {
 			GuidBinaryString = function(instance) -- RobloxScriptSecurity
-				local cleanGuid = string.gsub(instance.Guid, "[{}-]", "")
-				local bytes = buffer.create(16)
-
-				for i = 0, 15 do
-					local hexByte = string.sub(cleanGuid, (i * 2) + 1, (i * 2) + 2)
-					local val = tonumber(hexByte, 16) or 0
-					buffer.writeu8(bytes, i, val)
-				end
-
-				return buffer.tostring(bytes)
+				return encodeGuid(instance.Guid)
 			end,
 		},
 		AnimationRigData = {
@@ -2458,8 +2506,6 @@ do
 			return instance:GetBaseMaterialOverride(enum_item)
 		end
 	end
-
-	NotScriptableFixes.Workspace.CollisionGroupData = NotScriptableFixes.WorldRoot.CollisionGroupData -- TODO Remove once v732 goes live
 
 	FetchAPI = function()
 		-- Credits @MaximumADHD
@@ -3637,7 +3683,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		RunService.RenderStepped:Wait()
 	end
 
-	local LoadingText, LoadingThread, IsLoading = nil, nil, false
+	local IsLoading, LoadingText, LoadingThread = false
 
 	local function ensureSpinner()
 		if LoadingThread then
@@ -4010,7 +4056,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			table.move(layer_props, 1, #layer_props, #prop_list + 1, prop_list)
 
 			-- for _, prop in layer.Properties do
-			-- 	prop_list[prop_count] = prop -- ? table.clone is needed for case where .Default is modified
+			-- 	prop_list[prop_count] = prop -- ? table.clone is needed for case where any prop table is modified
 			-- 	prop_count += 1
 			-- end
 
@@ -5052,7 +5098,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end)
 
 					local EncodingService = game:GetService("EncodingService")
-					local EncodingService_base64encode = function(raw)
+					local function EncodingService_base64encode(raw)
 						return buffer.tostring(EncodingService:Base64Encode(buffer.fromstring(raw)))
 					end
 
