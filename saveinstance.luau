@@ -3424,19 +3424,86 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		__DEBUG_MODE = warn
 	end
 
-	local LP_UserId, LP_Name, ANON_UserId, ANON_Name, AnonymizableTypes
+	local LP_UserId, LP_Name, ANON_UserId, ANON_Name, Anonymizers
+
+	local function anonymize(raw, valueType)
+		local fn = Anonymizers and Anonymizers[valueType]
+		return fn and fn(raw) or raw
+	end
+
+	local function gsubCaseInsensitive(input, search, replacement)
+		local inputLower = string.lower(input)
+		search = string.lower(search)
+
+		if not string_find(inputLower, search) then
+			return input
+		end
+
+		local lastFinish = 0
+		local subStrings = {}
+		local search_len = #search
+		local input_len = #input
+		while search_len <= input_len - lastFinish do
+			local init = lastFinish + 1
+
+			local start, finish = string_find(inputLower, search, init)
+
+			if start == nil then
+				break
+			end
+
+			table.insert(subStrings, string.sub(input, init, start - 1))
+
+			lastFinish = finish
+		end
+
+		if lastFinish == 0 then
+			return input
+		end
+
+		table.insert(subStrings, string.sub(input, lastFinish + 1))
+
+		return table.concat(subStrings, replacement)
+	end
 
 	do
 		local anonymous = OPTIONS.Anonymous
 		local lp = service.Players.LocalPlayer
 
 		if anonymous and lp then
-			AnonymizableTypes = arrayToDict({ "double", "float", "int", "int64", "string" })
 			LP_UserId, LP_Name = lp.UserId, lp.Name
 
 			local istable = type(anonymous) == "table"
 			ANON_UserId = istable and anonymous.UserId or 1
 			ANON_Name = istable and anonymous.Name or "Roblox"
+
+			-- for BinaryString/SharedString
+			local padded = ANON_Name
+			if #padded < #LP_Name then
+				padded ..= string.rep("_", #LP_Name - #padded)
+			elseif #padded > #LP_Name then
+				padded = string.sub(padded, 1, #LP_Name)
+			end
+
+			local function scrubName(raw)
+				return gsubCaseInsensitive(raw, LP_Name, ANON_Name)
+			end
+			local function scrubFixedWidth(raw)
+				return gsubCaseInsensitive(raw, LP_Name, padded)
+			end
+			local function scrubId(raw)
+				return raw == LP_UserId and ANON_UserId or raw
+			end
+
+			Anonymizers = {
+				string = scrubName,
+				BinaryString = scrubFixedWidth,
+				SharedString = scrubFixedWidth,
+				double = scrubId,
+				float = scrubId,
+				int = scrubId,
+				int64 = scrubId,
+			}
 		end
 	end
 
@@ -3903,117 +3970,112 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return InstanceOverride
 	end
 
-	local function gsubCaseInsensitive(input, search, replacement)
-		local inputLower = string.lower(input)
-		search = string.lower(search)
-
-		if not string_find(inputLower, search) then
-			return input
-		end
-
-		local lastFinish = 0
-		local subStrings = {}
-		local search_len = #search
-		local input_len = #input
-		while search_len <= input_len - lastFinish do
-			local init = lastFinish + 1
-
-			local start, finish = string_find(inputLower, search, init)
-
-			if start == nil then
-				break
-			end
-
-			table.insert(subStrings, string.sub(input, init, start - 1))
-
-			lastFinish = finish
-		end
-
-		if lastFinish == 0 then
-			return input
-		end
-
-		table.insert(subStrings, string.sub(input, lastFinish + 1))
-
-		return table.concat(subStrings, replacement)
+	local function nilIsValid(category, optional)
+		return optional ~= nil or category == "Class"
 	end
 
-	local function filterPropVal(result, propertyName, category) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
-		return result == nil
-			or result == "can't get value"
+	local function filterPropVal(result, propertyName, category, optional) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+		if result == nil then
+			return not nilIsValid(category, optional)
+		end
+		return result == "can't get value"
 			or type(result) == "string"
 				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
 	end
 
-	local function ReadProperty(instance, property, propertyName, special, category, optional)
+	local function readProperty(instance, property)
 		local raw = __BREAK
+
+		local PropertyName, Special, Category, Optional =
+			property.Name, property.Special, property.Category, property.Optional
 
 		local InstanceOverride = InstancesOverrides[instance]
 		if InstanceOverride then
 			local PropertiesOverride = InstanceOverride.Properties
 			if PropertiesOverride then
-				local PropertyOverride = PropertiesOverride[propertyName]
+				local PropertyOverride = PropertiesOverride[PropertyName]
 				if PropertyOverride ~= nil then
-					return PropertyOverride
+					return anonymize(PropertyOverride, property.ValueType)
 				end
 			end
 		end
 
 		local CanRead = property.CanRead
-
-		if CanRead == false then -- * Skips because we've checked this property before
-			return __BREAK
-		end
-
-		if special then
+		if CanRead ~= false then
+			if Special then
 			if gethiddenproperty then
-				local ok, result = pcall(gethiddenproperty, instance, propertyName)
-
+					local ok, result = pcall(gethiddenproperty, instance, PropertyName)
 				if ok then
 					raw = result
 				end
 
-				if filterPropVal(raw, propertyName, category) then
-					-- * Skip next time we encounter this too perhaps (unless there's a chance for it to be readable on other instance, somehow)
-
-					if result ~= nil or not optional then
+					if filterPropVal(raw, PropertyName, Category, Optional) then
+						if not (result == nil and nilIsValid(Category, Optional)) then
 						if __DEBUG_MODE then
-							__DEBUG_MODE("Filtered", propertyName)
+								__DEBUG_MODE("Filtered", PropertyName)
 						end
-						-- Property.Special = false
 						property.CanRead = false
 					end
-
-					return __BREAK -- ? We skip it because even if we use "" it will just reset to default in most cases, unless it's a string tag for example (same as not being defined)
+						raw = __BREAK
 				end
 			end
-		else
-			if CanRead then
-				raw = instance[propertyName]
-			else -- Assuming CanRead == nil (untested)
-				local ok, result = pcall(index, instance, propertyName)
-
+			elseif CanRead then
+				raw = instance[PropertyName]
+			else
+				local ok, result = pcall(index, instance, PropertyName)
 				if ok then
 					raw = result
-				elseif gethiddenproperty then -- ! Be careful with this 'and gethiddenproperty' logic
-					ok, result = pcall(gethiddenproperty, instance, propertyName)
-
+				elseif gethiddenproperty then
+					ok, result = pcall(gethiddenproperty, instance, PropertyName)
 					if ok then
 						raw = result
-
 						property.Special = true
 					end
 				end
 
 				property.CanRead = ok
 
-				if not ok or filterPropVal(raw, propertyName, category) then
-					return __BREAK
+				if not ok or filterPropVal(raw, PropertyName, Category, Optional) then
+					raw = __BREAK
 				end
+			end
+
+			if raw ~= __BREAK then
+				return anonymize(raw, property.ValueType)
 			end
 		end
 
-		return raw
+		-- Fallback chain
+
+		local GHPFFailed, Fallback = property.GHPFFailed, property.Fallback
+		if GHPFFailed and not Fallback then
+					return __BREAK
+				end
+
+		if not GHPFFailed then
+			local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName)
+			if result == nil and not nilIsValid(Category, Optional) then
+				ok = nil
+			end
+			if ok then
+				return anonymize(result, property.ValueType)
+			end
+			GHPFFailed = true
+			property.GHPFFailed = true
+		end
+
+		if GHPFFailed and Fallback then
+			local ok, result = pcall(Fallback, instance)
+			if ok then
+				return anonymize(result, property.ValueType)
+			end
+			property.Fallback = nil
+			if __DEBUG_MODE then
+				__DEBUG_MODE("Fix Failed", PropertyName, result)
+			end
+		end
+
+		return __BREAK
 	end
 
 	local function ReturnItem(className, instance)
@@ -4239,7 +4301,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 							continue
 						end
 
-						local Special, Category, Optional = Property.Special, Property.Category, Property.Optional
+						local Category, Optional = Property.Category, Property.Optional
 						local raw
 						if
 							not (
@@ -4248,54 +4310,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 								and isLuaSourceContainer(instance)
 							)
 						then
-							raw = ReadProperty(instance, Property, PropertyName, Special, Category, Optional)
-
-							if raw == __BREAK then -- ! Assuming __BREAK is always returned when there's a failure to read a property
-								local GHPFFailed, Fallback = Property.GHPFFailed, Property.Fallback
-								if GHPFFailed and not Fallback then
-									continue
-								end
-
-								if not GHPFFailed then
-									local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName) -- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
-									if result == nil and not Optional then
-										ok = nil
-									end
-
-									if ok then
-										raw = result
-									else
-										GHPFFailed = true
-										Property.GHPFFailed = GHPFFailed
-									end
-								end
-
-								if GHPFFailed and Fallback then
-									local ok, result = pcall(Fallback, instance)
-
-									if ok then
-										raw = result
-									else
-										Property.Fallback = nil -- Low level execs might fail due to lack of some Capabilities
-										if __DEBUG_MODE then
-											__DEBUG_MODE("Fix Failed", PropertyName, result)
-										end
-										continue
-									end
-								end
-
+							raw = readProperty(instance, Property)
 								if raw == __BREAK then
 									continue
 								end
-							end
 
-							-- Special = Property.Special -- ? Read TODO below (must be updated if it's used frequently afterwards)
-
-							if
-								default_instance
-								and Property.CanRead
-								and not Property.Special -- TODO: .Special is checked more than once (because it might be updated during ReadProperty)
-							then -- ? Could be not just "Source" in the future
+							if default_instance and Property.CanRead and not Property.Special then -- ? Could be not just "Source" in the future
 								if new_def_inst then
 									default_instance[PropertyName] = index(new_def_inst, PropertyName)
 								end
@@ -4318,17 +4338,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 						if SharedStringOverwrite and ValueType == "BinaryString" then -- TODO: Convert this to table if more types are added
 							ValueType = "SharedString"
-						end
-
-						if AnonymizableTypes and AnonymizableTypes[ValueType] then
-							-- TODO This might cause issues on non-unique Usernames (ex. "Cake" if game is about cakes then everything supposedly related to your name will be replaced with "Roblox"); Certain UserIds might also affect numbers, like if your UserId is 2481848 and there is some number that matches 2481848 then that number will be replaced with 1, potentially making the number incorrect.
-							-- TODO So for now it's best to keep this disabled by default
-
-							if ValueType == "string" then
-								raw = gsubCaseInsensitive(raw, LP_Name, ANON_Name)
-							elseif raw == LP_UserId then
-								raw = ANON_UserId
-							end
 						end
 
 						local tag, value
@@ -5018,6 +5027,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local UGCValidationService -- = service.UGCValidationService
 
 				gethiddenproperty_fallback = function(instance, propertyName)
+					-- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
 					if not UGCValidationService then
 						UGCValidationService = service.UGCValidationService
 					end
