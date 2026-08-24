@@ -6,7 +6,7 @@ bannerImage = "logo.png"
 
 [docusaurus]
 favicon = "favicon.png"
-tagline = "A universal saveinstance revival. This can also be edited and used as a Roblox-Format-File writer."
+tagline = "A universal saveinstance revival. This is an independent, unofficial project. We are not affiliated with, endorsed by, or officially connected to Roblox Corporation. ''Luau'' is a trademark of Roblox Corporation."
 
 
 [[navbar.items]]
