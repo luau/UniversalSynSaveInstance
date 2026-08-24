@@ -5908,431 +5908,429 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 		end
+	end
+	local kickSnapshot = GLOBAL_ENV.USSI_kicksnapshot
+	if not kickSnapshot then
+		kickSnapshot = {}
+		GLOBAL_ENV.USSI_kicksnapshot = kickSnapshot
+	end
 
-		local kickSnapshot = GLOBAL_ENV.USSI_kicksnapshot
-		if not kickSnapshot then
-			kickSnapshot = {}
-			GLOBAL_ENV.USSI_kicksnapshot = kickSnapshot
-		end
+	local function snapshotKick(LocalPlayer)
+		local cached = kickSnapshot[LocalPlayer]
 
-		local function snapshotKick(LocalPlayer)
-			local cached = kickSnapshot[LocalPlayer]
+		if not cached then
+			cached = { [LocalPlayer] = LocalPlayer:GetChildren() }
 
-			if not cached then
-				cached = { [LocalPlayer] = LocalPlayer:GetChildren() }
-
-				local ps = LocalPlayer:FindFirstChildOfClass("PlayerScripts")
-				local function walk(inst)
-					local kids = inst:GetChildren()
-					cached[inst] = kids
-					for _, child in kids do
-						walk(child)
-					end
-				end
-				if ps then
-					walk(ps)
-				end
-
-				kickSnapshot[LocalPlayer] = cached
-			end
-
-			for inst, kids in cached do
-				InstancesOverrides[inst] = { __Children = kids }
-			end
-		end
-
-		if OPTIONS.SafeMode then
-			task.spawn(function()
-				local LocalPlayer = GetLocalPlayer()
-
-				snapshotKick(LocalPlayer)
-
-				local msg =
-					"[SAVEINSTANCE SAFEMODE]\nSaving..\nDo NOT leave\nLVL7 Executor RECOMMENDED for more SAFETY\nTo Disable this: SafeMode=false (Less Protection)"
-				local function Kick()
-					LocalPlayer:Kick(msg)
-				end
-
-				Kick()
-				pcall(function()
-					Connect(service.GuiService.ErrorMessageChanged, function()
-						if service.GuiService:GetErrorMessage() ~= msg then
-							Kick()
-						end
-					end)
-				end)
-				wait_for_render()
-			end)
-
-			if CustomOptions_valid["BoostFPS"] == nil then
-				OPTIONS.BoostFPS = true
-			end
-		end
-
-		local function childrenOf(instance)
-			local override = InstancesOverrides[instance]
-			return override and override.__Children or instance:GetChildren()
-		end
-		if OPTIONS.IgnoreDefaultPlayerScripts then
-			local default_scripts = arrayToDict({
-				ModuleScript = { "PlayerModule" },
-				LocalScript = {
-					"BubbleChat",
-					"ChatScript",
-					"PlayerScriptsLoader",
-					"RbxCharacterSounds",
-				},
-			}, true)
-
-			local function ignorePath(path)
-				if path then
-					for _, child in childrenOf(path) do
-						local class_match = default_scripts[child.ClassName]
-						if class_match and class_match[child.Name] then
-							DecompileIgnore[child] = true
-						end
-						ignorePath(child)
-					end
+			local ps = LocalPlayer:FindFirstChildOfClass("PlayerScripts")
+			local function walk(inst)
+				local kids = inst:GetChildren()
+				cached[inst] = kids
+				for _, child in kids do
+					walk(child)
 				end
 			end
-
-			ignorePath(service.StarterPlayer)
-
-			local LocalPlayer = service.Players.LocalPlayer
-			if LocalPlayer then
-				for _, child in childrenOf(LocalPlayer) do
-					if child:IsA("PlayerScripts") then
-						ignorePath(child)
-						break
-					end
-				end
+			if ps then
+				walk(ps)
 			end
+
+			kickSnapshot[LocalPlayer] = cached
 		end
 
-		if OPTIONS.BoostFPS then
+		for inst, kids in cached do
+			InstancesOverrides[inst] = { __Children = kids }
+		end
+	end
+
+	if OPTIONS.SafeMode then
+		task.spawn(function()
+			local LocalPlayer = GetLocalPlayer()
+
+			snapshotKick(LocalPlayer)
+
+			local msg =
+				"[SAVEINSTANCE SAFEMODE]\nSaving..\nDo NOT leave\nLVL7 Executor RECOMMENDED for more SAFETY\nTo Disable this: SafeMode=false (Less Protection)"
+			local function Kick()
+				LocalPlayer:Kick(msg)
+			end
+
+			Kick()
 			pcall(function()
-				service.RunService:Set3dRenderingEnabled(false)
-			end)
-		end
-
-		if OPTIONS.AntiIdle then
-			local Idled = GetLocalPlayer().Idled
-			Connect(Idled, function()
-				service.VirtualInputManager:SendMouseWheelEvent(
-					service.UserInputService:GetMouseLocation().X,
-					service.UserInputService:GetMouseLocation().Y,
-					true,
-					game
-				)
-			end)
-		end
-
-		if not ClassList then -- means first run
-			do -- * Load Region of Déjà Vu
-				if not RiskyServicesDisabled.UGC then
-					local UGCValidationService -- = service.UGCValidationService
-
-					gethiddenproperty_fallback = function(instance, propertyName)
-						-- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
-						if not UGCValidationService then
-							UGCValidationService = service.UGCValidationService
-						end
-						return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
-						-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
+				Connect(service.GuiService.ErrorMessageChanged, function()
+					if service.GuiService:GetErrorMessage() ~= msg then
+						Kick()
 					end
+				end)
+			end)
+			wait_for_render()
+		end)
+
+		if CustomOptions_valid["BoostFPS"] == nil then
+			OPTIONS.BoostFPS = true
+		end
+	end
+
+	local function childrenOf(instance)
+		local override = InstancesOverrides[instance]
+		return override and override.__Children or instance:GetChildren()
+	end
+	if OPTIONS.IgnoreDefaultPlayerScripts then
+		local default_scripts = arrayToDict({
+			ModuleScript = { "PlayerModule" },
+			LocalScript = {
+				"BubbleChat",
+				"ChatScript",
+				"PlayerScriptsLoader",
+				"RbxCharacterSounds",
+			},
+		}, true)
+
+		local function ignorePath(path)
+			if path then
+				for _, child in childrenOf(path) do
+					local class_match = default_scripts[child.ClassName]
+					if class_match and class_match[child.Name] then
+						DecompileIgnore[child] = true
+					end
+					ignorePath(child)
 				end
-				if gethiddenproperty then
-					local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
-					if not o or r ~= nil and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
+			end
+		end
+
+		ignorePath(service.StarterPlayer)
+
+		local LocalPlayer = service.Players.LocalPlayer
+		if LocalPlayer then
+			for _, child in childrenOf(LocalPlayer) do
+				if child:IsA("PlayerScripts") then
+					ignorePath(child)
+					break
+				end
+			end
+		end
+	end
+
+	if OPTIONS.BoostFPS then
+		pcall(function()
+			service.RunService:Set3dRenderingEnabled(false)
+		end)
+	end
+
+	if OPTIONS.AntiIdle then
+		local Idled = GetLocalPlayer().Idled
+		Connect(Idled, function()
+			service.VirtualInputManager:SendMouseWheelEvent(
+				service.UserInputService:GetMouseLocation().X,
+				service.UserInputService:GetMouseLocation().Y,
+				true,
+				game
+			)
+		end)
+	end
+
+	if not ClassList then -- means first run
+		do -- * Load Region of Déjà Vu
+			if not RiskyServicesDisabled.UGC then
+				local UGCValidationService -- = service.UGCValidationService
+
+				gethiddenproperty_fallback = function(instance, propertyName)
+					-- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
+					if not UGCValidationService then
+						UGCValidationService = service.UGCValidationService
+					end
+					return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
+					-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
+				end
+			end
+			if gethiddenproperty then
+				local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
+				if not o or r ~= nil and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
+					gethiddenproperty = nil
+				else
+					o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
+
+					if o and r ~= nil and type(r) ~= "string" then
 						gethiddenproperty = nil
-					else
-						o, r =
-							pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
-
-						if o and r ~= nil and type(r) ~= "string" then
-							gethiddenproperty = nil
-						end
 					end
 				end
-
-				do
-					if
-						not bit32.byteswap
-						or not (function()
-							local o, r = pcall(bit32.byteswap, 2712847316)
-							if not o then
-								return -- It might be disabled on some builds
-							end
-							return r == 3569595041
-						end)()
-					then -- Because Fluxus is missing byteswap
-						-- https://github.com/luau-lang/rfcs/blob/master/docs/function-bit32-byteswap.md
-						local b32 = table.clone(bit32)
-
-						b32.byteswap = function(n)
-							return bit32.bor(
-								bit32.lshift(n, 24),
-								bit32.band(bit32.lshift(n, 8), 0xFF0000),
-								bit32.band(bit32.rshift(n, 8), 0xFF00),
-								bit32.rshift(n, 24)
-							)
-						end
-						if table.isfrozen(bit32) then
-							b32 = table.freeze(b32)
-						end
-						GLOBAL_ENV.bit32 = b32
-					end
-				end
-
-				local function benchmark(funcs, iters, ...)
-					local ranking = table.create(3)
-					for i, f in funcs do
-						local start = os.clock()
-						for _ = 1, iters do
-							f(...)
-						end
-						ranking[i] = { t = os.clock() - start, f = f }
-					end
-					table.sort(ranking, function(a, b)
-						return a.t < b.t
-					end)
-					return ranking[1].f
-				end
-
-				local function pickFastestBy(label, candidates, works, iters, benchInput, ...)
-					local valid = {}
-					for _, f in candidates do
-						if f then
-							local ok, good = pcall(works, f)
-							if ok and good then
-								valid[#valid + 1] = f
-							end
-						end
-					end
-
-					if #valid == 0 then
-						-- warn(label .. " not found")
-						return nil
-					elseif #valid == 1 then
-						return valid[1]
-					end
-					return benchmark(valid, iters, benchInput, ...)
-				end
-
-				-- Credits @daily3014 & @XoifaiI
-				local rbxcrypt_encode, rbxcrypt_decode
-				pcall(function()
-					local rbxcrypt_b64 = loadstring(
-						game:HttpGet(
-							"https://raw.githubusercontent.com/daily3014/rbx-algorithms/refs/heads/main/src/Encoding/Base64.luau",
-							true
-						),
-						"Base64"
-					)()
-					local enc = rbxcrypt_b64.Encode
-					rbxcrypt_encode = function(raw)
-						return buffer.tostring(enc(buffer.fromstring(raw)))
-					end
-					local dec = rbxcrypt_b64.Decode
-					rbxcrypt_decode = function(raw)
-						return buffer.tostring(dec(buffer.fromstring(raw)))
-					end
-				end)
-
-				local es_encode, es_decode, es_zstdcompress
-				if not RiskyServicesDisabled.Encoding then
-					local EncodingService = game:GetService("EncodingService")
-
-					es_encode = function(raw)
-						return buffer.tostring(EncodingService:Base64Encode(buffer.fromstring(raw)))
-					end
-					es_decode = function(raw)
-						return buffer.tostring(EncodingService:Base64Decode(buffer.fromstring(raw)))
-					end
-
-					local ZSTD_ALGO_ENUM = Enum.CompressionAlgorithm.Zstd
-					es_zstdcompress = function(raw, level)
-						return buffer.tostring(
-							EncodingService:CompressBuffer(buffer.fromstring(raw), ZSTD_ALGO_ENUM, level)
-						)
-					end
-				end
-
-				local BASE64_TEST = string.rep("\1\0\0\0\1\2\3\4\5\6\7", 50)
-
-				local function b64EncWorks(f)
-					return f("\1\0\0\0\1") == "AQAAAAE="
-				end
-
-				base64encode = pickFastestBy(
-					"base64encode",
-					{ base64encode, rbxcrypt_encode, es_encode },
-					b64EncWorks,
-					50,
-					BASE64_TEST
-				)
-
-				if not base64encode then
-					warn("base64encode not found")
-					Cleanup()
-					return
-				end
-
-				local function b64DecWorks(f)
-					return f("AQAAAAE=") == "\1\0\0\0\1"
-				end
-
-				base64decode = pickFastestBy(
-					"base64decode",
-					{ base64decode, rbxcrypt_decode, es_decode },
-					b64DecWorks,
-					50,
-					base64encode(BASE64_TEST)
-				)
-
-				local HttpService = service.HttpService
-
-				local function http_zstdcompress(input)
-					local ok, encoded = pcall(HttpService.JSONEncode, HttpService, buffer.fromstring(input)) -- pcall due to ~100mb limit
-					if not ok then
-						return nil
-					end
-
-					local keyStart = string_find(encoded, '"zbase64"')
-					if not keyStart then
-						return nil
-					end
-
-					local valueStart = string_find(encoded, '"', keyStart + 9)
-					if not valueStart then
-						return nil
-					end
-
-					local valueEnd = string_find(encoded, '"', valueStart + 1)
-					if not valueEnd then
-						return nil
-					end
-
-					local b64 = string.sub(encoded, valueStart + 1, valueEnd - 1)
-
-					return base64decode(b64)
-				end
-
-				local COMPRESS_TEST
-				do
-					local n = 4000
-					local planes = table.create(4)
-					for p = 1, 4 do
-						local bytes = table.create(n)
-						for i = 1, n do
-							bytes[i] = p <= 2 and (i % 3) or ((i * 2654435761) % 256)
-						end
-						planes[p] = string.char(table.unpack(bytes, 1, math.min(n, 7997)))
-					end
-					COMPRESS_TEST = table.concat(planes)
-				end
-
-				local function zstdWorks(f)
-					local out = f(COMPRESS_TEST)
-					return type(out) == "string" and #out > 4 and string.sub(out, 1, 4) == "\40\181\47\253"
-				end
-
-				zstdcompress = pickFastestBy(
-					"zstdcompress",
-					{ zstdcompress, http_zstdcompress, es_zstdcompress },
-					zstdWorks,
-					10,
-					COMPRESS_TEST
-				)
-
-				-- Credits @RiskoZS
-				local llz4_compress
-				pcall(function()
-					local llz4 = loadstring(
-						game:HttpGet("https://raw.githubusercontent.com/RiskoZS/llz4/refs/heads/main/llz4.luau", true),
-						"llz4"
-					)()
-					llz4_compress = llz4.compress
-				end)
-
-				local LZ4_PROBE = "\1\2\3\4\5\6\7\8"
-
-				local function lz4Works(f)
-					local out = f(LZ4_PROBE)
-					return type(out) == "string"
-						and #out == #LZ4_PROBE + 1
-						and string.byte(out, 1) == #LZ4_PROBE * 16
-						and string.sub(out, 2) == LZ4_PROBE
-				end
-				lz4compress = pickFastestBy("lz4compress", { lz4compress, llz4_compress }, lz4Works, 10, COMPRESS_TEST)
 			end
 
 			do
-				local ok, result = pcall(FetchAPI)
-				if ok then
-					ClassList = result
-				else
-					warn("Failed to load the API Dump")
-					warn(result)
-					Cleanup()
-					return
+				if
+					not bit32.byteswap
+					or not (function()
+						local o, r = pcall(bit32.byteswap, 2712847316)
+						if not o then
+							return -- It might be disabled on some builds
+						end
+						return r == 3569595041
+					end)()
+				then -- Because Fluxus is missing byteswap
+					-- https://github.com/luau-lang/rfcs/blob/master/docs/function-bit32-byteswap.md
+					local b32 = table.clone(bit32)
+
+					b32.byteswap = function(n)
+						return bit32.bor(
+							bit32.lshift(n, 24),
+							bit32.band(bit32.lshift(n, 8), 0xFF0000),
+							bit32.band(bit32.rshift(n, 8), 0xFF00),
+							bit32.rshift(n, 24)
+						)
+					end
+					if table.isfrozen(bit32) then
+						b32 = table.freeze(b32)
+					end
+					GLOBAL_ENV.bit32 = b32
 				end
 			end
-		end
 
-		elapse_t = os.clock()
-
-		local ok, err = xpcall(save_game, function(err)
-			return debug.traceback(err)
-		end)
-
-		if OPTIONS.BoostFPS then
-			pcall(function()
-				local max = 5
-				task.delay(
-					math.clamp(max - (os.clock() - elapse_t), 0, max),
-					service.GuiService.ClearError,
-					service.GuiService
-				)
-				service.RunService:Set3dRenderingEnabled(true)
-			end)
-		end
-
-		if old_gethiddenproperty then
-			gethiddenproperty = old_gethiddenproperty
-		end
-
-		Cleanup()
-
-		elapse_t = os.clock() - elapse_t
-		local Log10 = math.log10(elapse_t)
-		local ExtraTime = 10
-
-		if StatusText then
-			task.spawn(function()
-				if ok then
-					StatusText.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, get_size_format())
-					StatusText.TextColor3 = Color3.new(0, 1)
-					task.wait(Log10 * 2 + ExtraTime)
-				else
-					if LoadingThread then
-						task.cancel(LoadingThread)
-						LoadingThread = nil
+			local function benchmark(funcs, iters, ...)
+				local ranking = table.create(3)
+				for i, f in funcs do
+					local start = os.clock()
+					for _ = 1, iters do
+						f(...)
 					end
-					StatusText.Text = "Failed! Check F9 console for more info"
-					StatusText.TextColor3 = Color3.new(1)
-					warn("Error found while saving:")
-					warn(err)
-					task.wait(Log10 + ExtraTime)
+					ranking[i] = { t = os.clock() - start, f = f }
 				end
-				StatusText:Destroy()
+				table.sort(ranking, function(a, b)
+					return a.t < b.t
+				end)
+				return ranking[1].f
+			end
+
+			local function pickFastestBy(label, candidates, works, iters, benchInput, ...)
+				local valid = {}
+				for _, f in candidates do
+					if f then
+						local ok, good = pcall(works, f)
+						if ok and good then
+							valid[#valid + 1] = f
+						end
+					end
+				end
+
+				if #valid == 0 then
+					-- warn(label .. " not found")
+					return nil
+				elseif #valid == 1 then
+					return valid[1]
+				end
+				return benchmark(valid, iters, benchInput, ...)
+			end
+
+			-- Credits @daily3014 & @XoifaiI
+			local rbxcrypt_encode, rbxcrypt_decode
+			pcall(function()
+				local rbxcrypt_b64 = loadstring(
+					game:HttpGet(
+						"https://raw.githubusercontent.com/daily3014/rbx-algorithms/refs/heads/main/src/Encoding/Base64.luau",
+						true
+					),
+					"Base64"
+				)()
+				local enc = rbxcrypt_b64.Encode
+				rbxcrypt_encode = function(raw)
+					return buffer.tostring(enc(buffer.fromstring(raw)))
+				end
+				local dec = rbxcrypt_b64.Decode
+				rbxcrypt_decode = function(raw)
+					return buffer.tostring(dec(buffer.fromstring(raw)))
+				end
 			end)
+
+			local es_encode, es_decode, es_zstdcompress
+			if not RiskyServicesDisabled.Encoding then
+				local EncodingService = game:GetService("EncodingService")
+
+				es_encode = function(raw)
+					return buffer.tostring(EncodingService:Base64Encode(buffer.fromstring(raw)))
+				end
+				es_decode = function(raw)
+					return buffer.tostring(EncodingService:Base64Decode(buffer.fromstring(raw)))
+				end
+
+				local ZSTD_ALGO_ENUM = Enum.CompressionAlgorithm.Zstd
+				es_zstdcompress = function(raw, level)
+					return buffer.tostring(
+						EncodingService:CompressBuffer(buffer.fromstring(raw), ZSTD_ALGO_ENUM, level)
+					)
+				end
+			end
+
+			local BASE64_TEST = string.rep("\1\0\0\0\1\2\3\4\5\6\7", 50)
+
+			local function b64EncWorks(f)
+				return f("\1\0\0\0\1") == "AQAAAAE="
+			end
+
+			base64encode = pickFastestBy(
+				"base64encode",
+				{ base64encode, rbxcrypt_encode, es_encode },
+				b64EncWorks,
+				50,
+				BASE64_TEST
+			)
+
+			if not base64encode then
+				warn("base64encode not found")
+				Cleanup()
+				return
+			end
+
+			local function b64DecWorks(f)
+				return f("AQAAAAE=") == "\1\0\0\0\1"
+			end
+
+			base64decode = pickFastestBy(
+				"base64decode",
+				{ base64decode, rbxcrypt_decode, es_decode },
+				b64DecWorks,
+				50,
+				base64encode(BASE64_TEST)
+			)
+
+			local HttpService = service.HttpService
+
+			local function http_zstdcompress(input)
+				local ok, encoded = pcall(HttpService.JSONEncode, HttpService, buffer.fromstring(input)) -- pcall due to ~100mb limit
+				if not ok then
+					return nil
+				end
+
+				local keyStart = string_find(encoded, '"zbase64"')
+				if not keyStart then
+					return nil
+				end
+
+				local valueStart = string_find(encoded, '"', keyStart + 9)
+				if not valueStart then
+					return nil
+				end
+
+				local valueEnd = string_find(encoded, '"', valueStart + 1)
+				if not valueEnd then
+					return nil
+				end
+
+				local b64 = string.sub(encoded, valueStart + 1, valueEnd - 1)
+
+				return base64decode(b64)
+			end
+
+			local COMPRESS_TEST
+			do
+				local n = 4000
+				local planes = table.create(4)
+				for p = 1, 4 do
+					local bytes = table.create(n)
+					for i = 1, n do
+						bytes[i] = p <= 2 and (i % 3) or ((i * 2654435761) % 256)
+					end
+					planes[p] = string.char(table.unpack(bytes, 1, math.min(n, 7997)))
+				end
+				COMPRESS_TEST = table.concat(planes)
+			end
+
+			local function zstdWorks(f)
+				local out = f(COMPRESS_TEST)
+				return type(out) == "string" and #out > 4 and string.sub(out, 1, 4) == "\40\181\47\253"
+			end
+
+			zstdcompress = pickFastestBy(
+				"zstdcompress",
+				{ zstdcompress, http_zstdcompress, es_zstdcompress },
+				zstdWorks,
+				10,
+				COMPRESS_TEST
+			)
+
+			-- Credits @RiskoZS
+			local llz4_compress
+			pcall(function()
+				local llz4 = loadstring(
+					game:HttpGet("https://raw.githubusercontent.com/RiskoZS/llz4/refs/heads/main/llz4.luau", true),
+					"llz4"
+				)()
+				llz4_compress = llz4.compress
+			end)
+
+			local LZ4_PROBE = "\1\2\3\4\5\6\7\8"
+
+			local function lz4Works(f)
+				local out = f(LZ4_PROBE)
+				return type(out) == "string"
+					and #out == #LZ4_PROBE + 1
+					and string.byte(out, 1) == #LZ4_PROBE * 16
+					and string.sub(out, 2) == LZ4_PROBE
+			end
+			lz4compress = pickFastestBy("lz4compress", { lz4compress, llz4_compress }, lz4Works, 10, COMPRESS_TEST)
 		end
 
-		if OPTIONS.ShutdownWhenDone and ok then
-			task.wait(Log10 * 2 + ExtraTime)
-			game:Shutdown()
+		do
+			local ok, result = pcall(FetchAPI)
+			if ok then
+				ClassList = result
+			else
+				warn("Failed to load the API Dump")
+				warn(result)
+				Cleanup()
+				return
+			end
 		end
+	end
+
+	elapse_t = os.clock()
+
+	local ok, err = xpcall(save_game, function(err)
+		return debug.traceback(err)
+	end)
+
+	if OPTIONS.BoostFPS then
+		pcall(function()
+			local max = 5
+			task.delay(
+				math.clamp(max - (os.clock() - elapse_t), 0, max),
+				service.GuiService.ClearError,
+				service.GuiService
+			)
+			service.RunService:Set3dRenderingEnabled(true)
+		end)
+	end
+
+	if old_gethiddenproperty then
+		gethiddenproperty = old_gethiddenproperty
+	end
+
+	Cleanup()
+
+	elapse_t = os.clock() - elapse_t
+	local Log10 = math.log10(elapse_t)
+	local ExtraTime = 10
+
+	if StatusText then
+		task.spawn(function()
+			if ok then
+				StatusText.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, get_size_format())
+				StatusText.TextColor3 = Color3.new(0, 1)
+				task.wait(Log10 * 2 + ExtraTime)
+			else
+				if LoadingThread then
+					task.cancel(LoadingThread)
+					LoadingThread = nil
+				end
+				StatusText.Text = "Failed! Check F9 console for more info"
+				StatusText.TextColor3 = Color3.new(1)
+				warn("Error found while saving:")
+				warn(err)
+				task.wait(Log10 + ExtraTime)
+			end
+			StatusText:Destroy()
+		end)
+	end
+
+	if OPTIONS.ShutdownWhenDone and ok then
+		task.wait(Log10 * 2 + ExtraTime)
+		game:Shutdown()
 	end
 end
 
