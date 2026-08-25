@@ -4998,7 +4998,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if now - lastStatus > 1 then
 					lastStatus = now
 					StatusText.Text = "Saving.. Size: " .. get_size_format()
-					wait_for_render()
 				end
 			end
 		end
@@ -5709,7 +5708,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				run_with_loading(
 					"Writing to File " .. math.round(written / totalsize * 100) .. "%",
 					nil,
-					true,
+					false,
 					appendfile,
 					placename,
 					table.concat(batch)
