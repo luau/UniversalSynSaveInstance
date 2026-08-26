@@ -3965,7 +3965,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local LP_UserId, LP_Name, ANON_UserId, ANON_Name, Anonymizers
 
 	local function anonymize(raw, valueType)
-		local fn = Anonymizers and Anonymizers[valueType]
+		if not Anonymizers then
+			return raw
+		end
+		local fn = Anonymizers[valueType]
 		return fn and fn(raw) or raw
 	end
 
@@ -4605,13 +4608,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return optional ~= nil or category == "Class"
 	end
 
-	local function filterPropVal(result, propertyName, category, optional) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
+	local function filterPropVal(result, property, category, optional) -- ? raw == nil thanks to SerializedDefaultAttributes; "can't get value" - due to WriteOnly tag;  "Invalid value for enum " - "StreamingPauseMode" (old games probably) Roexec
 		if result == nil then
 			return not nilIsValid(category, optional)
 		end
-		return result == "can't get value"
-			or type(result) == "string"
-				and (category == "Enum" or string_find(result, "Unable to get property " .. propertyName))
+		if result == "can't get value" then
+			return true
+		end
+
+		if type(result) ~= "string" or #result > 256 then
+			return false
+		end
+		if category == "Enum" then
+			return true
+		end
+		local needle = property.ErrNeedle
+		if not needle then
+			needle = "Unable to get property " .. property.Name
+			property.ErrNeedle = needle
+		end
+		return string_find(result, needle) ~= nil
 	end
 
 	local GHP_STATE_FILE = USSI_FOLDER .. "GHP_STATE.json"
@@ -4683,10 +4699,21 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local function readProperty(instance, property)
-		local raw = __BREAK
+		local PropertyName, ValueType, CanRead, Special =
+			property.Name, property.ValueType, property.CanRead, property.Special
 
-		local PropertyName, Special, Category, ValueType, Optional =
-			property.Name, property.Special, property.Category, property.ValueType, property.Optional
+		-- Hot path
+		if
+			Anonymizers == nil
+			and InstancesOverrides[instance] == nil
+			and CanRead == true
+			and not Special
+			and not (ValueType == "ProtectedString" and PropertyName == "Source")
+		then
+			return instance[PropertyName]
+		end
+
+		local raw = __BREAK
 
 		local InstanceOverride = InstancesOverrides[instance]
 		if InstanceOverride then
@@ -4703,7 +4730,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			return sourceFor(instance, decompileIgnoreMap[instance])
 		end
 
-		local CanRead = property.CanRead
+		local Category, Optional = property.Category, property.Optional
+
 		if CanRead ~= false then
 			local GHPKey = (Category == "Enum" or Category == "Class") and Category or ValueType
 
@@ -4714,7 +4742,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						raw = result
 					end
 
-					local filtered = filterPropVal(raw, PropertyName, Category, Optional)
+					local filtered = filterPropVal(raw, property, Category, Optional)
 					local realFailure = filtered and not (result == nil and nilIsValid(Category, Optional))
 
 					ghpDatatypeReport(GHPKey, ok and not realFailure)
@@ -4737,7 +4765,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					raw = result
 				elseif gethiddenproperty and ghpDatatypeAllowed(GHPKey) then
 					ok, result = pcall(gethiddenproperty, instance, PropertyName)
-					ghpDatatypeReport(GHPKey, ok and not filterPropVal(result, PropertyName, Category, Optional))
+					ghpDatatypeReport(GHPKey, ok and not filterPropVal(result, property, Category, Optional))
 					if ok then
 						raw = result
 						property.Special = true
@@ -4746,7 +4774,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 				property.CanRead = ok
 
-				if not ok or filterPropVal(raw, PropertyName, Category, Optional) then
+				if not ok or filterPropVal(raw, property, Category, Optional) then
 					raw = __BREAK
 				end
 			end
