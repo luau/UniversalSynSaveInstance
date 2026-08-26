@@ -4645,9 +4645,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local ok, result = pcall(index, instance, PropertyName)
 				if ok then
 					raw = result
-				elseif gethiddenproperty and ghpDatatypeAllowed(ValueType) then
+				elseif gethiddenproperty and ghpDatatypeAllowed(GHPKey) then
 					ok, result = pcall(gethiddenproperty, instance, PropertyName)
-					ghpDatatypeReport(ValueType, ok and not filterPropVal(result, PropertyName, Category, Optional))
+					ghpDatatypeReport(GHPKey, ok and not filterPropVal(result, PropertyName, Category, Optional))
 					if ok then
 						raw = result
 						property.Special = true
