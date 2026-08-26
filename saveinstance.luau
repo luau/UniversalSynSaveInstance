@@ -4186,9 +4186,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return Size
 	end
 
-	local RunService = service.RunService
+	local RenderStepped = service.RunService.RenderStepped
 	local function wait_for_render()
-		RunService.RenderStepped:Wait()
+		pcall(RenderStepped.Wait, RenderStepped) -- ? Needed for at least 1fps (status text); pcall due to "thread cannot be yielded to Wait"
 	end
 
 	local IsLoading, LoadingText, LoadingThread = false
@@ -4999,6 +4999,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				if now - lastStatus > 1 then
 					lastStatus = now
 					StatusText.Text = "Saving.. Size: " .. get_size_format()
+					wait_for_render()
 				end
 			end
 		end
@@ -5239,8 +5240,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				StatusText.Text = "Saving.. Size: " .. get_size_format()
 			end
 
-			wait_for_render() -- ? Needed for at least 1fps (status text)
+			wait_for_render()
 		end
+
 		local function save_hierarchy(hierarchy, ctx)
 			local entries = ctx.entries
 
