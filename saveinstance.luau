@@ -1677,8 +1677,9 @@ do
 			TriangleMeshPart = { "CollisionFidelity" },
 		},
 		Blacklist = {
+			BillboardGui = { "PlayerToHideFrom" },
 			LuaSourceContainer = { "ScriptGuid" },
-			Instance = { "UniqueId", "HistoryId" },
+			Instance = { "UniqueId", "HistoryId", "SourceAssetId", "SourceContent" },
 		},
 	}, true)
 
@@ -4503,12 +4504,12 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return InstanceOverride
 	end
 
-	local function refIsInvalid(target, propName, valueType)
+	local function refIsInvalid(target, valueType)
 		if not SaveNotCreatableWillBeEnabled or not target then
 			return false
 		end
 		local fix = NotCreatableFixes[target.ClassName]
-		return fix ~= nil and (propName == "PlayerToHideFrom" or valueType ~= "Instance" and valueType ~= fix)
+		return fix ~= nil and (valueType ~= "Instance" and valueType ~= fix)
 	end
 
 	local function nilIsValid(category, optional)
@@ -5121,7 +5122,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					if encoder and typeId then
 						if prop.Category == "Class" then
 							for i = 1, n do
-								if refIsInvalid(vals[i], propName, valueType) then
+								if refIsInvalid(vals[i], valueType) then
 									vals[i] = nil
 								end
 							end
@@ -5340,7 +5341,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						local tag, value
 						if Category == "Class" then
 							tag = "Ref"
-							if raw and not refIsInvalid(raw, PropertyName, ValueType) then
+							if raw and not refIsInvalid(raw, ValueType) then
 								value = getRef(raw)
 							else
 								value = "null"
