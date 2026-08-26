@@ -270,16 +270,18 @@ local CFrame_Rotation_Ids = {
 	["\0\0\0\0\0\0\0\0\0\0\128\191\0\0\0\0\0\0\128\191\0\0\0\128\0\0\128\191\0\0\0\0\0\0\0\128"] = 0x23,
 }
 local rotationBuffer = buffer.create(36)
+local bf32_rotation = buffer.writef32
+
 local function rawBasisString(r00, r01, r02, r10, r11, r12, r20, r21, r22)
-	buffer.writef32(rotationBuffer, 0, r00)
-	buffer.writef32(rotationBuffer, 4, r01)
-	buffer.writef32(rotationBuffer, 8, r02)
-	buffer.writef32(rotationBuffer, 12, r10)
-	buffer.writef32(rotationBuffer, 16, r11)
-	buffer.writef32(rotationBuffer, 20, r12)
-	buffer.writef32(rotationBuffer, 24, r20)
-	buffer.writef32(rotationBuffer, 28, r21)
-	buffer.writef32(rotationBuffer, 32, r22)
+	bf32_rotation(rotationBuffer, 0, r00)
+	bf32_rotation(rotationBuffer, 4, r01)
+	bf32_rotation(rotationBuffer, 8, r02)
+	bf32_rotation(rotationBuffer, 12, r10)
+	bf32_rotation(rotationBuffer, 16, r11)
+	bf32_rotation(rotationBuffer, 20, r12)
+	bf32_rotation(rotationBuffer, 24, r20)
+	bf32_rotation(rotationBuffer, 28, r21)
+	bf32_rotation(rotationBuffer, 32, r22)
 	return buffer.tostring(rotationBuffer)
 end
 
@@ -411,7 +413,7 @@ local function cframeToQuaternion(cframe)
 		qY = (R12 + R21) / S
 		qZ = 0.25 * S
 	end
-	-- Force consistent sign (W positive) to match Roblox serializer
+
 	if qW < 0 then
 		qW, qX, qY, qZ = -qW, -qX, -qY, -qZ
 	end
@@ -442,9 +444,12 @@ end
 local scratch = buffer.create(8)
 
 -- Big-endian bit-rotated f32, no allocations.
+local bf32, ru32 = buffer.writef32, buffer.readu32
+local lr32 = bit32.lrotate
+
 local function rotf(v)
-	buffer.writef32(scratch, 0, v)
-	return bit32.lrotate(buffer.readu32(scratch, 0), 1)
+	bf32(scratch, 0, v)
+	return lr32(ru32(scratch, 0), 1)
 end
 
 local function zigzag32(v)
@@ -495,10 +500,13 @@ end
 -- Byte-plane writers
 
 local function pokeU32Planes(sbuf, o, n, v)
-	sbuf:pokeu8(o, bit32.rshift(v, 24))
-	sbuf:pokeu8(o + n, bit32.band(bit32.rshift(v, 16), 0xFF))
-	sbuf:pokeu8(o + 2 * n, bit32.band(bit32.rshift(v, 8), 0xFF))
-	sbuf:pokeu8(o + 3 * n, bit32.band(v, 0xFF))
+	local buf = sbuf.buf
+	local wu8 = buffer.writeu8
+	local rshift, band = bit32.rshift, bit32.band
+	wu8(buf, o, rshift(v, 24))
+	wu8(buf, o + n, band(rshift(v, 16), 0xFF))
+	wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
+	wu8(buf, o + 3 * n, band(v, 0xFF))
 end
 
 local function pokeU64Planes(sbuf, o, n, hi, lo)
@@ -507,21 +515,37 @@ local function pokeU64Planes(sbuf, o, n, hi, lo)
 end
 
 local function interleavedU32Plane(sbuf, n, base, getU32ForIndex)
+	local buf = sbuf.buf
+	local rshift, band = bit32.rshift, bit32.band
+	local wu8 = buffer.writeu8
 	for i = 1, n do
-		pokeU32Planes(sbuf, base + (i - 1), n, getU32ForIndex(i))
+		local v = getU32ForIndex(i)
+		local o = base + (i - 1)
+		wu8(buf, o, rshift(v, 24))
+		wu8(buf, o + n, band(rshift(v, 16), 0xFF))
+		wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
+		wu8(buf, o + 3 * n, band(v, 0xFF))
 	end
 end
 
 -- Zigzag-delta referent plane. Every referent array in the format is this:
 -- INST referents, PRNT object/parent, Referent props, Content ObjectRefs.
 local function writeRefPlane(sbuf, n, base, getRef)
+	local buf = sbuf.buf
+	local rshift, band = bit32.rshift, bit32.band
+	local wu8 = buffer.writeu8
 	local lastRef = nil
-	interleavedU32Plane(sbuf, n, base, function(i)
+	for i = 1, n do
 		local ref = getRef(i)
 		local acc = lastRef and (ref - lastRef) or ref
 		lastRef = ref
-		return zigzag32(acc)
-	end)
+		local v = zigzag32(acc)
+		local o = base + (i - 1)
+		wu8(buf, o, rshift(v, 24))
+		wu8(buf, o + n, band(rshift(v, 16), 0xFF))
+		wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
+		wu8(buf, o + 3 * n, band(v, 0xFF))
+	end
 end
 
 -- Encoder factories
@@ -529,13 +553,22 @@ end
 local function planeEncoder(...)
 	local getters = { ... }
 	local k = #getters
+	local rshift, band = bit32.rshift, bit32.band
+	local wu8 = buffer.writeu8
 	return function(sbuf, vals, n)
 		local base = sbuf:allocRegion(4 * k * n)
+		local buf = sbuf.buf
 		local stride = 4 * n
-		for i = 1, n do
-			local v = vals[i]
 			for p = 1, k do
-				pokeU32Planes(sbuf, base + (p - 1) * stride + (i - 1), n, getters[p](v))
+			local getter = getters[p]
+			local pbase = base + (p - 1) * stride
+			for i = 1, n do
+				local v = getter(vals[i])
+				local o = pbase + (i - 1)
+				wu8(buf, o, rshift(v, 24))
+				wu8(buf, o + n, band(rshift(v, 16), 0xFF))
+				wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
+				wu8(buf, o + 3 * n, band(v, 0xFF))
 			end
 		end
 	end
@@ -543,11 +576,17 @@ end
 
 local function f32Encoder(...)
 	local paths = { ... }
+	local k = #paths
+	local wf32 = buffer.writef32
 	return function(sbuf, vals, n)
+		local base = sbuf:allocRegion(4 * k * n)
+		local buf = sbuf.buf
 		for i = 1, n do
 			local v = vals[i]
-			for _, p in paths do
-				sbuf:writef32(p(v))
+			local o = base + (i - 1) * 4 * k
+			for p = 1, k do
+				wf32(buf, o, paths[p](v))
+				o += 4
 			end
 		end
 	end
@@ -555,23 +594,17 @@ end
 
 local function i16Encoder(...)
 	local comps = { ... }
+	local k = #comps
+	local wi16 = buffer.writei16
 	return function(sbuf, vals, n)
+		local base = sbuf:allocRegion(2 * k * n)
+		local buf = sbuf.buf
 		for i = 1, n do
 			local v = vals[i]
-			for _, c in comps do
-				sbuf:writei16(v[c])
-			end
-		end
-	end
-end
-
-local function sequenceEncoder(writeKeypoint)
-	return function(sbuf, vals, n)
-		for i = 1, n do
-			local keypoints = vals[i].Keypoints
-			sbuf:writeu32(#keypoints)
-			for _, kp in keypoints do
-				writeKeypoint(sbuf, kp)
+			local o = base + (i - 1) * 2 * k
+			for p = 1, k do
+				wi16(buf, o, v[comps[p]])
+				o += 2
 			end
 		end
 	end
@@ -579,6 +612,10 @@ end
 
 local function flagEncoder(bits)
 	return function(sbuf, vals, n)
+		sbuf:reserve(n)
+		local buf = sbuf.buf
+		local o = sbuf.len
+		local wu8 = buffer.writeu8
 		for i = 1, n do
 			local v = vals[i]
 			local packed = 0
@@ -587,13 +624,16 @@ local function flagEncoder(bits)
 					packed += b
 				end
 			end
-			sbuf:writeu8(packed)
+			wu8(buf, o, packed)
+			o += 1
 		end
+		sbuf.len = o
 	end
 end
 
 local function writeCFrameBody(sbuf, vals, n, existsOut)
 	local coordsX, coordsY, coordsZ = table.create(n), table.create(n), table.create(n)
+	local wu8, wstr = sbuf.writeu8, sbuf.writestring
 
 	for i = 1, n do
 		local val = vals[i]
@@ -612,20 +652,30 @@ local function writeCFrameBody(sbuf, vals, n, existsOut)
 		local rotStr = rawBasisString(r00, r01, r02, r10, r11, r12, r20, r21, r22)
 		local id = CFrame_Rotation_Ids[rotStr]
 		if id then
-			sbuf:writeu8(id)
+			wu8(sbuf, id)
 		else
-			sbuf:writeu8(0)
-			sbuf:writestring(rotStr)
+			wu8(sbuf, 0)
+			wstr(sbuf, rotStr)
 		end
 	end
 
 	local posBase = sbuf:allocRegion(12 * n)
 	local planes = { coordsX, coordsY, coordsZ }
+	local cbuf = sbuf.buf
+	local lr, rshift, band = bit32.lrotate, bit32.rshift, bit32.band
+	local bf32, ru32, bwu8 = buffer.writef32, buffer.readu32, buffer.writeu8
 	for p = 1, 3 do
 		local coords = planes[p]
-		interleavedU32Plane(sbuf, n, posBase + (p - 1) * 4 * n, function(i)
-			return rotf(coords[i])
-		end)
+		local pbase = posBase + (p - 1) * 4 * n
+		for i = 1, n do
+			bf32(scratch, 0, coords[i])
+			local v = lr(ru32(scratch, 0), 1)
+			local o = pbase + (i - 1)
+			bwu8(cbuf, o, rshift(v, 24))
+			bwu8(cbuf, o + n, band(rshift(v, 16), 0xFF))
+			bwu8(cbuf, o + 2 * n, band(rshift(v, 8), 0xFF))
+			bwu8(cbuf, o + 3 * n, band(v, 0xFF))
+		end
 	end
 end
 
@@ -1037,14 +1087,6 @@ Attribute_Encoders = {
 			raw.RightTangent
 		)
 	end,
-	-- ["Path3DControlPoint"] = function(raw)
-	-- 	return Binary_Encoders._packMultiple(
-	-- 		Binary_Encoders["Vector3"],
-	-- 		raw.Position,
-	-- 		raw.LeftTangent,
-	-- 		raw.RightTangent
-	-- 	)
-	-- end,
 	["TweenInfo"] = function(raw)
 		local b = buffer.create(21)
 
@@ -1075,14 +1117,29 @@ end
 
 local Binary_Encoders = {
 	["string"] = function(sbuf, vals, n)
+		local total = 4 * n
 		for i = 1, n do
-			sbuf:writeLenString(vals[i])
+			total += #vals[i]
 		end
+		sbuf:reserve(total)
+		local buf = sbuf.buf
+		local o = sbuf.len
+		local wu32, wstr = buffer.writeu32, buffer.writestring
+		for i = 1, n do
+			local v = vals[i]
+			local l = #v
+			wu32(buf, o, l)
+			wstr(buf, o + 4, v)
+			o += 4 + l
+		end
+		sbuf.len = o
 	end,
 	["bool"] = function(sbuf, vals, n)
 		local base = sbuf:allocRegion(n)
+		local buf = sbuf.buf
+		local wu8 = buffer.writeu8
 		for i = 1, n do
-			sbuf:pokeu8(base + (i - 1), vals[i] and 1 or 0)
+			wu8(buf, base + (i - 1), vals[i] and 1 or 0)
 		end
 	end,
 
@@ -1170,19 +1227,53 @@ local Binary_Encoders = {
 
 	["Vector3int16"] = i16Encoder("X", "Y", "Z"),
 
-	["NumberSequence"] = sequenceEncoder(function(sbuf, kp)
-		sbuf:writef32(kp.Time)
-		sbuf:writef32(kp.Value)
-		sbuf:writef32(kp.Envelope)
-	end),
-	["ColorSequence"] = sequenceEncoder(function(sbuf, kp)
+	["NumberSequence"] = function(sbuf, vals, n)
+		local total = 4 * n
+		for i = 1, n do
+			total += 12 * #vals[i].Keypoints
+		end
+		sbuf:reserve(total)
+		local buf = sbuf.buf
+		local o = sbuf.len
+		local wu32, wf32 = buffer.writeu32, buffer.writef32
+		for i = 1, n do
+			local keypoints = vals[i].Keypoints
+			wu32(buf, o, #keypoints)
+			o += 4
+			for _, kp in keypoints do
+				wf32(buf, o, kp.Time)
+				wf32(buf, o + 4, kp.Value)
+				wf32(buf, o + 8, kp.Envelope)
+				o += 12
+			end
+		end
+		sbuf.len = o
+	end,
+	["ColorSequence"] = function(sbuf, vals, n)
+		local total = 4 * n
+		for i = 1, n do
+			total += 20 * #vals[i].Keypoints
+		end
+		sbuf:reserve(total)
+		local buf = sbuf.buf
+		local o = sbuf.len
+		local wu32, wf32 = buffer.writeu32, buffer.writef32
+		for i = 1, n do
+			local keypoints = vals[i].Keypoints
+			wu32(buf, o, #keypoints)
+			o += 4
+			for _, kp in keypoints do
 		local c = kp.Value
-		sbuf:writef32(kp.Time)
-		sbuf:writef32(c.R)
-		sbuf:writef32(c.G)
-		sbuf:writef32(c.B)
-		sbuf:writef32(0) -- envelope, unused for ColorSequence, always 0
-	end),
+				wf32(buf, o, kp.Time)
+				wf32(buf, o + 4, c.R)
+				wf32(buf, o + 8, c.G)
+				wf32(buf, o + 12, c.B)
+				wf32(buf, o + 16, 0) -- envelope, unused for ColorSequence, always 0
+				o += 20
+			end
+		end
+		sbuf.len = o
+	end,
 
 	["NumberRange"] = f32Encoder(function(v)
 		return v.Min
@@ -1201,29 +1292,40 @@ local Binary_Encoders = {
 	end),
 
 	["PhysicalProperties"] = function(sbuf, vals, n)
+		sbuf:reserve(25 * n)
+		local buf = sbuf.buf
+		local o = sbuf.len
+		local wu8, wf32 = buffer.writeu8, buffer.writef32
 		for i = 1, n do
 			local val = vals[i]
 			if val then
-				sbuf:writeu8(3)
-				sbuf:writef32(val.Density)
-				sbuf:writef32(val.Friction)
-				sbuf:writef32(val.Elasticity)
-				sbuf:writef32(val.FrictionWeight)
-				sbuf:writef32(val.ElasticityWeight)
-				sbuf:writef32(val.AcousticAbsorption)
+				wu8(buf, o, 3)
+				wf32(buf, o + 1, val.Density)
+				wf32(buf, o + 5, val.Friction)
+				wf32(buf, o + 9, val.Elasticity)
+				wf32(buf, o + 13, val.FrictionWeight)
+				wf32(buf, o + 17, val.ElasticityWeight)
+				wf32(buf, o + 21, val.AcousticAbsorption)
+				o += 25
 			else
-				sbuf:writeu8(0)
+				wu8(buf, o, 0)
+				o += 1
 			end
 		end
+		sbuf.len = o
 	end,
 
 	["Color3uint8"] = function(sbuf, vals, n)
 		local base = sbuf:allocRegion(3 * n)
+		local buf = sbuf.buf
+		local wu8 = buffer.writeu8
+		local floor = math.floor
 		for i = 1, n do
 			local val = vals[i]
-			sbuf:pokeu8(base + (i - 1), math.floor(val.R * 255 + 0.5))
-			sbuf:pokeu8(base + n + (i - 1), math.floor(val.G * 255 + 0.5))
-			sbuf:pokeu8(base + 2 * n + (i - 1), math.floor(val.B * 255 + 0.5))
+			local o = base + (i - 1)
+			wu8(buf, o, floor(val.R * 255 + 0.5))
+			wu8(buf, o + n, floor(val.G * 255 + 0.5))
+			wu8(buf, o + 2 * n, floor(val.B * 255 + 0.5))
 		end
 	end,
 
@@ -1258,8 +1360,10 @@ local Binary_Encoders = {
 
 		sbuf:writeu8(0x02) -- Type_Ids.bool
 		local boolBase = sbuf:allocRegion(n)
+		local buf = sbuf.buf
+		local wu8 = buffer.writeu8
 		for i = 1, n do
-			sbuf:pokeu8(boolBase + (i - 1), exists[i] and 1 or 0)
+			wu8(buf, boolBase + (i - 1), exists[i] and 1 or 0)
 		end
 	end,
 	["UniqueId"] = function(sbuf, vals, n)
@@ -1278,16 +1382,17 @@ local Binary_Encoders = {
 		end
 	end,
 	["Font"] = function(sbuf, vals, n)
+		local wlstr, wu16, wu8, wu32 = sbuf.writeLenString, sbuf.writeu16, sbuf.writeu8, sbuf.writeu32
 		for i = 1, n do
 			local val = vals[i]
 
 			local hasWeight, weight = pcall(index, val, "Weight")
 			local hasStyle, style = pcall(index, val, "Style")
 
-			sbuf:writeLenString(val.Family)
-			sbuf:writeu16(hasWeight and weight.Value or 0)
-			sbuf:writeu8(hasStyle and style.Value or 0)
-			sbuf:writeu32(0) -- CachedFaceId can't be indexed
+			wlstr(sbuf, val.Family)
+			wu16(sbuf, hasWeight and weight.Value or 0)
+			wu8(sbuf, hasStyle and style.Value or 0)
+			wu32(sbuf, 0) -- CachedFaceId can't be indexed
 		end
 	end,
 	["SecurityCapabilities"] = function(sbuf, vals, n)
@@ -1297,22 +1402,15 @@ local Binary_Encoders = {
 			pokeU64Planes(sbuf, base + (i - 1), n, zigzagHalves(hi, lo))
 		end
 	end,
-	["Content"] = function(sbuf, vals, n, refs)
-		local uris, objectRefs = {}, {}
+	["Content"] = function(sbuf, vals, n)
+		local uris = {}
 
 		local base = sbuf:allocRegion(4 * n)
 		interleavedU32Plane(sbuf, n, base, function(i)
 			local v = vals[i]
-			if v == nil then
-				return 0
-			end
-			local st = v.SourceType
-			if st == Enum.ContentSourceType.Uri then
+			if v ~= nil and v.SourceType == Enum.ContentSourceType.Uri then
 				table.insert(uris, v.Uri or "")
 				return zigzag32(1)
-			elseif st == Enum.ContentSourceType.Object then
-				table.insert(objectRefs, v.Object)
-				return zigzag32(2)
 			end
 			return 0
 		end)
@@ -1322,15 +1420,8 @@ local Binary_Encoders = {
 			sbuf:writeLenString(uri)
 		end
 
-		local m = #objectRefs
-		sbuf:writeu32(m)
-		if m > 0 then
-			writeRefPlane(sbuf, m, sbuf:allocRegion(4 * m), function(i)
-				return (refs and refs[objectRefs[i]]) or -1
-			end)
-		end
-
-		sbuf:writeu32(0) -- ExternalObjectCount
+		sbuf:writeu32(0) -- object refs: all downgraded to type 0
+		sbuf:writeu32(0) -- external refs
 	end,
 }
 
@@ -1479,8 +1570,6 @@ XML_Encoders = {
 		local SourceType = raw.SourceType
 		return SourceType == Enum.ContentSourceType.None and "<null></null>"
 			or SourceType == Enum.ContentSourceType.Uri and "<uri>" .. XML_Encoders.string(raw.Uri) .. "</uri>"
-			or SourceType == Enum.ContentSourceType.Object and "<Ref>" .. getRef(raw.Object) .. "</Ref>"
-		-- or SourceType == Enum.ContentSourceType.Opaque and "<Ref>" .. GetRef(raw.Opaque) .. "</Ref>"
 	end,
 	ContentId = function(raw) -- ! only add raw == nil if such edge-case exists (note it)
 		return raw == "" and "<null></null>" or "<url>" .. XML_Encoders.string(raw) .. "</url>", "Content"
