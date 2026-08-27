@@ -3325,7 +3325,7 @@ do
 		end
 
 		local classList = {}
-		local tmp_classDict = {}
+		local tmp_classDict, tmp_classParents = {}, {}
 
 		local ClassesWhitelist, ClassesBlacklist = ClassPropertyExceptions.Whitelist, ClassPropertyExceptions.Blacklist
 
@@ -3348,6 +3348,7 @@ do
 			end
 
 			tmp_classDict[ClassName] = props
+			tmp_classParents[ClassName] = API_Class.Superclass
 		end
 
 		-- Second pass (actual)
@@ -3471,6 +3472,29 @@ do
 							if string.sub(ValueType_Name, 1, 8) == "Optional" then
 								-- Extract the string after "Optional"
 								Property.Optional = string.sub(ValueType_Name, 9)
+							end
+							-- detect properties that shadow an ancestor (e.g. AnimationRigData.parent shadows Instance.parent)
+							-- roblox ignores first-char case when indexing, so normalize for comparison
+							local propNameNorm = string.lower(string.sub(PropertyName, 1, 1))
+								.. string.sub(PropertyName, 2)
+							local super = tmp_classParents[ClassName]
+							while super do
+								local superProps = tmp_classDict[super]
+								if superProps then
+									for parentName in superProps do
+										if
+											string.lower(string.sub(parentName, 1, 1)) .. string.sub(parentName, 2)
+											== propNameNorm
+										then
+									Property.Shadows = true
+											break
+										end
+									end
+								end
+								if Property.Shadows then
+									break
+								end
+								super = tmp_classParents[super]
 							end
 
 							local NotScriptableFix = NotScriptableFixClass and NotScriptableFixClass[PropertyName]
@@ -3895,7 +3919,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 	end
 
-	if not writefile and not OPTIONS.Callback then
+	if not writefile and not (OPTIONS.Callback or OPTIONS.CopyToClipboard) then
 		local function coreCall(method, ...)
 			local StarterGui = service.StarterGui
 			method = StarterGui[method]
@@ -4149,7 +4173,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		end
 
 		if GLOBAL_ENV[placename] then -- ? AvoidFileOverwrite kinda messes with this, but shouldn't be an issue
-			-- warn("UniversalSynSaveInstance is already saving to this file")
 			return
 		end
 
@@ -4634,13 +4657,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local GHPDatatypeState = {}
 	local GHPPersisted = {}
 	local GHPVersionKey
+	local GHPShadowed = true -- true when ghp returns the shadowed (parent) property value instead of the shadow
 
 	do
 		local execName, execVersion = "UNKNOWN", "0"
 		if identify_executor then
-			local ok, name, ver = pcall(identify_executor)
-			if ok and name then
-				execName, execVersion = name, ver or "0"
+			execName, execVersion = identify_executor()
+			if not execVersion then
+				execVersion = "0"
 			end
 		end
 
@@ -4676,10 +4700,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		local persisted = GHPPersisted[valueType]
 		if persisted == "ok" then
 			state = true
-		elseif persisted == "failed" or persisted == "testing" then
+		elseif persisted == "failed" or persisted == "crashed" then
 			state = false
 		else
-			GHPPersisted[valueType] = "testing"
+			GHPPersisted[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
 			saveGHPState()
 			state = true
 		end
@@ -4736,7 +4760,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			local GHPKey = (Category == "Enum" or Category == "Class") and Category or ValueType
 
 			if Special then
-				if gethiddenproperty and ghpDatatypeAllowed(GHPKey) then
+				if property.Shadows and GHPShadowed then
+					property.CanRead = false
+				elseif gethiddenproperty and ghpDatatypeAllowed(GHPKey) then
 					local ok, result = pcall(gethiddenproperty, instance, PropertyName)
 					if ok then
 						raw = result
@@ -4763,7 +4789,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local ok, result = pcall(index, instance, PropertyName)
 				if ok then
 					raw = result
-				elseif gethiddenproperty and ghpDatatypeAllowed(GHPKey) then
+				elseif not (property.Shadows and GHPShadowed) and gethiddenproperty and ghpDatatypeAllowed(GHPKey) then
 					ok, result = pcall(gethiddenproperty, instance, PropertyName)
 					ghpDatatypeReport(GHPKey, ok and not filterPropVal(result, property, Category, Optional))
 					if ok then
@@ -5701,26 +5727,38 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						.. "\n"
 				end
 
-				local failedTypes = {}
+				local failedTypes, crashTypes = {}, {}
 				for datatype, state in GHPPersisted do
-					if state ~= "ok" then
+					if state == "crashed" then
+						table.insert(crashTypes, datatype)
+					elseif state ~= "ok" then
 						table.insert(failedTypes, datatype)
 					end
 				end
 				table.sort(failedTypes)
+				table.sort(crashTypes)
 
 				local ghpFailureHeader = ""
-				if #failedTypes > 0 then
-					ghpFailureHeader = [[
-		!! GETHIDDENPROPERTY FAILED ON SOME TYPES !!
-		Your executor's gethiddenproperty couldn't read the properties below, so this save might be missing data or have wrong values.
+				if #failedTypes > 0 or #crashTypes > 0 then
+					ghpFailureHeader ..= [[
+		!! GETHIDDENPROPERTY ISSUES !!
+		Your executor's gethiddenproperty couldn't read the types below, so this save might be missing data or have wrong values.
 		Please tell your executor's developers about this. Affected types:
-		]] .. service.HttpService:JSONEncode(failedTypes) .. "\n\n"
+		]]
+					if #failedTypes > 0 then
+						ghpFailureHeader ..= "\t\tFailed reads: " .. service.HttpService:JSONEncode(failedTypes) .. "\n"
+					end
+					if #crashTypes > 0 then
+						ghpFailureHeader ..= "\t\tCrashed a previous run (now skipped entirely): " .. service.HttpService:JSONEncode(
+							crashTypes
+						) .. "\n"
+					end
+					ghpFailureHeader ..= "\n"
 				end
 
 				return table.concat({
 					"--[[\n",
-					"\t\tThank you for using UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw.\n\n",
+					"\t\tThank you for using UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw\n\n",
 					recoveredNote,
 					ghpFailureHeader,
 					binaryNote,
@@ -6161,14 +6199,67 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 			if gethiddenproperty then
-				local o, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
-				if not o or r ~= nil and typeof(r) ~= "EnumItem" then -- * Tests if gethiddenproperty is broken
-					gethiddenproperty = nil
-				else
-					o, r = pcall(gethiddenproperty, Instance.new("AnimationRigData", Instance.new("Folder")), "parent") -- * Tests how it reacts to property overlap (shadowing) due to AnimationRigData.parent; expected BinaryString
+				-- the shadow test (dep = "BinaryString") retests when BinaryString is ok because
+				-- shadowing has been observed to come and go between restarts - Wave.
+				local ard = Instance.new("AnimationRigData", Instance.new("Folder"))
 
-					if o and r ~= nil and type(r) ~= "string" then
-						gethiddenproperty = nil
+				local GHP_SELF_CHECKS = {
+					{
+						key = "Enum",
+						test = function()
+							local ok, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
+							return not (not ok or r ~= nil and typeof(r) ~= "EnumItem")
+						end,
+					},
+					{
+						key = "BinaryString",
+						test = function()
+							ard:SetAttribute("test", "test")
+							local ok, r = pcall(gethiddenproperty, ard, "AttributesSerialize")
+							return not (ok and r ~= "\1\0\0\0\4\0\0\0test\2\4\0\0\0test")
+						end,
+					},
+					{
+						key = "SharedString",
+						test = function()
+							ard:AddTag("\1test\2\4test")
+							local ok, r = pcall(gethiddenproperty, ard, "Tags")
+							return not (ok and r ~= "\1test\2\4test")
+						end,
+					},
+					{
+						dep = "BinaryString",
+						test = function()
+							local ok, r = pcall(gethiddenproperty, ard, "parent")
+							GHPShadowed = ok and r ~= nil and type(r) ~= "string"
+							return not GHPShadowed
+						end,
+					},
+				}
+
+				for _, check in GHP_SELF_CHECKS do
+					local key = check.key
+					if key and GHPPersisted[key] then
+						continue
+					end
+
+					if check.dep and GHPPersisted[check.dep] == "crashed" then
+						continue
+					end
+
+					if key then
+						GHPPersisted[key] = "crashed"
+						saveGHPState()
+					end
+
+					local ok, passed = pcall(check.test)
+
+					if not (ok and passed) then
+						if key then
+							ghpDatatypeReport(key, false)
+						end
+					elseif key then
+						ghpDatatypeReport(key, true)
 					end
 				end
 			end
