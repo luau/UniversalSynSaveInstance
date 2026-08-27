@@ -1,9 +1,9 @@
-Version v1: version-14d8b191232f4ddd
-Version v2: version-14d8b191232f4ddd
+Version v1: version-9e2e9085d9794dd1
+Version v2: version-9e2e9085d9794dd1
 ================================================================================
 
 
-Different Default values (793):
+Different Default values (798):
 ----------------------------------------
   AccessoryDescription.Instance
     v1: '__api_dump_no_string_value__'
@@ -72,6 +72,9 @@ Different Default values (793):
     v1: ''
     v2: '__api_dump_not_serializable__'
   AudioListener.PositionInstance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AudioWindSynthesizer.PositionInstance
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
   AuroraService.BufferFullInputCount
@@ -266,6 +269,9 @@ Different Default values (793):
   BasePart.PhysicsRepRootPart
     v1: '__api_dump_class_not_creatable__'
     v2: 'nullptr'
+  BasePart.PhysicsRepRootRef
+    v1: '__api_dump_class_not_creatable__'
+    v2: 'nil'
   BasePart.PivotOffset
     v1: '__api_dump_class_not_creatable__'
     v2: '0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1'
@@ -502,7 +508,7 @@ Different Default values (793):
     v2: '1'
   DebugSettings.InstanceCount
     v1: '__api_dump_skipped_class__'
-    v2: '940'
+    v2: '957'
   DebugSettings.IsScriptStackTracingEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'true'
@@ -517,7 +523,7 @@ Different Default values (793):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.731.0.7310942'
+    v2: '0.736.0.7361342'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -548,6 +554,9 @@ Different Default values (793):
   DebuggerManager.DebuggingEnabled
     v1: '__api_dump_class_not_creatable__'
     v2: 'false'
+  Decal.EmissiveMaskContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="EmissiveMaskContent">\n\
   DigitsRigDescription.Index1
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -818,6 +827,12 @@ Different Default values (793):
   InputAction.PreferredBinding
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
+  InputActionLabel.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
+  InputActionLabel.InputAction
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
   InputBinding.DisplayImage
     v1: '__api_dump_no_string_value__'
     v2: '<Content name="DisplayImage">\n\t<null>
@@ -839,27 +854,6 @@ Different Default values (793):
   LodDataEntity.SlimAnimationSource
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
-  LuaSourceContainer.CachedRemoteSource
-    v1: '__api_dump_class_not_creatable__'
-    v2: ''
-  LuaSourceContainer.CachedRemoteSourceLoadState
-    v1: '__api_dump_class_not_creatable__'
-    v2: '0'
-  LuaSourceContainer.HasAssociatedDrafts
-    v1: '__api_dump_class_not_creatable__'
-    v2: 'false'
-  LuaSourceContainer.IsDifferentFromFileSystem
-    v1: '__api_dump_class_not_creatable__'
-    v2: 'false'
-  LuaSourceContainer.SandboxedSource
-    v1: '__api_dump_class_not_creatable__'
-    v2: ''
-  LuaSourceContainer.ScriptGuid
-    v1: '__api_dump_class_not_creatable__'
-    v2: ''
-  LuaSourceContainer.isPlayerScript
-    v1: '__api_dump_class_not_creatable__'
-    v2: 'false'
   MakeupDescription.Instance
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -937,10 +931,10 @@ Different Default values (793):
     v2: 'nullptr'
   NetworkSettings.EmulatedTotalMemoryInMB
     v1: '__api_dump_skipped_class__'
-    v2: '109999'
+    v2: '239999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '95206.9922'
+    v2: '207247.469'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1127,6 +1121,27 @@ Different Default values (793):
   PhysicsSettings.AreWorldCoordsShown
     v1: '__api_dump_skipped_class__'
     v2: 'false'
+  PhysicsSettings.CollisionGeomDrawOriginalParts
+    v1: '__api_dump_skipped_class__'
+    v2: 'false'
+  PhysicsSettings.CollisionGeomMatchPartTransparency
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  PhysicsSettings.CollisionGeomOverlayTransparency
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
+  PhysicsSettings.CollisionGeomShowCollidableParts
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  PhysicsSettings.CollisionGeomShowCollisionGroup
+    v1: '__api_dump_skipped_class__'
+    v2: ''
+  PhysicsSettings.CollisionGeomShowQueryableParts
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
+  PhysicsSettings.CollisionGeomShowTouchableParts
+    v1: '__api_dump_skipped_class__'
+    v2: 'true'
   PhysicsSettings.DisableCSGv2
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1295,6 +1310,9 @@ Different Default values (793):
   Player.FollowUserIdReplicated
     v1: '__api_dump_skipped_class__'
     v2: '0'
+  Player.FrustumStreaming
+    v1: '__api_dump_skipped_class__'
+    v2: 'Default'
   Player.GameplayPaused
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1406,6 +1424,12 @@ Different Default values (793):
   Player.userId
     v1: '__api_dump_skipped_class__'
     v2: '0'
+  PlayerControlState.Owner
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  PlayerControlState.StateSchema
+    v1: ''
+    v2: '__api_dump_not_serializable__'
   PlayerEmulatorService.SerializedEmulatedPolicyInfo
     v1: ''
     v2: '__api_dump_not_serializable__'
@@ -1630,7 +1654,7 @@ Different Default values (793):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: '790e533f655bedbf7e44e47f1021f14910e48cb
+    v2: 'a3fec3a7fbbe9476d124238e8cd4ba3c81d50ac
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1828,7 +1852,7 @@ Different Default values (793):
     v2: '0'
   Stats.InstanceCount
     v1: '__api_dump_class_not_creatable__'
-    v2: '1725'
+    v2: '1759'
   Stats.MemoryTrackingEnabled
     v1: '__api_dump_class_not_creatable__'
     v2: 'true'
@@ -1892,18 +1916,6 @@ Different Default values (793):
   StudioCameraService.LoggingEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
-  StudioDeviceEmulatorService.HasMultiTouchStarted
-    v1: '__api_dump_skipped_class__'
-    v2: 'false'
-  StudioDeviceEmulatorService.IsMultiTouchEmulationOn
-    v1: '__api_dump_skipped_class__'
-    v2: 'true'
-  StudioDeviceEmulatorService.IsMultiTouchEnabled
-    v1: '__api_dump_skipped_class__'
-    v2: 'false'
-  StudioDeviceEmulatorService.PivotPosition
-    v1: '__api_dump_skipped_class__'
-    v2: '0, 0'
   StyleDerive.StyleSheet
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -2222,6 +2234,9 @@ Different Default values (793):
   UserGameSettings.TouchMovementMode
     v1: '__api_dump_skipped_class__'
     v2: 'Default'
+  UserGameSettings.UIScaleMultiplierHundredths
+    v1: '__api_dump_skipped_class__'
+    v2: '0'
   UserGameSettings.UiNavigationKeyBindEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'true'
@@ -2387,8 +2402,8 @@ Different Default values (793):
 
 ================================================================================
 Summary:
-  Total: 3972
-  Same: 3179
-  Different: 793
+  Total: 4029
+  Same: 3231
+  Different: 798
   Only v1: 0
   Only v2: 0

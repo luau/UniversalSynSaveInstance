@@ -1,9 +1,9 @@
-Version v1: version-14d8b191232f4ddd
-Version v2: version-14d8b191232f4ddd
+Version v1: version-9e2e9085d9794dd1
+Version v2: version-9e2e9085d9794dd1
 ================================================================================
 
 
-Different Tags (507):
+Different Tags (529):
 ----------------------------------------
   ActivityHistoryEventService
     v1: ['NotCreatable', 'Service']
@@ -88,6 +88,9 @@ Different Tags (507):
     v2: []
   AudioSearchParams
     v1: ['NotReplicated']
+    v2: []
+  AudioWindSynthesizer
+    v1: ['NotBrowsable']
     v2: []
   AuroraScript
     v1: ['Deprecated']
@@ -197,6 +200,9 @@ Different Tags (507):
   BodyVelocity
     v1: ['Deprecated', {'PreferredDescriptorName': 'LinearVelocity', 'ThreadSafety': 'Unknown'}]
     v2: []
+  BranchService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
   BubbleChatConfiguration
     v1: ['NotCreatable']
     v2: ['NotCreatable', 'NotReplicated']
@@ -338,6 +344,9 @@ Different Tags (507):
   DataModel
     v1: ['NotCreatable']
     v2: []
+  DataModelDiff
+    v1: ['NotCreatable']
+    v2: []
   DataModelMesh
     v1: ['NotCreatable', 'NotBrowsable']
     v2: []
@@ -419,8 +428,32 @@ Different Tags (507):
   EditableMesh
     v1: ['NotCreatable']
     v2: ['NotCreatable', 'NotReplicated']
-  EditableMesh.Clear
-    v1: ['NotBrowsable']
+  EditableMesh.BatchAdd
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchGetFaceAttributes
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchGetValues
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchGetVertexAttributes
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchGetVertexFaceAttributes
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchRemove
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchSetFaceAttributes
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchSetValues
+    v1: ['CustomLuaState']
+    v2: []
+  EditableMesh.BatchSetVertexFaceAttributes
+    v1: ['CustomLuaState']
     v2: []
   EditableMesh.GetColors
     v1: ['CustomLuaState']
@@ -776,6 +809,9 @@ Different Tags (507):
   LogService.Error
     v1: ['CustomLuaState']
     v2: []
+  LogService.GetLogger
+    v1: ['CustomLuaState']
+    v2: []
   LogService.Info
     v1: ['CustomLuaState']
     v2: []
@@ -786,6 +822,24 @@ Different Tags (507):
     v1: ['CustomLuaState']
     v2: []
   LogService.Warn
+    v1: ['CustomLuaState']
+    v2: []
+  Logger.Error
+    v1: ['CustomLuaState']
+    v2: []
+  Logger.GetLogger
+    v1: ['CustomLuaState']
+    v2: []
+  Logger.Info
+    v1: ['CustomLuaState']
+    v2: []
+  Logger.Log
+    v1: ['CustomLuaState']
+    v2: []
+  Logger.Output
+    v1: ['CustomLuaState']
+    v2: []
+  Logger.Warn
     v1: ['CustomLuaState']
     v2: []
   LoginService
@@ -955,6 +1009,9 @@ Different Tags (507):
     v2: []
   Player.SetUnder13
     v1: ['Deprecated']
+    v2: []
+  PlayerControlState
+    v1: ['NotBrowsable']
     v2: []
   PlayerGui
     v1: ['NotCreatable', 'PlayerReplicated']
@@ -1139,6 +1196,9 @@ Different Tags (507):
   ScriptProfilerService.DeserializeJSON
     v1: ['CustomLuaState']
     v2: []
+  ScriptScannerService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
   ScriptService
     v1: ['NotCreatable', 'Service']
     v2: ['Service']
@@ -1368,7 +1428,7 @@ Different Tags (507):
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
   TriangleMeshPart
-    v1: ['NotCreatable']
+    v1: ['NotCreatable', 'NotBrowsable']
     v2: []
   TweenBase
     v1: ['NotCreatable', 'NotBrowsable']
@@ -1387,6 +1447,15 @@ Different Tags (507):
     v2: []
   UIConstraint
     v1: ['NotCreatable']
+    v2: []
+  UIGradient.Scale
+    v1: ['NotBrowsable']
+    v2: []
+  UIGradient.TileMode
+    v1: ['NotBrowsable']
+    v2: []
+  UIGradient.Type
+    v1: ['NotBrowsable']
     v2: []
   UIGridStyleLayout
     v1: ['NotCreatable', 'NotBrowsable']
@@ -1457,9 +1526,6 @@ Different Tags (507):
   VoiceChatService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
-  VoiceChatService.EnableVoiceVolumeControls
-    v1: ['NotBrowsable']
-    v2: []
   VoxelBuffer.ReadVoxels
     v1: ['CustomLuaState']
     v2: []
@@ -1529,8 +1595,8 @@ Different Tags (507):
 
 ================================================================================
 Summary:
-  Total: 9090
-  Same: 8583
-  Different: 507
+  Total: 9275
+  Same: 8746
+  Different: 529
   Only v1: 0
   Only v2: 0

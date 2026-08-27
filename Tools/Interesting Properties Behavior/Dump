@@ -1,4 +1,4 @@
-version-14d8b191232f4ddd
+version-9e2e9085d9794dd1
 
 AccessoryDescription.Puffiness {Deprecated} {CanSave}
 
@@ -225,6 +225,8 @@ DebuggerManager.DebuggingEnabled {CanSave Only}
 Decal.Shiny {CanLoad Only} {Deprecated}
 Decal.Specular {CanLoad Only} {Deprecated}
 
+DeferredAssetManagerService is NotCreatable but DeferredAssetManagerService.JoiningPlaceId has default: "0"
+
 DockWidgetPluginGui.HostWidgetWasRestored {CanSave Only}
 DockWidgetPluginGui is NotCreatable but DockWidgetPluginGui.HostWidgetWasRestored has default: "false"
 
@@ -362,6 +364,9 @@ LocalizationTable.DevelopmentLanguage {CanLoad Only} {Deprecated} {PreferredDesc
 LocalizationTable.Root {PreferredDescriptorName: RootLocalizationTable (NOT FOUND)}
 
 LodDataEntity is NotCreatable but LodDataEntity.EntityLodEnabled has default: "true"
+
+Logger.FullPath {CanSave Only}
+Logger.Name {CanSave Only}
 
 MarkerCurve.Length {CanSave Only}
 
@@ -661,6 +666,7 @@ TorsionSpringConstraint.LimitEnabled {Deprecated} {CanSave} {PreferredDescriptor
 Translator.LocaleId {CanSave Only}
 
 TriangleMeshPart.CollisionFidelity {CanLoad Only}
+TriangleMeshPart.CollisionPrecision {CanLoad Only}
 TriangleMeshPart.FluidFidelity {CanLoad Only}
 
 TrussPart.Style {CanLoad Only}
@@ -740,7 +746,7 @@ WrapTarget.Stiffness {Deprecated} {CanSave}
 ==================================================
 NOTSCRIPTABLE VALUE TYPE ANALYSIS
 ==================================================
-ValueTypes found exclusively in NotScriptable properties: 16
+ValueTypes found exclusively in NotScriptable properties: 17
   - AnimTrackMetadata
   - AnimTrackPlayState
   - AnimTrackWeight
@@ -749,6 +755,7 @@ ValueTypes found exclusively in NotScriptable properties: 16
   - CSGPropertyData
   - Color3uint8
   - FacsReplicationData
+  - InstanceRef
   - NetAssetRef
   - OptionalCoordinateFrame
   - ProtectedString
@@ -758,7 +765,7 @@ ValueTypes found exclusively in NotScriptable properties: 16
   - UniqueId
   - Vector3int16
 
-Properties with NotScriptable tag: 126
+Properties with NotScriptable tag: 130
   - AnimationClip.GuidBinaryString
   - AnimationNodeDefinition.InputPinData
   - AnimationRigData.Generic
@@ -821,11 +828,14 @@ Properties with NotScriptable tag: 126
   - AuroraScript.AuroraScriptBindingsSerialize
   - BasePart.Color3uint8
   - BasePart.NetworkOwnerV3
+  - BasePart.PhysicsRepRootRef
   - BasePart.ReplicationPV
   - BaseWrap.HSRData
   - BaseWrap.HSRMeshIdData
   - BinaryStringValue.Value
   - EditableImage.ImageData
+  - EditableImage.ImageHolder
+  - EditableMesh.EditableMeshDataHolder
   - EditableMesh.MeshData
   - FaceControls.InternalOverrideFACSData
   - FloatCurve.ValuesAndTimes
@@ -834,6 +844,7 @@ Properties with NotScriptable tag: 126
   - HiddenSurfaceRemovalAsset.HSRMeshIdData
   - Instance.AttributesSerialize
   - Instance.HistoryId
+  - Instance.SerializedOverrides
   - Instance.Tags
   - LodDataEntity.EntityData
   - LuaSourceContainer.CachedRemoteSource
@@ -856,6 +867,7 @@ Properties with NotScriptable tag: 126
   - PartOperationAsset.MeshData
   - Path2D.PropertiesSerialize
   - Player.RawJoinData
+  - PlayerControlState.StateSchema
   - PlayerGui.InputBindingMappingsRaw
   - RolloutValidation.FirstBinaryString
   - RolloutValidation.FirstSharedString
@@ -874,7 +886,6 @@ Properties with NotScriptable tag: 126
   - Terrain.Materials
   - Terrain.PhysicsGrid
   - Terrain.SmoothGrid
-  - Terrain.ValidationAssetContentMap
   - Terrain.VoxelGridAssetContentMap
   - TerrainRegion.ExtentsMax
   - TerrainRegion.ExtentsMin
@@ -884,7 +895,7 @@ Properties with NotScriptable tag: 126
   - TriangleMeshPart.ConvexDecompHolder
   - TriangleMeshPart.PhysicalConfigData
   - ValueCurve.ValuesAndTimes
-  - Workspace.CollisionGroupData
+  - WorldRoot.CollisionGroupData
 
 ==================================================
 PREFERREDDESCRIPTORNAME ANALYSIS
@@ -965,6 +976,7 @@ NotCreatable classes that have creatable siblings: 33
   - GuiButton (parent: GuiObject) has creatable siblings:
       - CanvasGroup
       - Frame
+      - InputActionLabel
       - RelativeGui
       - ScrollingFrame
       - TextBox
@@ -975,6 +987,7 @@ NotCreatable classes that have creatable siblings: 33
   - GuiLabel (parent: GuiObject) has creatable siblings:
       - CanvasGroup
       - Frame
+      - InputActionLabel
       - RelativeGui
       - ScrollingFrame
       - TextBox

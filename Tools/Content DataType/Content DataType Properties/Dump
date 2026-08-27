@@ -1,4 +1,4 @@
-version-14d8b191232f4ddd
+version-9e2e9085d9794dd1
 
 AdGui.FallbackImageContent
 
@@ -24,6 +24,7 @@ Clothing.Outfit1Content
 Clothing.Outfit2Content
 
 Decal.ColorMapContent
+Decal.EmissiveMaskContent
 Decal.MetalnessMapContent
 Decal.NormalMapContent
 Decal.RoughnessMapContent
@@ -37,11 +38,15 @@ FileMesh.TextureContent
 
 ImageButton.HoverImageContent
 ImageButton.ImageContent
+ImageButton.LocalizedImageContent
 ImageButton.PressedImageContent
 
 ImageHandleAdornment.ImageContent
 
 ImageLabel.ImageContent
+ImageLabel.LocalizedImageContent
+
+InputActionLabel.ResolvedImageContent
 
 InputBinding.DisplayImage
 

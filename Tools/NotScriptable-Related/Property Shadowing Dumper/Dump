@@ -1,0 +1,10 @@
+version-268c7d941ba34c1a
+
+TRY TO MAKE NOTSCRIPTABLEFIXES FALLBACKS FOR THESE AS THEY CAN BE USEFUL
+
+=== SHADOWING ===
+AnimationRigData.name (BinaryString) {CanSave} {CanLoad} {NotScriptable}	shadows Instance.Name
+AnimationRigData.parent (BinaryString) {CanSave} {CanLoad} {NotScriptable}	shadows Instance.Parent
+
+DebuggerVariable.Name (string)	shadows Instance.Name
+

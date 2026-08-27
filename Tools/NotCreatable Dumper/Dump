@@ -1,4 +1,4 @@
-version-14d8b191232f4ddd
+version-9e2e9085d9794dd1
 
 AnimationClip
 
@@ -61,6 +61,8 @@ CoreScript
 CustomSoundEffect
 
 DataModel
+
+DataModelDiff
 
 DataModelMesh
 
@@ -144,6 +146,8 @@ LocalDebuggerConnection
 
 LodDataEntity
 
+Logger
+
 LuaSourceContainer
 
 LuauExpression
@@ -155,6 +159,8 @@ ManualSurfaceJointInstance
 MaterialImportData
 
 MemStorageConnection
+
+MemoryStoreDistributedCounter
 
 MemoryStoreHashMap
 

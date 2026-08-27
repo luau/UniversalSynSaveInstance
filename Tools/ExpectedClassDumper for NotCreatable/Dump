@@ -1,4 +1,4 @@
-version-3da9d00a092c4d59
+version-9e2e9085d9794dd1
 
 AudioDeviceInput.Player {Player}
 
@@ -43,6 +43,8 @@ GuiObject.SelectionImageObject {GuiObject}
 
 GuiService.SelectedObject {GuiObject}
 
+InputActionLabel.InputAction {InputAction}
+
 InputBinding.UIButton {GuiButton}
 InputBinding.UIModifier {GuiButton}
 
@@ -64,6 +66,8 @@ PathfindingLink.Attachment1 {Attachment}
 Player.Character {Model}
 Player.RespawnLocation {SpawnLocation}
 Player.Team {Team}
+
+PlayerControlState.Owner {Player}
 
 PlayerGui.SelectionImageObject {GuiObject}
 
