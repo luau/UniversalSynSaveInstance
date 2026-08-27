@@ -8,6 +8,9 @@ assignees: phoriah
 
 - [ ] I searched existing issues (both open & closed) and this isn't a duplicate
 
+**My Discord Tag**
+So that I can get in contact with you for testing if I need to
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
