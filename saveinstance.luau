@@ -6198,6 +6198,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
 				end
 			end
+
+			do -- Xeno returns uses UGC and returns 0
+				local o, r = pcall(gethiddenproperty, game, "ForceR15")
+				if not o or type(r) ~= "boolean" then
+					gethiddenproperty = nil
+				end
+			end
+
 			if gethiddenproperty then
 				-- the shadow test (dep = "BinaryString") retests when BinaryString is ok because
 				-- shadowing has been observed to come and go between restarts - Wave.
