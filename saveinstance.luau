@@ -3761,7 +3761,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		},
 		SharedBinaryStrings = false,
 		TreatUnionsAsParts = false,
-		AlternativeWritefile = not arrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
+		AlternativeWritefile = not arrayToDict({ "WRD", "Xeno", "Zorara", "OpiumwareMac" })[EXECUTOR_NAME],
 
 		OptionsAliases = { -- You can't really modify these as a user (because they're read before user's Options are loaded)
 			Clipboard = "CopyToClipboard",
