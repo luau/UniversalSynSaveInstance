@@ -60,7 +60,7 @@ The maintainers do not support or condone misuse of this software and are not re
 
 # TO-DOs
 
-- [ ] Look into adding support for Binary Format Output (rbxl/rbxm)
+- [x] Look into adding support for Binary Format Output (rbxl/rbxm)
   - Users can already convert to Binary Format by
     1. Open the File
     2. Click on top left "FILE" text and select "Save to File As"
@@ -71,9 +71,9 @@ The maintainers do not support or condone misuse of this software and are not re
   - ! Also see [buffer], [bit32] libraries as well as [pack]/[unpack] from the [string] library for more information on how you can implement something like this!
   - ! [Rbx-Binary-Format]
 - [ ] Add table.clone instead {} in some cases if possible
-- [ ] Support for Model files:
+- [x] Support for Model files:
   - [x] rbxmx (xml)
-  - [ ] rbxm (binary)
+  - [x] rbxm (binary)
 - [x] Implement [Luau Syntax] (important for performance!):
   - [x] Compound Operators
   - [x] Avoid using `next`, `ipairs` & `pairs`
@@ -82,9 +82,9 @@ The maintainers do not support or condone misuse of this software and are not re
   - [ ] ~~`if-then-else` expressions~~ No reason to
   - [ ] Floor division
 
-- [ ] Speed things up as much as possible
+- [x] Speed things up as much as possible
   - Requires benchmarks
-- [ ] Support for as many [KRNL-like saveinstance Options] & [UNC]:
+- [x] Support for as many [KRNL-like saveinstance Options] & [UNC]:
   - Change mode to invalid mode like "custom" if you only want to save ExtraInstances
   * [x] Decompile (! This takes priority over OPTIONS.noscripts if set !)
   * [x] DecompileIgnore
@@ -101,8 +101,8 @@ The maintainers do not support or condone misuse of this software and are not re
     - [x] ~~Add Drawing Library support for ShowStatus~~ Can't reliably test if it's working on a tool
   * [x] IsolatePlayerGui (same as IsolateLocalPlayer)
   * [x] Callback
-  * [x] ~~CopyToClipboard/Clipboard~~ Use Callback instead
-  * [ ] Binary (rbxl/rbxm)
+  * [x] CopyToClipboard/Clipboard
+  * [x] Binary (rbxl/rbxm)
 - [x] ~~Remove buffersize, savebuffer & so on for sake of performance by concatenating <Item> strings to total string then writing it to file (no extra steps like table.concat)~~ table.concat proved faster in the case of huge amount of concatenations
   - Test table.concat vs string ..= with a full buffer (this benchmark differs per usecase)
 - [ ] Add Option to restart saveinstance from the point that it crashed on (perhaps by skipping)
