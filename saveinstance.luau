@@ -5129,7 +5129,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- Chunk assembly
 
-		local chunks = {}
+		local chunks, propChunks = {}, {}
 
 		local lastStatus = 0
 
@@ -5223,7 +5223,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						buf:writeLenString(value or "")
 					end
 
-					emit(buildChunk("PROP", buf, not isSource and compress or nil)) -- ! Assumes README is the only one that uses .Source, expect anything that does to be uncompressed
+					local chunk = buildChunk("PROP", buf, not isSource and compress or nil) -- ! Assumes README is the only one that uses .Source, expect anything that does to be uncompressed
+					propChunks[#propChunks + 1] = chunk
+					totalsize += chunk.len + (chunk.str and #chunk.str or chunk.tailLen or 0)
 				end
 			elseif not skipProps then
 				for _, prop in GetInheritedProps(entry.propClass) do
@@ -5238,19 +5240,20 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						valueType = "SharedString"
 					end
 
+					local binaryType = valueType
 					local refCtxArg = nil
 
 					if prop.Category == "Enum" then
-						valueType = "Enum"
+						binaryType = "Enum"
 					elseif prop.Category == "Class" then
-						valueType = "Referent"
+						binaryType = "Referent"
 						refCtxArg = refs
-					elseif valueType == "Content" then
+					elseif binaryType == "Content" then
 						refCtxArg = refs
 					end
 
-					local encoder = Binary_Encoders[valueType]
-					local typeId = Type_Ids[valueType]
+					local encoder = Binary_Encoders[binaryType]
+					local typeId = Type_Ids[binaryType]
 					if typeId == Type_Ids.SharedString then
 						refCtxArg = sharedStringCtx
 					end
@@ -5264,7 +5267,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 
 					if encoder and typeId then
-						if prop.Category == "Class" then
+						if SaveNotCreatableWillBeEnabled and prop.Category == "Class" then
 							for i = 1, n do
 								if refIsInvalid(vals[i], valueType) then
 									vals[i] = nil
@@ -5278,9 +5281,11 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						propBuf:writeu8(typeId)
 
 						encoder(propBuf, vals, #objs, refCtxArg)
-						emit(buildChunk("PROP", propBuf, compress))
+						local chunk = buildChunk("PROP", propBuf, compress)
+						propChunks[#propChunks + 1] = chunk
+						totalsize += chunk.len + (chunk.str and #chunk.str or chunk.tailLen or 0)
 					else
-						warn("UNSUPPORTED BINARY TYPE (OPEN A GITHUB ISSUE): ", propName, valueType)
+						warn("UNSUPPORTED BINARY TYPE (OPEN A GITHUB ISSUE): ", propName, binaryType)
 					end
 				end
 			end
@@ -5317,6 +5322,10 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			table.insert(chunks, sstrSlot, chunk)
 
 			totalsize += chunk.len + (chunk.str and #chunk.str or chunk.tailLen or 0)
+		end
+
+		if #propChunks > 0 then
+			table.move(propChunks, 1, #propChunks, #chunks + 1, chunks)
 		end
 
 		-- PRNT chunk: two interleaved i32 zigzag-delta planes (object ref, parent ref)
