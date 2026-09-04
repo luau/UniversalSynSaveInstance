@@ -1,3 +1,5 @@
+<!-- ⚠️ Do not delete this template. Fill in every section below. Missing info = no support -->
+
 ---
 name: Bug report
 about: Create a report to help us improve
@@ -46,5 +48,5 @@ local Options = {NilInstances=true} -- Documentation here https://luau.github.io
 synsaveinstance(Options)
 ```
 
-**Additional context**
+**Additional context (optional)**
 Add any other context about the problem here.
