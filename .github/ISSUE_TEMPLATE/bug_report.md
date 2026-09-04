@@ -11,10 +11,10 @@ assignees: phoriah
 - [ ] I searched existing issues (both open & closed) and this isn't a duplicate
 
 **My Discord Tag**
-So that I can get in contact with you for testing if I need to
+<!-- So that I can get in contact with you for testing if I need to -->
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+<!-- A clear and concise description of what the bug is. -->
 
 **To Reproduce**
 Steps to reproduce the behavior:
@@ -24,7 +24,7 @@ Steps to reproduce the behavior:
 4. See error
 
 **Expected behavior**
-What did you expect to happen instead?
+<!-- What did you expect to happen instead? -->
 
 **Screenshots**
 *IMPORTANT: Please always include a console screenshot (F9 or `/console`; also show your executor's built-in console if it has one).*
@@ -48,5 +48,8 @@ local Options = {NilInstances=true} -- Documentation here https://luau.github.io
 synsaveinstance(Options)
 ```
 
+**Attached files(if any saved)**
+<!-- Upload saved files that you're having issues with to some platform like mega or google drive and attach link -->
+
 **Additional context (optional)**
-Add any other context about the problem here.
+<!-- Add any other context about the problem here. -->
