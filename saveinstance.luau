@@ -2639,6 +2639,7 @@ do
 				return value
 			end,
 		},
+		GuiObject = { Sink = "InputSink" },
 
 		-- Lighting = {
 		-- 	ExtendLightRangeTo120 = function() -- Seems default true now
