@@ -2806,16 +2806,16 @@ do
 		MeshPart = {
 			InitialSize = "MeshSize",
 			MeshID = "MeshId",
-			VertexCount = function(instance) -- RobloxSecurity
-				if RiskyServicesDisabled.UGC then
-					return __BREAK
-				end
-				local meshId = instance.MeshId
-				if meshId == "" then
-					return __BREAK
-				end
-				return #service.UGCValidationService:GetMeshVerts(meshId)
-			end,
+			-- VertexCount = function(instance) -- RobloxSecurity
+			-- 	if RiskyServicesDisabled.UGC then
+			-- 		return __BREAK
+			-- 	end
+			-- 	local meshId = instance.MeshId
+			-- 	if meshId == "" then
+			-- 		return __BREAK
+			-- 	end
+			-- 	return #service.UGCValidationService:GetMeshVerts(meshId)
+			-- end,
 		},
 		PartOperation = {
 			Content = function(instance)
