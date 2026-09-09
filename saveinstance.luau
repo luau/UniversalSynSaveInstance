@@ -2807,7 +2807,7 @@ do
 		MeshPart = {
 			InitialSize = "MeshSize",
 			MeshID = "MeshId",
-			-- VertexCount = function(instance) -- RobloxSecurity
+			-- VertexCount = function(instance) -- RobloxSecurity, Slow
 			-- 	if RiskyServicesDisabled.UGC then
 			-- 		return __BREAK
 			-- 	end
@@ -4669,11 +4669,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 
-		GHPVersionKey = sanitizeFileName(execName)
-			.. "_"
-			.. sanitizeFileName(execVersion)
-			.. "_"
-			.. sanitizeFileName(FULL_VERSION)
+		GHPVersionKey = sanitizeFileName(execName .. "_" .. execVersion .. "_" .. FULL_VERSION)
 
 		if readfile then
 			local ok, decoded = pcall(function()
@@ -4704,6 +4700,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		elseif persisted == "failed" or persisted == "crashed" then
 			state = false
 		else
+			StatusText.Text = "Testing ghp.. Rerun script if crashed"
+			wait_for_render()
+
 			GHPPersisted[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
 			saveGHPState()
 			state = true
@@ -6209,24 +6208,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 
-			do -- Xeno returns uses UGC and returns 0
-				local o, r = pcall(gethiddenproperty, game, "ForceR15")
-				if not o or type(r) ~= "boolean" then
-					gethiddenproperty = nil
-				end
-			end
-
 			if gethiddenproperty then
-				-- the shadow test (dep = "BinaryString") retests when BinaryString is ok because
-				-- shadowing has been observed to come and go between restarts - Wave.
-				local ard = Instance.new("AnimationRigData", Instance.new("Folder"))
+				-- Persisted datatype results are reused for this executor/client version;
+				-- the unkeyed shadow probe still runs each launch when its dependency is safe.
+				local ard = Instance.new("AnimationRigData")
 
 				local GHP_SELF_CHECKS = {
+					{
+						key = "boolean",
+						fatal = true,
+						test = function()
+							-- Xeno uses UGC and returns 0
+							local o, r = pcall(gethiddenproperty, game, "ForceR15")
+							return o and type(r) == "boolean"
+						end,
+					},
 					{
 						key = "Enum",
 						test = function()
 							local ok, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
-							return not (not ok or r ~= nil and typeof(r) ~= "EnumItem")
+							return ok and (r == nil or typeof(r) == "EnumItem")
 						end,
 					},
 					{
@@ -6234,7 +6235,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						test = function()
 							ard:SetAttribute("test", "test")
 							local ok, r = pcall(gethiddenproperty, ard, "AttributesSerialize")
-							return not (ok and r ~= "\1\0\0\0\4\0\0\0test\2\4\0\0\0test")
+							return ok and r == "\1\0\0\0\4\0\0\0test\2\4\0\0\0test"
 						end,
 					},
 					{
@@ -6242,12 +6243,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						test = function()
 							ard:AddTag("\1test\2\4test")
 							local ok, r = pcall(gethiddenproperty, ard, "Tags")
-							return not (ok and r ~= "\1test\2\4test")
+							return ok and r == "\1test\2\4test"
 						end,
 					},
 					{
 						dep = "BinaryString",
 						test = function()
+							ard.Parent = Instance.new("Folder")
 							local ok, r = pcall(gethiddenproperty, ard, "parent")
 							GHPShadowed = ok and r ~= nil and type(r) ~= "string"
 							return not GHPShadowed
@@ -6255,10 +6257,18 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					},
 				}
 
+				local statusShown
 				for _, check in GHP_SELF_CHECKS do
 					local key = check.key
-					if key and GHPPersisted[key] then
+					if key then
+						local state = GHPPersisted[key]
+						if state then
+							if check.fatal and state ~= "ok" then
+								gethiddenproperty = nil
+								break
+							end
 						continue
+						end
 					end
 
 					if check.dep and GHPPersisted[check.dep] == "crashed" then
@@ -6270,14 +6280,19 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						saveGHPState()
 					end
 
+					if not statusShown then
+						statusShown = true
+						StatusText.Text = "Testing ghp. Rerun script if crashed"
+						wait_for_render()
+					end
 					local ok, passed = pcall(check.test)
-
-					if not (ok and passed) then
+					passed = ok and passed
 						if key then
-							ghpDatatypeReport(key, false)
+						ghpDatatypeReport(key, passed)
 						end
-					elseif key then
-						ghpDatatypeReport(key, true)
+					if not passed and check.fatal then
+						gethiddenproperty = nil
+						break
 					end
 				end
 			end
