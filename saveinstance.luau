@@ -502,11 +502,11 @@ end
 local function pokeU32Planes(sbuf, o, n, v)
 	local buf = sbuf.buf
 	local wu8 = buffer.writeu8
-	local rshift, band = bit32.rshift, bit32.band
+	local rshift = bit32.rshift
 	wu8(buf, o, rshift(v, 24))
-	wu8(buf, o + n, band(rshift(v, 16), 0xFF))
-	wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
-	wu8(buf, o + 3 * n, band(v, 0xFF))
+	wu8(buf, o + n, rshift(v, 16))
+	wu8(buf, o + 2 * n, rshift(v, 8))
+	wu8(buf, o + 3 * n, v)
 end
 
 local function pokeU64Planes(sbuf, o, n, hi, lo)
@@ -516,15 +516,15 @@ end
 
 local function interleavedU32Plane(sbuf, n, base, getU32ForIndex)
 	local buf = sbuf.buf
-	local rshift, band = bit32.rshift, bit32.band
+	local rshift = bit32.rshift
 	local wu8 = buffer.writeu8
 	for i = 1, n do
 		local v = getU32ForIndex(i)
 		local o = base + (i - 1)
 		wu8(buf, o, rshift(v, 24))
-		wu8(buf, o + n, band(rshift(v, 16), 0xFF))
-		wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
-		wu8(buf, o + 3 * n, band(v, 0xFF))
+		wu8(buf, o + n, rshift(v, 16))
+		wu8(buf, o + 2 * n, rshift(v, 8))
+		wu8(buf, o + 3 * n, v)
 	end
 end
 
@@ -532,7 +532,7 @@ end
 -- INST referents, PRNT object/parent, Referent props, Content ObjectRefs.
 local function writeRefPlane(sbuf, n, base, getRef)
 	local buf = sbuf.buf
-	local rshift, band = bit32.rshift, bit32.band
+	local rshift = bit32.rshift
 	local wu8 = buffer.writeu8
 	local lastRef = nil
 	for i = 1, n do
@@ -542,9 +542,9 @@ local function writeRefPlane(sbuf, n, base, getRef)
 		local v = zigzag32(acc)
 		local o = base + (i - 1)
 		wu8(buf, o, rshift(v, 24))
-		wu8(buf, o + n, band(rshift(v, 16), 0xFF))
-		wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
-		wu8(buf, o + 3 * n, band(v, 0xFF))
+		wu8(buf, o + n, rshift(v, 16))
+		wu8(buf, o + 2 * n, rshift(v, 8))
+		wu8(buf, o + 3 * n, v)
 	end
 end
 
@@ -553,7 +553,7 @@ end
 local function planeEncoder(...)
 	local getters = { ... }
 	local k = #getters
-	local rshift, band = bit32.rshift, bit32.band
+	local rshift = bit32.rshift
 	local wu8 = buffer.writeu8
 	return function(sbuf, vals, n)
 		local base = sbuf:allocRegion(4 * k * n)
@@ -566,9 +566,9 @@ local function planeEncoder(...)
 				local v = getter(vals[i])
 				local o = pbase + (i - 1)
 				wu8(buf, o, rshift(v, 24))
-				wu8(buf, o + n, band(rshift(v, 16), 0xFF))
-				wu8(buf, o + 2 * n, band(rshift(v, 8), 0xFF))
-				wu8(buf, o + 3 * n, band(v, 0xFF))
+				wu8(buf, o + n, rshift(v, 16))
+				wu8(buf, o + 2 * n, rshift(v, 8))
+				wu8(buf, o + 3 * n, v)
 			end
 		end
 	end
@@ -662,7 +662,7 @@ local function writeCFrameBody(sbuf, vals, n, existsOut)
 	local posBase = sbuf:allocRegion(12 * n)
 	local planes = { coordsX, coordsY, coordsZ }
 	local cbuf = sbuf.buf
-	local lr, rshift, band = bit32.lrotate, bit32.rshift, bit32.band
+	local lr, rshift = bit32.lrotate, bit32.rshift
 	local bf32, ru32, bwu8 = buffer.writef32, buffer.readu32, buffer.writeu8
 	for p = 1, 3 do
 		local coords = planes[p]
@@ -672,9 +672,9 @@ local function writeCFrameBody(sbuf, vals, n, existsOut)
 			local v = lr(ru32(scratch, 0), 1)
 			local o = pbase + (i - 1)
 			bwu8(cbuf, o, rshift(v, 24))
-			bwu8(cbuf, o + n, band(rshift(v, 16), 0xFF))
-			bwu8(cbuf, o + 2 * n, band(rshift(v, 8), 0xFF))
-			bwu8(cbuf, o + 3 * n, band(v, 0xFF))
+			bwu8(cbuf, o + n, rshift(v, 16))
+			bwu8(cbuf, o + 2 * n, rshift(v, 8))
+			bwu8(cbuf, o + 3 * n, v)
 		end
 	end
 end
@@ -1147,8 +1147,11 @@ local Binary_Encoders = {
 	["float"] = planeEncoder(rotf),
 
 	["double"] = function(sbuf, vals, n)
+		local base = sbuf:allocRegion(8 * n)
+		local buf = sbuf.buf
+		local wf64 = buffer.writef64
 		for i = 1, n do
-			sbuf:writef64(vals[i])
+			wf64(buf, base + (i - 1) * 8, vals[i])
 		end
 	end,
 
@@ -4226,7 +4229,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 					"LocalizationService", -- For LocalizationTables
 					-- "InsertService",
-					"JointsService",
+					-- "JointsService",
 
 					-- "TestService",
 					-- "VoiceChatService",
@@ -5195,9 +5198,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end)
 
 			if isService then
-				for _ = 1, n do
-					instBuf:writeu8(1)
-				end
+				buffer.fill(instBuf.buf, instBuf:allocRegion(n), 1, n)
 			end
 
 			emit(buildChunk("INST", instBuf, compress))
@@ -5355,17 +5356,24 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			emit(buildChunk("END\0", endBuf, nil))
 		end
 
-		-- Single exact-size allocation, one per chunk part.
+		-- Preserve one output string per logical chunk without concatenating
+		-- temporary strings. Each chunk gets one exact allocation and copy pass.
 		local out = table.create(#chunks)
-
 		for i, c in chunks do
-			local part = buffer.readstring(c.buf, 0, c.len)
-			if c.str then
-				part ..= c.str
-			elseif c.tailBuf then
-				part ..= buffer.readstring(c.tailBuf, 0, c.tailLen)
+			local payloadLen = c.str and #c.str or c.tailLen or 0
+			if payloadLen == 0 then
+				out[i] = buffer.readstring(c.buf, 0, c.len)
+				continue
 			end
-			out[i] = part
+
+			local chunkBuf = buffer.create(c.len + payloadLen)
+			buffer.copy(chunkBuf, 0, c.buf, 0, c.len)
+			if c.str then
+				buffer.writestring(chunkBuf, c.len, c.str)
+			else
+				buffer.copy(chunkBuf, c.len, c.tailBuf, 0, payloadLen)
+			end
+			out[i] = buffer.tostring(chunkBuf)
 		end
 
 		return out
