@@ -164,6 +164,12 @@ pcall(function()
 	makefolder(USSI_FOLDER)
 end)
 
+local REFLECTION_FILTER = {
+	Security = SecurityCapabilities.new(unpack(Enum.SecurityCapability:GetEnumItems())),
+	ExcludeDisplay = true,
+	ExcludeInherited = true,
+}
+
 local Type_Ids = {
 	["string"] = 1,
 	["bool"] = 2,
@@ -3065,9 +3071,6 @@ do
 
 		local API_Dump
 
-		local Max_SecurityCapabilities = SecurityCapabilities.new(unpack(Enum.SecurityCapability:GetEnumItems()))
-		local filter = { Security = Max_SecurityCapabilities, ExcludeDisplay = true, ExcludeInherited = true }
-
 		-- ! exact version match is preferred, mismatched dump versions might result in saveinstance trying to save properties that your client doesn't have yet
 		local APIDUMP_FETCHERS = {
 			[1] = function()
@@ -3216,7 +3219,7 @@ do
 					Region3Int16 = "Region3int16",
 				}
 
-				for _, api_class in service.ReflectionService:GetClasses(filter) do
+				for _, api_class in service.ReflectionService:GetClasses(REFLECTION_FILTER) do
 					local members, members_size = {}, 1
 					local className = api_class.Name
 
@@ -3244,7 +3247,7 @@ do
 						service.ReflectionService.GetPropertiesOfClass,
 						service.ReflectionService,
 						className,
-						filter
+						REFLECTION_FILTER
 					) -- ? Might produce errors (ex. RolloutValidation) therefore pcall
 					if o then
 						for _, property in r do
@@ -3407,7 +3410,7 @@ do
 										service.ReflectionService.GetPropertiesOfClass,
 										service.ReflectionService,
 										ClassName,
-										filter
+										REFLECTION_FILTER
 									)
 									if o then
 										for _, property in properties do
@@ -3973,7 +3976,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	local InstancesOverrides = {}
 	local ClassSerializableCache = {}
 	local ReflectionUsable
-	local HasAutoRemaps = false
+	local HasAutoRemaps
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
 		arrayToDict(OPTIONS.DecompileIgnore, true),
@@ -4634,7 +4637,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		local function getSerialized(name)
 			return pcall(function()
-				return service.ReflectionService:GetClass(name).Serialized -- ! Some executors (like Xeno) error on ReflectionService due to their ProxyService
+				return service.ReflectionService:GetClass(name, REFLECTION_FILTER).Serialized -- ! Some executors (like Xeno) error on ReflectionService due to their ProxyService
 			end)
 		end
 
@@ -5014,6 +5017,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 					unknownTag, class, propClass = class, "Folder", "Instance"
 				end
+			elseif tagOverride == "Folder" then
+				propClass = "Instance"
 			end
 
 			local e = {
