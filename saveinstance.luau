@@ -3971,6 +3971,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local InstancesOverrides = {}
+	local ClassSerializableCache = {}
+	local ReflectionUsable
+	local HasAutoRemaps = false
 
 	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
 		arrayToDict(OPTIONS.DecompileIgnore, true),
@@ -4623,11 +4626,48 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		return InstanceOverride
 	end
 
+	local function isClassSerializable(className)
+		local known = ClassSerializableCache[className]
+		if known ~= nil then
+			return known
+		end
+
+		local function getSerialized(name)
+			return pcall(function()
+				return service.ReflectionService:GetClass(name).Serialized -- ! Some executors (like Xeno) error on ReflectionService due to their ProxyService
+			end)
+		end
+
+		if ReflectionUsable == nil then
+			local ok, partSerialized = getSerialized("Part")
+			ReflectionUsable = not RiskyServicesDisabled.Reflection and ok and partSerialized == true
+		end
+
+		local serializable = true
+		if ReflectionUsable then
+			local ok, serialized = getSerialized(className)
+			serializable = not ok or serialized == true -- ? Serialized is either true or nil, NEVER false
+		end
+
+		ClassSerializableCache[className] = serializable
+		return serializable
+	end
+
 	local function refIsInvalid(target, valueType)
-		if not SaveNotCreatableWillBeEnabled or not target then
+		if not target then
 			return false
 		end
-		local fix = NotCreatableFixes[target.ClassName]
+		local className = target.ClassName
+
+		local fix = NotCreatableFixes[className] or nil
+		if fix then
+			if not SaveNotCreatableWillBeEnabled then
+				return false -- collect drops these outright rather than remapping them
+			end
+		elseif not isClassSerializable(className) then
+			-- collect remaps these no matter what SaveNotCreatable says
+			fix = "Folder"
+		end
 		return fix ~= nil and (valueType ~= "Instance" and valueType ~= fix)
 	end
 
@@ -4965,6 +5005,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				elseif TreatUnionsAsParts and instance:IsA("PartOperation") then
 					class, override = "Part", replaceClassName(instance, name, class)
 					propClass = "BasePart"
+				elseif not isClassSerializable(class) then
+					class, override, propClass = "Folder", replaceClassName(instance, name, class), "Instance"
+					HasAutoRemaps = true
 				elseif not ClassList[class] then
 					if __DEBUG_MODE then
 						__DEBUG_MODE("Class not Found", class)
@@ -5271,7 +5314,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					end
 
 					if encoder and typeId then
-						if SaveNotCreatableWillBeEnabled and prop.Category == "Class" then
+						if (SaveNotCreatableWillBeEnabled or HasAutoRemaps) and prop.Category == "Class" then
 							for i = 1, n do
 								if refIsInvalid(vals[i], valueType) then
 									vals[i] = nil
