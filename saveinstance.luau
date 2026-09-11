@@ -4959,6 +4959,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						return -- They won't show up in Studio anyway (Enable SaveNotCreatable if you wish to bypass this)
 					end
 					class, override = fix, replaceClassName(instance, name, class)
+					if class == "Folder" then
+						propClass = "Instance"
+					end
 				elseif TreatUnionsAsParts and instance:IsA("PartOperation") then
 					class, override = "Part", replaceClassName(instance, name, class)
 					propClass = "BasePart"
@@ -4966,7 +4969,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					if __DEBUG_MODE then
 						__DEBUG_MODE("Class not Found", class)
 					end
-					unknownTag, class = class, "Folder"
+					unknownTag, class, propClass = class, "Folder", "Instance"
 				end
 			end
 
