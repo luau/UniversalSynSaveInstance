@@ -6291,6 +6291,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					},
 					{
 						key = "BinaryString",
+						retest = true,
 						test = function()
 							ard:SetAttribute("test", "test")
 							local ok, r = pcall(gethiddenproperty, ard, "AttributesSerialize")
@@ -6321,12 +6322,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 					local key = check.key
 					if key then
 						local state = GHPPersisted[key]
-						if state then
-							if check.fatal and state ~= "ok" then
+						if state == "crashed" then
+							if check.fatal then
 								gethiddenproperty = nil
 								break
 							end
 						continue
+						elseif state and check.fatal and state ~= "ok" then
+							gethiddenproperty = nil
+							break
+						elseif state and not check.retest then
+							continue
 						end
 					end
 
