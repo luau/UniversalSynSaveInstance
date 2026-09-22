@@ -4725,13 +4725,18 @@ local function synsaveinstance(...)
 		elseif persisted == "failed" or persisted == "crashed" then
 			state = false
 		else
-			local text = StatusText.Text
+			local text
+			if StatusText then
+				text = StatusText.Text
 			StatusText.Text = "Testing ghp.. Rerun script if crashed"
+			end
 			wait_for_render()
 
 			GHPPersisted[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
 			saveGHPState()
+			if StatusText then
 			StatusText.Text = text
+			end
 			state = true
 		end
 
@@ -6301,9 +6306,11 @@ local function synsaveinstance(...)
 						saveGHPState()
 					end
 
-					if not statusShown then
+					if StatusText and not statusShown then
 						statusShown = true
+						if StatusText then
 						StatusText.Text = "Testing ghp. Rerun script if crashed"
+						end
 						wait_for_render()
 					end
 					local ok, passed = pcall(check.test)
