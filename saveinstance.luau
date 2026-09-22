@@ -3640,7 +3640,7 @@ end
 	@param Parameter_2 table -- [OPTIONAL] If present, then Parameter_2 will be assumed to be [SynSaveInstance.CustomOptions table]. And then if the Parameter_1 is an Instance, then it will be assumed to be [SynSaveInstance.CustomOptions table].Object. If Parameter_1 is a table filled with instances ({Instance}), then it will be assumed to be [SynSaveInstance.CustomOptions table].ExtraInstances and IsModel will be true). This exists for sake compatibility with `saveinstance(game, {})`
 ]=]
 
-local function synsaveinstance(CustomOptions, CustomOptions2)
+local function synsaveinstance(...)
 	if GLOBAL_ENV.USSI then
 		return
 	end
@@ -3779,6 +3779,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		},
 	}
 	local OPTIONS_lowercase, OptionsAliasesInverse_lowercase, CustomOptions_valid = {}, {}, {}
+	local CustomOptions = {} -- * Merged options tables from the arguments (raw keys preserved)
 
 	do
 		local function buildMap(dest, source, warnLabel)
@@ -3855,28 +3856,22 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		OPTIONS.NilInstancesFixes.BaseWrap = makeNilinstanceFix("BaseWrap must be parented to a MeshPart", "MeshPart")
 		OPTIONS.NilInstancesFixes.PackageLink = makeNilinstanceFix("Package already has a PackageLink", "Folder", true)
 
-		if CustomOptions2 and type(CustomOptions2) == "table" then
-			local tmp = CustomOptions
-			local Type = typeof(tmp)
-			CustomOptions = CustomOptions2
-			if Type == "Instance" then
-				CustomOptions.Object = tmp
-			elseif Type == "table" and typeof(tmp[1]) == "Instance" then
-				CustomOptions.ExtraInstances = tmp
-				OPTIONS.IsModel = true
-			end
-		end
+		local args = table.pack(...)
+		local directInstances = false
 
-		local Type = typeof(CustomOptions)
+		for i = 1, args.n do
+			local arg = args[i]
+			local Type = typeof(arg)
 
 		if Type == "table" then
-			if typeof(CustomOptions[1]) == "Instance" then
-				OPTIONS.mode = "invalidmode"
-				OPTIONS.ExtraInstances = CustomOptions
+				if typeof(arg[1]) == "Instance" then -- * Array of Instances
+					OPTIONS.ExtraInstances = arg
 				OPTIONS.IsModel = true
-				CustomOptions = {}
+					directInstances = true
 			else
-				for key, value in CustomOptions do
+					for key, value in arg do
+						CustomOptions[key] = value
+
 					local k = string.lower(key)
 
 					local option = OPTIONS_lowercase[k]
@@ -3901,11 +3896,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 		elseif Type == "Instance" then
+				OPTIONS.Object = arg
+				directInstances = true
+			elseif Type == "string" then
+				OPTIONS.FilePath = arg
+			end
+		end
+
+		if directInstances and CustomOptions_valid.mode == nil then
 			OPTIONS.mode = "invalidmode"
-			OPTIONS.Object = CustomOptions
-			CustomOptions = {}
-		else
-			CustomOptions = {}
 		end
 	end
 
