@@ -1,3 +1,10 @@
+-- local gethiddenproperty = function(instance, property)
+-- 	return game:GetService("UGCValidationService"):GetPropertyValue(instance, property)
+-- end
+-- s = ""
+-- local function print(...)
+-- 	s ..= table.concat({ ... })
+-- end
 assert(gethiddenproperty, "Executor is missing gethiddenproperty, aborting test")
 local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 local EXECUTOR_NAME = identify_executor and identify_executor() or "Missing identifyexecutor Function"
@@ -16,7 +23,13 @@ local function test(instance, propertyname, valuetype)
 			print("⛔ " .. valuetype .. " " .. tostring(result))
 			FailedTests += 1
 		else
-			print("✅ " .. valuetype)
+			print(
+				"✅ " .. valuetype,
+				type(result) == "table" and game.HttpService:JSONEncode(result)
+					or typeof(result) == "buffer" and base64encode(buffer.tostring(result))
+					or tostring(result),
+				typeof(result)
+			)
 			PassedTests += 1
 		end
 	else
@@ -47,7 +60,7 @@ test(findinstance("TextSource"), "UserIdReplicated", "int64")
 test(Instance.new("Sound"), "TimePositionReplicator", "double")
 test(workspace.Terrain, "GrassLength", "float")
 test(Instance.new("InputAction"), "Direction2DState", "Vector2")
-test(test_PART, "size", "Vector3")
+test(test_UNION, "InitialSize", "Vector3")
 test(test_PART, "Origin", "CFrame")
 test(test_WRAPLAYER, "Color", "Color3")
 test(Instance.new("UIListLayout"), "HorizontalPadding", "UDim")
@@ -94,3 +107,4 @@ print("✅ Tested with a " .. rate .. "% success rate (" .. outOf .. ")")
 print("⛔ " .. FailedTests .. " tests failed")
 print("🟠 " .. NilResults .. " types resulted in a nil value")
 print("⏺️ " .. NotTested .. " types were not tested")
+-- setclipboard(s)

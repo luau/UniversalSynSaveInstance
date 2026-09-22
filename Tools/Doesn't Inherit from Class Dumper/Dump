@@ -1,4 +1,4 @@
-version-9e2e9085d9794dd1
+version-93202a13414c4131
 
 Classes that do NOT inherit from Object:
 ----------------------------------------
@@ -6,6 +6,7 @@ All classes inherit from Object
 
 Classes that do NOT inherit from Instance:
 ----------------------------------------
+AnimatedImageTrack does not inherit from Instance
 AnimationNode does not inherit from Instance
 Capture does not inherit from Instance
 ConfigSnapshot does not inherit from Instance

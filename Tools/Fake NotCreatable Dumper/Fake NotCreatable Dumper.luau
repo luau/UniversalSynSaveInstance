@@ -70,7 +70,7 @@ do
 		table.insert(keys, classname)
 	end
 	table.sort(keys)
-	local s = `{version()}\nDoesnt get everything; Also varies per executor; Tested on {table.concat(
+	local s = `{version()}\nDoesnt get everything; Also varies per; Tested on {table.concat(
 		{ identifyexecutor() },
 		" "
 	)}\n\n`

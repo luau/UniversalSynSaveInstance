@@ -1,4 +1,4 @@
-version-9e2e9085d9794dd1
+version-55808de4b1914919
 
 AnimationClip.GuidBinaryString {BinaryString}
 
@@ -34,6 +34,8 @@ BevelMesh.Bulge {float}
 
 BinaryStringValue.Value {BinaryString}
 
+ControlState.StateSchema {BinaryString}
+
 CustomEvent.PersistedCurrentValue {float}
 
 DebuggerBreakpoint.line {int}
@@ -58,6 +60,9 @@ formFactorRaw -> FormFactor {POTENTIAL PROXY Enum}
 formFactorRaw -> formFactor {POTENTIAL PROXY Enum}
 
 FunctionalTest.HasMigratedSettingsToTestService {bool}
+
+GuiObject.Sink {InputSink}
+Sink -> InputSink {POTENTIAL PROXY Enum}
 
 HapticEffect.WaveformData {BinaryString}
 
@@ -184,8 +189,6 @@ Path2D.PropertiesSerialize {BinaryString}
 
 Player.RawJoinData {BinaryString}
 
-PlayerControlState.StateSchema {BinaryString}
-
 Players.BanningEnabled {bool}
 Players.UseStrafingAnimations {bool}
 
@@ -300,6 +303,7 @@ Workspace.IKControlConstraintSupport {IKControlConstraintSupport}
 Workspace.ImprovedAnimationConstraint {RolloutState}
 Workspace.ImprovedPhysicsReplication {RolloutState}
 Workspace.LayeredClothingCacheOptimizations {RolloutState}
+Workspace.MapTVRemoteToGamepadKeycodes {RolloutState}
 Workspace.MeshPartHeadsAndAccessories {MeshPartHeadsAndAccessories}
 Workspace.MeshStreamingAndImprovedLods {RolloutState}
 Workspace.ModelStreamingBehavior {ModelStreamingBehavior}
@@ -323,6 +327,7 @@ Workspace.TerrainWeldsFixed {bool}
 Workspace.TouchEventsUseCollisionGroups {RolloutState}
 Workspace.TouchesUseCollisionGroups {bool}
 Workspace.UseFixedSimulation {RolloutState}
+Workspace.UseInputSink {RolloutState}
 Workspace.UseNewLuauTypeSolver {RolloutState}
 Workspace.ValidateEnabledProximityPrompt {RolloutState}
 ValidateEnabledProximityPrompt -> EnableSLIMAvatars {POTENTIAL PROXY Enum}
@@ -330,6 +335,7 @@ ValidateEnabledProximityPrompt -> ExpandedTerrain {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> ImprovedAnimationConstraint {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> ImprovedPhysicsReplication {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> LayeredClothingCacheOptimizations {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> MapTVRemoteToGamepadKeycodes {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> MeshStreamingAndImprovedLods {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> NextGenerationReplication {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> NextGenerationReplicationAlias {POTENTIAL PROXY Enum}
@@ -338,6 +344,7 @@ ValidateEnabledProximityPrompt -> PlayerScriptsUseInputActionSystemAlias {POTENT
 ValidateEnabledProximityPrompt -> TouchEventsUseCollisionGroups {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> UseFixedSimulation {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> UseFixedSimulationAlias {POTENTIAL PROXY Enum}
+ValidateEnabledProximityPrompt -> UseInputSink {POTENTIAL PROXY Enum}
 ValidateEnabledProximityPrompt -> UseNewLuauTypeSolver {POTENTIAL PROXY Enum}
 SignalBehavior2 -> SignalBehavior {POTENTIAL PROXY Enum}
 SignalBehavior2 -> SignalBehaviorAlias {POTENTIAL PROXY Enum}

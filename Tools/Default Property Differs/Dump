@@ -1,11 +1,14 @@
-Version v1: version-9e2e9085d9794dd1
-Version v2: version-9e2e9085d9794dd1
+Version v1: version-55808de4b1914919
+Version v2: version-55808de4b1914919
 ================================================================================
 
 
-Different Default values (798):
+Different Default values (803):
 ----------------------------------------
   AccessoryDescription.Instance
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  AdPlacement.ActivationInstance
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
   AnimationConstraint.Part0
@@ -422,6 +425,12 @@ Different Default values (798):
   ContentProvider.RequestQueueSize
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
+  ControlState.Owner
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  ControlState.StateSchema
+    v1: ''
+    v2: '__api_dump_not_serializable__'
   ControllerManager.ActiveController
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -508,7 +517,7 @@ Different Default values (798):
     v2: '1'
   DebugSettings.InstanceCount
     v1: '__api_dump_skipped_class__'
-    v2: '957'
+    v2: '972'
   DebugSettings.IsScriptStackTracingEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'true'
@@ -523,7 +532,7 @@ Different Default values (798):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.736.0.7361342'
+    v2: '0.739.0.7390687'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -931,10 +940,10 @@ Different Default values (798):
     v2: 'nullptr'
   NetworkSettings.EmulatedTotalMemoryInMB
     v1: '__api_dump_skipped_class__'
-    v2: '239999'
+    v2: '109999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '207247.469'
+    v2: '96878.0781'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1424,12 +1433,6 @@ Different Default values (798):
   Player.userId
     v1: '__api_dump_skipped_class__'
     v2: '0'
-  PlayerControlState.Owner
-    v1: '__api_dump_no_string_value__'
-    v2: 'nullptr'
-  PlayerControlState.StateSchema
-    v1: ''
-    v2: '__api_dump_not_serializable__'
   PlayerEmulatorService.SerializedEmulatedPolicyInfo
     v1: ''
     v2: '__api_dump_not_serializable__'
@@ -1654,7 +1657,7 @@ Different Default values (798):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: 'a3fec3a7fbbe9476d124238e8cd4ba3c81d50ac
+    v2: '1e7cf1599bf642851d8b4a1406cea32ab11df68
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1832,6 +1835,15 @@ Different Default values (798):
   StarterGui.VirtualCursorMode
     v1: '__api_dump_class_not_creatable__'
     v2: 'Default'
+  StarterPlayer.PlaceAvatarRules
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  StateMachineTransitionDefinition.From
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
+  StateMachineTransitionDefinition.To
+    v1: '__api_dump_no_string_value__'
+    v2: 'nullptr'
   Stats.ContactsCount
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1852,7 +1864,7 @@ Different Default values (798):
     v2: '0'
   Stats.InstanceCount
     v1: '__api_dump_class_not_creatable__'
-    v2: '1759'
+    v2: '1789'
   Stats.MemoryTrackingEnabled
     v1: '__api_dump_class_not_creatable__'
     v2: 'true'
@@ -1994,6 +2006,9 @@ Different Default values (798):
   TextChannel.DirectChatRequester
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
+  TextChannelWindow.FontFace
+    v1: '__api_dump_no_string_value__'
+    v2: '<Font name="FontFace">\n\t<Family><url>
   TextChannelWindow.Target
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -2402,8 +2417,8 @@ Different Default values (798):
 
 ================================================================================
 Summary:
-  Total: 4029
-  Same: 3231
-  Different: 798
+  Total: 4070
+  Same: 3267
+  Different: 803
   Only v1: 0
   Only v2: 0

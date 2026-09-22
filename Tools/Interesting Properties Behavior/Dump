@@ -1,4 +1,4 @@
-version-9e2e9085d9794dd1
+version-93202a13414c4131
 
 AccessoryDescription.Puffiness {Deprecated} {CanSave}
 
@@ -6,6 +6,8 @@ AdPortal.PortalVersion {CanSave Only}
 
 AnalyticsService.ApiKey {Deprecated} {CanSave}
 AnalyticsService is NotCreatable but AnalyticsService.ApiKey has default: ""
+
+AnimatedImage is NotCreatable but AnimatedImage.PlaybackSpeed has default: "1"
 
 AnimationClip.Length {CanSave Only}
 
@@ -285,7 +287,7 @@ GuiObject.BackgroundColor {CanLoad Only} {Deprecated}
 GuiObject.BorderColor {CanLoad Only} {Deprecated}
 GuiObject.Draggable {Deprecated} {CanSave}
 GuiObject.GuiState {CanSave Only}
-GuiObject.Transparency {CanLoad Only}
+GuiObject.Transparency {CanLoad Only} {Deprecated}
 
 GuiService.MenuIsOpen {CanSave Only}
 
@@ -833,6 +835,7 @@ Properties with NotScriptable tag: 130
   - BaseWrap.HSRData
   - BaseWrap.HSRMeshIdData
   - BinaryStringValue.Value
+  - ControlState.StateSchema
   - EditableImage.ImageData
   - EditableImage.ImageHolder
   - EditableMesh.EditableMeshDataHolder
@@ -867,7 +870,6 @@ Properties with NotScriptable tag: 130
   - PartOperationAsset.MeshData
   - Path2D.PropertiesSerialize
   - Player.RawJoinData
-  - PlayerControlState.StateSchema
   - PlayerGui.InputBindingMappingsRaw
   - RolloutValidation.FirstBinaryString
   - RolloutValidation.FirstSharedString
@@ -923,7 +925,9 @@ NotCreatable classes that inherit from creatable classes: 7
 ==================================================
 CREATABLE SIBLINGS OF NOTCREATABLE CLASSES
 ==================================================
-NotCreatable classes that have creatable siblings: 33
+NotCreatable classes that have creatable siblings: 34
+  - AnimatedImage (parent: GuiBase) has creatable siblings:
+      - Path2D
   - BackpackItem (parent: Model) has creatable siblings:
       - Actor
       - ProceduralModel

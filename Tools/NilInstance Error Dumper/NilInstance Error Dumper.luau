@@ -122,7 +122,7 @@ do
 	end
 end
 local F = Instance.new("Folder")
-local s = `{version()}\nDoesnt get everything; Also varies per executor; Tested on {table.concat(
+local s = `{version()}\nDoesnt get everything; Also varies per; Tested on {table.concat(
 	{ identifyexecutor() },
 	" "
 )}\n\n`

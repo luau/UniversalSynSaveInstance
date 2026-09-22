@@ -38,8 +38,6 @@ Users are responsible for ensuring their usage complies with all applicable rule
 The maintainers do not support or condone misuse of this software and are not responsible for how it is used.
 
 > [!TIP]
-> Important part about this saveinstance is that it doesn't modify game state, which helps maintain stability and compatibility.<br />
-> You can also enable the `SafeMode` option to improve compatibility and ensure more reliable saving across a wide range of experiences.<br /><br /> You can read more about it here [Documentation]
 > If this script is helpful to you, please click `⭐ Star` in the upper right corner of the page to support it, thank you!
 
 # Documentation
@@ -122,12 +120,7 @@ resources include:
 [@Dekkonot]: https://github.com/Dekkonot
 [@mblouka]: https://github.com/mblouka
 [@LorekeeperZinnia]: https://github.com/LorekeeperZinnia
-[bit32]: https://create.roblox.com/docs/reference/engine/libraries/bit32
-[buffer]: https://create.roblox.com/docs/reference/engine/libraries/buffer
-[pack]: https://create.roblox.com/docs/reference/engine/libraries/string#pack
-[unpack]: https://create.roblox.com/docs/reference/engine/libraries/string#unpack
-[string]: https://create.roblox.com/docs/reference/engine/libraries/string
-[KRNL-like saveinstance Options]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
+[saveinstance Options]: https://app.archbee.com/public/PREVIEW-2Jp4SDaAD4P1COFfx1p_t/PREVIEW-EtjA4sQe5zYUxIHwA6CqJ#mDB9D
 [Rojo Rbx Dom Xml]: https://github.com/rojo-rbx/rbx-dom/blob/master/docs/xml.md
 [Rojo Rbx Dom Binary]: https://github.com/rojo-rbx/rbx-dom/blob/master/docs/binary.md
 [Luau Syntax]: https://luau-lang.org/syntax

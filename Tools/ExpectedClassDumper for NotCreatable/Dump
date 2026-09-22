@@ -1,4 +1,4 @@
-version-9e2e9085d9794dd1
+version-9fe94fb0e9d84c25
 
 AudioDeviceInput.Player {Player}
 
@@ -13,6 +13,8 @@ ChatInputBarConfiguration.TargetTextChannel {TextChannel}
 
 Constraint.Attachment0 {Attachment}
 Constraint.Attachment1 {Attachment}
+
+ControlState.Owner {Player}
 
 ControllerManager.ActiveController {ControllerBase}
 ControllerManager.ClimbSensor {ControllerSensor}
@@ -66,8 +68,6 @@ PathfindingLink.Attachment1 {Attachment}
 Player.Character {Model}
 Player.RespawnLocation {SpawnLocation}
 Player.Team {Team}
-
-PlayerControlState.Owner {Player}
 
 PlayerGui.SelectionImageObject {GuiObject}
 

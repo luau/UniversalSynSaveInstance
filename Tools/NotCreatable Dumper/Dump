@@ -1,4 +1,8 @@
-version-9e2e9085d9794dd1
+version-55808de4b1914919
+
+AnimatedImage
+
+AnimatedImageTrack
 
 AnimationClip
 
@@ -271,6 +275,8 @@ SlimAnimationDataEntity
 SoundEffect
 
 StackFrame
+
+StandardQueue
 
 StarterCharacterScripts
 

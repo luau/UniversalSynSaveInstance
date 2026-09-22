@@ -1,6 +1,10 @@
-version-9e2e9085d9794dd1
+version-55808de4b1914919
 
 AdGui.FallbackImageContent
+
+AdPlacement.RewardImageContent
+
+AnimatedImage.Content
 
 Animation.AnimationContent
 
@@ -25,6 +29,7 @@ Clothing.Outfit2Content
 
 Decal.ColorMapContent
 Decal.EmissiveMaskContent
+Decal.LocalizedTextureContent
 Decal.MetalnessMapContent
 Decal.NormalMapContent
 Decal.RoughnessMapContent

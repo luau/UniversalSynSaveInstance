@@ -1,14 +1,20 @@
-Version v1: version-9e2e9085d9794dd1
-Version v2: version-9e2e9085d9794dd1
+Version v1: version-55808de4b1914919
+Version v2: version-55808de4b1914919
 ================================================================================
 
 
-Different Tags (529):
+Different Tags (534):
 ----------------------------------------
   ActivityHistoryEventService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
   AdService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
+  AnimatedImage
+    v1: ['NotCreatable']
+    v2: ['NotCreatable', 'NotReplicated']
+  AnimatedImageService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
   AnimationClip
@@ -296,6 +302,9 @@ Different Tags (529):
   ContextActionService
     v1: ['NotCreatable', 'Service']
     v2: ['Service']
+  ControlState
+    v1: ['NotBrowsable']
+    v2: []
   Controller
     v1: ['NotCreatable']
     v2: []
@@ -641,9 +650,6 @@ Different Tags (529):
   GuiObject.BackgroundColor
     v1: ['Hidden', 'NotReplicated', 'Deprecated']
     v2: ['Hidden', 'NotReplicated']
-  GuiObject.BorderColor
-    v1: ['Hidden', 'NotReplicated', 'Deprecated']
-    v2: ['Hidden', 'NotReplicated']
   GuidRegistryService
     v1: ['NotCreatable', 'Service']
     v2: ['Service']
@@ -899,6 +905,9 @@ Different Tags (529):
   Model.GetPrimaryPartCFrame
     v1: ['Deprecated', {'PreferredDescriptorName': 'GetPivot', 'ThreadSafety': 'Safe'}]
     v2: ['Deprecated', {'PreferredDescriptorName': 'GetPivot', 'ThreadSafety': 'Unknown'}]
+  MomentsService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
   MotorFeature
     v1: ['Deprecated']
     v2: []
@@ -1009,9 +1018,6 @@ Different Tags (529):
     v2: []
   Player.SetUnder13
     v1: ['Deprecated']
-    v2: []
-  PlayerControlState
-    v1: ['NotBrowsable']
     v2: []
   PlayerGui
     v1: ['NotCreatable', 'PlayerReplicated']
@@ -1202,6 +1208,9 @@ Different Tags (529):
   ScriptService
     v1: ['NotCreatable', 'Service']
     v2: ['Service']
+  ScriptService.ResolveModulePath
+    v1: ['CustomLuaState']
+    v2: []
   Selection
     v1: ['NotCreatable', 'Service']
     v2: []
@@ -1368,6 +1377,9 @@ Different Tags (529):
     v1: ['CustomLuaState']
     v2: []
   Terrain.SmoothRegion
+    v1: ['CustomLuaState']
+    v2: []
+  Terrain.SmoothRegionMaterialSlots
     v1: ['CustomLuaState']
     v2: []
   Terrain.WriteVoxelChannels
@@ -1589,14 +1601,17 @@ Different Tags (529):
   WorldRoot.findPartsInRegion3
     v1: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Safe'}]
     v2: ['Deprecated', {'PreferredDescriptorName': 'GetPartBoundsInBox', 'ThreadSafety': 'Unknown'}]
+  WrapContentProvider
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
+    v2: ['NotCreatable', 'NotReplicated']
   WrapDeformMeshProvider
     v1: ['NotCreatable', 'Service', 'NotReplicated']
     v2: ['NotReplicated']
 
 ================================================================================
 Summary:
-  Total: 9275
-  Same: 8746
-  Different: 529
+  Total: 9387
+  Same: 8853
+  Different: 534
   Only v1: 0
   Only v2: 0
