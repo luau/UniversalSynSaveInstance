@@ -628,13 +628,14 @@ end
 local function writeCFrameBody(sbuf, vals, n, optional)
 	local coordsX, coordsY, coordsZ = table.create(n), table.create(n), table.create(n)
 	local wu8, wstr = sbuf.writeu8, sbuf.writestring
+	local identity = CFrame.identity
 
 	for i = 1, n do
 		local val = vals[i]
 
 		if optional then
 			if val == nil then
-				val = CFrame.identity
+				val = identity
 			end
 		end
 
@@ -1748,7 +1749,7 @@ do
 end
 
 local ClassList, FetchAPI
-local RiskyServicesDisabled = { UGC = false, Encoding = false, Reflection = false }
+local RiskyServicesDisabled
 do
 	local ClassPropertyExceptions = arrayToDict({
 		Whitelist = {
@@ -3184,7 +3185,7 @@ do
 				return dump
 			end,
 			[3] = function()
-				-- ! Some executors (like Xeno) error on ReflectionService.GetClasses due to their ProxyService
+				-- ! Some execs (like Xeno) error on ReflectionService.GetClasses due to their ProxyService
 				-- TODO At the time of writing this is missing a way to confirm NotCreatable & NotScriptable
 				-- also is missing some classes like UserGameSettings, not that important though as none of them appear under DataModel
 				if RiskyServicesDisabled.Reflection then
@@ -3541,7 +3542,7 @@ end
 --- @field CompressionMode string -- How chunks are compressed in binary mode: "zstd", "lz4", or false for none. ___Default:___ "zstd"
 --- @field CompressionLevel number -- Compression strength, higher is smaller but slower. Range is -7 to 22 inclusive. ___Default:___ 9
 --- @field CopyToClipboard boolean -- Puts the finished output on the clipboard instead of writing a file, so you can paste it straight into Studio. Best for small saves -- a full place is usually far too big for the clipboard to handle. ___Default:___ false
---- .RiskyServicesDisabled {UGC, Encoding, Reflection = boolean} -- Per-service kill switches for services games might detect. `UGC` skips UGCValidationService (GHP fallback reads, `MeshPart.VertexCount`). `Encoding` skips EncodingService (base64 encode/decode, zstd compression falls back to other funcs). `Reflection` skips ReflectionService (one of several API dump fallbacks, `Content` property lookups -- falls back to the other API dump sources). Examples: `{UGC = true}` disables only UGCValidationService; `{Encoding = true, Reflection = true}` disables both, leaving UGC untouched. ___Default:___ {UGC = false, Encoding = false, Reflection = false}
+--- .RiskyServicesDisabled {UGC, Encoding, Reflection = boolean} -- Per-service kill switches for services games might detect. `UGC` skips UGCValidationService (GHP fallback reads, `MeshPart.VertexCount`). `Encoding` skips EncodingService (base64 encode/decode, zstd compression falls back to other funcs). `Reflection` skips ReflectionService (one of several API dump fallbacks, `Content` property lookups -- falls back to the other API dump sources). Examples: `{UGC = true}` disables only UGCValidationService; `{Encoding = true, Reflection = true}` disables both, leaving UGC untouched. ___Default:___ {UGC = true, Encoding = false, Reflection = false}
 --- @field SafeMode boolean -- Kicks you before Saving, which keeps you safe. **HIGHLY RECOMMENDED TO KEEP ENABLED**. ___Default:___ false
 --- @field KillAllScripts boolean -- Kills all scripts to further protect you. SafeMode also enables this by default. If you can't move after saving then this is the reason. **HIGHLY RECOMMENDED TO KEEP ENABLED**. ___Default:___ false
 --- @field BoostFPS boolean -- Massively boosts FPS by disabling 3D rendering. Other options also enable it, like: SafeMode. ___Default:___ false
@@ -3579,8 +3580,8 @@ end
 --- @field SavePlayerCharacters boolean -- Save player characters while saving. ___Default:___ false
 --- @field SaveNotCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). Other options also enable it, like: IsolatePlayers, IsolateLocalPlayer, etc. ___Default:___ false
 --- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "", "Player", "PlayerScripts", "PlayerGui", "TouchTransmitter" }
---- @field AlternativeWritefile boolean -- * Splits file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. Though there is a risk of appendfile working incorrectly on some executors. ___Default:___ true
---- @field IgnoreDefaultPlayerScripts boolean -- * **RISKY**: Ignores Default PlayerScripts like PlayerModule & RbxCharacterSounds. Prevents crashes on certain Executors. ___Default:___ true
+--- @field AlternativeWritefile boolean -- * Splits file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. Though there is a risk of appendfile working incorrectly on some execs. ___Default:___ true
+--- @field IgnoreDefaultPlayerScripts boolean -- * **RISKY**: Ignores Default PlayerScripts like PlayerModule & RbxCharacterSounds. Prevents crashes on some execs. ___Default:___ true
 --- @field SharedBinaryStrings boolean -- Stores BinaryString values in a shared pool so identical ones are only written once, instead of repeating them for every instance. Good when many instances hold the same data (like copies of the same mesh) -- can make files noticeably smaller. Slightly bigger when everything is unique. Roblox doesn't officially support this, so there's a small chance it confuses Studio. ___Default:___ false
 --- @field TreatUnionsAsParts boolean -- * **RISKY:** Converts all UnionOperations to Parts. Useful if your Executor isn't able to save (read) Unions, because otherwise they will be invisible. ___Default:___ false (except Solara)
 
@@ -3744,7 +3745,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		-- ! Risky
 		RiskyServicesDisabled = {
-			UGC = false,
+			UGC = true,
 			Encoding = false,
 			Reflection = false,
 		},
@@ -3944,15 +3945,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		GLOBAL_ENV.USSI = nil
 		return
-	end
-
-	do
-		local RiskyOption = OPTIONS.RiskyServicesDisabled
-		if type(RiskyOption) == "table" then
-			RiskyServicesDisabled.UGC = RiskyOption.UGC
-			RiskyServicesDisabled.Encoding = RiskyOption.Encoding
-			RiskyServicesDisabled.Reflection = RiskyOption.Reflection
-		end
 	end
 
 	local InstancesOverrides = {}
@@ -4625,7 +4617,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 		local function getSerialized(name)
 			return pcall(function()
-				return service.ReflectionService:GetClass(name, REFLECTION_FILTER).Serialized -- ! Some executors (like Xeno) error on ReflectionService due to their ProxyService
+				return service.ReflectionService:GetClass(name, REFLECTION_FILTER).Serialized -- ! Some execs (like Xeno) error on ReflectionService due to their ProxyService
 			end)
 		end
 
@@ -4734,11 +4726,13 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 		elseif persisted == "failed" or persisted == "crashed" then
 			state = false
 		else
+			local text = StatusText.Text
 			StatusText.Text = "Testing ghp.. Rerun script if crashed"
 			wait_for_render()
 
 			GHPPersisted[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
 			saveGHPState()
+			StatusText.Text = text
 			state = true
 		end
 
@@ -5001,8 +4995,8 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			}
 			entries[instance] = e
 
+			refs[instance] = ctx.instCount
 			ctx.instCount += 1
-			refs[instance] = ctx.instCount - 1
 
 			local bucket = e.tag
 			if e.propsOnly then
@@ -6230,19 +6224,6 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	if not ClassList then -- means first run
 		do -- * Load Region of Déjà Vu
-			if not RiskyServicesDisabled.UGC then
-				local UGCValidationService -- = service.UGCValidationService
-
-				gethiddenproperty_fallback = function(instance, propertyName)
-					-- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
-					if not UGCValidationService then
-						UGCValidationService = service.UGCValidationService
-					end
-					return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
-					-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
-				end
-			end
-
 			if gethiddenproperty then
 				-- Persisted datatype results are reused for this executor/client version;
 				-- the unkeyed shadow probe still runs each launch when its dependency is safe.
@@ -6335,6 +6316,26 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 						gethiddenproperty = nil
 						break
 					end
+				end
+			end
+
+			local RiskyOption = OPTIONS.RiskyServicesDisabled
+			RiskyServicesDisabled = type(RiskyOption) == "table" and RiskyOption or {}
+
+			if not gethiddenproperty and CustomOptions.RiskyServicesDisabled == nil then
+				RiskyServicesDisabled.UGC = false
+			end
+
+			if not RiskyServicesDisabled.UGC then
+				local UGCValidationService -- = service.UGCValidationService
+
+				gethiddenproperty_fallback = function(instance, propertyName)
+					-- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
+					if not UGCValidationService then
+						UGCValidationService = service.UGCValidationService
+					end
+					return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
+					-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
 				end
 			end
 
