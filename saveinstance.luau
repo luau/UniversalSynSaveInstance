@@ -5991,6 +5991,10 @@ local function synsaveinstance(...)
 		end
 	end
 
+	if OPTIONS.SafeMode and CustomOptions_valid["KillAllScripts"] == nil then
+		OPTIONS.KillAllScripts = true
+	end
+
 	if OPTIONS.KillAllScripts and not GLOBAL_ENV.USSI_KAS then
 		GLOBAL_ENV.USSI_KAS = true
 		-- * partial credits @centerepic
