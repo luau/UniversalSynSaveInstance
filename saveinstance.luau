@@ -556,7 +556,7 @@ local function planeEncoder(...)
 		local base = sbuf:allocRegion(4 * k * n)
 		local buf = sbuf.buf
 		local stride = 4 * n
-			for p = 1, k do
+		for p = 1, k do
 			local getter = getters[p]
 			local pbase = base + (p - 1) * stride
 			for i = 1, n do
@@ -1256,7 +1256,7 @@ local Binary_Encoders = {
 			wu32(buf, o, #keypoints)
 			o += 4
 			for _, kp in keypoints do
-		local c = kp.Value
+				local c = kp.Value
 				wf32(buf, o, kp.Time)
 				wf32(buf, o + 4, c.R)
 				wf32(buf, o + 8, c.G)
@@ -3476,7 +3476,7 @@ do
 											string.lower(string.sub(parentName, 1, 1)) .. string.sub(parentName, 2)
 											== propNameNorm
 										then
-									Property.Shadows = true
+											Property.Shadows = true
 											break
 										end
 									end
@@ -3863,39 +3863,39 @@ local function synsaveinstance(...)
 			local arg = args[i]
 			local Type = typeof(arg)
 
-		if Type == "table" then
+			if Type == "table" then
 				if typeof(arg[1]) == "Instance" then -- * Array of Instances
 					OPTIONS.ExtraInstances = arg
-				OPTIONS.IsModel = true
+					OPTIONS.IsModel = true
 					directInstances = true
-			else
+				else
 					for key, value in arg do
 						CustomOptions[key] = value
 
-					local k = string.lower(key)
+						local k = string.lower(key)
 
-					local option = OPTIONS_lowercase[k]
-					local invert = false
+						local option = OPTIONS_lowercase[k]
+						local invert = false
 
-					if not option then
-						option = OptionsAliasesInverse_lowercase[k]
-						invert = option ~= nil
-					end
-
-					if option then
-						local finalValue
-						if invert then
-							finalValue = not value
-						else
-							finalValue = value
+						if not option then
+							option = OptionsAliasesInverse_lowercase[k]
+							invert = option ~= nil
 						end
 
-						OPTIONS[option] = finalValue
-						CustomOptions_valid[option] = true
+						if option then
+							local finalValue
+							if invert then
+								finalValue = not value
+							else
+								finalValue = value
+							end
+
+							OPTIONS[option] = finalValue
+							CustomOptions_valid[option] = true
+						end
 					end
 				end
-			end
-		elseif Type == "Instance" then
+			elseif Type == "Instance" then
 				OPTIONS.Object = arg
 				directInstances = true
 			elseif Type == "string" then
@@ -4140,9 +4140,9 @@ local function synsaveinstance(...)
 
 			local PlaceName = cachedPlaceName and (game.PlaceId .. " " .. cachedPlaceName) or game.PlaceId
 			if IsModel then
-			placename = sanitizeFileName("model " .. PlaceName .. " " .. (Object or tmp[1] or game):GetFullName())
-		else
-			placename = sanitizeFileName("place " .. PlaceName)
+				placename = sanitizeFileName("model " .. PlaceName .. " " .. (Object or tmp[1] or game):GetFullName())
+			else
+				placename = sanitizeFileName("place " .. PlaceName)
 			end
 		end
 
@@ -4728,14 +4728,14 @@ local function synsaveinstance(...)
 			local text
 			if StatusText then
 				text = StatusText.Text
-			StatusText.Text = "Testing ghp.. Rerun script if crashed"
+				StatusText.Text = "Testing ghp.. Rerun script if crashed"
 			end
 			wait_for_render()
 
 			GHPPersisted[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
 			saveGHPState()
 			if StatusText then
-			StatusText.Text = text
+				StatusText.Text = text
 			end
 			state = true
 		end
@@ -5083,45 +5083,45 @@ local function synsaveinstance(...)
 	end
 
 	local function emitBinary(ctx)
-	local function readAll(objs, prop)
-		local n = #objs
-		local vals = table.create(n)
+		local function readAll(objs, prop)
+			local n = #objs
+			local vals = table.create(n)
 
-		for i = 1, n do
-			local raw = readProperty(objs[i], prop)
-			if raw == __BREAK then
-				return nil, i
+			for i = 1, n do
+				local raw = readProperty(objs[i], prop)
+				if raw == __BREAK then
+					return nil, i
+				end
+				vals[i] = raw
 			end
-			vals[i] = raw
+
+			return vals
 		end
 
-		return vals
-	end
-
-	local function buildChunk(name, chunkBuf, compress)
-		local uncompressedLen = chunkBuf.len
+		local function buildChunk(name, chunkBuf, compress)
+			local uncompressedLen = chunkBuf.len
 			local head = buffer.create(16)
 			buffer.writestring(head, 0, name)
 
-		if compress then
-			local dataStr = compress(chunkBuf:tostring())
-			if dataStr and #dataStr < uncompressedLen then
+			if compress then
+				local dataStr = compress(chunkBuf:tostring())
+				if dataStr and #dataStr < uncompressedLen then
 					buffer.writeu32(head, 4, #dataStr)
 					buffer.writeu32(head, 8, uncompressedLen)
 					return { buf = head, len = 16, str = dataStr }
+				end
 			end
-		end
 
 			-- compressedLength and reserved remain zero in the fresh header.
 			buffer.writeu32(head, 8, uncompressedLen)
 
-		return {
+			return {
 				buf = head,
 				len = 16,
-			tailBuf = chunkBuf.buf,
-			tailLen = uncompressedLen,
-		}
-	end
+				tailBuf = chunkBuf.buf,
+				tailLen = uncompressedLen,
+			}
+		end
 
 		local compress = CompressionMode == "zstd"
 				and function(raw)
@@ -6255,6 +6255,21 @@ local function synsaveinstance(...)
 						end,
 					},
 					{
+						key = "Color3uint8",
+						retest = true,
+						test = function()
+							local terrain = workspace.Terrain
+							return gethiddenproperty(terrain, "Color3uint8") == terrain.Color
+						end,
+					},
+					{
+						key = "int64", -- TODO Remove this once integer is supported and add integer support to zigzag64 (#208)
+						retest = true,
+						test = function()
+							return type(gethiddenproperty(ard, "SourceAssetId")) ~= "integer"
+						end,
+					},
+					{
 						key = "BinaryString",
 						retest = true,
 						test = function()
@@ -6292,7 +6307,7 @@ local function synsaveinstance(...)
 								gethiddenproperty = nil
 								break
 							end
-						continue
+							continue
 						elseif state and check.fatal and state ~= "ok" then
 							gethiddenproperty = nil
 							break
@@ -6313,15 +6328,15 @@ local function synsaveinstance(...)
 					if StatusText and not statusShown then
 						statusShown = true
 						if StatusText then
-						StatusText.Text = "Testing ghp. Rerun script if crashed"
+							StatusText.Text = "Testing ghp. Rerun script if crashed"
 						end
 						wait_for_render()
 					end
 					local ok, passed = pcall(check.test)
 					passed = ok and passed
-						if key then
+					if key then
 						ghpDatatypeReport(key, passed)
-						end
+					end
 					if not passed and check.fatal then
 						gethiddenproperty = nil
 						break
