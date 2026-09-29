@@ -6243,15 +6243,14 @@ local function synsaveinstance(...)
 						fatal = true,
 						test = function()
 							-- Xeno uses UGC and returns 0
-							local o, r = pcall(gethiddenproperty, game, "ForceR15")
-							return o and type(r) == "boolean"
+							return type(gethiddenproperty(game, "ForceR15")) == "boolean"
 						end,
 					},
 					{
 						key = "Enum",
 						test = function()
-							local ok, r = pcall(gethiddenproperty, workspace, "StreamOutBehavior")
-							return ok and (r == nil or typeof(r) == "EnumItem")
+							local r = gethiddenproperty(workspace, "StreamOutBehavior")
+							return r == nil or typeof(r) == "EnumItem"
 						end,
 					},
 					{
@@ -6274,24 +6273,20 @@ local function synsaveinstance(...)
 						retest = true,
 						test = function()
 							ard:SetAttribute("test", "test")
-							local ok, r = pcall(gethiddenproperty, ard, "AttributesSerialize")
-							return ok and r == "\1\0\0\0\4\0\0\0test\2\4\0\0\0test"
+							return gethiddenproperty(ard, "AttributesSerialize") == "\1\0\0\0\4\0\0\0test\2\4\0\0\0test"
 						end,
 					},
 					{
 						key = "SharedString",
 						test = function()
 							ard:AddTag("\1test\2\4test")
-							local ok, r = pcall(gethiddenproperty, ard, "Tags")
-							return ok and r == "\1test\2\4test"
+							return gethiddenproperty(ard, "Tags") == "\1test\2\4test"
 						end,
 					},
 					{
 						key = "NetAssetRef",
 						test = function()
-							local mp = Instance.new("MeshPart")
-							local ok, r = pcall(gethiddenproperty, mp, "SolidMeshHolder")
-							return ok and type(r) == "string"
+							return type(gethiddenproperty(Instance.new("MeshPart"), "SolidMeshHolder")) == "string"
 						end,
 					},
 					{
