@@ -1,9 +1,9 @@
-Version v1: version-55808de4b1914919
-Version v2: version-55808de4b1914919
+Version v1: version-76e1a02649ad4f35
+Version v2: version-76e1a02649ad4f35
 ================================================================================
 
 
-Different Default values (803):
+Different Default values (805):
 ----------------------------------------
   AccessoryDescription.Instance
     v1: '__api_dump_no_string_value__'
@@ -517,7 +517,7 @@ Different Default values (803):
     v2: '1'
   DebugSettings.InstanceCount
     v1: '__api_dump_skipped_class__'
-    v2: '972'
+    v2: '970'
   DebugSettings.IsScriptStackTracingEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'true'
@@ -532,7 +532,7 @@ Different Default values (803):
     v2: 'false'
   DebugSettings.RobloxVersion
     v1: '__api_dump_skipped_class__'
-    v2: '0.739.0.7390687'
+    v2: '0.741.19.7411056'
   DebugSettings.TickCountPreciseOverride
     v1: '__api_dump_skipped_class__'
     v2: 'Precise'
@@ -943,7 +943,7 @@ Different Default values (803):
     v2: '109999'
   NetworkSettings.FreeMemoryMBytes
     v1: '__api_dump_skipped_class__'
-    v2: '96878.0781'
+    v2: '93597.5781'
   NetworkSettings.HttpProxyEnabled
     v1: '__api_dump_skipped_class__'
     v2: 'false'
@@ -1532,6 +1532,9 @@ Different Default values (803):
   ProceduralModel.Generator
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
+  ProjectService.ContentMap
+    v1: '__api_dump_no_string_value__'
+    v2: '<NetAssetRef name="ContentMap">yuZpQdnv
   ProximityPrompt.RootLocalizationTable
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
@@ -1657,7 +1660,7 @@ Different Default values (803):
     v2: '__api_dump_not_serializable__'
   RunService.ClientGitHash
     v1: '__api_dump_class_not_creatable__'
-    v2: '1e7cf1599bf642851d8b4a1406cea32ab11df68
+    v2: '36cf9c7a24f926610345817749e9b91309044bf
   RunService.FrameNumber
     v1: '__api_dump_class_not_creatable__'
     v2: '0'
@@ -1864,7 +1867,7 @@ Different Default values (803):
     v2: '0'
   Stats.InstanceCount
     v1: '__api_dump_class_not_creatable__'
-    v2: '1789'
+    v2: '1785'
   Stats.MemoryTrackingEnabled
     v1: '__api_dump_class_not_creatable__'
     v2: 'true'
@@ -2024,6 +2027,9 @@ Different Default values (803):
   TextChatMessage.TextSource
     v1: '__api_dump_no_string_value__'
     v2: 'nullptr'
+  TextDocument.TextContent
+    v1: '__api_dump_no_string_value__'
+    v2: '<Content name="TextContent">\n\t<null><
   TextLabel.FontFace
     v1: '__api_dump_no_string_value__'
     v2: '<Font name="FontFace">\n\t<Family><url>
@@ -2417,8 +2423,8 @@ Different Default values (803):
 
 ================================================================================
 Summary:
-  Total: 4070
-  Same: 3267
-  Different: 803
+  Total: 4079
+  Same: 3274
+  Different: 805
   Only v1: 0
   Only v2: 0

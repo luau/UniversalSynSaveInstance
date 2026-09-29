@@ -1,4 +1,4 @@
-version-93202a13414c4131
+version-76e1a02649ad4f35
 
 AccessoryDescription.Puffiness {Deprecated} {CanSave}
 
@@ -270,6 +270,24 @@ FluidForceSensor.Torque {CanSave Only}
 FormFactorPart.FormFactor {CanLoad Only} {Deprecated}
 FormFactorPart.formFactor {CanLoad Only} {Deprecated}
 
+FriendsCallingInstance.CallId {CanSave Only}
+FriendsCallingInstance.ConversationId {CanSave Only}
+FriendsCallingInstance.EndReason {CanSave Only}
+FriendsCallingInstance.InitiatorUserId {CanSave Only}
+FriendsCallingInstance.IsDeafened {CanSave Only}
+FriendsCallingInstance.Phase {CanSave Only}
+FriendsCallingInstance.Volume {CanSave Only}
+FriendsCallingInstance is NotCreatable but FriendsCallingInstance.CallId has default: ""
+
+FriendsCallingParticipant.Error {CanSave Only}
+FriendsCallingParticipant.IsLocalMuted {CanSave Only}
+FriendsCallingParticipant.IsSpeaking {CanSave Only}
+FriendsCallingParticipant.LeaveReason {CanSave Only}
+FriendsCallingParticipant.Status {CanSave Only}
+FriendsCallingParticipant.UserId {CanSave Only}
+FriendsCallingParticipant.Volume {CanSave Only}
+FriendsCallingParticipant is NotCreatable but FriendsCallingParticipant.Error has default: "None"
+
 FunctionalTest.AllowSleep {CanLoad Only}
 FunctionalTest.Is30FpsThrottleEnabled {CanLoad Only}
 FunctionalTest.PhysicsEnvironmentalThrottle {CanLoad Only}
@@ -329,6 +347,10 @@ HumanoidDescription.ShouldersAccessory {CanLoad Only}
 HumanoidDescription.Torso {CanLoad Only}
 HumanoidDescription.TorsoColor {CanLoad Only}
 HumanoidDescription.WaistAccessory {CanLoad Only}
+
+ImageButton.LocalizedImageContent {CanLoad Only}
+
+ImageLabel.LocalizedImageContent {CanLoad Only}
 
 IncrementalPatchBuilder is NotCreatable but IncrementalPatchBuilder.AddPathsToBundle has default: "false"
 
@@ -767,7 +789,7 @@ ValueTypes found exclusively in NotScriptable properties: 17
   - UniqueId
   - Vector3int16
 
-Properties with NotScriptable tag: 130
+Properties with NotScriptable tag: 131
   - AnimationClip.GuidBinaryString
   - AnimationNodeDefinition.InputPinData
   - AnimationRigData.Generic
@@ -871,6 +893,7 @@ Properties with NotScriptable tag: 130
   - Path2D.PropertiesSerialize
   - Player.RawJoinData
   - PlayerGui.InputBindingMappingsRaw
+  - ProjectService.ContentMap
   - RolloutValidation.FirstBinaryString
   - RolloutValidation.FirstSharedString
   - RolloutValidation.SecondBinaryString

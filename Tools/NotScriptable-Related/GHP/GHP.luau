@@ -26,7 +26,7 @@ local function test(instance, propertyname, valuetype)
 			print(
 				"✅ " .. valuetype,
 				type(result) == "table" and game.HttpService:JSONEncode(result)
-					or typeof(result) == "buffer" and base64encode(buffer.tostring(result))
+					or typeof(result) == "buffer" and #base64encode(buffer.tostring(result))
 					or tostring(result),
 				typeof(result)
 			)

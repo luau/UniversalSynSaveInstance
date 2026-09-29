@@ -1,9 +1,9 @@
-Version v1: version-55808de4b1914919
-Version v2: version-55808de4b1914919
+Version v1: version-76e1a02649ad4f35
+Version v2: version-76e1a02649ad4f35
 ================================================================================
 
 
-Different Tags (534):
+Different Tags (540):
 ----------------------------------------
   ActivityHistoryEventService
     v1: ['NotCreatable', 'Service']
@@ -151,6 +151,12 @@ Different Tags (534):
     v2: ['NotReplicated']
   AvatarSettings
     v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  BackendReplicatedStorage
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated']
+  BackendServerStorage
+    v1: ['NotCreatable', 'Service', 'NotReplicated']
     v2: ['NotCreatable', 'NotReplicated']
   BackpackItem
     v1: ['NotCreatable']
@@ -1043,7 +1049,13 @@ Different Tags (534):
   Plugin
     v1: ['NotCreatable']
     v2: []
+  Plugin.FinishFullLoading
+    v1: ['CustomLuaState']
+    v2: []
   Plugin.GetPluginComponent
+    v1: ['CustomLuaState']
+    v2: []
+  Plugin.GetPreinitPayload
     v1: ['CustomLuaState']
     v2: []
   PluginAction
@@ -1085,6 +1097,9 @@ Different Tags (534):
   ProcessInstancePhysicsService
     v1: ['NotCreatable', 'Service']
     v2: ['Service']
+  ProjectService
+    v1: ['NotCreatable', 'Service']
+    v2: ['NotCreatable', 'NotReplicated', 'Service']
   ProximityPromptService
     v1: ['Service', 'NotBrowsable']
     v2: ['Service']
@@ -1415,6 +1430,9 @@ Different Tags (534):
   TextChatService
     v1: ['NotCreatable', 'Service']
     v2: ['NotCreatable', 'NotReplicated', 'Service']
+  TextDocument
+    v1: ['NotBrowsable']
+    v2: []
   TextLabel.TextColor
     v1: ['Hidden', 'NotReplicated', 'Deprecated']
     v2: ['Hidden', 'NotReplicated']
@@ -1610,8 +1628,8 @@ Different Tags (534):
 
 ================================================================================
 Summary:
-  Total: 9387
-  Same: 8853
-  Different: 534
+  Total: 9454
+  Same: 8914
+  Different: 540
   Only v1: 0
   Only v2: 0

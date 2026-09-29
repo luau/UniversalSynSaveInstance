@@ -1,4 +1,4 @@
-version-55808de4b1914919
+version-76e1a02649ad4f35
 
 AdGui.FallbackImageContent
 
@@ -112,6 +112,8 @@ TerrainDetail.MetalnessMapContent
 TerrainDetail.NormalMapContent
 TerrainDetail.RoughnessMapContent
 TerrainDetail.TexturePackContent
+
+TextDocument.TextContent
 
 Trail.TextureContent
 

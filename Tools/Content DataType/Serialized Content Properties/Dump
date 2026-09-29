@@ -1,4 +1,4 @@
-version-9e2e9085d9794dd1
+version-76e1a02649ad4f35
 
 Decal.EmissiveMaskContent {default: "<Contentname="EmissiveMaskContent"><null></null></Content>"}
 
@@ -12,10 +12,12 @@ SurfaceAppearance.EmissiveMaskContent {default: "<Contentname="EmissiveMaskConte
 
 TerrainDetail.EmissiveMaskContent {default: "<Contentname="EmissiveMaskContent"><null></null></Content>"}
 
+TextDocument.TextContent {default: "<Contentname="TextContent"><null></null></Content>"}
+
 VideoPlayer.VideoContent {default: "<Contentname="VideoContent"><null></null></Content>"}
 
 WrapTextureTransfer.ReferenceCageMeshContent {default: "<Contentname="ReferenceCageMeshContent"><null></null></Content>"}
 
 
 ---
-Total: 8
+Total: 9

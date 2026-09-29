@@ -1,4 +1,4 @@
-version-55808de4b1914919
+version-76e1a02649ad4f35
 
 AnimationClip.GuidBinaryString {BinaryString}
 
@@ -193,6 +193,8 @@ Players.BanningEnabled {bool}
 Players.UseStrafingAnimations {bool}
 
 ProceduralModel.Dirty {bool}
+
+ProjectService.ContentMap {NetAssetRef}
 
 RolloutValidation.AdditionalFluffOne {int}
 RolloutValidation.AdditionalFluffThree {float}
