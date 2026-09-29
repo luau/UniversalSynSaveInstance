@@ -6287,6 +6287,14 @@ local function synsaveinstance(...)
 						end,
 					},
 					{
+						key = "NetAssetRef",
+						test = function()
+							local mp = Instance.new("MeshPart")
+							local ok, r = pcall(gethiddenproperty, mp, "SolidMeshHolder")
+							return ok and type(r) == "string"
+						end,
+					},
+					{
 						dep = "BinaryString",
 						test = function()
 							ard.Parent = Instance.new("Folder")
