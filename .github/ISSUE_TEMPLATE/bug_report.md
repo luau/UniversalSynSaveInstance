@@ -4,6 +4,7 @@ about: Create a report to help us improve
 title: "[BUG] "
 labels: bug
 assignees: phoriah
+
 ---
 
 <!-- ⚠️ Do not delete this template. Fill in every section below. Missing info = no support -->
@@ -46,3 +47,10 @@ local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. 
 local Options = {NilInstances=true} -- Documentation here https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance
 
 synsaveinstance(Options)
+```
+
+**Attached files(if any saved)**
+<!-- Upload saved files that you're having issues with to some platform like mega or google drive and attach link -->
+
+**Additional context (optional)**
+<!-- Add any other context about the problem here. -->

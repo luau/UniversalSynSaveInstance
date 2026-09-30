@@ -4,6 +4,7 @@ about: Suggest an idea for this project
 title: "[FEATURE] "
 labels: enhancement
 assignees: phoriah
+
 ---
 
 - [ ] I searched existing issues (both open & closed) and this isn't a duplicate
