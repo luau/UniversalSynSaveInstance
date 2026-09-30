@@ -6045,8 +6045,8 @@ local function synsaveinstance(...)
 		IgnoreList.StarterPlayer = false
 	end
 
-	if IsolatePlayers then
-		IgnoreList.Players = false
+	if not IsolatePlayers then
+		IgnoreList.Player = true
 	end
 
 	if OPTIONS.ShowStatus then
