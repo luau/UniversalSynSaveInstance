@@ -4950,7 +4950,9 @@ local function synsaveinstance(...)
 				end
 
 				local onIgnoredList = IgnoreList[class]
-				if onIgnoredList and (onIgnoredList == true or onIgnoredList[name]) then
+				if onIgnoredList == false then
+					skipEntirely = false -- keep this instance, skip its descendants
+				elseif onIgnoredList and (onIgnoredList == true or onIgnoredList[name]) then
 					return
 				end
 
