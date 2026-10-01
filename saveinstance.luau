@@ -6045,7 +6045,7 @@ local function synsaveinstance(...)
 		IgnoreList.StarterPlayer = false
 	end
 
-	if not IsolatePlayers then
+	if not IsolatePlayers and CustomOptions_valid.SaveNotCreatable == nil then
 		IgnoreList.Player = true
 	end
 
