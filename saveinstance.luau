@@ -350,8 +350,13 @@ local function capabilityHalves(raw)
 
 	-- TODO Use https://rfcs.luau.org/type-long-integer.html once released to avoid overflow beyond ^53
 
+	local rawString = tostring(raw)
+	if rawString == "" then
+		return 0, 0
+	end
+
 	local lo, hi = 0, 0
-	for _, flag in string.split(tostring(raw), " | ") do
+	for _, flag in string.split(rawString, " | ") do
 		local b = CAPABILITY_BITS[flag]
 		if b then
 			if b < 32 then
@@ -3779,7 +3784,6 @@ local function synsaveinstance(...)
 		},
 	}
 	local OPTIONS_lowercase, OptionsAliasesInverse_lowercase, CustomOptions_valid = {}, {}, {}
-	local CustomOptions = {} -- * Merged options tables from the arguments (raw keys preserved)
 
 	do
 		local function buildMap(dest, source, warnLabel)
@@ -3870,8 +3874,9 @@ local function synsaveinstance(...)
 					directInstances = true
 				else
 					for key, value in arg do
-						CustomOptions[key] = value
-
+						if type(key) ~= "string" then
+							warn("Option names must be strings", key)
+						end
 						local k = string.lower(key)
 
 						local option = OPTIONS_lowercase[k]
@@ -4060,7 +4065,7 @@ local function synsaveinstance(...)
 	local Object = OPTIONS.Object
 	local IsModel = OPTIONS.IsModel
 
-	if Object and CustomOptions.IsModel == nil then
+	if Object and CustomOptions_valid.IsModel == nil then
 		IsModel = true
 	end
 
@@ -4413,7 +4418,7 @@ local function synsaveinstance(...)
 		OPTIONS.scriptcache = true
 	end
 	local ScriptCache = OPTIONS.scriptcache and getscriptbytecode
-	local ldeccache = GLOBAL_ENV.USSI_scriptcache
+	local ldeccache = ScriptCache and GLOBAL_ENV.USSI_scriptcache
 
 	if ScriptCache and not ldeccache then
 		ldeccache = {}
@@ -4465,6 +4470,8 @@ local function synsaveinstance(...)
 						__DEBUG_MODE("Found in Cache", script:GetFullName())
 					end
 					return cached
+				elseif DecompileJobless then
+					return "-- Not found in already decompiled ScriptCache"
 				end
 			else
 				if DecompileJobless then
@@ -6232,6 +6239,18 @@ local function synsaveinstance(...)
 		end)
 	end
 
+	local RiskyOption = OPTIONS.RiskyServicesDisabled
+	RiskyServicesDisabled = type(RiskyOption) == "table" and table.clone(RiskyOption)
+	if not gethiddenproperty and CustomOptions_valid.RiskyServicesDisabled == nil then
+		RiskyServicesDisabled.UGC = false
+	end
+	gethiddenproperty_fallback = nil
+	if not RiskyServicesDisabled.UGC then
+		gethiddenproperty_fallback = function(instance, propertyName)
+			return service.UGCValidationService:GetPropertyValue(instance, propertyName)
+		end
+	end
+
 	if not ClassList then -- means first run
 		do -- * Load Region of Déjà Vu
 			if gethiddenproperty then
@@ -6267,7 +6286,8 @@ local function synsaveinstance(...)
 						key = "int64", -- TODO Remove this once integer is supported and add integer support to zigzag64 (#208)
 						retest = true,
 						test = function()
-							return type(gethiddenproperty(ard, "SourceAssetId")) ~= "integer"
+							local value = gethiddenproperty(ard, "SourceAssetId")
+							return type(value) == "number" and value == ard.SourceAssetId
 						end,
 					},
 					{
@@ -6332,9 +6352,7 @@ local function synsaveinstance(...)
 
 					if StatusText and not statusShown then
 						statusShown = true
-						if StatusText then
-							StatusText.Text = "Testing ghp. Rerun script if crashed"
-						end
+						StatusText.Text = "Testing ghp. Rerun script if crashed"
 						wait_for_render()
 					end
 					local ok, passed = pcall(check.test)
@@ -6349,22 +6367,11 @@ local function synsaveinstance(...)
 				end
 			end
 
-			local RiskyOption = OPTIONS.RiskyServicesDisabled
-			RiskyServicesDisabled = type(RiskyOption) == "table" and RiskyOption or {}
-
-			if not gethiddenproperty and CustomOptions.RiskyServicesDisabled == nil then
+			if not gethiddenproperty and CustomOptions_valid.RiskyServicesDisabled == nil then
 				RiskyServicesDisabled.UGC = false
-			end
-
-			if not RiskyServicesDisabled.UGC then
-				local UGCValidationService -- = service.UGCValidationService
-
 				gethiddenproperty_fallback = function(instance, propertyName)
 					-- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
-					if not UGCValidationService then
-						UGCValidationService = service.UGCValidationService
-					end
-					return UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
+					return service.UGCValidationService:GetPropertyValue(instance, propertyName) -- TODO Sadly there's no way to tell whether value is actually nil or the function just couldn't read it (always returns nil for "Class" category properties)
 					-- TODO `category ~= "Class"` causes WeldConstraint Part1Internal to be read as nil and not get unfiltered. Currently, there are no properties of category "Class" that match the following: NotScriptable, can be read with gethiddenproperty_fallback accurately (it always outputs nil for "Class" category, making that check useless anyway) & don't have a NotScriptableFix.
 				end
 			end
@@ -6622,6 +6629,10 @@ local function synsaveinstance(...)
 	local Log10 = math.log10(elapse_t)
 	local ExtraTime = 10
 
+	if not ok then
+		warn("Error found while saving:")
+		warn(err)
+	end
 	if StatusText then
 		task.spawn(function()
 			if ok then
@@ -6635,8 +6646,6 @@ local function synsaveinstance(...)
 				end
 				StatusText.Text = "Failed! Check F9 console for more info"
 				StatusText.TextColor3 = Color3.new(1)
-				warn("Error found while saving:")
-				warn(err)
 				task.wait(Log10 + ExtraTime)
 			end
 			StatusText:Destroy()
