@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://luau.github.io/UniversalSynSaveInstance/
+    about: API reference and guides.
+  - name: Discord
+    url: https://discord.gg/wx4ThpAsmw
+    about: Ask questions and get support in our Discord server.
