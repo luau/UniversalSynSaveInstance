@@ -4295,9 +4295,16 @@ local function synsaveinstance(...)
 		return Size
 	end
 
-	local RenderStepped = service.RunService.RenderStepped
+	local lastYield = os.clock()
 	local function wait_for_render()
-		pcall(RenderStepped.Wait, RenderStepped) -- ? Needed for at least 1fps (status text); pcall due to "thread cannot be yielded to Wait"
+		pcall(task.wait) -- ? Needed for at least 1fps (status text) and resets the watchdog (RenderStepped:Wait doesn't); pcall due to "thread cannot be yielded"
+		lastYield = os.clock()
+	end
+
+	local function yieldIfDue() -- ? Watchdog kills scripts that run >30s without yielding
+		if os.clock() - lastYield > 10 then
+			wait_for_render()
+		end
 	end
 
 	local IsLoading, LoadingText, LoadingThread = false
@@ -4922,6 +4929,8 @@ local function synsaveinstance(...)
 				return -- already collected via another root
 			end
 
+			yieldIfDue()
+
 			local override = InstancesOverrides[instance]
 			local tagOverride = override and override.__ClassName
 			local virtual = override and override.__Virtual
@@ -5097,6 +5106,7 @@ local function synsaveinstance(...)
 			local vals = table.create(n)
 
 			for i = 1, n do
+				yieldIfDue()
 				local raw = readProperty(objs[i], prop)
 				if raw == __BREAK then
 					return nil, i
