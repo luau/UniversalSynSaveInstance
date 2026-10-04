@@ -5660,7 +5660,7 @@ local function synsaveinstance(...)
 			local NilInstancesFixes = OPTIONS.NilInstancesFixes
 
 			for _, instance in global_container.getnilinstances() do
-				if instance == game then
+				if instance:IsA("ServiceProvider") then -- ? game, UserSettings & GlobalSettings roots; their services (e.g. UserGameSettings) can't be parented elsewhere
 					instance = nil
 				else
 					local ClassName = instance.ClassName
