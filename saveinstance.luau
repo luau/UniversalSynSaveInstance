@@ -283,10 +283,7 @@ local function rawBasisString(r00, r01, r02, r10, r11, r12, r20, r21, r22)
 end
 
 local EMPTY_BUFFER = buffer.create(0)
-local BASE_CAPABILITIES
-pcall(function()
-	BASE_CAPABILITIES = SecurityCapabilities.new()
-end)
+local BASE_CAPABILITIES = SecurityCapabilities.new()
 local CAPABILITY_BITS = {
 	Plugin = 0,
 	LocalUser = 1,
@@ -3608,6 +3605,7 @@ end
 --- @field SaveNonCreatable string -- SaveNotCreatable
 --- @field SavePlayerGui string -- IsolateLocalPlayer
 --- @field SavePlayers string -- IsolatePlayers
+--- @field ShowProgress string -- ShowStatus
 --- @field StatusText string -- ShowStatus
 --- @field timeout string -- DecompileTimeout
 
@@ -3645,6 +3643,10 @@ end
 	@param Parameter_2 table -- [OPTIONAL] If present, then Parameter_2 will be assumed to be [SynSaveInstance.CustomOptions table]. And then if the Parameter_1 is an Instance, then it will be assumed to be [SynSaveInstance.CustomOptions table].Object. If Parameter_1 is a table filled with instances ({Instance}), then it will be assumed to be [SynSaveInstance.CustomOptions table].ExtraInstances and IsModel will be true). This exists for sake compatibility with `saveinstance(game, {})`
 ]=]
 
+-- * Accepts any number of arguments, of any type, in any order:
+-- *   table    -> options (an array of Instances is treated as ExtraInstances)
+-- *   string   -> FilePath option
+-- *   Instance -> Object option
 local function synsaveinstance(...)
 	if GLOBAL_ENV.USSI then
 		return
@@ -3733,7 +3735,6 @@ local function synsaveinstance(...)
 			"Player",
 			"PlayerGui",
 			"PlayerMouse",
-			"PlayerMouse",
 			"PlayerScripts",
 			"ScreenshotHud",
 			"StudioData",
@@ -3772,6 +3773,7 @@ local function synsaveinstance(...)
 			SaveNonCreatable = "SaveNotCreatable",
 			SavePlayerGui = "IsolateLocalPlayer",
 			SavePlayers = "IsolatePlayers",
+			ShowProgress = "ShowStatus",
 			StatusText = "ShowStatus",
 			timeout = "DecompileTimeout",
 		},
@@ -3876,6 +3878,7 @@ local function synsaveinstance(...)
 					for key, value in arg do
 						if type(key) ~= "string" then
 							warn("Option names must be strings", key)
+							continue
 						end
 						local k = string.lower(key)
 
@@ -3967,6 +3970,11 @@ local function synsaveinstance(...)
 
 	local CompressionLevel = OPTIONS.CompressionLevel
 	local CompressionMode = OPTIONS.CompressionMode
+	if CompressionMode == true then -- ? DisableCompression = false
+		CompressionMode = "zstd"
+	elseif type(CompressionMode) == "string" then
+		CompressionMode = string.lower(CompressionMode)
+	end
 
 	local __DEBUG_MODE = OPTIONS.__DEBUG_MODE
 
@@ -4072,12 +4080,6 @@ local function synsaveinstance(...)
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
 	local IgnoreNotArchivable = not OPTIONS.IgnoreNotArchivable
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
-
-	local old_gethiddenproperty
-	if OPTIONS.IgnoreSpecialProperties and gethiddenproperty then
-		old_gethiddenproperty = gethiddenproperty
-		gethiddenproperty = nil
-	end
 
 	local SaveNotCreatable = OPTIONS.SaveNotCreatable
 	local TreatUnionsAsParts = OPTIONS.TreatUnionsAsParts
@@ -4714,7 +4716,7 @@ local function synsaveinstance(...)
 			local ok, decoded = pcall(function()
 				return service.HttpService:JSONDecode(readfile(GHP_STATE_FILE))
 			end)
-			if ok and type(decoded) == "table" and type(decoded[GHPVersionKey]) == "table" then
+			if ok and decoded[GHPVersionKey] then
 				GHPPersisted = decoded[GHPVersionKey]
 			end
 		end
@@ -4864,7 +4866,10 @@ local function synsaveinstance(...)
 		end
 
 		if not GHPFFailed then
-			local ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName)
+			local ok, result
+			if gethiddenproperty_fallback then
+				ok, result = pcall(gethiddenproperty_fallback, instance, PropertyName)
+			end
 			if result == nil and not nilIsValid(Category, Optional) then
 				ok = nil
 			end
@@ -5769,9 +5774,9 @@ local function synsaveinstance(...)
 				"\n\t\tDate (UTC): ",
 				DateTime.now():FormatUniversalTime("LL LTS", "en-gb"),
 				" PlaceId: ",
-				game.PlaceId,
+				tostring(game.PlaceId),
 				" PlaceVersion: ",
-				game.PlaceVersion,
+				tostring(game.PlaceVersion),
 				" Client Version: ",
 				FULL_VERSION,
 				" Platform: ",
@@ -5785,7 +5790,7 @@ local function synsaveinstance(...)
 				if #RecoveredScripts ~= 0 then
 					recoveredNote = "\t\tIMPORTANT: Original Source of these Scripts was Recovered: "
 						.. service.HttpService:JSONEncode(RecoveredScripts)
-						.. "\n"
+						.. "\n\n"
 				end
 
 				local failedTypes, crashTypes = {}, {}
@@ -6264,8 +6269,6 @@ local function synsaveinstance(...)
 	if not ClassList then -- means first run
 		do -- * Load Region of Déjà Vu
 			if gethiddenproperty then
-				-- Persisted datatype results are reused for this executor/client version;
-				-- the unkeyed shadow probe still runs each launch when its dependency is safe.
 				local ard = Instance.new("AnimationRigData")
 
 				local GHP_SELF_CHECKS = {
@@ -6296,8 +6299,7 @@ local function synsaveinstance(...)
 						key = "int64", -- TODO Remove this once integer is supported and add integer support to zigzag64 (#208)
 						retest = true,
 						test = function()
-							local value = gethiddenproperty(ard, "SourceAssetId")
-							return type(value) == "number" and value == ard.SourceAssetId
+							return gethiddenproperty(ard, "SourceAssetId") == ard.SourceAssetId
 						end,
 					},
 					{
@@ -6610,6 +6612,11 @@ local function synsaveinstance(...)
 			end
 		end
 	end
+	local old_gethiddenproperty
+	if OPTIONS.IgnoreSpecialProperties and gethiddenproperty then
+		old_gethiddenproperty = gethiddenproperty
+		gethiddenproperty = nil
+	end
 
 	elapse_t = os.clock()
 
@@ -6622,6 +6629,7 @@ local function synsaveinstance(...)
 			local max = 5
 			task.delay(
 				math.clamp(max - (os.clock() - elapse_t), 0, max),
+				pcall,
 				service.GuiService.ClearError,
 				service.GuiService
 			)
