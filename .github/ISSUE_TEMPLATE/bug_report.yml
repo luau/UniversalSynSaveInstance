@@ -26,14 +26,6 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: files
-    attributes:
-      label: Attached Files
-      description: Upload the saved files that you're having issues with to a platform like MEGA or Google Drive and attach the link.
-    validations:
-      required: false
-
   - type: input
     id: executor-emulator
     attributes:
@@ -50,6 +42,22 @@ body:
       placeholder: "https://www.roblox.com/games/..."
     validations:
       required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: "IMPORTANT: Always include a console screenshot (F9 or `/console`; also show your executor's built-in console if it has one)."
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Attached Files
+      description: Upload the saved files that you're having issues with to a platform like MEGA or Google Drive and attach the link.
+    validations:
+      required: false
 
   - type: textarea
     id: script-used
@@ -90,14 +98,6 @@ body:
       description: What did you expect to happen instead?
     validations:
       required: false
-
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots
-      description: "IMPORTANT: Always include a console screenshot (F9 or `/console`; also show your executor's built-in console if it has one)."
-    validations:
-      required: true
 
   - type: input
     id: discord-tag
