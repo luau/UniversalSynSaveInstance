@@ -1754,11 +1754,7 @@ local ClassList, FetchAPI
 local RiskyServicesDisabled
 do
 	local ClassPropertyExceptions = arrayToDict({
-		Whitelist = {
-			MeshPart = { "CollisionFidelity" },
-			PartOperation = { "CollisionFidelity" },
-			TriangleMeshPart = { "CollisionFidelity" },
-		},
+		Whitelist = {},
 		Blacklist = {
 			BillboardGui = { "PlayerToHideFrom" },
 			LuaSourceContainer = { "ScriptGuid" },
@@ -1766,6 +1762,31 @@ do
 		},
 	}, true)
 
+	-- Minimal valid CSGPHS v8 collision blob; preserves the CollisionFidelity label but not the real geometry.
+	local PHYSICAL_CONFIG_BASE =
+		"\67\83\71\80\72\83\8\0\0\0\2\0\40\181\47\253\32\180\149\1\0\120\0\120\32\193\32\65\65\2\12\1\3\2\1\12\193\16\160\112\242\1\176\106\234\58\123\18\99\238\29\229\253\198\101\127\68\150\204\66\96\179\97\185\59\111\222\22\115\2\106"
+	local CF = Enum.CollisionFidelity
+
+	local PHYSICAL_CONFIG_BY_CF = {
+		[CF.Box] = "\67\83\71\80\72\83\0\0\0\0\66\76\79\67\75", -- "CSGPHS\0\0\0\0BLOCK"
+	}
+
+	do
+		local base = PHYSICAL_CONFIG_BASE
+		local prefix = string.sub(base, 1, 10)
+		local suffix = string.sub(base, 12)
+
+		local byteMap = {
+			[CF.Hull] = 1,
+			[CF.Default] = 2,
+			[CF.PreciseConvexDecomposition] = 3,
+			[CF.Tunable] = 7,
+		}
+
+		for cf, byte in byteMap do
+			PHYSICAL_CONFIG_BY_CF[cf] = prefix .. string.char(byte) .. suffix
+		end
+	end
 	local function AttributesSerialize(attrs, header_bytes)
 		-- * There are certain restrictions for names of attributes
 		-- https://create.roblox.com/docs/reference/engine/classes/Instance#SetAttribute
@@ -2797,6 +2818,13 @@ do
 		},
 		TriangleMeshPart = {
 			FluidFidelityInternal = "FluidFidelity",
+			PhysicalConfigData = function(instance)
+				local blob = PHYSICAL_CONFIG_BY_CF[instance.CollisionFidelity]
+				if blob == nil then
+					blob = PHYSICAL_CONFIG_BY_CF[CF.Default]
+				end
+				return blob
+			end,
 		},
 		MeshPart = {
 			InitialSize = "MeshSize",
@@ -5741,12 +5769,19 @@ local function synsaveinstance(...)
 
 
 		local C = game:GetService("CoreGui")
-		local D = Enum.CollisionFidelity.Default
+		local E = Enum.CollisionFidelity:GetEnumItems()
+		local O = {}
 
 		for _, v in game:GetDescendants() do
 			if v:IsA("TriangleMeshPart") and not v:IsDescendantOf(C) then
-				v.CollisionFidelity = D
+				local c = v.CollisionFidelity
+				O[v] = c
+				v.CollisionFidelity = E[1] ~= c and E[1] or E[2]
 			end
+		end
+
+		for v, c in O do
+			v.CollisionFidelity = c
 		end
 		print("Done")
 
