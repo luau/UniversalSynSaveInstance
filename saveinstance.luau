@@ -103,6 +103,7 @@ local gethiddenproperty_fallback
 local lz4compress = lz4compress
 local zstdcompress = zstdcompress
 local appendfile = appendfile
+local delfile = delfile
 local isfile = isfile
 local readfile = readfile
 local writefile = writefile
@@ -3785,7 +3786,7 @@ local function synsaveinstance(...)
 		},
 		SharedBinaryStrings = false,
 		TreatUnionsAsParts = false,
-		AlternativeWritefile = not arrayToDict({ "WRD", "Xeno", "Zorara", "OpiumwareMac" })[EXECUTOR_NAME],
+		AlternativeWritefile = true,
 
 		OptionsAliases = { -- You can't really modify these as a user (because they're read before user's Options are loaded)
 			Clipboard = "CopyToClipboard",
@@ -4132,6 +4133,98 @@ local function synsaveinstance(...)
 
 	local function sanitizeFileName(str)
 		return string.sub(string.gsub(string.gsub(string.gsub(str, "[^%w _]", ""), " +", " "), " +$", ""), 1, 240)
+	end
+
+	local EXEC_STATE_FILE = USSI_FOLDER .. "EXEC_STATE.json"
+	local EXEC_STATE_KEY
+	local ExecState = {}
+	local GHP = {} -- ghp datatype -> "ok"|"failed"|"crashed"
+	do
+		local execName, execVersion = "UNKNOWN", "0"
+		if identify_executor then
+			execName, execVersion = identify_executor()
+			if not execVersion then
+				execVersion = "0"
+			end
+		end
+		EXEC_STATE_KEY = sanitizeFileName(execName .. "_" .. execVersion .. "_" .. FULL_VERSION)
+		if readfile then
+			local ok, decoded = pcall(function()
+				return service.HttpService:JSONDecode(readfile(EXEC_STATE_FILE))
+			end)
+			if ok and decoded[EXEC_STATE_KEY] then
+				ExecState = decoded[EXEC_STATE_KEY]
+			end
+		end
+		GHP = ExecState["ghp"] or {}
+		ExecState["ghp"] = GHP
+	end
+
+	local function saveExecState()
+		if not writefile then
+			return
+		end
+		pcall(writefile, EXEC_STATE_FILE, service.HttpService:JSONEncode({ [EXEC_STATE_KEY] = ExecState }))
+	end
+
+	local writerFallback -- ! nil | "writefile" | "xml" when a broken writer forced a switch
+
+	-- * Byte-mangling writers (NUL truncation, newline translation, non-ASCII
+	-- * stripping) corrupt a binary save while still reporting success (#216).
+	if OPTIONS.Binary and readfile and not (OPTIONS.Callback or OPTIONS.CopyToClipboard) then
+		local PROBE_PATH = USSI_FOLDER .. "WRITE_PROBE"
+		local probeChars = table.create(256)
+		for i = 0, 255 do
+			probeChars[i + 1] = string.char(i)
+		end
+		local PROBE_DATA = table.concat(probeChars)
+
+		local writers = ExecState["writers"] or {}
+		ExecState["writers"] = writers
+		local probed = false
+		local function writerWorks(key, f, calls)
+			if writers[key] ~= nil then
+				return writers[key]
+			end
+			probed = true
+			if not f or not pcall(writefile, PROBE_PATH, "") then
+				return nil -- ! the probe couldn't run at all; a different format wouldn't help
+			end
+			-- ! a writer that errors counts as broken
+			local wrote = pcall(function()
+				for _ = 1, calls do
+					f(PROBE_PATH, PROBE_DATA)
+					task.wait() -- ! the save path yields between appends; Xeno loses data after ~64 yielded appends
+				end
+			end)
+			local ok, contents = pcall(readfile, PROBE_PATH)
+			if not ok then
+				return nil -- ! a broken reader is indistinguishable from a broken writer here
+			end
+			writers[key] = wrote and contents == string.rep(PROBE_DATA, calls)
+			return writers[key]
+		end
+
+		local useAppend = OPTIONS.AlternativeWritefile and appendfile ~= nil
+		if
+			writerWorks(useAppend and "append" or "write", useAppend and appendfile or writefile, useAppend and 64 or 1)
+			== false
+		then
+			if useAppend and writerWorks("write", writefile, 1) == true then
+				OPTIONS.AlternativeWritefile = false
+				writerFallback = "writefile"
+			else
+				OPTIONS.Binary = false
+				writerFallback = "xml"
+			end
+		end
+
+		if probed then
+			saveExecState()
+			if not delfile or not pcall(delfile, PROBE_PATH) then
+				pcall(writefile, PROBE_PATH, "") -- ! no delfile: blank it so no stale copy lingers
+			end
+		end
 	end
 
 	do
@@ -4729,39 +4822,8 @@ local function synsaveinstance(...)
 		return string_find(result, needle) ~= nil
 	end
 
-	local GHP_STATE_FILE = USSI_FOLDER .. "GHP_STATE.json"
 	local GHPDatatypeState = {}
-	local GHPPersisted = {}
-	local GHPVersionKey
 	local GHPShadowed = true -- true when ghp returns the shadowed (parent) property value instead of the shadow
-
-	do
-		local execName, execVersion = "UNKNOWN", "0"
-		if identify_executor then
-			execName, execVersion = identify_executor()
-			if not execVersion then
-				execVersion = "0"
-			end
-		end
-
-		GHPVersionKey = sanitizeFileName(execName .. "_" .. execVersion .. "_" .. FULL_VERSION)
-
-		if readfile then
-			local ok, decoded = pcall(function()
-				return service.HttpService:JSONDecode(readfile(GHP_STATE_FILE))
-			end)
-			if ok and decoded[GHPVersionKey] then
-				GHPPersisted = decoded[GHPVersionKey]
-			end
-		end
-	end
-
-	local function saveGHPState()
-		if not writefile then
-			return
-		end
-		pcall(writefile, GHP_STATE_FILE, service.HttpService:JSONEncode({ [GHPVersionKey] = GHPPersisted }))
-	end
 
 	local function ghpDatatypeAllowed(valueType)
 		local state = GHPDatatypeState[valueType]
@@ -4769,7 +4831,7 @@ local function synsaveinstance(...)
 			return state
 		end
 
-		local persisted = GHPPersisted[valueType]
+		local persisted = GHP[valueType]
 		if persisted == "ok" then
 			state = true
 		elseif persisted == "failed" or persisted == "crashed" then
@@ -4782,8 +4844,8 @@ local function synsaveinstance(...)
 			end
 			ensureTextRendered()
 
-			GHPPersisted[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
-			saveGHPState()
+			GHP[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
+			saveExecState()
 			if StatusText then
 				StatusText.Text = text
 			end
@@ -4796,12 +4858,12 @@ local function synsaveinstance(...)
 
 	local function ghpDatatypeReport(valueType, ok)
 		local wantState = ok and "ok" or "failed"
-		if GHPPersisted[valueType] == wantState then
+		if GHP[valueType] == wantState then
 			return
 		end
-		GHPPersisted[valueType] = wantState
+		GHP[valueType] = wantState
 		GHPDatatypeState[valueType] = ok
-		saveGHPState()
+		saveExecState()
 	end
 
 	local function readProperty(instance, property)
@@ -5835,10 +5897,10 @@ local function synsaveinstance(...)
 				end
 
 				local failedTypes, crashTypes = {}, {}
-				for datatype, state in GHPPersisted do
+				for datatype, state in GHP do
 					if state == "crashed" then
 						table.insert(crashTypes, datatype)
-					elseif state ~= "ok" then
+					elseif state == "failed" then
 						table.insert(failedTypes, datatype)
 					end
 				end
@@ -5863,11 +5925,29 @@ local function synsaveinstance(...)
 					ghpFailureHeader ..= "\n"
 				end
 
+				local writerFailureHeader = ""
+				if writerFallback == "writefile" then
+					writerFailureHeader = [[
+		!! FILE WRITER ISSUES !!
+		Your executor's appendfile can't store data faithfully - it can SILENTLY CORRUPT or SHORTEN the file - so this save used writefile instead.
+		Tell your executor's developers.
+
+]]
+				elseif writerFallback == "xml" then
+					writerFailureHeader = [[
+		!! FILE WRITER ISSUES !!
+		Your executor's file functions can't store data faithfully, so a binary save would be CORRUPT - this save used XML (.rbxlx) instead.
+		Tell your executor's developers.
+
+]]
+				end
+
 				return table.concat({
 					"--[[\n",
 					"\t\tThank you for using UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw\n\n",
 					recoveredNote,
 					ghpFailureHeader,
+					writerFailureHeader,
 					binaryNote,
 					helpText,
 					service.HttpService:JSONEncode(OPTIONS),
@@ -6396,7 +6476,7 @@ local function synsaveinstance(...)
 				for _, check in GHP_SELF_CHECKS do
 					local key = check.key
 					if key then
-						local state = GHPPersisted[key]
+						local state = GHP[key]
 						if state == "crashed" then
 							if check.fatal then
 								gethiddenproperty = nil
@@ -6411,13 +6491,13 @@ local function synsaveinstance(...)
 						end
 					end
 
-					if check.dep and GHPPersisted[check.dep] == "crashed" then
+					if check.dep and GHP[check.dep] == "crashed" then
 						continue
 					end
 
 					if key then
-						GHPPersisted[key] = "crashed"
-						saveGHPState()
+						GHP[key] = "crashed"
+						saveExecState()
 					end
 
 					if StatusText and not statusShown then
