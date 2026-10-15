@@ -6338,6 +6338,14 @@ local function synsaveinstance(...)
 						end,
 					},
 					{
+						key = "string",
+						test = function()
+							local desc = Instance.new("HumanoidDescription")
+							desc:SetEmotes({ Hello = { 3576686446 } })
+							return type(gethiddenproperty(desc, "EmotesDataInternal")) == "string"
+						end,
+					},
+					{
 						key = "BinaryString",
 						retest = true,
 						test = function()
