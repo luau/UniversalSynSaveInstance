@@ -5818,8 +5818,7 @@ local function synsaveinstance(...)
 			local binaryNote = ""
 			if not OPTIONS.Binary then
 				binaryNote = [[
-		If you didn't save in Binary (rbxl) - it's recommended to save the game right away to take advantage of the binary format & to preserve values of certain properties if you used IgnoreDefaultProperties setting (as they might change in the future).
-		You can do that by going to FILE -> Save to File As -> Make sure File Name ends with .rbxl -> Save
+		You saved as XML, not Binary (rbxl). To convert: FILE -> Save to File As, name it .rbxl. This keeps the binary format and preserves properties ignored by IgnoreDefaultProperties.
 
 ]]
 			end
@@ -5827,13 +5826,12 @@ local function synsaveinstance(...)
 			local helpText = [[
 		ServerStorage, ServerScriptService and Server Scripts are IMPOSSIBLE to save because of FilteringEnabled.
 
-		If your player cannot spawn into the game, please move the scripts in StarterPlayer somewhere else or delete them. Then run `game:GetService("Players").CharacterAutoLoads = true`.
-		And use "Play Here" to start game instead of "Play" to spawn your Character where your Camera currently is.
+		Player doesn't spawn? Move or delete the scripts in StarterPlayer, then run game:GetService("Players").CharacterAutoLoads = true
+		Use "Play Here" instead of "Play" to spawn where your Camera is.
 
-		If the chat system does not work, please use the explorer and delete everything inside the TextChatService/Chat service(s).
-		Or run `game:GetService("Chat"):ClearAllChildren() game:GetService("TextChatService"):ClearAllChildren()`
+		Chat broken? Delete everything in TextChatService/Chat, or run game:GetService("Chat"):ClearAllChildren() game:GetService("TextChatService"):ClearAllChildren()
 
-		If Union and MeshPart collisions don't work, run the script below in the Studio Command Bar:
+		Union/MeshPart collisions broken? Run this in the Studio Command Bar:
 
 
 		local C = game:GetService("CoreGui")
@@ -5853,13 +5851,13 @@ local function synsaveinstance(...)
 		end
 		print("Done")
 
-		If you can't move the Camera, run this script in the Studio Command Bar:
+		Camera stuck? Run this in the Studio Command Bar:
 
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Fixed
 
-		Or Destroy the Camera.
+		Or destroy the Camera.
 
-		This file was generated with the following settings:
+		Settings:
 		]]
 
 			local platformName = select(
@@ -5891,7 +5889,7 @@ local function synsaveinstance(...)
 			readmeExtra = register_extra("README", nil, nil, "Script", function()
 				local recoveredNote = ""
 				if #RecoveredScripts ~= 0 then
-					recoveredNote = "\t\tIMPORTANT: Original Source of these Scripts was Recovered: "
+					recoveredNote = "\t\tIMPORTANT: Original Source of these Scripts was RECOVERED: "
 						.. service.HttpService:JSONEncode(RecoveredScripts)
 						.. "\n\n"
 				end
@@ -5911,14 +5909,14 @@ local function synsaveinstance(...)
 				if #failedTypes > 0 or #crashTypes > 0 then
 					ghpFailureHeader ..= [[
 		!! GETHIDDENPROPERTY ISSUES !!
-		Your executor's gethiddenproperty couldn't read the types below, so this save might be missing data or have wrong values.
-		Please tell your executor's developers about this. Affected types:
+		Your executor's gethiddenproperty couldn't read these types, so data may be missing or wrong.
+		Tell your executor's developers. Affected types:
 		]]
 					if #failedTypes > 0 then
 						ghpFailureHeader ..= "\t\tFailed reads: " .. service.HttpService:JSONEncode(failedTypes) .. "\n"
 					end
 					if #crashTypes > 0 then
-						ghpFailureHeader ..= "\t\tCrashed a previous run (now skipped entirely): " .. service.HttpService:JSONEncode(
+						ghpFailureHeader ..= "\t\tCrashed a previous run (now skipped): " .. service.HttpService:JSONEncode(
 							crashTypes
 						) .. "\n"
 					end
