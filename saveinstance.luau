@@ -4326,14 +4326,20 @@ local function synsaveinstance(...)
 	end
 
 	local lastYield = os.clock()
-	local function wait_for_render()
+	local function yieldFrame()
 		pcall(task.wait) -- ? Needed for at least 1fps (status text) and resets the watchdog (RenderStepped:Wait doesn't); pcall due to "thread cannot be yielded"
+		lastYield = os.clock()
+	end
+
+	local function ensureTextRendered()
+		service.RunService.PreRender:Wait() -- start of next frame, right before it draws
+		service.RunService.Heartbeat:Wait() -- end of that same frame, after it was drawn
 		lastYield = os.clock()
 	end
 
 	local function yieldIfDue() -- ? Watchdog kills scripts that run >30s without yielding
 		if os.clock() - lastYield > 10 then
-			wait_for_render()
+			yieldFrame()
 		end
 	end
 
@@ -4372,7 +4378,7 @@ local function synsaveinstance(...)
 			IsLoading = true
 			ensureSpinner()
 			if waitForRender then
-				wait_for_render()
+				yieldFrame()
 			end
 		end
 
@@ -4772,9 +4778,9 @@ local function synsaveinstance(...)
 			local text
 			if StatusText then
 				text = StatusText.Text
-				StatusText.Text = "Testing ghp.. Rerun script if crashed"
+				StatusText.Text = "GHP test. Crash = rerun script few times"
 			end
-			wait_for_render()
+			ensureTextRendered()
 
 			GHPPersisted[valueType] = "crashed" -- * treated as crashed until the upcoming read reports back; if this state ever reaches the save file it means the game died mid-read (or was closed before it finished)
 			saveGHPState()
@@ -5201,7 +5207,7 @@ local function synsaveinstance(...)
 				if now - lastStatus > 1 then
 					lastStatus = now
 					StatusText.Text = "Saving.. Size: " .. get_size_format()
-					wait_for_render()
+					yieldFrame()
 				end
 			end
 		end
@@ -5469,7 +5475,7 @@ local function synsaveinstance(...)
 				StatusText.Text = "Saving.. Size: " .. get_size_format()
 			end
 
-			wait_for_render()
+			yieldFrame()
 		end
 
 		local function save_hierarchy(hierarchy, ctx)
@@ -6223,7 +6229,7 @@ local function synsaveinstance(...)
 					end
 				end)
 			end)
-			wait_for_render()
+			ensureTextRendered()
 		end)
 
 		if CustomOptions_valid["BoostFPS"] == nil then
@@ -6407,8 +6413,8 @@ local function synsaveinstance(...)
 
 					if StatusText and not statusShown then
 						statusShown = true
-						StatusText.Text = "Testing ghp. Rerun script if crashed"
-						wait_for_render()
+						StatusText.Text = "GHP test. Crash = rerun script few times"
+						ensureTextRendered()
 					end
 					local ok, passed = pcall(check.test)
 					passed = ok and passed
