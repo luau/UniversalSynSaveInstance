@@ -6381,6 +6381,15 @@ local function synsaveinstance(...)
 							return not GHPShadowed
 						end,
 					},
+					{
+						key = "OptionalCoordinateFrame",
+						test = function()
+							local m = Instance.new("Model")
+							local cf = CFrame.new(1, 2, 3)
+							m.WorldPivot = cf
+							return gethiddenproperty(m, "WorldPivotData") == cf
+						end,
+					},
 				}
 
 				local statusShown
