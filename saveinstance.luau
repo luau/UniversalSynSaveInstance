@@ -33,6 +33,14 @@ end
 
 local GLOBAL_ENV = getgenv and getgenv() or _G or shared
 
+-- * Single shared-env entry point: caches expensive per-session state (place name, decompile cache, ...)
+-- * so a full script reload doesn't have to rebuild it.
+local USSI = GLOBAL_ENV.USSI
+if not USSI then
+	USSI = {}
+	GLOBAL_ENV.USSI = USSI
+end
+
 local service = setmetatable({}, {
 	__index = function(self, serviceName)
 		local o, s = pcall(Instance.new, serviceName)
@@ -130,7 +138,7 @@ local function index(self, index_name)
 	return self[index_name]
 end
 
-local cachedPlaceName = GLOBAL_ENV.USSI_placeName
+local cachedPlaceName = USSI.PlaceName
 
 local FULL_VERSION
 
@@ -3677,10 +3685,10 @@ end
 -- *   string   -> FilePath option
 -- *   Instance -> Object option
 local function synsaveinstance(...)
-	if GLOBAL_ENV.USSI then
+	if USSI.Running then
 		return
 	end
-	GLOBAL_ENV.USSI = true
+	USSI.Running = true
 	-- do -- ? Causes issues on SirHurt (Kick lacking Capability "Consequences"), let threads operate on their default/preferred identity set by the developers
 	-- 	local setthreadidentity = global_container.setthreadidentity
 	-- 	if setthreadidentity then
@@ -3979,7 +3987,7 @@ local function synsaveinstance(...)
 
 		warn(text)
 
-		GLOBAL_ENV.USSI = nil
+		USSI.Running = nil
 		return
 	end
 
@@ -4262,7 +4270,7 @@ local function synsaveinstance(...)
 					pcall(service.MarketplaceService.GetProductInfoAsync, service.MarketplaceService, game.PlaceId)
 				if ok then
 					cachedPlaceName = info.Name
-					GLOBAL_ENV.USSI_placeName = cachedPlaceName
+					USSI.PlaceName = cachedPlaceName
 				end
 			end
 
@@ -4294,7 +4302,7 @@ local function synsaveinstance(...)
 		end
 
 		GLOBAL_ENV[placename] = true
-		GLOBAL_ENV.USSI = nil
+		USSI.Running = nil
 
 		if mode ~= "scripts" then
 			IgnorePropertiesOfNotScriptsOnScriptsMode = nil
@@ -4554,11 +4562,11 @@ local function synsaveinstance(...)
 		OPTIONS.scriptcache = true
 	end
 	local ScriptCache = OPTIONS.scriptcache and getscriptbytecode
-	local ldeccache = ScriptCache and GLOBAL_ENV.USSI_scriptcache
+	local ldeccache = ScriptCache and USSI.ScriptCache
 
 	if ScriptCache and not ldeccache then
 		ldeccache = {}
-		GLOBAL_ENV.USSI_scriptcache = ldeccache
+		USSI.ScriptCache = ldeccache
 	end
 
 	local getbytecode
@@ -6138,8 +6146,8 @@ local function synsaveinstance(...)
 		OPTIONS.KillAllScripts = true
 	end
 
-	if OPTIONS.KillAllScripts and not GLOBAL_ENV.USSI_KAS then
-		GLOBAL_ENV.USSI_KAS = true
+	if OPTIONS.KillAllScripts and not USSI.KillAllScripts then
+		USSI.KillAllScripts = true
 		-- * partial credits @centerepic
 		game:GetService("ScriptContext"):SetTimeout(math.clamp(SaveCacheInterval * 0.000047, 20, 30))
 
@@ -6194,7 +6202,7 @@ local function synsaveinstance(...)
 
 	if OPTIONS.ShowStatus then
 		do
-			local Exists = GLOBAL_ENV.USSI_statustext
+			local Exists = USSI.StatusGui
 			if Exists then
 				Exists:Destroy()
 			end
@@ -6202,7 +6210,7 @@ local function synsaveinstance(...)
 
 		local StatusGui = Instance.new("ScreenGui")
 
-		GLOBAL_ENV.USSI_statustext = StatusGui
+		USSI.StatusGui = StatusGui
 
 		StatusGui.DisplayOrder = 2e9
 		pcall(function() -- ? Compatibility with level 2
@@ -6255,10 +6263,10 @@ local function synsaveinstance(...)
 			end
 		end
 	end
-	local kickSnapshot = GLOBAL_ENV.USSI_kicksnapshot
+	local kickSnapshot = USSI.KickSnapshot
 	if not kickSnapshot then
 		kickSnapshot = {}
-		GLOBAL_ENV.USSI_kicksnapshot = kickSnapshot
+		USSI.KickSnapshot = kickSnapshot
 	end
 
 	local function snapshotKick(LocalPlayer)
