@@ -5910,6 +5910,7 @@ local function synsaveinstance(...)
 					ghpFailureHeader ..= [[
 		!! GETHIDDENPROPERTY ISSUES !!
 		Your executor's gethiddenproperty couldn't read these types, so data may be missing or wrong.
+		Tester can be found here - https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/GHP/GHP.luau
 		Tell your executor's developers. Affected types:
 		]]
 					if #failedTypes > 0 then
@@ -6415,7 +6416,7 @@ local function synsaveinstance(...)
 						end,
 					},
 					{
-						key = "int64", -- TODO Remove this once integer is supported and add integer support to zigzag64 (#208)
+						key = "int64",
 						retest = true,
 						test = function()
 							return gethiddenproperty(ard, "SourceAssetId") == ard.SourceAssetId
