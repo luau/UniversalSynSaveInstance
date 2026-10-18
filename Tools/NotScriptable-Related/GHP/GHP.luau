@@ -25,10 +25,10 @@ local function test(instance, propertyname, valuetype)
 		else
 			print(
 				"✅ " .. valuetype,
+				typeof(result),
 				type(result) == "table" and game.HttpService:JSONEncode(result)
-					or typeof(result) == "buffer" and #base64encode(buffer.tostring(result))
-					or tostring(result),
-				typeof(result)
+					or typeof(result) == "buffer" and string.sub(buffer.tostring(result), 1, 50)
+					or string.sub(tostring(result), 1, 50)
 			)
 			PassedTests += 1
 		end
