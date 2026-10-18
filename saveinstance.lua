@@ -5985,7 +5985,6 @@ local function synsaveinstance(...)
 						.. [[
 		!! GETHIDDENPROPERTY ISSUES !!
 		Your executor's gethiddenproperty couldn't read these types, so data may be missing or wrong.
-		Tester can be found here - https://github.com/luau/UniversalSynSaveInstance/blob/main/Tools/NotScriptable-Related/GHP/GHP.luau
 		Tell your executor's developers. Affected types:
 		]]
 					if #failedTypes > 0 then
