@@ -4660,92 +4660,150 @@ local function synsaveinstance(...)
 		end
 	end
 
-	local function filterLinkedSource(str)
-		local o, r = pcall(service.HttpService.JSONDecode, service.HttpService, str)
-		if o and r.errors then
-			return
+	local sourceAssetCache = {}
+	local sourceAssetIds = {}
+	local function nodeKey(instance)
+		return instance.ClassName .. "\0" .. instance.Name
+	end
+
+	local function assetNodeTree(live)
+		local node = { children = {} }
+		if isLuaSourceContainer(live) then
+			node.source = live.Source
 		end
-		return true
+		for _, child in live:GetChildren() do
+			local key = nodeKey(child)
+			if node.children[key] ~= nil then
+				node.children[key] = false -- Duplicate names can't be matched reliably to live instances.
+			else
+				node.children[key] = assetNodeTree(child)
+			end
+		end
+		return node
+	end
+
+	local function sourceAssetIdFor(instance)
+		local assetId = sourceAssetIds[instance]
+		if assetId == nil then
+			local result = instance.SourceAssetId
+			assetId = result > 0 and result or false
+			sourceAssetIds[instance] = assetId
+		end
+		return assetId or nil
+	end
+
+	local function loadTree(assetId)
+		local ok, loaded =
+			pcall(service.InsertService.LoadLocalAsset, service.InsertService, "rbxassetid://" .. assetId)
+		if not (ok and loaded) then
+			return false
+		end
+		local key = nodeKey(loaded)
+		local root = assetNodeTree(loaded)
+		loaded:Destroy()
+		return { children = { [key] = root } }
+	end
+
+	local function sourceFromAsset(assetId, chain)
+		local node = sourceAssetCache[assetId]
+		if node == nil then
+			node = loadTree(assetId)
+			sourceAssetCache[assetId] = node
+		end
+		-- chain[#chain] is the asset owner; walk down to chain[1]
+		for i = #chain, 1, -1 do
+			if not node then
+				return
+			end
+			node = node.children[nodeKey(chain[i])]
+		end
+		local source = node and node.source
+		if source then
+			return source, assetId
+		end
 	end
 	local function sourceFor(instance, ldIgnoring)
 		if ldIgnoring then
 			return "-- Ignored"
 		end
 		local value
-		local should_decompile = true
-		local LinkedSource
-		local o, LinkedSource_Url = pcall(index, instance, "LinkedSource") -- ! AuroraScript has Source but not LinkedSource
-		if not o then
-			LinkedSource_Url = ""
+		local linkedKey
+		local recoveredAssetId
+		local recoveredSource
+		local linkedOk, linkedSourceRaw = pcall(index, instance, "LinkedSource") -- ! AuroraScript has Source but not LinkedSource
+		if not linkedOk then
+			linkedSourceRaw = ""
 		end
-		local hasLinkedSource = LinkedSource_Url ~= ""
-		local LinkedSource_type
+		local hasLinkedSource = linkedSourceRaw ~= ""
 		if hasLinkedSource then
-			local Path = instance:GetFullName()
-			if RecoveredScripts then
-				table.insert(RecoveredScripts, Path)
+			linkedKey = string.match(linkedSourceRaw, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
+			if not linkedKey then -- * We print this anyway because very important
+				warn("FAILED TO EXTRACT LINKEDSOURCE (OPEN A GITHUB ISSUE): ", instance:GetFullName(), linkedSourceRaw)
+			end
+		end
+		local chain = { instance }
+		local walk = instance
+		while walk do
+			local sourceAssetId = sourceAssetIdFor(walk)
+			if sourceAssetId then
+				recoveredSource, recoveredAssetId = sourceFromAsset(sourceAssetId, chain)
+				if recoveredSource then
+					break
+				end
 			end
 
-			LinkedSource = string.match(LinkedSource_Url, "%w+$") -- TODO: No sure if this pattern matches all possible cases. Example is: 'rbxassetid://0&hash=cd73dd2fe5e5013137231c227da3167e'
-			if LinkedSource then
-				if ScriptCache then
-					local cached = ldeccache[LinkedSource]
+			local parent = walk.Parent
+			if not parent then
+				break
+			end
+			chain[#chain + 1] = parent
+			walk = parent
+		end
+		if recoveredAssetId and RecoveredScripts then
+			table.insert(RecoveredScripts, instance:GetFullName())
+		end
 
-					if cached then
-						value = cached
-						should_decompile = nil
-					end
+		local isLocalScript = instance:IsA("LocalScript")
+		if
+			isLocalScript and instance.RunContext == Enum.RunContext.Server
+			or not isLocalScript and instance:IsA("Script") and instance.RunContext ~= Enum.RunContext.Client
+		then
+			if recoveredSource then
+				value = recoveredSource
+				recoveredSource = nil -- Emitted as the executable source instead of a comment block
+			else
+				value = "-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" -- TODO: Could be not just server scripts in the future
+			end
+		else
+			value = ldecompile(instance)
+			if SaveBytecode then
+				local output = SaveBytecode(instance)
+				if output then
+					value = output .. value
 				end
-				if should_decompile then
-					if DecompileJobless then
-						value = "-- Not found in LinkedSource ScriptCache"
-						should_decompile = nil
-					end
-
-					LinkedSource_type = string.find(LinkedSource, "%a") and "hash" or "id"
-
-					local asset = LinkedSource_type .. "=" .. LinkedSource
-
-					local ok, source = pcall(function()
-						-- Credits @halffalse
-						return game:HttpGet("https://assetdelivery.roproxy.com/v1/asset/?" .. asset)
-					end)
-
-					if ok and filterLinkedSource(source) then
-						if ScriptCache then
-							ldeccache[LinkedSource] = source
-						end
-
-						value = source
-
-						should_decompile = nil
-					end
-				end
-			else --if __DEBUG_MODE then -- * We print this anyway because very important
-				warn("FAILED TO EXTRACT LINKEDSOURCE (OPEN A GITHUB ISSUE): ", instance:GetFullName(), LinkedSource_Url)
 			end
 		end
 
-		if should_decompile then
-			local isLocalScript = instance:IsA("LocalScript")
-			if
-				isLocalScript and instance.RunContext == Enum.RunContext.Server
-				or not isLocalScript and instance:IsA("Script") and instance.RunContext ~= Enum.RunContext.Client
-			then
-				value = "-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" -- TODO: Could be not just server scripts in the future
-			else
-				value = ldecompile(instance)
-				if SaveBytecode then
-					local output = SaveBytecode(instance)
-					if output then
-						value = output .. value
-					end
+		local assetSourceBlock = ""
+		if recoveredSource then
+			local level = 0
+			for eqs in string.gmatch(recoveredSource, "%](=*)%]") do
+				if #eqs >= level then
+					level = #eqs + 1
 				end
 			end
+			local eq = string.rep("=", level)
+			assetSourceBlock = "--[" .. eq .. "[\n" .. recoveredSource .. "\n]" .. eq .. "]\n\n"
 		end
 
 		value = "-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw\n\n"
-			.. (hasLinkedSource and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?" .. (LinkedSource_type or "id") .. "=" .. (LinkedSource or LinkedSource_Url) .. "\n\n" or "")
+			.. (hasLinkedSource and "-- Original Source: https://assetdelivery.roblox.com/v1/asset/?" .. (linkedKey and string.find(
+				linkedKey,
+				"%a"
+			) and "hash" or "id") .. "=" .. (linkedKey or linkedSourceRaw) .. "\n\n" or "")
+			.. (recoveredAssetId and "-- Original SourceAssetId: https://assetdelivery.roblox.com/v1/asset/?id=" .. recoveredAssetId .. "\n\n" or "")
+			.. (recoveredAssetId and "-- ! Source from the asset above; the game may have edited it since.\n\n" or "")
+			.. assetSourceBlock
 			.. value
 
 		return value
