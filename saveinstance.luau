@@ -3596,6 +3596,7 @@ end
 --- @field DecompileTimeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout. ___Default:___ 10
 --- @field BytecodeTimeout number -- If the SaveBytecode run time exceeds this value it gets cancelled. Set to -1 to disable timeout. ___Default:___ 3
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
+--- @field RecoverScriptsFromAssets boolean -- Recovers the original Source of Scripts published as an asset: walks up from each Script to the ancestor carrying a SourceAssetId, loads that asset and inlines the matching Script's source (any edits made after publishing are not included). ___Default:___ true
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. Respects **@DecompileIgnore**. ___Default:___ false
 --- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Ignores matched instances and their descendants by default. To ignore only the instance itself, set the value to `false`. Examples: `"Chat"` matches any instance with ClassName "Chat"; `Players = {"MyPlayerName"}` matches class "Players" AND name "MyPlayerName" only; `workspace` matches a specific instance by reference; `[workspace] = false` matches a specific instance by reference, ignoring only itself and not its descendants. ___Default:___ {TextChatService}
 --- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name | false}} -- Structure mirrors **@DecompileIgnore**, except `false` means keep the instance but ignore its descendants. Supports both instance references and ClassName strings. Examples: `"CoreGui"` skips entirely; `CorePackages = false` keeps the instance but skips its descendants; `Players = {"SomePlayer"}` skips a specific named instance with specific ClassName. ___Default:___ {CoreGui, CorePackages, Packages = false}
@@ -3708,6 +3709,7 @@ local function synsaveinstance(...)
 		Decompile = true,
 		DecompileTimeout = 10,
 		DecompileJobless = false,
+		RecoverScriptsFromAssets = true,
 		-- decomptype = "",
 		scriptcache = true,
 		SaveBytecode = false,
@@ -4660,6 +4662,7 @@ local function synsaveinstance(...)
 		end
 	end
 
+	local RecoverScriptsFromAssets = OPTIONS.RecoverScriptsFromAssets
 	local sourceAssetCache = {}
 	local sourceAssetIds = {}
 	local function nodeKey(instance)
@@ -4742,7 +4745,7 @@ local function synsaveinstance(...)
 			end
 		end
 		local chain = { instance }
-		local walk = instance
+		local walk = RecoverScriptsFromAssets and instance
 		while walk do
 			local sourceAssetId = sourceAssetIdFor(walk)
 			if sourceAssetId then
