@@ -4297,12 +4297,19 @@ local function synsaveinstance(...)
 			placename = placename .. filetype
 		end
 
-		if GLOBAL_ENV[placename] then -- ? AvoidFileOverwrite kinda messes with this, but shouldn't be an issue
+		local savedFiles = USSI.SavedFiles
+		if not savedFiles then
+			savedFiles = {}
+			USSI.SavedFiles = savedFiles
+		end
+
+		USSI.Running = nil
+
+		if savedFiles[placename] then -- ? AvoidFileOverwrite kinda messes with this, but shouldn't be an issue
 			return
 		end
 
-		GLOBAL_ENV[placename] = true
-		USSI.Running = nil
+		savedFiles[placename] = true
 
 		if mode ~= "scripts" then
 			IgnorePropertiesOfNotScriptsOnScriptsMode = nil
@@ -6111,7 +6118,7 @@ local function synsaveinstance(...)
 		for _, connection in Connections do
 			connection:Disconnect()
 		end
-		GLOBAL_ENV[placename] = nil
+		USSI.SavedFiles[placename] = nil
 	end
 	do
 		local Players = service.Players
