@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="plugin-moonwave plugin-id-moonwave" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.1">
+<title data-rh="true">UniversalSynSaveInstance | Universal Syn SaveInstance</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="UniversalSynSaveInstance | Universal Syn SaveInstance"><meta data-rh="true" name="description" content="This module saves the current place, one [Instance] (a Roblox object), or a
+group of [Instance]s to a `.rbxl`/`.rbxm` (binary) or `.rbxlx`/`.rbxmx` (XML)
+file.
+
+Load the module with `loadstring` and call it. Your executor (the program that
+runs the script) must support `loadstring`. All options are optional. See
+[UniversalSynSaveInstance.CustomOptions] for all options. Option names are not
+case-sensitive. Old names from [UniversalSynSaveInstance.OptionsAliases] and
+[UniversalSynSaveInstance.OptionsAliasesInverse] also work.
+The most common options are at the top of
+[UniversalSynSaveInstance.CustomOptions]. Related options are grouped
+together, and advanced or rarely used options are at the bottom."><meta data-rh="true" property="og:description" content="This module saves the current place, one [Instance] (a Roblox object), or a
+group of [Instance]s to a `.rbxl`/`.rbxm` (binary) or `.rbxlx`/`.rbxmx` (XML)
+file.
+
+Load the module with `loadstring` and call it. Your executor (the program that
+runs the script) must support `loadstring`. All options are optional. See
+[UniversalSynSaveInstance.CustomOptions] for all options. Option names are not
+case-sensitive. Old names from [UniversalSynSaveInstance.OptionsAliases] and
+[UniversalSynSaveInstance.OptionsAliasesInverse] also work.
+The most common options are at the top of
+[UniversalSynSaveInstance.CustomOptions]. Related options are grouped
+together, and advanced or rarely used options are at the bottom."><link data-rh="true" rel="icon" href="/UniversalSynSaveInstance/favicon.png"><link data-rh="true" rel="canonical" href="https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance" hreflang="en"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance" hreflang="x-default"><link rel="stylesheet" href="/UniversalSynSaveInstance/assets/css/styles.0ed07045.css">
+<script src="/UniversalSynSaveInstance/assets/js/runtime~main.45753d28.js" defer="defer"></script>
+<script src="/UniversalSynSaveInstance/assets/js/main.872a66d9.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/UniversalSynSaveInstance/"><div class="navbar__logo"><img src="/UniversalSynSaveInstance/favicon.png" alt="" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/UniversalSynSaveInstance/favicon.png" alt="" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Universal Syn SaveInstance</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/UniversalSynSaveInstance/api/">API</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://discord.gg/wx4ThpAsmw" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://ko-fi.com/M4M1JNH5G" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Support<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/luau/UniversalSynSaveInstance" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search"><span aria-label="expand searchbar" role="button" class="search-icon" tabindex="0"></span><input id="search_input_react" type="search" placeholder="Loading..." aria-label="Search" class="navbar__search-input search-bar" disabled=""></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0 docPageContainer_wNNk"><div class="docPage_Dpn1"><div class="docSidebarContainer_o_re"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance"><span title="​Universal​Syn​Save​Instance" class="linkLabel_WmDU">​Universal​Syn​Save​Instance</span></a></li></ul></nav></div></div><main class="docMainContainer_HJE1"><div class="container padding-vert--lg"><div class="row"><div class="col docItemCol_MU3C"><div class="docItemContainer_Wv98"><article><div class="member_J0w1 markdown"><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_oUs_"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><header><h1 class="docTitle_mZRt" style="text-decoration:none"><span style="display:inline-block">Universal</span><span style="display:inline-block">Syn</span><span style="display:inline-block">Save</span><span style="display:inline-block">Instance</span></h1><div class="luaClassTags_EipM"></div><div>
+<p>
+  This module saves the current place, one <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a> (a Roblox object), or a
+  group of <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>s to a <code>.rbxl</code>/<code>.rbxm</code> (binary) or <code>.rbxlx</code>/<code>.rbxmx</code> (XML)
+  file.
+</p>
+<p>
+  Load the module with <code>loadstring</code> and call it. Your executor (the program that
+  runs the script) must support <code>loadstring</code>. All options are optional. See
+  <a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#CustomOptions">UniversalSynSaveInstance.CustomOptions</a> for all options. Option names are not
+  case-sensitive. Old names from <a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#OptionsAliases">UniversalSynSaveInstance.OptionsAliases</a> and
+  <a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#OptionsAliasesInverse">UniversalSynSaveInstance.OptionsAliasesInverse</a> also work.
+  The most common options are at the top of
+  <a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#CustomOptions">UniversalSynSaveInstance.CustomOptions</a>. Related options are grouped
+  together, and advanced or rarely used options are at the bottom.
+</p>
+</div></header><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="types">Types<a href="#types" class="hash-link" aria-label="Direct link to Types" title="Direct link to Types" translate="no">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="CustomOptions"><code style="text-decoration:none">CustomOptions</code><a href="#CustomOptions" class="hash-link" aria-label="Direct link to CustomOptions" title="Direct link to CustomOptions" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3640"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>CustomOptions<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>mode<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p>What to save. <code>optimized</code> saves the most important services (Workspace, Players, Lighting, ReplicatedStorage, StarterGui, and others). <code>full</code> saves everything under <code>game</code>. <code>scripts</code> saves only the top-level parts that contain a <a href="https://developer.roblox.com/en-us/api-reference/class/LuaSourceContainer">LuaSourceContainer</a> (a script object). It saves the whole part, not just the script. Any other value saves only <code>ExtraInstances</code> (and <code>Object</code>, if set). If <code>Object</code> is set, <code>optimized</code> becomes <code>full</code>. <em><strong>Default:</strong></em> <code>optimized</code></p>
+</span></span></div><div><code>Binary<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save a binary file (<code>.rbxl</code>/<code>.rbxm</code>) instead of an XML file (<code>.rbxlx</code>/<code>.rbxmx</code>). Binary files are smaller and load faster. If the executor cannot write binary data correctly, the script uses XML. Set the old option <code>XML = true</code> to force XML. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>CompressionMode<!-- -->: </code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>How to compress (make smaller) the binary file: <code>"zstd"</code>, <code>"lz4"</code>, or <code>false</code> for no compression. <code>true</code> means <code>"zstd"</code>. The old option <code>DisableCompression = true</code> means <code>false</code>. <em><strong>Default:</strong></em> <code>"zstd"</code></p>
+</span></span></div><div><code>CompressionLevel<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+<p>Compression level for zstd, from -7 to 22. A higher level makes a smaller file but takes longer. This is ignored for lz4 and when compression is off. <em><strong>Default:</strong></em> 9</p>
+</span></span></div><div><code>FilePath<!-- -->: </code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">false</code><span class="inlineDescription_G7Er">-- <span>
+<p>File name to save to. You can include a folder. If the name has no extension, the script adds one based on <code>Binary</code> and <code>IsModel</code>. If you set this, the script overwrites an existing file and ignores <code>AvoidFileOverwrite</code>. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>SafeMode<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Disconnect the LocalPlayer from the game when saving starts. This turns on <code>KillAllScripts</code> and <code>BoostFPS</code> unless you set them yourself. <strong>HIGHLY RECOMMENDED.</strong> <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>KillAllScripts<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Close or disable other running scripts before saving. <code>SafeMode</code> turns this on. Some games stop responding to input after this. That is normal. <strong>HIGHLY RECOMMENDED.</strong> <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>BoostFPS<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Turn off 3D rendering while saving, then turn it back on. <code>SafeMode</code> turns this on. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>Object<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">false</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save this <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a> instead of the whole place. The script saves a model if you do not set <code>IsModel = false</code>. If you pass <code>game</code>, it saves the place and uses <code>full</code> mode. You must pass an <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>, not a name. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>IsModel<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save a model (<code>.rbxm</code>/<code>.rbxmx</code>) instead of a place (<code>.rbxl</code>/<code>.rbxlx</code>). <code>Object</code> turns this on unless you set it yourself. Passing a list of Instances as an argument also turns it on. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>ShowStatus<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Show a status label on the screen. It shows the size while saving, then the final size and time. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>ReadMe<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Add a README script to the save. It contains save details (place ID, date, time, platform, executor, recovered scripts, warnings) and tips. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>Decompile<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Turn the compiled script back into source code (decompile). This replaces the <code>Source</code> of each <a href="https://developer.roblox.com/en-us/api-reference/class/LuaSourceContainer">LuaSourceContainer</a> with decompiled code. If this is off, <code>Source</code> says decompiling is disabled. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>SaveBytecode<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>If the executor supports <code>getscriptbytecode</code>, add the compiled script data (bytecode) to <code>Source</code> as a comment. You can decompile it later. This respects <code>DecompileIgnore</code>. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>DecompileTimeout<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+<p>How many seconds one decompile call can take. If it takes longer, the script stops waiting and writes a timeout message in <code>Source</code>. Set to -1 to disable the timeout. <em><strong>Default:</strong></em> 10</p>
+</span></span></div><div><code>BytecodeTimeout<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+<p>How many seconds a <code>getscriptbytecode</code> call can take. If it takes longer, the script stops waiting and skips the bytecode for that script. Set to -1 to disable the timeout. <em><strong>Default:</strong></em> 3</p>
+</span></span></div><div><code>DecompileIgnore<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code><code class="op_lSLc"> | </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">boolean</code><code class="op_lSLc"> | </code><code class="green_DgR4">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">boolean</code><code class="green_DgR4">}</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>Skip decompiling matched <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>s and their children. <code>Source</code> becomes a short ignored message. You can pass an <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>, a class name, or <code>ClassName = {Name1, Name2}</code>. Set an <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a> to <code>false</code> to skip only that instance, not its children. <em><strong>Default:</strong></em> {TextChatService}</p>
+</span></span></div><div><code>DecompileJobless<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Only use scripts that are already in the decompile cache. Missing scripts get a short not-found message. This turns on <code>scriptcache</code>. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>scriptcache<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>If the executor supports <code>getscriptbytecode</code>, cache decompiled code. This avoids decompiling the same script twice. The cache stays after the script reloads. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>RecoverScriptsFromAssets<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Recover the original <code>Source</code> of scripts that were published as assets. Changes made after publishing are not included. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>IsolatePlayers<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Put every <a href="https://developer.roblox.com/en-us/api-reference/class/Player">Player</a> under a top-level <code>"Players"</code> Folder instead of inside the <a href="https://developer.roblox.com/en-us/api-reference/class/Players">Players</a> service. This turns on <code>SaveNotCreatable</code>. If both are on, this option is used instead of <code>IsolateLocalPlayer</code>. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>IsolateLocalPlayer<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save the LocalPlayer as a Folder named <code>"LocalPlayer"</code> instead of a <a href="https://developer.roblox.com/en-us/api-reference/class/Player">Player</a> object. This is ignored if <code>IsolatePlayers</code> is on. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>IsolateLocalPlayerCharacter<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save LocalPlayer.Character as a <a href="https://developer.roblox.com/en-us/api-reference/class/Model">Model</a> named <code>"LocalPlayer Character"</code>. This saves the character even when characters are normally skipped. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>IsolateStarterPlayer<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Put <a href="https://developer.roblox.com/en-us/api-reference/class/StarterPlayer">StarterPlayer</a>'s children under a top-level <code>"StarterPlayer"</code> Folder. The original service stays, but it is empty. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>SavePlayerCharacters<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save player characters instead of skipping them. This also saves objects with <code>Archivable = false</code>, so <code>IgnoreNotArchivable</code> is forced on. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>NilInstances<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Include objects that have no parent (they are not under <code>game</code>). This needs the executor function <code>getnilinstances</code>. When that function exists, it also turns on <code>SaveNotCreatable</code>. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>ExtraInstances<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>A list of <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>s to add to the normal save. If <code>mode</code> is not a valid value, only these Instances (and <code>Object</code>, if set) are saved. Passing a list of Instances as an argument fills this list. <em><strong>Default:</strong></em> {}</p>
+</span></span></div><div><code>IgnoreList<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code><code class="op_lSLc"> | </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">boolean</code><code class="op_lSLc"> | </code><code class="green_DgR4">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">boolean</code><code class="green_DgR4">}</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>Objects to skip. Use an <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a> or a class name as a key to skip that object and its children. <code>ClassName = false</code> keeps the object but skips its children. <code>ClassName = {Name1, Name2}</code> skips objects with those names. You can also pass a list of Instances or class names. <em><strong>Default:</strong></em> {CoreGui, CorePackages, Packages = false}</p>
+</span></span></div><div><code>IgnoreSpecialProperties<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Do not use the executor function <code>gethiddenproperty</code>. Other property reads still work. This can help if your executor crashes or the file is corrupted. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>AlternativeWritefile<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Write the file in smaller pieces with <code>appendfile</code> instead of one <code>writefile</code> call. For binary saves, if <code>appendfile</code> fails, it uses <code>writefile</code>; if both fail, it switches to XML. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>Anonymous<!-- -->: </code><code class="blue_P4bS">boolean</code><code class="op_lSLc"> | </code><code class="purple_ieR2">{</code><div class="inset_uKQm"><code>Name<!-- -->: </code><code class="blue_P4bS">string?</code><code class="purple_ieR2">,</code></div><div class="inset_uKQm"><code>UserId<!-- -->: </code><code class="blue_P4bS">number?</code></div><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p><strong>RISKY:</strong> Replace LocalPlayer.Name and UserId in the output. <code>true</code> replaces them with <code>"Roblox"</code> and <code>1</code>. You can also pass a table with <code>Name</code> and/or <code>UserId</code>. Name matching ignores case. This can also change other text or numbers that match. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>RiskyServicesDisabled<!-- -->: </code><code class="purple_ieR2">{</code><div class="inset_uKQm"><code>UGC<!-- -->: </code><code class="blue_P4bS">boolean?</code><code class="purple_ieR2">,</code></div><div class="inset_uKQm"><code>Encoding<!-- -->: </code><code class="blue_P4bS">boolean?</code><code class="purple_ieR2">,</code></div><div class="inset_uKQm"><code>Reflection<!-- -->: </code><code class="blue_P4bS">boolean?</code></div><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>Turn off services that some games may detect. <code>UGC</code> skips <a href="https://developer.roblox.com/en-us/api-reference/class/UGCValidationService">UGCValidationService</a> (used for some hidden properties). <code>Encoding</code> skips <a href="https://developer.roblox.com/en-us/api-reference/class/EncodingService">EncodingService</a>. <code>Reflection</code> skips <a href="https://developer.roblox.com/en-us/api-reference/class/ReflectionService">ReflectionService</a> (used for class data). Set a flag to <code>true</code> to skip that service. If you do not set <code>RiskyServicesDisabled</code> yourself, the UGC fallback turns on automatically when <code>gethiddenproperty</code> is missing. <em><strong>Default:</strong></em> {UGC = true, Encoding = false, Reflection = false}</p>
+</span></span></div><div><code>AvoidFileOverwrite<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>If <code>FilePath</code> is not set, add (1), (2), ... to the file name instead of overwriting an existing file. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>AntiIdle<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Stop Roblox from kicking you for being idle (not moving) for 20 minutes. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>CopyToClipboard<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Copy the result to the clipboard (the copy/paste buffer) instead of writing a file. Your executor must support <code>setrbxclipboard</code>. Use this only for small saves. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>Callback<!-- -->: </code><code class="purple_ieR2">(</code><code class="green_DgR4">(</code><div class="inset_uKQm"><code>data<!-- -->: </code><code class="blue_P4bS">string</code><code class="green_DgR4">,</code></div><div class="inset_uKQm"><code>chunks<!-- -->: </code><code class="yellow_QJap">{</code><code class="blue_P4bS">string</code><code class="yellow_QJap">}</code></div><code class="green_DgR4">)</code><code class="green_DgR4"> → </code><code class="green_DgR4">(</code><code class="green_DgR4">)</code><code class="purple_ieR2">)</code><code class="op_lSLc"> | </code><code class="blue_P4bS">false</code><span class="inlineDescription_G7Er">-- <span>
+<p>Call this function with the result instead of writing a file. It receives the full text and a list of chunks. If <code>CopyToClipboard</code> is also on, the clipboard is used instead. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>IgnoreProperties<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>A list of property names to skip on every object. For example: <code>{"Tags", "AttributesSerialize"}</code>. <em><strong>Default:</strong></em> {}</p>
+</span></span></div><div><code>IgnoreNotArchivable<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save objects even when their <code>Archivable</code> property is <code>false</code>. If this is off, the script skips those objects. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>SaveNotCreatable<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Save classes that Roblox says are not creatable. The script replaces them with a class it can create, using <code>NotCreatableFixes</code> (usually <code>Folder</code>). This turns on automatically with <code>IsolatePlayers</code>, <code>IsolateLocalPlayer</code>, and <code>NilInstances</code> (when <code>getnilinstances</code> exists). <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>NotCreatableFixes<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code><code class="op_lSLc"> | </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">string</code><code class="op_lSLc"> | </code><code class="blue_P4bS">false</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>Replace a class with a class that can be created. The default replacement is <code>"Folder"</code>. A list of class names also becomes <code>Folder</code>. Built-in changes: <a href="https://developer.roblox.com/en-us/api-reference/class/Player">Player</a>, <a href="https://developer.roblox.com/en-us/api-reference/class/PlayerGui">PlayerGui</a>, <a href="https://developer.roblox.com/en-us/api-reference/class/PlayerScripts">PlayerScripts</a>, <a href="https://developer.roblox.com/en-us/api-reference/class/TouchTransmitter">TouchTransmitter</a>, and others become <code>Folder</code>; <a href="https://developer.roblox.com/en-us/api-reference/class/CloudLocalizationTable">CloudLocalizationTable</a> becomes <a href="https://developer.roblox.com/en-us/api-reference/class/LocalizationTable">LocalizationTable</a>; <code>Platform</code> becomes <a href="https://developer.roblox.com/en-us/api-reference/class/Part">Part</a>; <code>Status</code> becomes <a href="https://developer.roblox.com/en-us/api-reference/class/Model">Model</a>. Set a class to <code>false</code> to skip its replacement. <em><strong>Default:</strong></em> built-in replacements</p>
+</span></span></div><div><code>NilInstancesFixes<!-- -->: </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="green_DgR4">(</code><code class="yellow_QJap">(</code><div class="inset_uKQm"><code>instance<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="yellow_QJap">,</code></div><div class="inset_uKQm"><code>overrides<!-- -->: </code><code class="blue_P4bS">table</code></div><code class="yellow_QJap">)</code><code class="yellow_QJap"> → </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance?<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="green_DgR4">)</code><code class="op_lSLc"> | </code><code class="blue_P4bS">false</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
+<p>Where to put objects that have no parent. For example, it puts <a href="https://developer.roblox.com/en-us/api-reference/class/Animator">Animator</a> under an <a href="https://developer.roblox.com/en-us/api-reference/class/AnimationController">AnimationController</a>. Built-in fixes exist for <a href="https://developer.roblox.com/en-us/api-reference/class/Animator">Animator</a>, <a href="https://developer.roblox.com/en-us/api-reference/class/AdPortal">AdPortal</a>, <a href="https://developer.roblox.com/en-us/api-reference/class/Attachment">Attachment</a>, <a href="https://developer.roblox.com/en-us/api-reference/class/BaseWrap">BaseWrap</a>, and <a href="https://developer.roblox.com/en-us/api-reference/class/PackageLink">PackageLink</a>. Child classes use the parent fix (<a href="https://developer.roblox.com/en-us/api-reference/class/Bone">Bone</a>s use the Attachment fix). Set a class to <code>false</code> to turn off its fix. <em><strong>Default:</strong></em> built-in Animator/AdPortal/Attachment/BaseWrap/PackageLink fixes</p>
+</span></span></div><div><code>IgnoreDefaultProperties<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Skip properties that already have the default value for their class. This only affects XML output. Binary output does not use this option. <em><strong>Default:</strong></em> true</p>
+</span></span></div><div><code>IgnorePropertiesOfNotScriptsOnScriptsMode<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Only in <code>scripts</code> mode: save properties for <a href="https://developer.roblox.com/en-us/api-reference/class/LuaSourceContainer">LuaSourceContainer</a>s and skip properties for all other objects. This does nothing in other modes. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>IgnoreDefaultPlayerScripts<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Skip Roblox's default player scripts (<code>PlayerModule</code>, <code>BubbleChat</code>, <code>ChatScript</code>, <code>PlayerScriptsLoader</code>, <code>RbxCharacterSounds</code>). This can stop some executors from crashing during decompile. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>SaveCacheInterval<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+<p>How much XML data the script holds in memory while saving. Lower values update the status more often but are slower. This does not write to disk. When <code>KillAllScripts</code> is on, this also sets the script timeout between 20 and 30 seconds. <em><strong>Default:</strong></em> 0x1600 * 10</p>
+</span></span></div><div><code>SharedBinaryStrings<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Store the same binary data (meshes, images, ...) only once in the file. This makes saves with repeated data smaller. Files with all unique data can get slightly bigger. This is not an official Roblox format, but Studio can still open the file. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>TreatUnionsAsParts<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Change all <a href="https://developer.roblox.com/en-us/api-reference/class/PartOperation">PartOperation</a>s (unions and intersections) into <a href="https://developer.roblox.com/en-us/api-reference/class/Part">Part</a>s. <strong>RISKY:</strong> you lose the merged shape, but executors that cannot read unions will still show visible parts. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>ShutdownWhenDone<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
+<p>Close the game after a successful save. <em><strong>Default:</strong></em> false</p>
+</span></span></div><div><code>__DEBUG_MODE<!-- -->: </code><code class="blue_P4bS">boolean</code><code class="op_lSLc"> | </code><code class="purple_ieR2">(</code><code class="green_DgR4">(</code><code class="blue_P4bS">...any</code><code class="green_DgR4">)</code><code class="green_DgR4"> → </code><code class="green_DgR4">(</code><code class="green_DgR4">)</code><code class="purple_ieR2">)</code><span class="inlineDescription_G7Er">-- <span>
+<p>Print debug warnings for unusual cases. If you pass a function, the script uses it instead of <code>warn</code>. <em><strong>Default:</strong></em> false</p>
+</span></span></div></div><code>}</code></div><div>
+<p>
+  Options for <a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#synsaveinstance">UniversalSynSaveInstance.synsaveinstance</a>. All fields are optional.
+  The default is shown at the end of each field. Option names are not
+  case-sensitive: <code>NilInstances</code>, <code>nilinstances</code>, and <code>nilInStaNces</code> are the
+  same option. Unknown names are ignored.
+</p>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="OptionsAliases"><code style="text-decoration:none">OptionsAliases</code><a href="#OptionsAliases" class="hash-link" aria-label="Direct link to OptionsAliases" title="Direct link to OptionsAliases" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3662"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>OptionsAliases<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>Clipboard<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>CopyToClipboard</code></p>
+</span></span></div><div><code>DecompileScripts<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>Decompile</code></p>
+</span></span></div><div><code>FileName<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>FilePath</code></p>
+</span></span></div><div><code>IgnoreArchivable<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IgnoreNotArchivable</code></p>
+</span></span></div><div><code>IgnoreDefaultProps<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IgnoreDefaultProperties</code></p>
+</span></span></div><div><code>InstancesBlacklist<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IgnoreList</code></p>
+</span></span></div><div><code>IsolatePlayerGui<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IsolateLocalPlayer</code></p>
+</span></span></div><div><code>SaveCharacters<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>SavePlayerCharacters</code></p>
+</span></span></div><div><code>SaveLocalPlayer<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IsolateLocalPlayer</code></p>
+</span></span></div><div><code>SaveNilInstances<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>NilInstances</code></p>
+</span></span></div><div><code>SaveNonCreatable<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>SaveNotCreatable</code></p>
+</span></span></div><div><code>SavePlayerGui<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IsolateLocalPlayer</code></p>
+</span></span></div><div><code>SavePlayers<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IsolatePlayers</code></p>
+</span></span></div><div><code>ShowProgress<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>ShowStatus</code></p>
+</span></span></div><div><code>StatusText<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>ShowStatus</code></p>
+</span></span></div><div><code>timeout<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>DecompileTimeout</code></p>
+</span></span></div></div><code>}</code></div><div>
+<p>
+  Map of old option names to new option names for the <a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#CustomOptions">UniversalSynSaveInstance.CustomOptions</a> table.
+  Format: <code>{ OldName = NewName }</code>
+  The script reads these before your options, so you cannot change them after the script starts.
+</p>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="OptionsAliasesInverse"><code style="text-decoration:none">OptionsAliasesInverse</code><a href="#OptionsAliasesInverse" class="hash-link" aria-label="Direct link to OptionsAliasesInverse" title="Direct link to OptionsAliasesInverse" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3675"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>OptionsAliasesInverse<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>DisableCompression<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>CompressionMode</code></p>
+</span></span></div><div><code>noscripts<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>Decompile</code></p>
+</span></span></div><div><code>RemovePlayerCharacters<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>SavePlayerCharacters</code></p>
+</span></span></div><div><code>RemovePlayers<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>IsolatePlayers</code></p>
+</span></span></div><div><code>XML<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>Binary</code></p>
+</span></span></div></div><code>}</code></div><div>
+<p>
+  Map of old option names that change a true/false value to the opposite.
+  Format: <code>{ OldName = NewName }</code>
+  The script flips the value before it uses it. <code>noscripts = true</code> sets <code>Decompile = false</code>.
+  <code>DisableCompression = true</code> sets <code>CompressionMode = false</code>.
+  The script reads these before your options, so you cannot change them after the script starts.
+</p>
+</div><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="functions">Functions<a href="#functions" class="hash-link" aria-label="Direct link to Functions" title="Direct link to Functions" translate="no">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="synsaveinstance"><code style="text-decoration:none">synsaveinstance</code><a href="#synsaveinstance" class="hash-link" aria-label="Direct link to synsaveinstance" title="Direct link to synsaveinstance" translate="no">​</a></h3><span class="badge_Ba2I" style="color:#f1c40f"><span class="badgeTooltip_cWXP">This is a yielding function. When called, it will pause the Lua thread that called the function until a result is ready to be returned, without interrupting other scripts.</span><span class="badgeToolTipTail_H9D_"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#f1c40f" role="img" aria-label="This is a yielding function. When called, it will pause the Lua thread that called the function until a result is ready to be returned, without interrupting other scripts."><path d="M96.4 11.9c-1.4-2.5-4-4-6.9-4H10.8c-2.9 0-5.4 1.5-6.9 4-1.4 2.5-1.4 5.5 0 7.9L43.3 88c1.4 2.5 4 4 6.9 4 2.9 0 5.4-1.5 6.9-4l39.3-68.2c1.4-2.4 1.4-5.4 0-7.9zM46.3 54.5c1.1-1.1 2.3-1.6 3.8-1.6s2.8.5 3.8 1.6c1.1 1.1 1.6 2.3 1.6 3.8s-.5 2.8-1.6 3.8c-1.1 1.1-2.3 1.6-3.8 1.6s-2.8-.5-3.8-1.6c-1.1-1.1-1.6-2.3-1.6-3.8.1-1.5.6-2.8 1.6-3.8zm-.5-4.9V21.8h8.8v27.8h-8.8z"></path></svg> <!-- -->Yields</span></span><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3702"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>UniversalSynSaveInstance<!-- -->.</code><code class="green_DgR4">synsaveinstance</code><code>(</code><div class="inset_uKQm"><div><code>...<!-- -->: </code><code class="blue_P4bS">table</code><code class="op_lSLc"> | </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#CustomOptions">UniversalSynSaveInstance.CustomOptions</a> tables are combined in order. An <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a> becomes <code>Object</code>. A string becomes <code>FilePath</code>. A list of Instances becomes <code>ExtraInstances</code> and sets <code>IsModel = true</code>. If you pass Instances directly and do not set <code>mode</code>, <code>mode</code> becomes invalid, so only those Instances are saved.</p>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+<p>Save the current place, one <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>, or a group of <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>s. Example:</p>
+<pre class="language-lua"><code class="language-lua"><span class="token keyword">local</span> Params <span class="token operator">=</span> <span class="token punctuation">{</span>
+	RepoURL <span class="token operator">=</span> <span class="token string">"https://raw.githubusercontent.com/luau/UniversalSynSaveInstance/main/"</span><span class="token punctuation">,</span>
+	SSI <span class="token operator">=</span> <span class="token string">"saveinstance"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">local</span> synsaveinstance <span class="token operator">=</span> <span class="token function">loadstring</span><span class="token punctuation">(</span>game<span class="token punctuation">:</span><span class="token function">HttpGet</span><span class="token punctuation">(</span>Params<span class="token punctuation">.</span>RepoURL <span class="token operator">..</span> Params<span class="token punctuation">.</span>SSI <span class="token operator">..</span> <span class="token string">".luau"</span><span class="token punctuation">,</span> <span class="token keyword">true</span><span class="token punctuation">)</span><span class="token punctuation">,</span> Params<span class="token punctuation">.</span>SSI<span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">local</span> CustomOptions <span class="token operator">=</span> <span class="token punctuation">{</span> SafeMode <span class="token operator">=</span> <span class="token keyword">true</span><span class="token punctuation">,</span> DecompileTimeout <span class="token operator">=</span> <span class="token number">15</span><span class="token punctuation">,</span> SaveBytecode <span class="token operator">=</span> <span class="token keyword">true</span> <span class="token punctuation">}</span>
+
+<span class="token function">synsaveinstance</span><span class="token punctuation">(</span>CustomOptions<span class="token punctuation">)</span>
+</code></pre>
+<p>You can pass any number of arguments, in any order:</p>
+<pre class="language-lua"><code class="language-lua"><span class="token function">synsaveinstance</span><span class="token punctuation">(</span><span class="token punctuation">{</span> mode <span class="token operator">=</span> <span class="token string">"scripts"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"myScripts.rbxlx"</span><span class="token punctuation">)</span>
+<span class="token function">synsaveinstance</span><span class="token punctuation">(</span>workspace<span class="token punctuation">.</span>Model<span class="token punctuation">)</span> <span class="token comment">-- Object; saved as a model</span>
+<span class="token function">synsaveinstance</span><span class="token punctuation">(</span><span class="token punctuation">{</span> workspace<span class="token punctuation">.</span>Model<span class="token punctuation">,</span> workspace<span class="token punctuation">.</span>OtherModel <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token comment">-- ExtraInstances</span>
+</code></pre>
+</div></div></article></div><details><summary>Show raw api</summary><pre style="max-width:100%;white-space:pre-wrap">{
+    &quot;functions&quot;: [
+        {
+            &quot;name&quot;: &quot;synsaveinstance&quot;,
+            &quot;desc&quot;: &quot;Save the current place, one [Instance], or a group of [Instance]s. Example:\n```lua\nlocal Params = {\n\tRepoURL = \&quot;https://raw.githubusercontent.com/luau/UniversalSynSaveInstance/main/\&quot;,\n\tSSI = \&quot;saveinstance\&quot;,\n}\n\nlocal synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. \&quot;.luau\&quot;, true), Params.SSI)()\n\nlocal CustomOptions = { SafeMode = true, DecompileTimeout = 15, SaveBytecode = true }\n\nsynsaveinstance(CustomOptions)\n```\n\nYou can pass any number of arguments, in any order:\n```lua\nsynsaveinstance({ mode = \&quot;scripts\&quot; }, \&quot;myScripts.rbxlx\&quot;)\nsynsaveinstance(workspace.Model) -- Object; saved as a model\nsynsaveinstance({ workspace.Model, workspace.OtherModel }) -- ExtraInstances\n```&quot;,
+            &quot;params&quot;: [
+                {
+                    &quot;name&quot;: &quot;...&quot;,
+                    &quot;desc&quot;: &quot;[UniversalSynSaveInstance.CustomOptions] tables are combined in order. An [Instance] becomes `Object`. A string becomes `FilePath`. A list of Instances becomes `ExtraInstances` and sets `IsModel = true`. If you pass Instances directly and do not set `mode`, `mode` becomes invalid, so only those Instances are saved.&quot;,
+                    &quot;lua_type&quot;: &quot;table | Instance | string&quot;
+                }
+            ],
+            &quot;returns&quot;: [],
+            &quot;function_type&quot;: &quot;static&quot;,
+            &quot;yields&quot;: true,
+            &quot;source&quot;: {
+                &quot;line&quot;: 3702,
+                &quot;path&quot;: &quot;saveinstance.luau&quot;
+            }
+        }
+    ],
+    &quot;properties&quot;: [],
+    &quot;types&quot;: [
+        {
+            &quot;name&quot;: &quot;CustomOptions&quot;,
+            &quot;desc&quot;: &quot;Options for [UniversalSynSaveInstance.synsaveinstance]. All fields are optional.\nThe default is shown at the end of each field. Option names are not\ncase-sensitive: `NilInstances`, `nilinstances`, and `nilInStaNces` are the\nsame option. Unknown names are ignored.&quot;,
+            &quot;fields&quot;: [
+                {
+                    &quot;name&quot;: &quot;mode&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;What to save. `optimized` saves the most important services (Workspace, Players, Lighting, ReplicatedStorage, StarterGui, and others). `full` saves everything under `game`. `scripts` saves only the top-level parts that contain a [LuaSourceContainer] (a script object). It saves the whole part, not just the script. Any other value saves only `ExtraInstances` (and `Object`, if set). If `Object` is set, `optimized` becomes `full`. ___Default:___ `optimized`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;Binary&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Save a binary file (`.rbxl`/`.rbxm`) instead of an XML file (`.rbxlx`/`.rbxmx`). Binary files are smaller and load faster. If the executor cannot write binary data correctly, the script uses XML. Set the old option `XML = true` to force XML. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;CompressionMode&quot;,
+                    &quot;lua_type&quot;: &quot;string | boolean&quot;,
+                    &quot;desc&quot;: &quot;How to compress (make smaller) the binary file: `\&quot;zstd\&quot;`, `\&quot;lz4\&quot;`, or `false` for no compression. `true` means `\&quot;zstd\&quot;`. The old option `DisableCompression = true` means `false`. ___Default:___ `\&quot;zstd\&quot;`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;CompressionLevel&quot;,
+                    &quot;lua_type&quot;: &quot;number&quot;,
+                    &quot;desc&quot;: &quot;Compression level for zstd, from -7 to 22. A higher level makes a smaller file but takes longer. This is ignored for lz4 and when compression is off. ___Default:___ 9&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;FilePath&quot;,
+                    &quot;lua_type&quot;: &quot;string | false&quot;,
+                    &quot;desc&quot;: &quot;File name to save to. You can include a folder. If the name has no extension, the script adds one based on `Binary` and `IsModel`. If you set this, the script overwrites an existing file and ignores `AvoidFileOverwrite`. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SafeMode&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Disconnect the LocalPlayer from the game when saving starts. This turns on `KillAllScripts` and `BoostFPS` unless you set them yourself. **HIGHLY RECOMMENDED.** ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;KillAllScripts&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Close or disable other running scripts before saving. `SafeMode` turns this on. Some games stop responding to input after this. That is normal. **HIGHLY RECOMMENDED.** ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;BoostFPS&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Turn off 3D rendering while saving, then turn it back on. `SafeMode` turns this on. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;Object&quot;,
+                    &quot;lua_type&quot;: &quot;Instance | false&quot;,
+                    &quot;desc&quot;: &quot;Save this [Instance] instead of the whole place. The script saves a model if you do not set `IsModel = false`. If you pass `game`, it saves the place and uses `full` mode. You must pass an [Instance], not a name. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IsModel&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Save a model (`.rbxm`/`.rbxmx`) instead of a place (`.rbxl`/`.rbxlx`). `Object` turns this on unless you set it yourself. Passing a list of Instances as an argument also turns it on. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;ShowStatus&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Show a status label on the screen. It shows the size while saving, then the final size and time. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;ReadMe&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Add a README script to the save. It contains save details (place ID, date, time, platform, executor, recovered scripts, warnings) and tips. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;Decompile&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Turn the compiled script back into source code (decompile). This replaces the `Source` of each [LuaSourceContainer] with decompiled code. If this is off, `Source` says decompiling is disabled. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SaveBytecode&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;If the executor supports `getscriptbytecode`, add the compiled script data (bytecode) to `Source` as a comment. You can decompile it later. This respects `DecompileIgnore`. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;DecompileTimeout&quot;,
+                    &quot;lua_type&quot;: &quot;number&quot;,
+                    &quot;desc&quot;: &quot;How many seconds one decompile call can take. If it takes longer, the script stops waiting and writes a timeout message in `Source`. Set to -1 to disable the timeout. ___Default:___ 10&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;BytecodeTimeout&quot;,
+                    &quot;lua_type&quot;: &quot;number&quot;,
+                    &quot;desc&quot;: &quot;How many seconds a `getscriptbytecode` call can take. If it takes longer, the script stops waiting and skips the bytecode for that script. Set to -1 to disable the timeout. ___Default:___ 3&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;DecompileIgnore&quot;,
+                    &quot;lua_type&quot;: &quot;{Instance | string} | {[Instance | string]: boolean | {[string]: boolean}}&quot;,
+                    &quot;desc&quot;: &quot;Skip decompiling matched [Instance]s and their children. `Source` becomes a short ignored message. You can pass an [Instance], a class name, or `ClassName = {Name1, Name2}`. Set an [Instance] to `false` to skip only that instance, not its children. ___Default:___ {TextChatService}&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;DecompileJobless&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Only use scripts that are already in the decompile cache. Missing scripts get a short not-found message. This turns on `scriptcache`. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;scriptcache&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;If the executor supports `getscriptbytecode`, cache decompiled code. This avoids decompiling the same script twice. The cache stays after the script reloads. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;RecoverScriptsFromAssets&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Recover the original `Source` of scripts that were published as assets. Changes made after publishing are not included. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IsolatePlayers&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Put every [Player] under a top-level `\&quot;Players\&quot;` Folder instead of inside the [Players] service. This turns on `SaveNotCreatable`. If both are on, this option is used instead of `IsolateLocalPlayer`. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IsolateLocalPlayer&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Save the LocalPlayer as a Folder named `\&quot;LocalPlayer\&quot;` instead of a [Player] object. This is ignored if `IsolatePlayers` is on. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IsolateLocalPlayerCharacter&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Save LocalPlayer.Character as a [Model] named `\&quot;LocalPlayer Character\&quot;`. This saves the character even when characters are normally skipped. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IsolateStarterPlayer&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Put [StarterPlayer]&#x27;s children under a top-level `\&quot;StarterPlayer\&quot;` Folder. The original service stays, but it is empty. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SavePlayerCharacters&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Save player characters instead of skipping them. This also saves objects with `Archivable = false`, so `IgnoreNotArchivable` is forced on. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;NilInstances&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Include objects that have no parent (they are not under `game`). This needs the executor function `getnilinstances`. When that function exists, it also turns on `SaveNotCreatable`. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;ExtraInstances&quot;,
+                    &quot;lua_type&quot;: &quot;{Instance}&quot;,
+                    &quot;desc&quot;: &quot;A list of [Instance]s to add to the normal save. If `mode` is not a valid value, only these Instances (and `Object`, if set) are saved. Passing a list of Instances as an argument fills this list. ___Default:___ {}&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreList&quot;,
+                    &quot;lua_type&quot;: &quot;{Instance | string} | {[Instance | string]: boolean | {[string]: boolean}}&quot;,
+                    &quot;desc&quot;: &quot;Objects to skip. Use an [Instance] or a class name as a key to skip that object and its children. `ClassName = false` keeps the object but skips its children. `ClassName = {Name1, Name2}` skips objects with those names. You can also pass a list of Instances or class names. ___Default:___ {CoreGui, CorePackages, Packages = false}&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreSpecialProperties&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Do not use the executor function `gethiddenproperty`. Other property reads still work. This can help if your executor crashes or the file is corrupted. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;AlternativeWritefile&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Write the file in smaller pieces with `appendfile` instead of one `writefile` call. For binary saves, if `appendfile` fails, it uses `writefile`; if both fail, it switches to XML. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;Anonymous&quot;,
+                    &quot;lua_type&quot;: &quot;boolean | {Name: string?, UserId: number?}&quot;,
+                    &quot;desc&quot;: &quot;**RISKY:** Replace LocalPlayer.Name and UserId in the output. `true` replaces them with `\&quot;Roblox\&quot;` and `1`. You can also pass a table with `Name` and/or `UserId`. Name matching ignores case. This can also change other text or numbers that match. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;RiskyServicesDisabled&quot;,
+                    &quot;lua_type&quot;: &quot;{UGC: boolean?, Encoding: boolean?, Reflection: boolean?}&quot;,
+                    &quot;desc&quot;: &quot;Turn off services that some games may detect. `UGC` skips [UGCValidationService] (used for some hidden properties). `Encoding` skips [EncodingService]. `Reflection` skips [ReflectionService] (used for class data). Set a flag to `true` to skip that service. If you do not set `RiskyServicesDisabled` yourself, the UGC fallback turns on automatically when `gethiddenproperty` is missing. ___Default:___ {UGC = true, Encoding = false, Reflection = false}&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;AvoidFileOverwrite&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;If `FilePath` is not set, add (1), (2), ... to the file name instead of overwriting an existing file. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;AntiIdle&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Stop Roblox from kicking you for being idle (not moving) for 20 minutes. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;CopyToClipboard&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Copy the result to the clipboard (the copy/paste buffer) instead of writing a file. Your executor must support `setrbxclipboard`. Use this only for small saves. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;Callback&quot;,
+                    &quot;lua_type&quot;: &quot;((data: string, chunks: {string}) -&gt; ()) | false&quot;,
+                    &quot;desc&quot;: &quot;Call this function with the result instead of writing a file. It receives the full text and a list of chunks. If `CopyToClipboard` is also on, the clipboard is used instead. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreProperties&quot;,
+                    &quot;lua_type&quot;: &quot;{string}&quot;,
+                    &quot;desc&quot;: &quot;A list of property names to skip on every object. For example: `{\&quot;Tags\&quot;, \&quot;AttributesSerialize\&quot;}`. ___Default:___ {}&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreNotArchivable&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Save objects even when their `Archivable` property is `false`. If this is off, the script skips those objects. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SaveNotCreatable&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Save classes that Roblox says are not creatable. The script replaces them with a class it can create, using `NotCreatableFixes` (usually `Folder`). This turns on automatically with `IsolatePlayers`, `IsolateLocalPlayer`, and `NilInstances` (when `getnilinstances` exists). ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;NotCreatableFixes&quot;,
+                    &quot;lua_type&quot;: &quot;{string} | {[string]: string | false}&quot;,
+                    &quot;desc&quot;: &quot;Replace a class with a class that can be created. The default replacement is `\&quot;Folder\&quot;`. A list of class names also becomes `Folder`. Built-in changes: [Player], [PlayerGui], [PlayerScripts], [TouchTransmitter], and others become `Folder`; [CloudLocalizationTable] becomes [LocalizationTable]; `Platform` becomes [Part]; `Status` becomes [Model]. Set a class to `false` to skip its replacement. ___Default:___ built-in replacements&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;NilInstancesFixes&quot;,
+                    &quot;lua_type&quot;: &quot;{[string]: ((instance: Instance, overrides: table) -&gt; Instance?) | false}&quot;,
+                    &quot;desc&quot;: &quot;Where to put objects that have no parent. For example, it puts [Animator] under an [AnimationController]. Built-in fixes exist for [Animator], [AdPortal], [Attachment], [BaseWrap], and [PackageLink]. Child classes use the parent fix ([Bone]s use the Attachment fix). Set a class to `false` to turn off its fix. ___Default:___ built-in Animator/AdPortal/Attachment/BaseWrap/PackageLink fixes&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreDefaultProperties&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Skip properties that already have the default value for their class. This only affects XML output. Binary output does not use this option. ___Default:___ true&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnorePropertiesOfNotScriptsOnScriptsMode&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Only in `scripts` mode: save properties for [LuaSourceContainer]s and skip properties for all other objects. This does nothing in other modes. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreDefaultPlayerScripts&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Skip Roblox&#x27;s default player scripts (`PlayerModule`, `BubbleChat`, `ChatScript`, `PlayerScriptsLoader`, `RbxCharacterSounds`). This can stop some executors from crashing during decompile. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SaveCacheInterval&quot;,
+                    &quot;lua_type&quot;: &quot;number&quot;,
+                    &quot;desc&quot;: &quot;How much XML data the script holds in memory while saving. Lower values update the status more often but are slower. This does not write to disk. When `KillAllScripts` is on, this also sets the script timeout between 20 and 30 seconds. ___Default:___ 0x1600 * 10&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SharedBinaryStrings&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Store the same binary data (meshes, images, ...) only once in the file. This makes saves with repeated data smaller. Files with all unique data can get slightly bigger. This is not an official Roblox format, but Studio can still open the file. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;TreatUnionsAsParts&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Change all [PartOperation]s (unions and intersections) into [Part]s. **RISKY:** you lose the merged shape, but executors that cannot read unions will still show visible parts. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;ShutdownWhenDone&quot;,
+                    &quot;lua_type&quot;: &quot;boolean&quot;,
+                    &quot;desc&quot;: &quot;Close the game after a successful save. ___Default:___ false&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;__DEBUG_MODE&quot;,
+                    &quot;lua_type&quot;: &quot;boolean | ((...any) -&gt; ())&quot;,
+                    &quot;desc&quot;: &quot;Print debug warnings for unusual cases. If you pass a function, the script uses it instead of `warn`. ___Default:___ false&quot;
+                }
+            ],
+            &quot;source&quot;: {
+                &quot;line&quot;: 3640,
+                &quot;path&quot;: &quot;saveinstance.luau&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;OptionsAliases&quot;,
+            &quot;desc&quot;: &quot;Map of old option names to new option names for the [UniversalSynSaveInstance.CustomOptions] table.\nFormat: `{ OldName = NewName }`\nThe script reads these before your options, so you cannot change them after the script starts.&quot;,
+            &quot;fields&quot;: [
+                {
+                    &quot;name&quot;: &quot;Clipboard&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`CopyToClipboard`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;DecompileScripts&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`Decompile`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;FileName&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`FilePath`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreArchivable&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IgnoreNotArchivable`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IgnoreDefaultProps&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IgnoreDefaultProperties`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;InstancesBlacklist&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IgnoreList`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;IsolatePlayerGui&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IsolateLocalPlayer`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SaveCharacters&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`SavePlayerCharacters`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SaveLocalPlayer&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IsolateLocalPlayer`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SaveNilInstances&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`NilInstances`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SaveNonCreatable&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`SaveNotCreatable`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SavePlayerGui&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IsolateLocalPlayer`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SavePlayers&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IsolatePlayers`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;ShowProgress&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`ShowStatus`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;StatusText&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`ShowStatus`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;timeout&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`DecompileTimeout`&quot;
+                }
+            ],
+            &quot;source&quot;: {
+                &quot;line&quot;: 3662,
+                &quot;path&quot;: &quot;saveinstance.luau&quot;
+            }
+        },
+        {
+            &quot;name&quot;: &quot;OptionsAliasesInverse&quot;,
+            &quot;desc&quot;: &quot;Map of old option names that change a true/false value to the opposite.\nFormat: `{ OldName = NewName }`\nThe script flips the value before it uses it. `noscripts = true` sets `Decompile = false`.\n`DisableCompression = true` sets `CompressionMode = false`.\nThe script reads these before your options, so you cannot change them after the script starts.&quot;,
+            &quot;fields&quot;: [
+                {
+                    &quot;name&quot;: &quot;DisableCompression&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`CompressionMode`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;noscripts&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`Decompile`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;RemovePlayerCharacters&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`SavePlayerCharacters`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;RemovePlayers&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`IsolatePlayers`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;XML&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`Binary`&quot;
+                }
+            ],
+            &quot;source&quot;: {
+                &quot;line&quot;: 3675,
+                &quot;path&quot;: &quot;saveinstance.luau&quot;
+            }
+        }
+    ],
+    &quot;name&quot;: &quot;UniversalSynSaveInstance&quot;,
+    &quot;desc&quot;: &quot;This module saves the current place, one [Instance] (a Roblox object), or a\ngroup of [Instance]s to a `.rbxl`/`.rbxm` (binary) or `.rbxlx`/`.rbxmx` (XML)\nfile.\n\nLoad the module with `loadstring` and call it. Your executor (the program that\nruns the script) must support `loadstring`. All options are optional. See\n[UniversalSynSaveInstance.CustomOptions] for all options. Option names are not\ncase-sensitive. Old names from [UniversalSynSaveInstance.OptionsAliases] and\n[UniversalSynSaveInstance.OptionsAliasesInverse] also work.\nThe most common options are at the top of\n[UniversalSynSaveInstance.CustomOptions]. Related options are grouped\ntogether, and advanced or rarely used options are at the bottom.&quot;,
+    &quot;source&quot;: {
+        &quot;line&quot;: 3584,
+        &quot;path&quot;: &quot;saveinstance.luau&quot;
+    }
+}</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#types" class="table-of-contents__link toc-highlight">Types</a><ul><li><a href="#CustomOptions" class="table-of-contents__link toc-highlight">CustomOptions</a></li><li><a href="#OptionsAliases" class="table-of-contents__link toc-highlight">OptionsAliases</a></li><li><a href="#OptionsAliasesInverse" class="table-of-contents__link toc-highlight">OptionsAliasesInverse</a></li></ul></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#synsaveinstance" class="table-of-contents__link toc-highlight">.synsaveinstance</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__links text--center"><div class="footer__links"><a href="https://discord.gg/wx4ThpAsmw" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><span class="footer__link-separator">·</span><a href="https://ko-fi.com/M4M1JNH5G" target="_blank" rel="noopener noreferrer" class="footer__link-item">Support<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></div></div><div class="footer__bottom text--center"><div class="margin-bottom--sm"><img src="/UniversalSynSaveInstance/favicon.png" class="footer__logo themedComponent_mlkZ themedComponent--light_NVdE" width="50" height="50"><img src="/UniversalSynSaveInstance/favicon.png" class="footer__logo themedComponent_mlkZ themedComponent--dark_xIcU" width="50" height="50"></div><div class="footer__copyright">Copyright © 2026 luau. Built with Moonwave and Docusaurus.</div></div></div></footer></div>
+</body>
+</html>
