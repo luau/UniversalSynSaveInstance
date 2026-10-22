@@ -12,7 +12,7 @@ local Params = {
  SSI = "saveinstance",
 }
 local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
-local Options = {} -- Documentation here https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance
+local Options = {} -- Documentation here https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance
 synsaveinstance(Options)
 ```
 
@@ -114,7 +114,7 @@ resources include:
 
 \*\*\* View source code of this file for more credits
 
-[Documentation]: https://luau.github.io/UniversalSynSaveInstance/api/SynSaveInstance
+[Documentation]: https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance
 [@Acrillis]: https://github.com/Acrillis
 [@Anaminus]: https://github.com/Anaminus
 [@Dekkonot]: https://github.com/Dekkonot

@@ -116,7 +116,7 @@ local isfile = isfile
 local readfile = readfile
 local writefile = writefile
 
-local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the executor defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
+local getscriptbytecode = global_container.getscriptbytecode -- * A lot of assumptions are made based on whether this function is defined or not. So in certain edge cases, like if the environment defines "decompile" or "getscripthash" function yet doesn't define this function there might be loss of functionality of the saveinstance. Although that would be very rare and weird
 local base64encode = global_container.base64encode
 local base64decode = global_container.base64decode
 
@@ -3567,102 +3567,114 @@ do
 end
 
 --[=[
-    @class SynSaveInstance
-    Represents the options for saving instances with custom settings using the synsaveinstance function.
+    @class UniversalSynSaveInstance
+    This module saves the current place, one [Instance] (a Roblox object), or a
+    group of [Instance]s to a `.rbxl`/`.rbxm` (binary) or `.rbxlx`/`.rbxmx` (XML)
+    file.
+
+    All options are optional. See
+    [UniversalSynSaveInstance.SaveInstanceOptions] for all options. Option names are not
+    case-sensitive. Old names from [UniversalSynSaveInstance.OptionsAliases] and
+    [UniversalSynSaveInstance.OptionsAliasesInverse] also work.
+    The most common options are at the top of
+    [UniversalSynSaveInstance.SaveInstanceOptions]. Related options are grouped
+    together, and advanced or rarely used options are at the bottom.
 ]=]
 
---- @interface CustomOptions table
---- * Structure of the main CustomOptions table.
---- * Note: Options are case-insensitive, meaning you can type `NilInstances` option as `nilInStaNces` and it still will be valid.
---- @within SynSaveInstance
---- @field __DEBUG_MODE boolean -- This will print debug logs to console about unusual scenarios. Recommended to enable if you wish to help us improve our products and find bugs / issues with it! ___Default:___ false
---- @field ReadMe boolean --___Default:___ true
---- @field Binary boolean -- Saves as a binary file (.rbxl/.rbxm) instead of XML (.rbxlx/.rbxmx). Much smaller and faster to load. Pass `XML = true` for the opposite. ___Default:___ true
---- @field CompressionMode string -- How chunks are compressed in binary mode: "zstd", "lz4", or false for none. ___Default:___ "zstd"
---- @field CompressionLevel number -- Compression strength, higher is smaller but slower. Range is -7 to 22 inclusive. ___Default:___ 9
---- @field CopyToClipboard boolean -- Puts the finished output on the clipboard instead of writing a file, so you can paste it straight into Studio. Best for small saves -- a full place is usually far too big for the clipboard to handle. ___Default:___ false
---- .RiskyServicesDisabled {UGC, Encoding, Reflection = boolean} -- Per-service kill switches for services games might detect. `UGC` skips UGCValidationService (GHP fallback reads, `MeshPart.VertexCount`). `Encoding` skips EncodingService (base64 encode/decode, zstd compression falls back to other funcs). `Reflection` skips ReflectionService (one of several API dump fallbacks, `Content` property lookups -- falls back to the other API dump sources). Examples: `{UGC = true}` disables only UGCValidationService; `{Encoding = true, Reflection = true}` disables both, leaving UGC untouched. ___Default:___ {UGC = true, Encoding = false, Reflection = false}
---- @field SafeMode boolean -- Kicks you before Saving, which keeps you safe. **HIGHLY RECOMMENDED TO KEEP ENABLED**. ___Default:___ false
---- @field KillAllScripts boolean -- Kills all scripts to further protect you. SafeMode also enables this by default. If you can't move after saving then this is the reason. **HIGHLY RECOMMENDED TO KEEP ENABLED**. ___Default:___ false
---- @field BoostFPS boolean -- Massively boosts FPS by disabling 3D rendering. Other options also enable it, like: SafeMode. ___Default:___ false
---- @field ShutdownWhenDone boolean -- Shuts the game down after saveinstance is finished. ___Default:___ false
---- @field AntiIdle boolean -- Prevents the 20-minute-Idle Kick. ___Default:___ true
---- .Anonymous {boolean|table{UserId = string?, Name = string?}} -- * **RISKY:** Removes your Name and UserId from the file -- useful for games that store them in GUIs or other Instances. Can also be a table with UserId and/or Name keys to pick the replacements. May mess up unrelated text or numbers that happen to match. Inside attributes and tags the replacement is padded to the same length, so a name shorter than yours comes out as for example `Roblox____`. ___Default:___ false
---- @field ShowStatus boolean -- ___Default:___ true
---- @field Callback function -- If set, the serialized data will be sent to the callback function instead of to file. ___Default:___ false
---- @field mode string -- Valid modes: full, optimized, scripts. Change this to invalid mode like "invalid" if you only want ExtraInstances. "optimized" mode is **NOT** supported with *@Object* option. ___Default:___ `"optimized"`
---- @field Decompile boolean -- Script decompiling. ___Default:___ true
---- @field scriptcache boolean -- Use decompiled script cache to avoid decompiling duplicate scripts. ___Default:___ true
---- @field DecompileTimeout number -- If the decompilation run time exceeds this value it gets cancelled. Set to -1 to disable timeout. ___Default:___ 10
---- @field BytecodeTimeout number -- If the SaveBytecode run time exceeds this value it gets cancelled. Set to -1 to disable timeout. ___Default:___ 3
---- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
---- @field RecoverScriptsFromAssets boolean -- Recovers the original Source of Scripts published as an asset: walks up from each Script to the ancestor carrying a SourceAssetId, loads that asset and inlines the matching Script's source (any edits made after publishing are not included). ___Default:___ true
---- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. Respects **@DecompileIgnore**. ___Default:___ false
---- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Ignores matched instances and their descendants by default. To ignore only the instance itself, set the value to `false`. Examples: `"Chat"` matches any instance with ClassName "Chat"; `Players = {"MyPlayerName"}` matches class "Players" AND name "MyPlayerName" only; `workspace` matches a specific instance by reference; `[workspace] = false` matches a specific instance by reference, ignoring only itself and not its descendants. ___Default:___ {TextChatService}
---- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name | false}} -- Structure mirrors **@DecompileIgnore**, except `false` means keep the instance but ignore its descendants. Supports both instance references and ClassName strings. Examples: `"CoreGui"` skips entirely; `CorePackages = false` keeps the instance but skips its descendants; `Players = {"SomePlayer"}` skips a specific named instance with specific ClassName. ___Default:___ {CoreGui, CorePackages, Packages = false}
---- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
---- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
---- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. XML Only. ___Default:___ 0x1600 * 10
---- @field FilePath string -- The name (can include a path) of the file to save to. If it has no extension, `.rbxmx/rbxm` (models) or `.rbxlx/rbxl` (places) is appended; an existing extension is left as-is. Ignores `OPTIONS.AvoidFileOverwrite`. ___Default:___ false
---- @field AvoidFileOverwrite boolean -- Prevents writing to place file that already exists. ___Default:___ true
---- @field Object Instance -- * If provided, saves as .rbxmx (Model file) instead. If Object is game, it will be saved as a .rbxl file. **MUST BE AN INSTANCE REFERENCE, FOR EXAMPLE - *game.Workspace***. `"optimized"` mode is **NOT** supported with this option. If IsModel is set to false then Object specified here will be saved as a place file. ___Default:___ false
---- @field IsModel boolean -- If Object is specified then sets to true automatically, unless you set it to false. ___Default:___ false
---- @field NilInstances boolean -- Save instances that aren't Parented (Parented to nil). ___Default:___ false
---- .NilInstancesFixes {[Instance.ClassName] = function} -- * This can cause some Classes to be fixed even though they might not need the fix (better be safe than sorry though). For example, Bones inherit from Attachment if we dont define them in the NilInstancesFixes then this will catch them anyways. **TO AVOID THIS BEHAVIOR USE THIS EXAMPLE:** {ClassName_That_Doesnt_Need_Fix = false}. ___Default:___ {Animator = function, AdPortal = function, BaseWrap = function, Attachment = function}
---- @field IgnoreDefaultProperties boolean -- Ignores default properties during saving. XML Only (XML=true) because Binary (default) doesn't really need it.  ___Default:___ true
---- @field IgnoreNotArchivable boolean -- Ignores the Archivable property and saves Non-Archivable instances. ___Default:___ true
---- @field IgnorePropertiesOfNotScriptsOnScriptsMode boolean -- Ignores property of every instance that is not a script in "scripts" mode. ___Default:___ false
---- @field IgnoreSpecialProperties boolean -- Prevents calls to `gethiddenproperty` and uses fallback methods instead. This also helps with crashes. If your file is corrupted after saving, you can try turning this on. ___Default:___ false
---- @field IsolateStarterPlayer boolean -- Saves StarterPlayer as separate folder, children of the original instance will be ignored. ___Default:___ false
---- @field IsolatePlayers boolean -- Saves All Players as separate folder, children of the original instance will be ignored. ___Default:___ false
---- @field IsolateLocalPlayer boolean -- Saves LocalPlayer as separate folder, original instance will be ignored. ___Default:___ false
---- @field IsolateLocalPlayerCharacter boolean -- Saves LocalPlayer.Character as separate folder, original instance will be ignored. ___Default:___ false
---- @field SavePlayerCharacters boolean -- Save player characters while saving. ___Default:___ false
---- @field SaveNotCreatable boolean -- * Includes non-serializable instances as Folder objects (Name is misleading as this is mostly a fix for certain NilInstances and isn't always related to NotCreatable). Other options also enable it, like: IsolatePlayers, IsolateLocalPlayer, etc. ___Default:___ false
---- .NotCreatableFixes table<Instance.ClassName> -- * {"Player"} is the same as {Player = "Folder"}; Format like {SpawnLocation = "Part"} is only to be used when SpawnLocation inherits from "Part" AND "Part" is Creatable. ___Default:___ { "", "Player", "PlayerScripts", "PlayerGui", "TouchTransmitter" }
---- @field AlternativeWritefile boolean -- * Splits file content string into segments and writes them using appendfile. This might help with crashes when it starts writing to file. Though there is a risk of appendfile working incorrectly on some execs. ___Default:___ true
---- @field IgnoreDefaultPlayerScripts boolean -- * **RISKY**: Ignores Default PlayerScripts like PlayerModule & RbxCharacterSounds. Prevents crashes on some execs. ___Default:___ false
---- @field SharedBinaryStrings boolean -- Stores BinaryString values in a shared pool so identical ones are only written once, instead of repeating them for every instance. Good when many instances hold the same data (like copies of the same mesh) -- can make files noticeably smaller. Slightly bigger when everything is unique. Roblox doesn't officially support this, so there's a small chance it confuses Studio. ___Default:___ false
---- @field TreatUnionsAsParts boolean -- * **RISKY:** Converts all UnionOperations to Parts. Useful if your Executor isn't able to save (read) Unions, because otherwise they will be invisible. ___Default:___ false (except Solara)
+--- @interface SaveInstanceOptions
+--- Options for [UniversalSynSaveInstance.synsaveinstance]. All fields are optional.
+--- The default is shown at the end of each field. Option names are not
+--- case-sensitive: `NilInstances`, `nilinstances`, and `nilInStaNces` are the
+--- same option. Unknown names are ignored.
+--- @within UniversalSynSaveInstance
+--- @field mode string -- What to save. `optimized` saves the most important services (Workspace, Players, Lighting, ReplicatedStorage, StarterGui, and others). `full` saves everything under `game`. `scripts` saves only the top-level parts that contain a [LuaSourceContainer] (a script object). It saves the whole part, not just the script. Any other value saves only `ExtraInstances` (and `Object`, if set). If `Object` is set, `optimized` becomes `full`. ___Default:___ `optimized`
+--- @field Binary boolean -- Save a binary file (`.rbxl`/`.rbxm`) instead of an XML file (`.rbxlx`/`.rbxmx`). Binary files are smaller and load faster. If the executor cannot write binary data correctly, the script uses XML. Set the old option `XML = true` to force XML. ___Default:___ true
+--- @field CompressionMode string | boolean -- How to compress (make smaller) the binary file: `"zstd"`, `"lz4"`, or `false` for no compression. `true` means `"zstd"`. The old option `DisableCompression = true` means `false`. ___Default:___ `"zstd"`
+--- @field CompressionLevel number -- Compression level for zstd, from -7 to 22. A higher level makes a smaller file but takes longer. This is ignored for lz4 and when compression is off. ___Default:___ 9
+--- @field FilePath string | false -- File name to save to. You can include a folder. If the name has no extension, the script adds one based on `Binary` and `IsModel`. If you set this, the script overwrites an existing file and ignores `AvoidFileOverwrite`. ___Default:___ false
+--- @field SafeMode boolean -- Disconnect the LocalPlayer from the game when saving starts. This turns on `KillAllScripts` and `BoostFPS` unless you set them yourself. **HIGHLY RECOMMENDED.** ___Default:___ false
+--- @field KillAllScripts boolean -- Close or disable other running scripts before saving. `SafeMode` turns this on. Some games stop responding to input after this. That is normal. **HIGHLY RECOMMENDED.** ___Default:___ false
+--- @field BoostFPS boolean -- Turn off 3D rendering while saving, then turn it back on. `SafeMode` turns this on. ___Default:___ false
+--- @field Object Instance | false -- Save this [Instance] instead of the whole place. The script saves a model if you do not set `IsModel = false`. If you pass `game`, it saves the place and uses `full` mode. You must pass an [Instance], not a name. ___Default:___ false
+--- @field IsModel boolean -- Save a model (`.rbxm`/`.rbxmx`) instead of a place (`.rbxl`/`.rbxlx`). `Object` turns this on unless you set it yourself. Passing a list of Instances as an argument also turns it on. ___Default:___ false
+--- @field ShowStatus boolean -- Show a status label on the screen. It shows the size while saving, then the final size and time. ___Default:___ true
+--- @field ReadMe boolean -- Add a README script to the save. It contains save details (place ID, date, time, platform, executor, recovered scripts, warnings) and tips. ___Default:___ true
+--- @field Decompile boolean -- Turn the compiled script back into source code (decompile). This replaces the `Source` of each [LuaSourceContainer] with decompiled code. If this is off, `Source` says decompiling is disabled. ___Default:___ true
+--- @field SaveBytecode boolean -- If the executor supports `getscriptbytecode`, add the compiled script data (bytecode) to `Source` as a comment. You can decompile it later. This respects `DecompileIgnore`. ___Default:___ false
+--- @field DecompileTimeout number -- How many seconds one decompile call can take. If it takes longer, the script stops waiting and writes a timeout message in `Source`. Set to -1 to disable the timeout. ___Default:___ 10
+--- @field BytecodeTimeout number -- How many seconds a `getscriptbytecode` call can take. If it takes longer, the script stops waiting and skips the bytecode for that script. Set to -1 to disable the timeout. ___Default:___ 3
+--- @field DecompileIgnore {Instance | string} | {[Instance | string]: boolean | {[string]: boolean}} -- Skip decompiling matched [Instance]s and their children. `Source` becomes a short ignored message. You can pass an [Instance], a class name, or `ClassName = {Name1, Name2}`. Set an [Instance] to `false` to skip only that instance, not its children. ___Default:___ {TextChatService}
+--- @field DecompileJobless boolean -- Only use scripts that are already in the decompile cache. Missing scripts get a short not-found message. This turns on `scriptcache`. ___Default:___ false
+--- @field scriptcache boolean -- If the executor supports `getscriptbytecode`, cache decompiled code. This avoids decompiling the same script twice. The cache stays after the script reloads. ___Default:___ true
+--- @field RecoverScriptsFromAssets boolean -- Recover the original `Source` of scripts that were published as assets. Changes made after publishing are not included. ___Default:___ true
+--- @field IsolatePlayers boolean -- Put every [Player] under a top-level `"Players"` Folder instead of inside the [Players] service. This turns on `SaveNotCreatable`. If both are on, this option is used instead of `IsolateLocalPlayer`. ___Default:___ false
+--- @field IsolateLocalPlayer boolean -- Save the LocalPlayer as a Folder named `"LocalPlayer"` instead of a [Player] object. This is ignored if `IsolatePlayers` is on. ___Default:___ false
+--- @field IsolateLocalPlayerCharacter boolean -- Save LocalPlayer.Character as a [Model] named `"LocalPlayer Character"`. This saves the character even when characters are normally skipped. ___Default:___ false
+--- @field IsolateStarterPlayer boolean -- Put [StarterPlayer]'s children under a top-level `"StarterPlayer"` Folder. The original service stays, but it is empty. ___Default:___ false
+--- @field SavePlayerCharacters boolean -- Save player characters instead of skipping them. This also saves objects with `Archivable = false`, so `IgnoreNotArchivable` is forced on. ___Default:___ false
+--- @field NilInstances boolean -- Include objects that have no parent (they are not under `game`). This needs the executor function `getnilinstances`. When that function exists, it also turns on `SaveNotCreatable`. ___Default:___ false
+--- @field ExtraInstances {Instance} -- A list of [Instance]s to add to the normal save. If `mode` is not a valid value, only these Instances (and `Object`, if set) are saved. Passing a list of Instances as an argument fills this list. ___Default:___ {}
+--- @field IgnoreList {Instance | string} | {[Instance | string]: boolean | {[string]: boolean}} -- Objects to skip. Use an [Instance] or a class name as a key to skip that object and its children. `ClassName = false` keeps the object but skips its children. `ClassName = {Name1, Name2}` skips objects with those names. You can also pass a list of Instances or class names. ___Default:___ {CoreGui, CorePackages, Packages = false}
+--- @field IgnoreSpecialProperties boolean -- Do not use the executor function `gethiddenproperty`. Other property reads still work. This can help if your executor crashes or the file is corrupted. ___Default:___ false
+--- @field AlternativeWritefile boolean -- Write the file in smaller pieces with `appendfile` instead of one `writefile` call. For binary saves, if `appendfile` fails, it uses `writefile`; if both fail, it switches to XML. ___Default:___ true
+--- @field Anonymous boolean | {Name: string?, UserId: number?} -- **RISKY:** Replace LocalPlayer.Name and UserId in the output. `true` replaces them with `"Roblox"` and `1`. You can also pass a table with `Name` and/or `UserId`. Name matching ignores case. This can also change other text or numbers that match. ___Default:___ false
+--- @field RiskyServicesDisabled {UGC: boolean?, Encoding: boolean?, Reflection: boolean?} -- Turn off services that some games may detect. `UGC` skips [UGCValidationService] (used for some hidden properties). `Encoding` skips [EncodingService]. `Reflection` skips [ReflectionService] (used for class data). Set a flag to `true` to skip that service. If you do not set `RiskyServicesDisabled` yourself, the UGC fallback turns on automatically when `gethiddenproperty` is missing. ___Default:___ {UGC = true, Encoding = false, Reflection = false}
+--- @field AvoidFileOverwrite boolean -- If `FilePath` is not set, add (1), (2), ... to the file name instead of overwriting an existing file. ___Default:___ true
+--- @field AntiIdle boolean -- Stop Roblox from kicking you for being idle (not moving) for 20 minutes. ___Default:___ true
+--- @field CopyToClipboard boolean -- Copy the result to the clipboard (the copy/paste buffer) instead of writing a file. Your executor must support `setrbxclipboard`. Use this only for small saves. ___Default:___ false
+--- @field Callback ((data: string, chunks: {string}) -> ()) | false -- Call this function with the result instead of writing a file. It receives the full text and a list of chunks. If `CopyToClipboard` is also on, the clipboard is used instead. ___Default:___ false
+--- @field IgnoreProperties {string} -- A list of property names to skip on every object. For example: `{"Tags", "AttributesSerialize"}`. ___Default:___ {}
+--- @field IgnoreNotArchivable boolean -- Save objects even when their `Archivable` property is `false`. If this is off, the script skips those objects. ___Default:___ true
+--- @field SaveNotCreatable boolean -- Save classes that Roblox says are not creatable. The script replaces them with a class it can create, using `NotCreatableFixes` (usually `Folder`). This turns on automatically with `IsolatePlayers`, `IsolateLocalPlayer`, and `NilInstances` (when `getnilinstances` exists). ___Default:___ false
+--- @field NotCreatableFixes {string} | {[string]: string | false} -- Replace a class with a class that can be created. The default replacement is `"Folder"`. A list of class names also becomes `Folder`. Built-in changes: [Player], [PlayerGui], [PlayerScripts], [TouchTransmitter], and others become `Folder`; [CloudLocalizationTable] becomes [LocalizationTable]; `Platform` becomes [Part]; `Status` becomes [Model]. Set a class to `false` to skip its replacement. ___Default:___ built-in replacements
+--- @field NilInstancesFixes {[string]: ((instance: Instance, overrides: table) -> Instance?) | false} -- Where to put objects that have no parent. For example, it puts [Animator] under an [AnimationController]. Built-in fixes exist for [Animator], [AdPortal], [Attachment], [BaseWrap], and [PackageLink]. Child classes use the parent fix ([Bone]s use the Attachment fix). Set a class to `false` to turn off its fix. ___Default:___ built-in Animator/AdPortal/Attachment/BaseWrap/PackageLink fixes
+--- @field IgnoreDefaultProperties boolean -- Skip properties that already have the default value for their class. This only affects XML output. Binary output does not use this option. ___Default:___ true
+--- @field IgnorePropertiesOfNotScriptsOnScriptsMode boolean -- Only in `scripts` mode: save properties for [LuaSourceContainer]s and skip properties for all other objects. This does nothing in other modes. ___Default:___ false
+--- @field IgnoreDefaultPlayerScripts boolean -- Skip Roblox's default player scripts (`PlayerModule`, `BubbleChat`, `ChatScript`, `PlayerScriptsLoader`, `RbxCharacterSounds`). This can stop some executors from crashing during decompile. ___Default:___ false
+--- @field SaveCacheInterval number -- How much XML data the script holds in memory while saving. Lower values update the status more often but are slower. This does not write to disk. When `KillAllScripts` is on, this also sets the script timeout between 20 and 30 seconds. ___Default:___ 0x1600 * 10
+--- @field SharedBinaryStrings boolean -- Store the same binary data (meshes, images, ...) only once in the file. This makes saves with repeated data smaller. Files with all unique data can get slightly bigger. This is not an official Roblox format, but Studio can still open the file. ___Default:___ false
+--- @field TreatUnionsAsParts boolean -- Change all [PartOperation]s (unions and intersections) into [Part]s. **RISKY:** you lose the merged shape, but executors that cannot read unions will still show visible parts. ___Default:___ false
+--- @field ShutdownWhenDone boolean -- Close the game after a successful save. ___Default:___ false
+--- @field __DEBUG_MODE boolean | ((...any) -> ()) -- Print debug warnings for unusual cases. If you pass a function, the script uses it instead of `warn`. ___Default:___ false
 
 --- @interface OptionsAliases
---- @within SynSaveInstance
---- Alias → Canonical option mapping for the [SynSaveInstance.CustomOptions] table.
---- Format: { Alias = CanonicalOption }
---- These are resolved before user options are processed and cannot be modified at runtime.
---- @field Clipboard string -- CopyToClipboard
---- @field DecompileScripts string -- Decompile
---- @field FileName string -- FilePath
---- @field IgnoreArchivable string -- IgnoreNotArchivable
---- @field IgnoreDefaultProps string -- IgnoreDefaultProperties
---- @field InstancesBlacklist string -- IgnoreList
---- @field IsolatePlayerGui string -- IsolateLocalPlayer
---- @field SaveCharacters string -- SavePlayerCharacters
---- @field SaveLocalPlayer string -- IsolateLocalPlayer
---- @field SaveNilInstances string -- NilInstances
---- @field SaveNonCreatable string -- SaveNotCreatable
---- @field SavePlayerGui string -- IsolateLocalPlayer
---- @field SavePlayers string -- IsolatePlayers
---- @field ShowProgress string -- ShowStatus
---- @field StatusText string -- ShowStatus
---- @field timeout string -- DecompileTimeout
+--- @within UniversalSynSaveInstance
+--- Map of old option names to new option names for the [UniversalSynSaveInstance.SaveInstanceOptions] table.
+--- Format: `{ OldName = NewName }`
+--- The script reads these before your options, so you cannot change them after the script starts.
+--- @field Clipboard string -- `CopyToClipboard`
+--- @field DecompileScripts string -- `Decompile`
+--- @field FileName string -- `FilePath`
+--- @field IgnoreArchivable string -- `IgnoreNotArchivable`
+--- @field IgnoreDefaultProps string -- `IgnoreDefaultProperties`
+--- @field InstancesBlacklist string -- `IgnoreList`
+--- @field IsolatePlayerGui string -- `IsolateLocalPlayer`
+--- @field SaveCharacters string -- `SavePlayerCharacters`
+--- @field SaveLocalPlayer string -- `IsolateLocalPlayer`
+--- @field SaveNilInstances string -- `NilInstances`
+--- @field SaveNonCreatable string -- `SaveNotCreatable`
+--- @field SavePlayerGui string -- `IsolateLocalPlayer`
+--- @field SavePlayers string -- `IsolatePlayers`
+--- @field ShowProgress string -- `ShowStatus`
+--- @field StatusText string -- `ShowStatus`
+--- @field timeout string -- `DecompileTimeout`
 
 --- @interface OptionsAliasesInverse
---- @within SynSaveInstance
---- Alias → Canonical option mapping with boolean inversion.
---- Format: { Alias = CanonicalOption }
---- These aliases invert the provided boolean value before applying it.
---- Example: noscripts = true → Decompile = false
---- These are resolved before user options are processed and cannot be modified at runtime.
---- @field DisableCompression string -- CompressionMode
---- @field noscripts string -- Decompile
---- @field RemovePlayerCharacters string -- SavePlayerCharacters
---- @field RemovePlayers string -- IsolatePlayers
---- @field XML string -- Binary
+--- @within UniversalSynSaveInstance
+--- Map of old option names that change a true/false value to the opposite.
+--- Format: `{ OldName = NewName }`
+--- The script flips the value before it uses it. `noscripts = true` sets `Decompile = false`.
+--- `DisableCompression = true` sets `CompressionMode = false`.
+--- The script reads these before your options, so you cannot change them after the script starts.
+--- @field DisableCompression string -- `CompressionMode`
+--- @field noscripts string -- `Decompile`
+--- @field RemovePlayerCharacters string -- `SavePlayerCharacters`
+--- @field RemovePlayers string -- `IsolatePlayers`
+--- @field XML string -- `Binary`
 
 --[=[
-	@function saveinstance
-	Saves instances with specified options. Example:
+	@function synsaveinstance
+	Save the current place, one [Instance], or a group of [Instance]s. Example:
 	```lua
 	local Params = {
 		RepoURL = "https://raw.githubusercontent.com/luau/UniversalSynSaveInstance/main/",
@@ -3671,14 +3683,20 @@ end
 
 	local synsaveinstance = loadstring(game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true), Params.SSI)()
 
-	local CustomOptions = { SafeMode = true, DecompileTimeout = 15, SaveBytecode = true }
+	local SaveInstanceOptions = { SafeMode = true, DecompileTimeout = 15, SaveBytecode = true }
 
-	synsaveinstance(CustomOptions)
+	synsaveinstance(SaveInstanceOptions)
 	```
-	@within SynSaveInstance
+
+	You can pass any number of arguments, in any order:
+	```lua
+	synsaveinstance({ mode = "scripts" }, "myScripts.rbxlx")
+	synsaveinstance(workspace.Model) -- Object; saved as a model
+	synsaveinstance({ workspace.Model, workspace.OtherModel }) -- ExtraInstances
+	```
+	@within UniversalSynSaveInstance
 	@yields
-	@param Parameter_1 variant<table, table<Instance>> -- Can either be [SynSaveInstance.CustomOptions table] or a filled with instances ({Instance}), (then it will be treated as ExtraInstances with an invalid mode and IsModel will be true).
-	@param Parameter_2 table -- [OPTIONAL] If present, then Parameter_2 will be assumed to be [SynSaveInstance.CustomOptions table]. And then if the Parameter_1 is an Instance, then it will be assumed to be [SynSaveInstance.CustomOptions table].Object. If Parameter_1 is a table filled with instances ({Instance}), then it will be assumed to be [SynSaveInstance.CustomOptions table].ExtraInstances and IsModel will be true). This exists for sake compatibility with `saveinstance(game, {})`
+	@param ... table | Instance | string -- [UniversalSynSaveInstance.SaveInstanceOptions] tables are combined in order. An [Instance] becomes `Object`. A string becomes `FilePath`. A list of Instances becomes `ExtraInstances` and sets `IsModel = true`. If you pass Instances directly and do not set `mode`, `mode` becomes invalid, so only those Instances are saved.
 ]=]
 
 -- * Accepts any number of arguments, of any type, in any order:
@@ -3824,7 +3842,7 @@ local function synsaveinstance(...)
 			XML = "Binary",
 		},
 	}
-	local OPTIONS_lowercase, OptionsAliasesInverse_lowercase, CustomOptions_valid = {}, {}, {}
+	local OPTIONS_lowercase, OptionsAliasesInverse_lowercase, SaveInstanceOptions_valid = {}, {}, {}
 
 	do
 		local function buildMap(dest, source, warnLabel)
@@ -3938,7 +3956,7 @@ local function synsaveinstance(...)
 							end
 
 							OPTIONS[option] = finalValue
-							CustomOptions_valid[option] = true
+							SaveInstanceOptions_valid[option] = true
 						end
 					end
 				end
@@ -3950,7 +3968,7 @@ local function synsaveinstance(...)
 			end
 		end
 
-		if directInstances and CustomOptions_valid.mode == nil then
+		if directInstances and SaveInstanceOptions_valid.mode == nil then
 			OPTIONS.mode = "invalidmode"
 		end
 	end
@@ -4112,7 +4130,7 @@ local function synsaveinstance(...)
 	local Object = OPTIONS.Object
 	local IsModel = OPTIONS.IsModel
 
-	if Object and CustomOptions_valid.IsModel == nil then
+	if Object and SaveInstanceOptions_valid.IsModel == nil then
 		IsModel = true
 	end
 
@@ -4255,7 +4273,7 @@ local function synsaveinstance(...)
 					"NilInstances",
 				}
 			do
-				if CustomOptions_valid[key] == nil then
+				if SaveInstanceOptions_valid[key] == nil then
 					OPTIONS[key] = false
 				end
 			end
@@ -6210,7 +6228,7 @@ local function synsaveinstance(...)
 		end
 	end
 
-	if OPTIONS.SafeMode and CustomOptions_valid["KillAllScripts"] == nil then
+	if OPTIONS.SafeMode and SaveInstanceOptions_valid["KillAllScripts"] == nil then
 		OPTIONS.KillAllScripts = true
 	end
 
@@ -6264,7 +6282,7 @@ local function synsaveinstance(...)
 		IgnoreList.StarterPlayer = false
 	end
 
-	if not IsolatePlayers and CustomOptions_valid.SaveNotCreatable == nil then
+	if not IsolatePlayers and SaveInstanceOptions_valid.SaveNotCreatable == nil then
 		IgnoreList.Player = true
 	end
 
@@ -6386,7 +6404,7 @@ local function synsaveinstance(...)
 			ensureTextRendered()
 		end)
 
-		if CustomOptions_valid["BoostFPS"] == nil then
+		if SaveInstanceOptions_valid["BoostFPS"] == nil then
 			OPTIONS.BoostFPS = true
 		end
 	end
@@ -6451,7 +6469,7 @@ local function synsaveinstance(...)
 
 	local RiskyOption = OPTIONS.RiskyServicesDisabled
 	RiskyServicesDisabled = type(RiskyOption) == "table" and table.clone(RiskyOption)
-	if not gethiddenproperty and CustomOptions_valid.RiskyServicesDisabled == nil then
+	if not gethiddenproperty and SaveInstanceOptions_valid.RiskyServicesDisabled == nil then
 		RiskyServicesDisabled.UGC = false
 	end
 	gethiddenproperty_fallback = nil
@@ -6591,7 +6609,7 @@ local function synsaveinstance(...)
 				end
 			end
 
-			if not gethiddenproperty and CustomOptions_valid.RiskyServicesDisabled == nil then
+			if not gethiddenproperty and SaveInstanceOptions_valid.RiskyServicesDisabled == nil then
 				RiskyServicesDisabled.UGC = false
 				gethiddenproperty_fallback = function(instance, propertyName)
 					-- * This helps in reading: Vector3int16, OptionalCoordinateFrame DataTypes. It also acts as an almost entire fallback for gethiddenproperty in case it is missing
