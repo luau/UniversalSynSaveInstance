@@ -3604,6 +3604,7 @@ end
 --- @field DecompileTimeout number -- How many seconds one decompile call can take. If it takes longer, the script stops waiting and writes a timeout message in `Source`. Set to -1 to disable the timeout. ___Default:___ 10
 --- @field BytecodeTimeout number -- How many seconds a `getscriptbytecode` call can take. If it takes longer, the script stops waiting and skips the bytecode for that script. Set to -1 to disable the timeout. ___Default:___ 3
 --- @field DecompileIgnore {Instance | string} | {[Instance | string]: boolean | {[string]: boolean}} -- Skip decompiling matched [Instance]s and their children. `Source` becomes a short ignored message. You can pass an [Instance], a class name, or `ClassName = {Name1, Name2}`. Set an [Instance] to `false` to skip only that instance, not its children. ___Default:___ {TextChatService}
+--- @field SourceCache {[Instance]: string} | false -- Source text to use for these scripts as-is instead of decompiling them. ___Default:___ false
 --- @field DecompileJobless boolean -- Only use scripts that are already in the decompile cache. Missing scripts get a short not-found message. This turns on `scriptcache`. ___Default:___ false
 --- @field scriptcache boolean -- If the executor supports `getscriptbytecode`, cache decompiled code. This avoids decompiling the same script twice. The cache stays after the script reloads. ___Default:___ true
 --- @field RecoverScriptsFromAssets boolean -- Recover the original `Source` of scripts that were published as assets. Changes made after publishing are not included. ___Default:___ true
@@ -3644,11 +3645,13 @@ end
 --- The script reads these before your options, so you cannot change them after the script starts.
 --- @field Clipboard string -- `CopyToClipboard`
 --- @field DecompileScripts string -- `Decompile`
+--- @field EmbedBytecode string -- `SaveBytecode`
 --- @field FileName string -- `FilePath`
 --- @field IgnoreArchivable string -- `IgnoreNotArchivable`
 --- @field IgnoreDefaultProps string -- `IgnoreDefaultProperties`
 --- @field InstancesBlacklist string -- `IgnoreList`
 --- @field IsolatePlayerGui string -- `IsolateLocalPlayer`
+--- @field Path string -- `FilePath`
 --- @field SaveCharacters string -- `SavePlayerCharacters`
 --- @field SaveLocalPlayer string -- `IsolateLocalPlayer`
 --- @field SaveNilInstances string -- `NilInstances`
@@ -3668,6 +3671,7 @@ end
 --- The script reads these before your options, so you cannot change them after the script starts.
 --- @field DisableCompression string -- `CompressionMode`
 --- @field noscripts string -- `Decompile`
+--- @field NullifyScripts string -- `Decompile`
 --- @field RemovePlayerCharacters string -- `SavePlayerCharacters`
 --- @field RemovePlayers string -- `IsolatePlayers`
 --- @field XML string -- `Binary`
@@ -3732,6 +3736,7 @@ local function synsaveinstance(...)
 		scriptcache = true,
 		SaveBytecode = false,
 		BytecodeTimeout = 3,
+		SourceCache = false,
 
 		__DEBUG_MODE = false,
 
@@ -3819,11 +3824,13 @@ local function synsaveinstance(...)
 		OptionsAliases = { -- You can't really modify these as a user (because they're read before user's Options are loaded)
 			Clipboard = "CopyToClipboard",
 			DecompileScripts = "Decompile",
+			EmbedBytecode = "SaveBytecode",
 			FileName = "FilePath",
 			IgnoreArchivable = "IgnoreNotArchivable",
 			IgnoreDefaultProps = "IgnoreDefaultProperties",
 			InstancesBlacklist = "IgnoreList",
 			IsolatePlayerGui = "IsolateLocalPlayer",
+			Path = "FilePath",
 			SaveCharacters = "SavePlayerCharacters",
 			SaveLocalPlayer = "IsolateLocalPlayer",
 			SaveNilInstances = "NilInstances",
@@ -3837,6 +3844,7 @@ local function synsaveinstance(...)
 		OptionsAliasesInverse = {
 			DisableCompression = "CompressionMode",
 			noscripts = "Decompile",
+			NullifyScripts = "Decompile",
 			RemovePlayerCharacters = "SavePlayerCharacters",
 			RemovePlayers = "IsolatePlayers",
 			XML = "Binary",
@@ -4584,6 +4592,7 @@ local function synsaveinstance(...)
 	local decompileIgnoreMap = {}
 
 	local DecompileJobless = OPTIONS.DecompileJobless
+	local SourceCache = OPTIONS.SourceCache
 
 	if DecompileJobless then
 		OPTIONS.scriptcache = true
@@ -4746,6 +4755,10 @@ local function synsaveinstance(...)
 	local function sourceFor(instance, ldIgnoring)
 		if ldIgnoring then
 			return "-- Ignored"
+		end
+		local userSource = SourceCache and SourceCache[instance] -- * SourceCache option: user-supplied source wins over decompiling
+		if userSource then
+			return userSource
 		end
 		local value
 		local linkedKey
