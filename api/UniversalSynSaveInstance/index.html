@@ -24,8 +24,8 @@ case-sensitive. Old names from [UniversalSynSaveInstance.OptionsAliases] and
 The most common options are at the top of
 [UniversalSynSaveInstance.SaveInstanceOptions]. Related options are grouped
 together, and advanced or rarely used options are at the bottom."><link data-rh="true" rel="icon" href="/UniversalSynSaveInstance/favicon.png"><link data-rh="true" rel="canonical" href="https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance" hreflang="en"><link data-rh="true" rel="alternate" href="https://luau.github.io/UniversalSynSaveInstance/api/UniversalSynSaveInstance" hreflang="x-default"><link rel="stylesheet" href="/UniversalSynSaveInstance/assets/css/styles.0ed07045.css">
-<script src="/UniversalSynSaveInstance/assets/js/runtime~main.cf5caa13.js" defer="defer"></script>
-<script src="/UniversalSynSaveInstance/assets/js/main.8e66de98.js" defer="defer"></script>
+<script src="/UniversalSynSaveInstance/assets/js/runtime~main.46467db1.js" defer="defer"></script>
+<script src="/UniversalSynSaveInstance/assets/js/main.433307bd.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -46,7 +46,7 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
   <a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#SaveInstanceOptions">UniversalSynSaveInstance.SaveInstanceOptions</a>. Related options are grouped
   together, and advanced or rarely used options are at the bottom.
 </p>
-</div></header><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="types">Types<a href="#types" class="hash-link" aria-label="Direct link to Types" title="Direct link to Types" translate="no">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="SaveInstanceOptions"><code style="text-decoration:none">SaveInstanceOptions</code><a href="#SaveInstanceOptions" class="hash-link" aria-label="Direct link to SaveInstanceOptions" title="Direct link to SaveInstanceOptions" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3639"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>SaveInstanceOptions<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>mode<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+</div></header><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="types">Types<a href="#types" class="hash-link" aria-label="Direct link to Types" title="Direct link to Types" translate="no">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="SaveInstanceOptions"><code style="text-decoration:none">SaveInstanceOptions</code><a href="#SaveInstanceOptions" class="hash-link" aria-label="Direct link to SaveInstanceOptions" title="Direct link to SaveInstanceOptions" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3640"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>SaveInstanceOptions<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>mode<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p>What to save. <code>optimized</code> saves the most important services (Workspace, Players, Lighting, ReplicatedStorage, StarterGui, and others). <code>full</code> saves everything under <code>game</code>. <code>scripts</code> saves only the top-level parts that contain a <a href="https://developer.roblox.com/en-us/api-reference/class/LuaSourceContainer">LuaSourceContainer</a> (a script object). It saves the whole part, not just the script. Any other value saves only <code>ExtraInstances</code> (and <code>Object</code>, if set). If <code>Object</code> is set, <code>optimized</code> becomes <code>full</code>. <em><strong>Default:</strong></em> <code>optimized</code></p>
 </span></span></div><div><code>Binary<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p>Save a binary file (<code>.rbxl</code>/<code>.rbxm</code>) instead of an XML file (<code>.rbxlx</code>/<code>.rbxmx</code>). Binary files are smaller and load faster. If the executor cannot write binary data correctly, the script uses XML. Set the old option <code>XML = true</code> to force XML. <em><strong>Default:</strong></em> true</p>
@@ -80,6 +80,8 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
 <p>How many seconds a <code>getscriptbytecode</code> call can take. If it takes longer, the script stops waiting and skips the bytecode for that script. Set to -1 to disable the timeout. <em><strong>Default:</strong></em> 3</p>
 </span></span></div><div><code>DecompileIgnore<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code><code class="op_lSLc"> | </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">boolean</code><code class="op_lSLc"> | </code><code class="green_DgR4">{</code><span><code>[</code><code class="blue_P4bS">string</code><code>]</code></span><code>: </code><code class="blue_P4bS">boolean</code><code class="green_DgR4">}</code><code class="purple_ieR2">}</code><span class="inlineDescription_G7Er">-- <span>
 <p>Skip decompiling matched <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>s and their children. <code>Source</code> becomes a short ignored message. You can pass an <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>, a class name, or <code>ClassName = {Name1, Name2}</code>. Set an <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a> to <code>false</code> to skip only that instance, not its children. <em><strong>Default:</strong></em> {TextChatService}</p>
+</span></span></div><div><code>SourceCache<!-- -->: </code><code class="purple_ieR2">{</code><span><code>[</code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code>]</code></span><code>: </code><code class="blue_P4bS">string</code><code class="purple_ieR2">}</code><code class="op_lSLc"> | </code><code class="blue_P4bS">false</code><span class="inlineDescription_G7Er">-- <span>
+<p>Source text to use for these scripts as-is instead of decompiling them. <em><strong>Default:</strong></em> false</p>
 </span></span></div><div><code>DecompileJobless<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
 <p>Only use scripts that are already in the decompile cache. Missing scripts get a short not-found message. This turns on <code>scriptcache</code>. <em><strong>Default:</strong></em> false</p>
 </span></span></div><div><code>scriptcache<!-- -->: </code><code class="blue_P4bS">boolean</code><span class="inlineDescription_G7Er">-- <span>
@@ -151,10 +153,12 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
   case-sensitive: <code>NilInstances</code>, <code>nilinstances</code>, and <code>nilInStaNces</code> are the
   same option. Unknown names are ignored.
 </p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="OptionsAliases"><code style="text-decoration:none">OptionsAliases</code><a href="#OptionsAliases" class="hash-link" aria-label="Direct link to OptionsAliases" title="Direct link to OptionsAliases" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3661"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>OptionsAliases<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>Clipboard<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="OptionsAliases"><code style="text-decoration:none">OptionsAliases</code><a href="#OptionsAliases" class="hash-link" aria-label="Direct link to OptionsAliases" title="Direct link to OptionsAliases" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3664"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>OptionsAliases<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>Clipboard<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>CopyToClipboard</code></p>
 </span></span></div><div><code>DecompileScripts<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>Decompile</code></p>
+</span></span></div><div><code>EmbedBytecode<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>SaveBytecode</code></p>
 </span></span></div><div><code>FileName<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>FilePath</code></p>
 </span></span></div><div><code>IgnoreArchivable<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
@@ -165,6 +169,8 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
 <p><code>IgnoreList</code></p>
 </span></span></div><div><code>IsolatePlayerGui<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>IsolateLocalPlayer</code></p>
+</span></span></div><div><code>Path<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>FilePath</code></p>
 </span></span></div><div><code>SaveCharacters<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>SavePlayerCharacters</code></p>
 </span></span></div><div><code>SaveLocalPlayer<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
@@ -189,9 +195,11 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
   Format: <code>{ OldName = NewName }</code>
   The script reads these before your options, so you cannot change them after the script starts.
 </p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="OptionsAliasesInverse"><code style="text-decoration:none">OptionsAliasesInverse</code><a href="#OptionsAliasesInverse" class="hash-link" aria-label="Direct link to OptionsAliasesInverse" title="Direct link to OptionsAliasesInverse" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3674"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>OptionsAliasesInverse<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>DisableCompression<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="OptionsAliasesInverse"><code style="text-decoration:none">OptionsAliasesInverse</code><a href="#OptionsAliasesInverse" class="hash-link" aria-label="Direct link to OptionsAliasesInverse" title="Direct link to OptionsAliasesInverse" translate="no">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3678"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code class="purple_ieR2">interface</code> <code>OptionsAliasesInverse<!-- --> <!-- -->{</code><div class="inset_uKQm"><div><code>DisableCompression<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>CompressionMode</code></p>
 </span></span></div><div><code>noscripts<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+<p><code>Decompile</code></p>
+</span></span></div><div><code>NullifyScripts<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>Decompile</code></p>
 </span></span></div><div><code>RemovePlayerCharacters<!-- -->: </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><code>SavePlayerCharacters</code></p>
@@ -207,7 +215,7 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
   <code>DisableCompression = true</code> sets <code>CompressionMode = false</code>.
   The script reads these before your options, so you cannot change them after the script starts.
 </p>
-</div><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="functions">Functions<a href="#functions" class="hash-link" aria-label="Direct link to Functions" title="Direct link to Functions" translate="no">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="synsaveinstance"><code style="text-decoration:none">synsaveinstance</code><a href="#synsaveinstance" class="hash-link" aria-label="Direct link to synsaveinstance" title="Direct link to synsaveinstance" translate="no">​</a></h3><span class="badge_Ba2I" style="color:#f1c40f"><span class="badgeTooltip_cWXP">This is a yielding function. When called, it will pause the Lua thread that called the function until a result is ready to be returned, without interrupting other scripts.</span><span class="badgeToolTipTail_H9D_"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#f1c40f" role="img" aria-label="This is a yielding function. When called, it will pause the Lua thread that called the function until a result is ready to be returned, without interrupting other scripts."><path d="M96.4 11.9c-1.4-2.5-4-4-6.9-4H10.8c-2.9 0-5.4 1.5-6.9 4-1.4 2.5-1.4 5.5 0 7.9L43.3 88c1.4 2.5 4 4 6.9 4 2.9 0 5.4-1.5 6.9-4l39.3-68.2c1.4-2.4 1.4-5.4 0-7.9zM46.3 54.5c1.1-1.1 2.3-1.6 3.8-1.6s2.8.5 3.8 1.6c1.1 1.1 1.6 2.3 1.6 3.8s-.5 2.8-1.6 3.8c-1.1 1.1-2.3 1.6-3.8 1.6s-2.8-.5-3.8-1.6c-1.1-1.1-1.6-2.3-1.6-3.8.1-1.5.6-2.8 1.6-3.8zm-.5-4.9V21.8h8.8v27.8h-8.8z"></path></svg> <!-- -->Yields</span></span><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3701"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>UniversalSynSaveInstance<!-- -->.</code><code class="green_DgR4">synsaveinstance</code><code>(</code><div class="inset_uKQm"><div><code>...<!-- -->: </code><code class="blue_P4bS">table</code><code class="op_lSLc"> | </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
+</div><h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="functions">Functions<a href="#functions" class="hash-link" aria-label="Direct link to Functions" title="Direct link to Functions" translate="no">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="synsaveinstance"><code style="text-decoration:none">synsaveinstance</code><a href="#synsaveinstance" class="hash-link" aria-label="Direct link to synsaveinstance" title="Direct link to synsaveinstance" translate="no">​</a></h3><span class="badge_Ba2I" style="color:#f1c40f"><span class="badgeTooltip_cWXP">This is a yielding function. When called, it will pause the Lua thread that called the function until a result is ready to be returned, without interrupting other scripts.</span><span class="badgeToolTipTail_H9D_"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#f1c40f" role="img" aria-label="This is a yielding function. When called, it will pause the Lua thread that called the function until a result is ready to be returned, without interrupting other scripts."><path d="M96.4 11.9c-1.4-2.5-4-4-6.9-4H10.8c-2.9 0-5.4 1.5-6.9 4-1.4 2.5-1.4 5.5 0 7.9L43.3 88c1.4 2.5 4 4 6.9 4 2.9 0 5.4-1.5 6.9-4l39.3-68.2c1.4-2.4 1.4-5.4 0-7.9zM46.3 54.5c1.1-1.1 2.3-1.6 3.8-1.6s2.8.5 3.8 1.6c1.1 1.1 1.6 2.3 1.6 3.8s-.5 2.8-1.6 3.8c-1.1 1.1-2.3 1.6-3.8 1.6s-2.8-.5-3.8-1.6c-1.1-1.1-1.6-2.3-1.6-3.8.1-1.5.6-2.8 1.6-3.8zm-.5-4.9V21.8h8.8v27.8h-8.8z"></path></svg> <!-- -->Yields</span></span><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/luau/UniversalSynSaveInstance/blob/master/saveinstance.luau#L3705"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>UniversalSynSaveInstance<!-- -->.</code><code class="green_DgR4">synsaveinstance</code><code>(</code><div class="inset_uKQm"><div><code>...<!-- -->: </code><code class="blue_P4bS">table</code><code class="op_lSLc"> | </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="https://developer.roblox.com/en-us/api-reference/datatype/Instance" target="_blank" rel="noopener noreferrer">Instance<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound" style="color:gray;vertical-align:middle;margin-left:2px"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></code><code class="op_lSLc"> | </code><code class="blue_P4bS">string</code><span class="inlineDescription_G7Er">-- <span>
 <p><a href="/UniversalSynSaveInstance/api/UniversalSynSaveInstance#SaveInstanceOptions">UniversalSynSaveInstance.SaveInstanceOptions</a> tables are combined in order. An <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a> becomes <code>Object</code>. A string becomes <code>FilePath</code>. A list of Instances becomes <code>ExtraInstances</code> and sets <code>IsModel = true</code>. If you pass Instances directly and do not set <code>mode</code>, <code>mode</code> becomes invalid, so only those Instances are saved.</p>
 </span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Save the current place, one <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>, or a group of <a href="https://developer.roblox.com/en-us/api-reference/datatype/Instance">Instance</a>s. Example:</p>
@@ -243,7 +251,7 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;yields&quot;: true,
             &quot;source&quot;: {
-                &quot;line&quot;: 3701,
+                &quot;line&quot;: 3705,
                 &quot;path&quot;: &quot;saveinstance.luau&quot;
             }
         }
@@ -338,6 +346,11 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
                     &quot;name&quot;: &quot;DecompileIgnore&quot;,
                     &quot;lua_type&quot;: &quot;{Instance | string} | {[Instance | string]: boolean | {[string]: boolean}}&quot;,
                     &quot;desc&quot;: &quot;Skip decompiling matched [Instance]s and their children. `Source` becomes a short ignored message. You can pass an [Instance], a class name, or `ClassName = {Name1, Name2}`. Set an [Instance] to `false` to skip only that instance, not its children. ___Default:___ {TextChatService}&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;SourceCache&quot;,
+                    &quot;lua_type&quot;: &quot;{[Instance]: string} | false&quot;,
+                    &quot;desc&quot;: &quot;Source text to use for these scripts as-is instead of decompiling them. ___Default:___ false&quot;
                 },
                 {
                     &quot;name&quot;: &quot;DecompileJobless&quot;,
@@ -501,7 +514,7 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
                 }
             ],
             &quot;source&quot;: {
-                &quot;line&quot;: 3639,
+                &quot;line&quot;: 3640,
                 &quot;path&quot;: &quot;saveinstance.luau&quot;
             }
         },
@@ -518,6 +531,11 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
                     &quot;name&quot;: &quot;DecompileScripts&quot;,
                     &quot;lua_type&quot;: &quot;string&quot;,
                     &quot;desc&quot;: &quot;`Decompile`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;EmbedBytecode&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`SaveBytecode`&quot;
                 },
                 {
                     &quot;name&quot;: &quot;FileName&quot;,
@@ -543,6 +561,11 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
                     &quot;name&quot;: &quot;IsolatePlayerGui&quot;,
                     &quot;lua_type&quot;: &quot;string&quot;,
                     &quot;desc&quot;: &quot;`IsolateLocalPlayer`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;Path&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`FilePath`&quot;
                 },
                 {
                     &quot;name&quot;: &quot;SaveCharacters&quot;,
@@ -591,7 +614,7 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
                 }
             ],
             &quot;source&quot;: {
-                &quot;line&quot;: 3661,
+                &quot;line&quot;: 3664,
                 &quot;path&quot;: &quot;saveinstance.luau&quot;
             }
         },
@@ -606,6 +629,11 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
                 },
                 {
                     &quot;name&quot;: &quot;noscripts&quot;,
+                    &quot;lua_type&quot;: &quot;string&quot;,
+                    &quot;desc&quot;: &quot;`Decompile`&quot;
+                },
+                {
+                    &quot;name&quot;: &quot;NullifyScripts&quot;,
                     &quot;lua_type&quot;: &quot;string&quot;,
                     &quot;desc&quot;: &quot;`Decompile`&quot;
                 },
@@ -626,7 +654,7 @@ together, and advanced or rarely used options are at the bottom."><link data-rh=
                 }
             ],
             &quot;source&quot;: {
-                &quot;line&quot;: 3674,
+                &quot;line&quot;: 3678,
                 &quot;path&quot;: &quot;saveinstance.luau&quot;
             }
         }
