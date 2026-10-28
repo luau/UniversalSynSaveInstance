@@ -5933,6 +5933,8 @@ local function synsaveinstance(...)
 			local helpText = [[
 		ServerStorage, ServerScriptService and Server Scripts are IMPOSSIBLE to save because of FilteringEnabled.
 
+		Images, meshes, textures, sounds etc. failed to load or look invisible? Those assets are private. Try https://github.com/kartFr/Asset-Reuploader or similar.
+
 		Player doesn't spawn? Move or delete the scripts in StarterPlayer, then run game:GetService("Players").CharacterAutoLoads = true
 		Use "Play Here" instead of "Play" to spawn where your Camera is.
 
