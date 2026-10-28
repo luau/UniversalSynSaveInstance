@@ -2855,7 +2855,7 @@ do
 			end,
 			InitialSize = "MeshSize",
 		},
-		Part = { shape = "Shape", shap = "Shape" },
+		Part = { shape = "Shape" },
 		TrussPart = { style = "Style" },
 		FormFactorPart = {
 			formFactorRaw = "FormFactor",
