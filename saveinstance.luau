@@ -3602,6 +3602,7 @@ end
 --- @field Decompile boolean -- Turn the compiled script back into source code (decompile). This replaces the `Source` of each [LuaSourceContainer] with decompiled code. If this is off, `Source` says decompiling is disabled. ___Default:___ true
 --- @field SaveBytecode boolean -- If the executor supports `getscriptbytecode`, add the compiled script data (bytecode) to `Source` as a comment. You can decompile it later. This respects `DecompileIgnore`. ___Default:___ false
 --- @field DecompileTimeout number -- How many seconds one decompile call can take. If it takes longer, the script stops waiting and writes a timeout message in `Source`. Set to -1 to disable the timeout. ___Default:___ 10
+--- @field DecompileConcurrency number -- How many scripts to decompile at once. Above 1, every script the save will contain is decompiled before the file is written, this many at a time. Use it with decompilers that can run several jobs at once (for example, a hosted decompiler over the network). `DecompileTimeout` applies to each call. ___Default:___ 1
 --- @field BytecodeTimeout number -- How many seconds a `getscriptbytecode` call can take. If it takes longer, the script stops waiting and skips the bytecode for that script. Set to -1 to disable the timeout. ___Default:___ 3
 --- @field DecompileIgnore {Instance | string} | {[Instance | string]: boolean | {[string]: boolean}} -- Skip decompiling matched [Instance]s and their children. `Source` becomes a short ignored message. You can pass an [Instance], a class name, or `ClassName = {Name1, Name2}`. Set an [Instance] to `false` to skip only that instance, not its children. ___Default:___ {TextChatService}
 --- @field SourceCache {[Instance]: string} | false -- Source text to use for these scripts as-is instead of decompiling them. ___Default:___ false
@@ -3730,6 +3731,7 @@ local function synsaveinstance(...)
 		CompressionLevel = 9,
 		Decompile = true,
 		DecompileTimeout = 10,
+		DecompileConcurrency = 1,
 		DecompileJobless = false,
 		RecoverScriptsFromAssets = true,
 		-- decomptype = "",
@@ -4538,11 +4540,15 @@ local function synsaveinstance(...)
 
 		local worker
 		local pendingJob
+		local stopped
 
 		local function spawnWorker()
 			return task.spawn(function()
 				while true do
 					while not pendingJob do
+						if stopped then
+							return
+						end
 						task.wait()
 					end
 
@@ -4586,6 +4592,8 @@ local function synsaveinstance(...)
 			pendingJob = job
 
 			return coroutine.yield()
+		end, function() -- Lets the worker exit once idle; the handler must not be called again
+			stopped = true
 		end
 	end
 
@@ -4621,67 +4629,101 @@ local function synsaveinstance(...)
 		end
 	end
 
+	local newDecompileLane -- * Each lane gets its own timeout handlers: a handler runs one call at a time
 	if not OPTIONS.Decompile then
 		ldecompile = function()
 			return "-- Decompiling is disabled"
 		end
 	elseif decompile then
-		local decomp = makeTimeoutHandler(OPTIONS.DecompileTimeout, decompile, "Decompiler timed out")
+		local function makeDecompiler(decomp, getbytecode, showStatus)
+			return function(script)
+				-- local name = scr.ClassName .. scr.Name
+				local bytecode
+				if ScriptCache then
+					local s
+					s, bytecode = getbytecode(script)
+					local cached
 
-		ldecompile = function(script)
-			-- local name = scr.ClassName .. scr.Name
-			local bytecode
-			if ScriptCache then
-				local s
-				s, bytecode = getbytecode(script)
-				local cached
-
-				if s then
-					if not bytecode or bytecode == "" then
-						return "-- The Script is Empty"
+					if s then
+						if not bytecode or bytecode == "" then
+							return "-- The Script is Empty"
+						end
+						cached = ldeccache[bytecode]
+					else
+						bytecode = nil
 					end
-					cached = ldeccache[bytecode]
+
+					if cached then
+						if __DEBUG_MODE then
+							__DEBUG_MODE("Found in Cache", script:GetFullName())
+						end
+						return cached
+					elseif DecompileJobless then
+						return "-- Not found in already decompiled ScriptCache"
+					end
 				else
-					bytecode = nil
-				end
-
-				if cached then
-					if __DEBUG_MODE then
-						__DEBUG_MODE("Found in Cache", script:GetFullName())
+					if DecompileJobless then
+						return "-- Not found in already decompiled ScriptCache"
 					end
-					return cached
-				elseif DecompileJobless then
-					return "-- Not found in already decompiled ScriptCache"
-				end
-			else
-				if DecompileJobless then
-					return "-- Not found in already decompiled ScriptCache"
+
+					-- task.wait() -- TODO Maybe remove?
 				end
 
-				-- task.wait() -- TODO Maybe remove?
-			end
-
-			local ok, result = run_with_loading("Decompiling " .. script.Name, true, nil, decomp, script)
-			if not result then
-				ok, result = false, "Empty Output"
-			end
-
-			local output
-			if ok then
-				result = string.gsub(result, "\0", "\\0") -- ? Some decompilers sadly output \0 which prevents files from opening
-				output = result
-			else
-				output = "--[[ Failed to decompile. Reason:\n" .. (result or "") .. "\n]]"
-			end
-
-			if ScriptCache and bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
-				ldeccache[bytecode] = output -- ? Should we cache even if it timed out?
-				if __DEBUG_MODE then
-					__DEBUG_MODE("Cached", script:GetFullName())
+				local ok, result
+				if showStatus then
+					ok, result = run_with_loading("Decompiling " .. script.Name, true, nil, decomp, script)
+				else
+					ok, result = decomp(script) -- ? Lanes run at once; prefetchSources shows the status instead
 				end
-			end
+				if not result then
+					ok, result = false, "Empty Output"
+				end
 
-			return output
+				local output
+				if ok then
+					result = string.gsub(result, "\0", "\\0") -- ? Some decompilers sadly output \0 which prevents files from opening
+					output = result
+				else
+					output = "--[[ Failed to decompile. Reason:\n" .. (result or "") .. "\n]]"
+				end
+
+				if ScriptCache and bytecode then -- TODO there might(?) be an edgecase where it manages to decompile (built-in) even though getscriptbytecode failed, and the output won't get cached
+					ldeccache[bytecode] = output -- ? Should we cache even if it timed out?
+					if __DEBUG_MODE then
+						__DEBUG_MODE("Cached", script:GetFullName())
+					end
+				end
+
+				return output
+			end
+		end
+
+		ldecompile = makeDecompiler(
+			makeTimeoutHandler(OPTIONS.DecompileTimeout, decompile, "Decompiler timed out"),
+			getbytecode,
+			true
+		)
+
+		if not DecompileJobless then
+			newDecompileLane = function()
+				local decomp, stopDecomp =
+					makeTimeoutHandler(OPTIONS.DecompileTimeout, decompile, "Decompiler timed out")
+				local laneBytecode, stopBytecode
+				if getscriptbytecode then
+					laneBytecode, stopBytecode = makeTimeoutHandler(OPTIONS.BytecodeTimeout, getscriptbytecode)
+				end
+
+				local function stopLane()
+					if stopDecomp then
+						stopDecomp()
+					end
+					if stopBytecode then
+						stopBytecode()
+					end
+				end
+
+				return makeDecompiler(decomp, laneBytecode), stopLane
+			end
 		end
 	else
 		ldecompile = function()
@@ -4752,6 +4794,15 @@ local function synsaveinstance(...)
 			return source, assetId
 		end
 	end
+
+	local function isServerScript(instance)
+		local isLocalScript = instance:IsA("LocalScript")
+		return isLocalScript and instance.RunContext == Enum.RunContext.Server
+			or not isLocalScript and instance:IsA("Script") and instance.RunContext ~= Enum.RunContext.Client
+	end
+
+	local prefetchedSources = {} -- [script] = decompiled output, filled by prefetchSources
+
 	local function sourceFor(instance, ldIgnoring)
 		if ldIgnoring then
 			return "-- Ignored"
@@ -4797,11 +4848,7 @@ local function synsaveinstance(...)
 			table.insert(RecoveredScripts, instance:GetFullName())
 		end
 
-		local isLocalScript = instance:IsA("LocalScript")
-		if
-			isLocalScript and instance.RunContext == Enum.RunContext.Server
-			or not isLocalScript and instance:IsA("Script") and instance.RunContext ~= Enum.RunContext.Client
-		then
+		if isServerScript(instance) then
 			if recoveredSource then
 				value = recoveredSource
 				recoveredSource = nil -- Emitted as the executable source instead of a comment block
@@ -4809,7 +4856,7 @@ local function synsaveinstance(...)
 				value = "-- [FilteringEnabled] Server Scripts are IMPOSSIBLE to save" -- TODO: Could be not just server scripts in the future
 			end
 		else
-			value = ldecompile(instance)
+			value = prefetchedSources[instance] or ldecompile(instance)
 			if SaveBytecode then
 				local output = SaveBytecode(instance)
 				if output then
@@ -5113,6 +5160,76 @@ local function synsaveinstance(...)
 		end
 		inheritedProperties[className] = prop_list
 		return prop_list
+	end
+
+	-- Mirrors when readProperty reaches sourceFor and sourceFor calls ldecompile
+	local function willDecompile(instance, entry)
+		if entry.propsOnly or typeof(instance) ~= "Instance" or decompileIgnoreMap[instance] then
+			return false
+		end
+		if IgnoreProperties.Source or not isLuaSourceContainer(instance) or isServerScript(instance) then
+			return false
+		end
+
+		local override = InstancesOverrides[instance]
+		local propertiesOverride = override and override.Properties
+		if propertiesOverride and propertiesOverride.Source ~= nil then
+			return false
+		end
+
+		for _, prop in GetInheritedProps(entry.propClass) do
+			if prop.Name == "Source" and prop.ValueType == "ProtectedString" then
+				return true
+			end
+		end
+		return false
+	end
+
+	-- Decompiles every script the save will write before writing starts, DecompileConcurrency at a time
+	local function prefetchSources(ctx)
+		local lanes = math.floor(tonumber(OPTIONS.DecompileConcurrency) or 1)
+		if lanes <= 1 or not newDecompileLane then
+			return
+		end
+
+		local entries = ctx.entries
+		local queue = {}
+		for _, instance in ctx.ordered do
+			if willDecompile(instance, entries[instance]) then
+				queue[#queue + 1] = instance
+			end
+		end
+
+		local total = #queue
+		if total == 0 then
+			return
+		end
+
+		local nextIndex, finished, running = 1, 0, math.min(lanes, total)
+		for _ = 1, running do
+			local laneDecompile, stopLane = newDecompileLane()
+			task.spawn(function()
+				while nextIndex <= total do
+					local instance = queue[nextIndex]
+					nextIndex += 1
+
+					local ok, output = pcall(laneDecompile, instance)
+					if ok then
+						prefetchedSources[instance] = output -- ? On error sourceFor decompiles it again, one at a time
+					end
+					finished += 1
+				end
+				stopLane()
+				running -= 1
+			end)
+		end
+
+		run_with_loading("Decompiling 0/" .. total, true, nil, function()
+			while running > 0 do
+				LoadingText = "Decompiling " .. finished .. "/" .. total
+				task.wait()
+			end
+		end)
 	end
 
 	-- Three class names per instance, all distinct in purpose:
@@ -6134,6 +6251,8 @@ local function synsaveinstance(...)
 			end
 		end
 		ctx.mainRoots = mainRoots
+
+		prefetchSources(ctx)
 
 		local chunks = OPTIONS.Binary and emitBinary(ctx) or emitXML(ctx)
 
