@@ -5428,7 +5428,8 @@ local function synsaveinstance(...)
 			end)
 
 			if isService then
-				buffer.fill(instBuf.buf, instBuf:allocRegion(n), 1, n)
+				local o = instBuf:allocRegion(n)
+				buffer.fill(instBuf.buf, o, 1, n)
 			end
 
 			emit(buildChunk("INST", instBuf, compress))
