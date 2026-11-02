@@ -1568,11 +1568,10 @@ XML_Encoders = {
 			.. _normalizeRange(color3.B)
 			.. " 0 "
 	end,
-	Content = function(raw) -- TODO Not sure about Object & Opaque, run tests when possible
+	Content = function(raw) -- Object/Opaque have no Luau constructor; binary writes them as None, so match that here
 		-- * Currently the only way to tell which properties serialize (CanSave & CanLoad don't help here) is either API-2 dump or ReflectionService
-		local SourceType = raw.SourceType
-		return SourceType == Enum.ContentSourceType.None and "<null></null>"
-			or SourceType == Enum.ContentSourceType.Uri and "<uri>" .. XML_Encoders.string(raw.Uri) .. "</uri>"
+		return raw.SourceType == Enum.ContentSourceType.Uri and "<uri>" .. XML_Encoders.string(raw.Uri) .. "</uri>"
+			or "<null></null>"
 	end,
 	ContentId = function(raw) -- ! only add raw == nil if such edge-case exists (note it)
 		return raw == "" and "<null></null>" or "<url>" .. XML_Encoders.string(raw) .. "</url>", "Content"
