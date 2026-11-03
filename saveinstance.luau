@@ -3642,23 +3642,53 @@ end
 --- Map of old option names to new option names for the [UniversalSynSaveInstance.SaveInstanceOptions] table.
 --- Format: `{ OldName = NewName }`
 --- The script reads these before your options, so you cannot change them after the script starts.
+--- @field AnonymousMode string -- `Anonymous`
+--- @field Blacklist string -- `IgnoreList`
+--- @field ClassIgnoreList string -- `IgnoreList`
 --- @field Clipboard string -- `CopyToClipboard`
+--- @field Compress string -- `CompressionMode`
+--- @field Compression string -- `CompressionMode`
+--- @field Debug string -- `__DEBUG_MODE`
 --- @field DecompileScripts string -- `Decompile`
+--- @field Decompiler string -- `Decompile`
+--- @field DecompilerTimeout string -- `DecompileTimeout`
 --- @field EmbedBytecode string -- `SaveBytecode`
 --- @field FileName string -- `FilePath`
 --- @field IgnoreArchivable string -- `IgnoreNotArchivable`
+--- @field IgnoreClasses string -- `IgnoreList`
 --- @field IgnoreDefaultProps string -- `IgnoreDefaultProperties`
+--- @field IgnoreInstances string -- `IgnoreList`
+--- @field IgnoreProperty string -- `IgnoreProperties`
+--- @field IgnoreRobloxPlayerScripts string -- `IgnoreDefaultPlayerScripts`
+--- @field InstanceIgnoreList string -- `IgnoreList`
 --- @field InstancesBlacklist string -- `IgnoreList`
 --- @field IsolatePlayerGui string -- `IsolateLocalPlayer`
+--- @field LocalPlayer string -- `IsolateLocalPlayer`
+--- @field Model string -- `Object`
+--- @field NoXML string -- `Binary`
 --- @field Path string -- `FilePath`
+--- @field Players string -- `IsolatePlayers`
+--- @field Progress string -- `ShowStatus`
+--- @field RemoveLocalPlayer string -- `IsolateLocalPlayer`
+--- @field Root string -- `Object`
+--- @field SaveAsBinary string -- `Binary`
 --- @field SaveCharacters string -- `SavePlayerCharacters`
 --- @field SaveLocalPlayer string -- `IsolateLocalPlayer`
+--- @field SaveModel string -- `Object`
+--- @field SaveNil string -- `NilInstances`
 --- @field SaveNilInstances string -- `NilInstances`
 --- @field SaveNonCreatable string -- `SaveNotCreatable`
 --- @field SavePlayerGui string -- `IsolateLocalPlayer`
 --- @field SavePlayers string -- `IsolatePlayers`
+--- @field SavePlayersData string -- `IsolatePlayers`
+--- @field SaveScripts string -- `Decompile`
+--- @field SaveStarterPlayer string -- `IsolateStarterPlayer`
+--- @field ScriptDecompile string -- `Decompile`
 --- @field ShowProgress string -- `ShowStatus`
+--- @field Status string -- `ShowStatus`
 --- @field StatusText string -- `ShowStatus`
+--- @field UseDecompiler string -- `Decompile`
+--- @field Verbose string -- `__DEBUG_MODE`
 --- @field timeout string -- `DecompileTimeout`
 
 --- @interface OptionsAliasesInverse
@@ -3666,13 +3696,16 @@ end
 --- Map of old option names that change a true/false value to the opposite.
 --- Format: `{ OldName = NewName }`
 --- The script flips the value before it uses it. `noscripts = true` sets `Decompile = false`.
---- `DisableCompression = true` sets `CompressionMode = false`.
+--- `DisableCompression = true` sets `CompressionMode = false`. `Overwrite = true` sets `AvoidFileOverwrite = false`.
 --- The script reads these before your options, so you cannot change them after the script starts.
 --- @field DisableCompression string -- `CompressionMode`
+--- @field NoDecompile string -- `Decompile`
 --- @field noscripts string -- `Decompile`
 --- @field NullifyScripts string -- `Decompile`
+--- @field Overwrite string -- `AvoidFileOverwrite`
 --- @field RemovePlayerCharacters string -- `SavePlayerCharacters`
 --- @field RemovePlayers string -- `IsolatePlayers`
+--- @field SkipScripts string -- `Decompile`
 --- @field XML string -- `Binary`
 
 --[=[
@@ -3821,31 +3854,64 @@ local function synsaveinstance(...)
 		AlternativeWritefile = true,
 
 		OptionsAliases = { -- You can't really modify these as a user (because they're read before user's Options are loaded)
+			AnonymousMode = "Anonymous",
+			Blacklist = "IgnoreList",
+			ClassIgnoreList = "IgnoreList",
 			Clipboard = "CopyToClipboard",
+			Compress = "CompressionMode",
+			Compression = "CompressionMode",
+			Debug = "__DEBUG_MODE",
 			DecompileScripts = "Decompile",
+			Decompiler = "Decompile",
+			DecompilerTimeout = "DecompileTimeout",
 			EmbedBytecode = "SaveBytecode",
 			FileName = "FilePath",
 			IgnoreArchivable = "IgnoreNotArchivable",
+			IgnoreClasses = "IgnoreList",
 			IgnoreDefaultProps = "IgnoreDefaultProperties",
+			IgnoreInstances = "IgnoreList",
+			IgnoreProperty = "IgnoreProperties",
+			IgnoreRobloxPlayerScripts = "IgnoreDefaultPlayerScripts",
+			InstanceIgnoreList = "IgnoreList",
 			InstancesBlacklist = "IgnoreList",
 			IsolatePlayerGui = "IsolateLocalPlayer",
+			LocalPlayer = "IsolateLocalPlayer",
+			Model = "Object",
+			NoXML = "Binary",
 			Path = "FilePath",
+			Players = "IsolatePlayers",
+			Progress = "ShowStatus",
+			RemoveLocalPlayer = "IsolateLocalPlayer",
+			Root = "Object",
+			SaveAsBinary = "Binary",
 			SaveCharacters = "SavePlayerCharacters",
 			SaveLocalPlayer = "IsolateLocalPlayer",
+			SaveModel = "Object",
+			SaveNil = "NilInstances",
 			SaveNilInstances = "NilInstances",
 			SaveNonCreatable = "SaveNotCreatable",
 			SavePlayerGui = "IsolateLocalPlayer",
 			SavePlayers = "IsolatePlayers",
+			SavePlayersData = "IsolatePlayers",
+			SaveScripts = "Decompile",
+			SaveStarterPlayer = "IsolateStarterPlayer",
+			ScriptDecompile = "Decompile",
 			ShowProgress = "ShowStatus",
+			Status = "ShowStatus",
 			StatusText = "ShowStatus",
+			UseDecompiler = "Decompile",
+			Verbose = "__DEBUG_MODE",
 			timeout = "DecompileTimeout",
 		},
 		OptionsAliasesInverse = {
 			DisableCompression = "CompressionMode",
+			NoDecompile = "Decompile",
 			noscripts = "Decompile",
 			NullifyScripts = "Decompile",
+			Overwrite = "AvoidFileOverwrite",
 			RemovePlayerCharacters = "SavePlayerCharacters",
 			RemovePlayers = "IsolatePlayers",
+			SkipScripts = "Decompile",
 			XML = "Binary",
 		},
 	}
