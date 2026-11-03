@@ -2638,7 +2638,6 @@ do
 			Color3uint8 = "Color",
 			MaterialVariantSerialized = "MaterialVariant",
 			size = "Size",
-			siz = "Size",
 		},
 		DoubleConstrainedValue = { value = "Value" },
 		IntConstrainedValue = { value = "Value" },
