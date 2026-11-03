@@ -3731,11 +3731,12 @@ end
 	```
 	@within UniversalSynSaveInstance
 	@yields
-	@param ... table | Instance | string -- [UniversalSynSaveInstance.SaveInstanceOptions] tables are combined in order. An [Instance] becomes `Object`. A string becomes `FilePath`. A list of Instances becomes `ExtraInstances` and sets `IsModel = true`. If you pass Instances directly and do not set `mode`, `mode` becomes invalid, so only those Instances are saved.
+	@param ... table | SaveInstanceOptions | Instance | string -- [UniversalSynSaveInstance.SaveInstanceOptions] tables are combined in order. An executor's native `SaveInstanceOptions` object is read the same way as a table, but not every property may be supported, because the property set varies per executor. An [Instance] becomes `Object`. A string becomes `FilePath`; an empty string counts as not set. A list of Instances becomes `ExtraInstances` and sets `IsModel = true`. If you pass Instances directly and do not set `mode`, `mode` becomes invalid, so only those Instances are saved.
 ]=]
 
 -- * Accepts any number of arguments, of any type, in any order:
 -- *   table    -> options (an array of Instances is treated as ExtraInstances)
+-- *   SaveInstanceOptions -> options (supported properties are probed; executor sets vary)
 -- *   string   -> FilePath option
 -- *   Instance -> Object option
 local function synsaveinstance(...)
@@ -3993,6 +3994,40 @@ local function synsaveinstance(...)
 
 		local args = table.pack(...)
 		local directInstances = false
+		local function setOption(key, value)
+			local k = string.lower(key)
+			local option = OPTIONS_lowercase[k]
+			local invert = false
+
+			if not option then
+				option = OptionsAliasesInverse_lowercase[k]
+				invert = option ~= nil
+			end
+
+			if option then
+				local finalValue
+				if invert then
+					finalValue = not value
+				else
+					finalValue = value
+				end
+
+				OPTIONS[option] = finalValue
+				SaveInstanceOptions_valid[option] = true
+				return true
+			end
+			return false
+		end
+
+		local function loadOptionsTable(options)
+			for key, value in options do
+				if type(key) ~= "string" then
+					warn("Option names must be strings", key)
+					continue
+				end
+				setOption(key, value)
+			end
+		end
 
 		for i = 1, args.n do
 			local arg = args[i]
@@ -4004,40 +4039,39 @@ local function synsaveinstance(...)
 					OPTIONS.IsModel = true
 					directInstances = true
 				else
-					for key, value in arg do
-						if type(key) ~= "string" then
-							warn("Option names must be strings", key)
-							continue
-						end
-						local k = string.lower(key)
-
-						local option = OPTIONS_lowercase[k]
-						local invert = false
-
-						if not option then
-							option = OptionsAliasesInverse_lowercase[k]
-							invert = option ~= nil
-						end
-
-						if option then
-							local finalValue
-							if invert then
-								finalValue = not value
-							else
-								finalValue = value
-							end
-
-							OPTIONS[option] = finalValue
-							SaveInstanceOptions_valid[option] = true
-						end
+					loadOptionsTable(arg)
+				end
+			elseif Type == "SaveInstanceOptions" then -- * Not enumerable and its property set varies per executor, so probe every known name
+				local loaded = {}
+				local function probe(key)
+					local ok, value = pcall(index, arg, key)
+					if ok then
+						loaded[key] = value
 					end
 				end
+
+				for key in OPTIONS do
+					if key ~= "OptionsAliases" and key ~= "OptionsAliasesInverse" then
+						probe(key)
+					end
+				end
+				for key in OPTIONS.OptionsAliases do
+					probe(key)
+				end
+				for key in OPTIONS.OptionsAliasesInverse do
+					probe(key)
+				end
+				loadOptionsTable(loaded)
 			elseif Type == "Instance" then
 				OPTIONS.Object = arg
 				directInstances = true
 			elseif Type == "string" then
 				OPTIONS.FilePath = arg
 			end
+		end
+
+		if OPTIONS.FilePath == "" then
+			OPTIONS.FilePath = false
 		end
 
 		if directInstances and SaveInstanceOptions_valid.mode == nil then
