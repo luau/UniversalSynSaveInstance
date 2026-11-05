@@ -2697,7 +2697,7 @@ do
 						-- Reset slots are saved as a magenta Sand placeholder
 						table.insert(slots, {
 							slotIndex = slotIndex,
-							baseMaterial = 1296, -- Enum.Material.Sand
+							baseMaterial = Enum.Material.Sand.Value,
 							materialVariant = "__RBX_InvalidMaterialVariant__",
 							color = Color3.fromRGB(255, 0, 254),
 						})
