@@ -2673,68 +2673,76 @@ do
 
 		Terrain = {
 			AcquisitionMethod = "LastUsedModificationMethod", -- ? Not sure, RobloxScriptSecurity
-			-- Material = function(instance) -- EnableMaterialSlotTable FFlag, uncomment once GetMaterialSlot is enabled
-			-- 	local slots = {}
-			-- 	for slotIndex = 2, 1e9 do -- limit is 64?
-			-- 		local ok, baseMaterial, materialVariant, color =
-			-- 			pcall(instance.GetMaterialSlot, instance, slotIndex)
+			Materials = function(instance)
+				local slots = {}
+				-- custom slots start at 2 (0/1 are Air and Water); the engine errors past its last slot
+				-- ("slotIndex is out of range"), so stop there instead of hardcoding the limit. The cap
+				-- is the u32 slotIndex field of the blob.
+				for slotIndex = 2, 0xFFFFFFFF do
+					local ok, baseMaterial, materialVariant, color =
+						pcall(instance.GetMaterialSlot, instance, slotIndex)
 
-			-- 		if ok then
-			-- 			if baseMaterial then
-			-- 				table.insert(
-			-- 					slots,
-			-- 					{
-			-- 						slotIndex = slotIndex,
-			-- 						baseMaterial = baseMaterial,
-			-- 						materialVariant = materialVariant,
-			-- 						color = color,
-			-- 					}
-			-- 				)
-			-- 			end
-			-- 		else
-			-- 			break
-			-- 		end
-			-- 	end
+					if not ok then
+						break
+					end
 
-			-- 	local size = 8 -- header
+					if baseMaterial then
+						table.insert(slots, {
+							slotIndex = slotIndex,
+							baseMaterial = baseMaterial.Value,
+							materialVariant = materialVariant,
+							color = color,
+						})
+					elseif instance:IsMaterialSlotInvalid(slotIndex) then
+						-- Reset slots are saved as a magenta Sand placeholder
+						table.insert(slots, {
+							slotIndex = slotIndex,
+							baseMaterial = 1296, -- Enum.Material.Sand
+							materialVariant = "__RBX_InvalidMaterialVariant__",
+							color = Color3.fromRGB(255, 0, 254),
+						})
+					end
+				end
 
-			-- 	for _, slot in slots do
-			-- 		size += 15 + #slot.materialVariant
-			-- 	end
+				local size = 8 -- header
 
-			-- 	local b = buffer.create(size)
-			-- 	local offset = 0
+				for _, slot in slots do
+					size += 15 + #slot.materialVariant
+				end
 
-			-- 	-- header
-			-- 	buffer.writeu32(b, offset, 1) -- version
-			-- 	offset += 4
+				local b = buffer.create(size)
+				local offset = 0
 
-			-- 	buffer.writeu32(b, offset, #slots)
-			-- 	offset += 4
+				-- header
+				buffer.writeu32(b, offset, 1) -- version
+				offset += 4
 
-			-- 	for _, slot in slots do
-			-- 		buffer.writeu32(b, offset, slot.slotIndex)
-			-- 		offset += 4
+				buffer.writeu32(b, offset, #slots)
+				offset += 4
 
-			-- 		buffer.writeu8(b, offset, (slot.color.R * 255))
-			-- 		offset += 1
-			-- 		buffer.writeu8(b, offset, (slot.color.G * 255))
-			-- 		offset += 1
-			-- 		buffer.writeu8(b, offset, (slot.color.B * 255))
-			-- 		offset += 1
+				for _, slot in slots do
+					buffer.writeu32(b, offset, slot.slotIndex)
+					offset += 4
 
-			-- 		buffer.writeu32(b, offset, slot.baseMaterial.Value)
-			-- 		offset += 4
+					buffer.writeu8(b, offset, (slot.color.R * 255))
+					offset += 1
+					buffer.writeu8(b, offset, (slot.color.G * 255))
+					offset += 1
+					buffer.writeu8(b, offset, (slot.color.B * 255))
+					offset += 1
 
-			-- 		buffer.writeu32(b, offset, #slot.materialVariant)
-			-- 		offset += 4
+					buffer.writeu32(b, offset, slot.baseMaterial)
+					offset += 4
 
-			-- 		buffer.writestring(b, offset, slot.materialVariant)
-			-- 		offset += #slot.materialVariant
-			-- 	end
+					buffer.writeu32(b, offset, #slot.materialVariant)
+					offset += 4
 
-			-- 	return buffer.tostring(b)
-			-- end,
+					buffer.writestring(b, offset, slot.materialVariant)
+					offset += #slot.materialVariant
+				end
+
+				return buffer.tostring(b)
+			end,
 			MaterialColors = function(instance)
 				-- TODO Use code below once GetFirstCustomMaterialSlotIndex & GetMaterialSlot are enabled
 				--[[
