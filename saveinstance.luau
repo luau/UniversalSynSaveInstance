@@ -2057,6 +2057,47 @@ do
 		end
 	end
 
+	local function serializeFloatKeys(keys)
+		if #keys == 0 then
+			return "\2\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0"
+		end
+
+		local valuesPayloadSize = #keys * 14
+		local b = buffer.create(8 + valuesPayloadSize + 8 + (#keys * 4))
+
+		buffer.writeu32(b, 0, 2)
+		buffer.writeu32(b, 4, #keys)
+
+		local offset = 8
+		for i, key in keys do
+			local lt, rt = key.LeftTangent, key.RightTangent
+			local mode = countBits(lt, rt)
+
+			if mode == 0 then
+				lt, rt = deriveTangentFloatCurve(keys, i)
+			elseif mode == 1 then
+				rt = lt
+			elseif mode == 2 then
+				lt = rt
+			end
+
+			buffer.writeu8(b, offset, key.Interpolation.Value) -- ! assumes this is tied to Enum order
+			offset += 1
+			buffer.writeu8(b, offset, mode)
+			offset += 1
+			buffer.writef32(b, offset, key.Value)
+			offset += 4
+			buffer.writef32(b, offset, lt)
+			offset += 4
+			buffer.writef32(b, offset, rt)
+			offset += 4
+		end
+
+		offset = writeTimesSection(b, offset, keys)
+
+		return buffer.tostring(b)
+	end
+
 	local function encodeGuid(uid)
 		local cleanGuid = string.gsub(uid, "[{}-]", "")
 		local bytes = buffer.create(16)
@@ -2263,47 +2304,13 @@ do
 		},
 		FloatCurve = {
 			ValuesAndTimes = function(instance)
-				-- HapticEffect.WaveformData also has identical format but there's no GetKeys method, only Set
-				local keys = instance:GetKeys()
-
-				if #keys == 0 then
-					return "\2\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0"
-				end
-
-				local valuesPayloadSize = #keys * 14
-				local b = buffer.create(8 + valuesPayloadSize + 8 + (#keys * 4))
-
-				buffer.writeu32(b, 0, 2)
-				buffer.writeu32(b, 4, #keys)
-
-				local offset = 8
-				for i, key in keys do
-					local lt, rt = key.LeftTangent, key.RightTangent
-					local mode = countBits(lt, rt)
-
-					if mode == 0 then
-						lt, rt = deriveTangentFloatCurve(keys, i)
-					elseif mode == 1 then
-						rt = lt
-					elseif mode == 2 then
-						lt = rt
-					end
-
-					buffer.writeu8(b, offset, key.Interpolation.Value) -- ! assumes this is tied to Enum order
-					offset += 1
-					buffer.writeu8(b, offset, mode)
-					offset += 1
-					buffer.writef32(b, offset, key.Value)
-					offset += 4
-					buffer.writef32(b, offset, lt)
-					offset += 4
-					buffer.writef32(b, offset, rt)
-					offset += 4
-				end
-
-				offset = writeTimesSection(b, offset, keys)
-
-				return buffer.tostring(b)
+				return serializeFloatKeys(instance:GetKeys())
+			end,
+		},
+		HapticEffect = {
+			-- Same format as FloatCurve.ValuesAndTimes
+			WaveformData = function(instance)
+				return serializeFloatKeys(instance:GetWaveformKeys())
 			end,
 		},
 		RotationCurve = {
