@@ -3668,7 +3668,6 @@ end
 --- @field Path string -- `FilePath`
 --- @field Players string -- `IsolatePlayers`
 --- @field Progress string -- `ShowStatus`
---- @field RemoveLocalPlayer string -- `IsolateLocalPlayer`
 --- @field Root string -- `Object`
 --- @field SaveAsBinary string -- `Binary`
 --- @field SaveCharacters string -- `SavePlayerCharacters`
@@ -3881,7 +3880,6 @@ local function synsaveinstance(...)
 			Path = "FilePath",
 			Players = "IsolatePlayers",
 			Progress = "ShowStatus",
-			RemoveLocalPlayer = "IsolateLocalPlayer",
 			Root = "Object",
 			SaveAsBinary = "Binary",
 			SaveCharacters = "SavePlayerCharacters",
