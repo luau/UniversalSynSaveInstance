@@ -246,7 +246,7 @@ local Attribute_Type_Ids =
 		SecurityCapabilities = 0x22,
 		Path2DControlPoint = 0x23,
 		TweenInfo = 0x24,
-		-- InstanceHandle = 0x25,
+		InstanceHandle = 0x25,
 	}
 
 local CFrame_Rotation_Ids = {
@@ -683,6 +683,11 @@ local function writeCFrameBody(sbuf, vals, n, optional)
 	end
 end
 
+local attributeRefOfHandle
+local attributeRefsInline = false
+
+local buildAttributeBlob
+
 local Attribute_Encoders
 Attribute_Encoders = {
 	_packMultiple = function(encoder, value1, value2, value3)
@@ -798,7 +803,8 @@ Attribute_Encoders = {
 			local value = raw[i]
 			local b, size
 
-			if value == nil then
+			-- Nested InstanceHandles require Roblox's unavailable ExpandedSerializer.
+			if value == nil or typeof(value) == "InstanceHandle" then
 				-- Hole marker: single byte, preserves array position.
 				b = buffer.create(1)
 				buffer.writeu8(b, 0, 0x01)
@@ -812,10 +818,18 @@ Attribute_Encoders = {
 				end
 				local dataBuf, dataSize = descriptor(value)
 
-				b = buffer.create(1 + dataSize)
-				buffer.writeu8(b, 0, typeId)
-				buffer.copy(b, 1, dataBuf)
-				size = 1 + dataSize
+				if not dataBuf then
+					-- Declined (an instance reference with no referent): keep the
+					-- slot so the remaining indices still line up.
+					b = buffer.create(1)
+					buffer.writeu8(b, 0, 0x01)
+					size = 1
+				else
+					b = buffer.create(1 + dataSize)
+					buffer.writeu8(b, 0, typeId)
+					buffer.copy(b, 1, dataBuf)
+					size = 1 + dataSize
+				end
 			end
 
 			count += 1
@@ -856,6 +870,10 @@ Attribute_Encoders = {
 		for i = 1, n do
 			local keyStr = keys[i]
 			local value = raw[keyMap[keyStr]]
+			-- Nested InstanceHandles require Roblox's unavailable ExpandedSerializer.
+			if typeof(value) == "InstanceHandle" then
+				continue
+			end
 
 			local valueTypeName = resolveTypeName(value)
 			local typeId = Attribute_Type_Ids[valueTypeName]
@@ -864,6 +882,10 @@ Attribute_Encoders = {
 				continue
 			end
 			local dataBuf, dataSize = descriptor(value)
+
+			if not dataBuf then
+				continue
+			end
 
 			local keyLen = #keyStr
 			local size = 4 + keyLen + 1 + dataSize
@@ -1102,6 +1124,22 @@ Attribute_Encoders = {
 		buffer.writeu8(b, 20, raw.Reverses and 1 or 0)
 
 		return b, 21
+	end,
+	["InstanceHandle"] = function(raw)
+		if not attributeRefsInline then
+			return nil -- XML keeps it out of the blob, in a sibling <Ref>
+		end
+
+		local ref = attributeRefOfHandle(raw)
+		if not ref then
+			return nil
+		end
+
+		local b = buffer.create(4)
+
+		buffer.writeu32(b, 0, ref)
+
+		return b, 4
 	end,
 }
 
@@ -1818,12 +1856,15 @@ do
 				continue
 			end
 
+			local data, attr_size = encoder(val)
+			if not data then
+				continue
+			end
+
 			count += 1
 			sorted[count] = attr
 
-			local attr_size
-
-			formatted[attr], attr_size = encoder(val)
+			formatted[attr] = data
 
 			buffer_size += 5 + #attr + attr_size
 		end
@@ -1862,6 +1903,8 @@ do
 
 		return buffer.tostring(b)
 	end
+
+	buildAttributeBlob = AttributesSerialize
 
 	local function AttenuationSerialize(attenuations)
 		if not next(attenuations) then
@@ -5167,6 +5210,25 @@ local function synsaveinstance(...)
 				end
 			end
 
+			-- Engine blob drops InstanceHandles, so rebuild it with our referents (binary only).
+			-- Handle-only sets still read back as a 4-byte header, so only "" means no attributes.
+			if
+				property.Name == "AttributesSerialize"
+				and attributeRefsInline
+				and raw ~= __BREAK
+				and type(raw) == "string"
+				and #raw > 0
+			then
+				local attrs = instance:GetAttributes()
+
+				for _, value in attrs do
+					if typeof(value) == "InstanceHandle" then
+						raw = buildAttributeBlob(attrs)
+						break
+					end
+				end
+			end
+
 			if raw ~= __BREAK then
 				return anonymize(raw, ValueType)
 			end
@@ -5242,6 +5304,12 @@ local function synsaveinstance(...)
 
 		local entries, classList = ctx.entries, ctx.classList
 		local ordered, refs = ctx.ordered, ctx.refs
+
+		attributeRefsInline = OPTIONS.Binary
+
+		attributeRefOfHandle = function(handle)
+			return refs[handle:Get()]
+		end
 
 		local function recur(instance, parent, ldIgnore)
 			if entries[instance] then
@@ -5842,15 +5910,20 @@ local function synsaveinstance(...)
 							end
 						end
 
-						-- if PropertyName == "AttributesSerialize" and raw ~= "" then -- TODO unreleased yet
-						-- 	for name, v in instance:GetAttributes() do
-						-- 		if typeof(v) == "InstanceHandle" then
-						-- 			savebuffer[savebuffer_size] =
-						-- 				ReturnProperty("Ref", "__attrRef_" .. name, refs[v] ~= nil and refs[v] or "null")
-						-- 			savebuffer_size += 1
-						-- 		end
-						-- 	end
-						-- end
+						-- XML keeps instance references out of the blob: the engine writes
+						-- one sibling <Ref> per instance attribute, named __attrRef_<name>.
+						if PropertyName == "AttributesSerialize" and raw ~= "" then
+							for name, value in instance:GetAttributes() do
+								if typeof(value) == "InstanceHandle" then
+									local ref = attributeRefOfHandle(value)
+
+									if ref ~= nil then
+										savebuffer[savebuffer_size] = ReturnProperty("Ref", "__attrRef_" .. name, ref)
+										savebuffer_size += 1
+									end
+								end
+							end
+						end
 
 						if SharedBinaryStrings and ValueType == "BinaryString" then
 							ValueType = "SharedString"
@@ -6248,6 +6321,8 @@ local function synsaveinstance(...)
 		ctx.mainRoots = mainRoots
 
 		local chunks = OPTIONS.Binary and emitBinary(ctx) or emitXML(ctx)
+
+		attributeRefOfHandle = nil
 
 		if OPTIONS.ReadMe then
 			stampElapsed(chunks, os.clock() - elapse_t)
