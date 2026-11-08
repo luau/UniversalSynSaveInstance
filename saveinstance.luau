@@ -1157,6 +1157,14 @@ do -- Vectors
 	Attribute_Encoders._packI16 = Attribute_Encoders._makeVectorPacker(buffer.writei16, 2)
 end
 
+setmetatable(Attribute_Encoders, {
+	__index = function(_, typeName)
+		rawset(Attribute_Encoders, typeName, false)
+		warn("UNSUPPORTED ATTRIBUTE TYPE (OPEN A GITHUB ISSUE): ", typeName)
+		return false
+	end,
+})
+
 local Binary_Encoders = {
 	["string"] = function(sbuf, vals, n)
 		local total = 4 * n
