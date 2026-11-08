@@ -3680,6 +3680,7 @@ end
 --- @field NilInstances boolean -- Include objects that have no parent (they are not under `game`). This needs the executor function `getnilinstances`. When that function exists, it also turns on `SaveNotCreatable`. ___Default:___ false
 --- @field ExtraInstances {Instance} -- A list of [Instance]s to add to the normal save. If `mode` is not a valid value, only these Instances (and `Object`, if set) are saved. Passing a list of Instances as an argument fills this list. ___Default:___ {}
 --- @field IgnoreList {Instance | string} | {[Instance | string]: boolean | {[string]: boolean}} -- Objects to skip. Use an [Instance] or a class name as a key to skip that object and its children. `ClassName = false` keeps the object but skips its children. `ClassName = {Name1, Name2}` skips objects with those names. You can also pass a list of Instances or class names. ___Default:___ {CoreGui, CorePackages, Packages = false}
+--- @field MaxDepth number -- Objects nested deeper than this are moved up under their ancestor at depth `MaxDepth`, so nothing is dropped, only the nesting is lost. This stops very deep hierarchies from overflowing the stack when Roblox Studio opens the file (binary saves opened at 1740 levels deep; XML saves crashed at 1750). Use `math.huge` to disable. ___Default:___ 1000
 --- @field IgnoreSpecialProperties boolean -- Do not use the executor function `gethiddenproperty`. Other property reads still work. This can help if your executor crashes or the file is corrupted. ___Default:___ false
 --- @field AlternativeWritefile boolean -- Write the file in smaller pieces with `appendfile` instead of one `writefile` call. For binary saves, if `appendfile` fails, it uses `writefile`; if both fail, it switches to XML. ___Default:___ true
 --- @field Anonymous boolean | {Name: string?, UserId: number?} -- **RISKY:** Replace LocalPlayer.Name and UserId in the output. `true` replaces them with `"Roblox"` and `1`. You can also pass a table with `Name` and/or `UserId`. Name matching ignores case. This can also change other text or numbers that match. ___Default:___ false
@@ -3850,6 +3851,7 @@ local function synsaveinstance(...)
 		IgnoreProperties = {},
 
 		IgnoreList = { "CoreGui", "CorePackages", Packages = false },
+		MaxDepth = 1000,
 
 		ExtraInstances = {},
 		NilInstances = false,
@@ -4306,6 +4308,7 @@ local function synsaveinstance(...)
 
 	local IgnoreDefaultProperties = OPTIONS.IgnoreDefaultProperties
 	local IgnoreNotArchivable = not OPTIONS.IgnoreNotArchivable
+	local MaxDepth = tonumber(OPTIONS.MaxDepth) or math.huge
 	local IgnorePropertiesOfNotScriptsOnScriptsMode = OPTIONS.IgnorePropertiesOfNotScriptsOnScriptsMode
 
 	local SaveNotCreatable = OPTIONS.SaveNotCreatable
@@ -4313,10 +4316,11 @@ local function synsaveinstance(...)
 
 	local SharedBinaryStrings = OPTIONS.SharedBinaryStrings
 
-	local ToSaveList, ldecompile, placename, elapse_t, SaveNotCreatableWillBeEnabled, RecoveredScripts
+	local ToSaveList, ldecompile, placename, elapse_t, SaveNotCreatableWillBeEnabled, RecoveredScripts, FlattenedInfo
 
 	if OPTIONS.ReadMe then
 		RecoveredScripts = {}
+		FlattenedInfo = {}
 	end
 
 	if Object == game then
@@ -4561,21 +4565,21 @@ local function synsaveinstance(...)
 		elseif mode == "scripts" then
 			-- TODO: Only save paths that lead to scripts (nothing else)
 			-- Currently saves paths along with children of each tree
-			local unique = {}
-			for _, instance in TempRoot:GetDescendants() do
-				if isLuaSourceContainer(instance) then
-					local Parent = instance.Parent
-					while Parent and Parent ~= TempRoot do
-						instance = instance.Parent
-						Parent = instance.Parent
+			for _, top in TempRoot:GetChildren() do
+				local stack, size = { top }, 1
+				while 0 < size do
+					local instance = stack[size]
+					stack[size] = nil
+					size -= 1
+					if isLuaSourceContainer(instance) then
+						table.insert(tmp, top)
+						break
 					end
-					if Parent then
-						unique[instance] = true
+					for _, child in instance:GetChildren() do
+						size += 1
+						stack[size] = child
 					end
 				end
-			end
-			for instance in unique do
-				table.insert(tmp, instance)
 			end
 		end
 
@@ -5319,7 +5323,9 @@ local function synsaveinstance(...)
 			return refs[handle:Get()]
 		end
 
-		local function recur(instance, parent, ldIgnore)
+		local deferred = {}
+
+		local function recur(instance, parent, ldIgnore, depth, anchor)
 			if entries[instance] then
 				return -- already collected via another root
 			end
@@ -5435,9 +5441,14 @@ local function synsaveinstance(...)
 
 				kids = table.create(#children)
 				for _, child in children do
-					recur(child, instance, ldIgnore == true and true or nil)
-					if entries[child] then
-						kids[#kids + 1] = child
+					local childIgnore = ldIgnore == true and true or nil
+					if depth >= MaxDepth then
+						deferred[#deferred + 1] = { child, anchor or instance, childIgnore }
+					else
+						recur(child, instance, childIgnore, depth + 1)
+						if entries[child] then
+							kids[#kids + 1] = child
+						end
 					end
 				end
 			end
@@ -5445,9 +5456,27 @@ local function synsaveinstance(...)
 			ordered[#ordered + 1] = instance
 		end
 
+		local function drainDeferred()
+			local i = 1
+			while i <= #deferred do
+				local child, target, ignore = table.unpack(deferred[i])
+				recur(child, target, ignore, MaxDepth + 1, target)
+				if entries[child] then
+					local kids = entries[target].children
+					kids[#kids + 1] = child
+					if FlattenedInfo and child.Parent ~= target then
+						FlattenedInfo[target] = true
+					end
+				end
+				i += 1
+			end
+			table.clear(deferred)
+		end
+
 		local roots_kept = table.create(#roots)
 		for _, root in roots do
-			recur(root)
+			recur(root, nil, nil, 1)
+			drainDeferred()
 			if entries[root] then
 				roots_kept[#roots_kept + 1] = root
 			end
@@ -6196,6 +6225,23 @@ local function synsaveinstance(...)
 						.. "\n\n"
 				end
 
+				local flattenedNote = ""
+				if next(FlattenedInfo) then
+					local seen, paths = {}, {}
+					for anchor in FlattenedInfo do
+						local top = anchor
+						while top.Parent and top.Parent.Name == anchor.Name do
+							top = top.Parent
+						end
+						local path = top:GetFullName()
+						if not seen[path] then
+							seen[path] = true
+							paths[#paths + 1] = path
+						end
+					end
+					flattenedNote = `\t\tNOTE: instances nested deeper than {MaxDepth} levels were moved up under their depth-{MaxDepth} ancestor (nothing deleted): {table.concat(paths, ", ")}\n\n`
+				end
+
 				local failedTypes, crashTypes = {}, {}
 				for datatype, state in GHP do
 					if state == "crashed" then
@@ -6246,6 +6292,7 @@ local function synsaveinstance(...)
 					"--[[\n",
 					"\t\tThank you for using UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw\n\n",
 					recoveredNote,
+					flattenedNote,
 					ghpFailureHeader,
 					writerFailureHeader,
 					binaryNote,
