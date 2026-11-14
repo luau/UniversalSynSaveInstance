@@ -1,10 +1,22 @@
+local USE_CLIPBOARD = false -- results always print; true: also copy them to the clipboard
+
 -- local gethiddenproperty = function(instance, property)
 -- 	return game:GetService("UGCValidationService"):GetPropertyValue(instance, property)
 -- end
--- s = ""
--- local function print(...)
--- 	s ..= table.concat({ ... })
--- end
+local lines = {}
+local rawprint = print
+local print = print
+if USE_CLIPBOARD then
+	assert(setclipboard, "Executor is missing setclipboard, set USE_CLIPBOARD to false")
+	print = function(...)
+		rawprint(...)
+		local parts = table.pack(...)
+		for i = 1, parts.n do
+			parts[i] = tostring(parts[i])
+		end
+		table.insert(lines, table.concat(parts, " ", 1, parts.n))
+	end
+end
 assert(gethiddenproperty, "Executor is missing gethiddenproperty, aborting test")
 local identify_executor = identifyexecutor or getexecutorname or whatexecutor
 local EXECUTOR_NAME = identify_executor and identify_executor() or "Missing identifyexecutor Function"
@@ -107,4 +119,7 @@ print("✅ Tested with a " .. rate .. "% success rate (" .. outOf .. ")")
 print("⛔ " .. FailedTests .. " tests failed")
 print("🟠 " .. NilResults .. " types resulted in a nil value")
 print("⏺️ " .. NotTested .. " types were not tested")
--- setclipboard(s)
+
+if USE_CLIPBOARD then
+	setclipboard(table.concat(lines, "\n"))
+end
